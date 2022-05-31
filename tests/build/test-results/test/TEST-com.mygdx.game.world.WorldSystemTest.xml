@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.mygdx.game.world.WorldSystemTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2022-05-30T22:57:47" hostname="Johns-MBP.lan" time="0.02">
+<testsuite name="com.mygdx.game.world.WorldSystemTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2022-05-31T02:54:47" hostname="Johns-MBP.lan" time="0.033">
   <properties/>
-  <testcase name="throwsOnAddAttempt" classname="com.mygdx.game.world.WorldSystemTest" time="0.02"/>
-  <system-out><![CDATA[]]></system-out>
+  <testcase name="contactHandling" classname="com.mygdx.game.world.WorldSystemTest" time="0.018"/>
+  <testcase name="frictionScalar" classname="com.mygdx.game.world.WorldSystemTest" time="0.001"/>
+  <testcase name="testImpulseAndVelocityAndGravity" classname="com.mygdx.game.world.WorldSystemTest" time="0.0"/>
+  <testcase name="testAcceptsEntity" classname="com.mygdx.game.world.WorldSystemTest" time="0.0"/>
+  <testcase name="testImpulseAndVelocity" classname="com.mygdx.game.world.WorldSystemTest" time="0.001"/>
+  <testcase name="collisionHandling" classname="com.mygdx.game.world.WorldSystemTest" time="0.0"/>
+  <testcase name="throwsOnAddAttempt" classname="com.mygdx.game.world.WorldSystemTest" time="0.013"/>
+  <system-out><![CDATA[---------------------------------------------------------
+]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

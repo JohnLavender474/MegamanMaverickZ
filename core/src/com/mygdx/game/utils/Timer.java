@@ -1,14 +1,13 @@
 package com.mygdx.game.utils;
 
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@Getter
-@Setter
+/**
+ * Timer that ticks up from 0 to {@link #duration}. Can be injected with {@link Marker} instances.
+ */
 @NoArgsConstructor
 public class Timer implements Updatable, Resettable {
 
@@ -17,44 +16,120 @@ public class Timer implements Updatable, Resettable {
     private boolean justFinished = false;
     private final Map<String, Marker> markers = new HashMap<>();
 
+    /**
+     * Instantiates a new Timer.
+     *
+     * @param duration the duration
+     */
     public Timer(float duration) {
         setDuration(duration);
     }
 
+    /**
+     * Sets duration.
+     *
+     * @param duration the duration
+     */
+    public void setDuration(float duration) {
+        this.duration = duration;
+    }
+
+    /**
+     * Add marker.
+     *
+     * @param key  the key
+     * @param time the time
+     */
+    public void addMarker(String key, float time) {
+        markers.put(key, new Marker(time));
+    }
+
+    /**
+     * Remove marker.
+     *
+     * @param key the key
+     */
+    public void removeMarker(String key) {
+        markers.remove(key);
+    }
+
+    /**
+     * Returns if the {@link Marker} mapped to the key has been surpassed.
+     *
+     * @param key the key
+     * @return true if the Marker has been surpassed
+     */
     public boolean isMarkerSurpassed(String key) {
         Marker marker = markers.get(key);
         return marker != null && marker.isSurpassed;
     }
 
+    /**
+     * Returns if the {@link Marker} mapped to the key has been surpassed and was not previously surpassed.
+     *
+     * @param key the key
+     * @return true if the Market has just been surpassed
+     */
     public boolean isMarkerJustSurpassed(String key) {
         Marker marker = markers.get(key);
         return marker != null && marker.isSurpassed && !marker.wasSurpassed;
     }
 
+    /**
+     * Gets ratio between duration (max time) and current time.
+     *
+     * @return the ratio
+     */
     public float getRatio() {
         return duration > 0f ? Math.min(time / duration, 1f) : 0f;
     }
 
+    /**
+     * Gets the result of 1 - {@link #getRatio()}.
+     *
+     * @return the reverse ratio
+     */
     public float getReverseRatio() {
         return duration > 0f ? Math.max(0f, 1f - (time / duration)) : 0f;
     }
 
+    /**
+     * Jump to beginning (sets time to zero).
+     */
     public void jumpToBeginning() {
-        setTime(0f);
+        time = 0f;
     }
 
+    /**
+     * Jump to end (sets {@link #time} to {@link #duration}).
+     */
     public void jumpToEnd() {
-        setTime(duration);
+        time = duration;
     }
 
+    /**
+     * Returns if {@link #time} is equal to zero.
+     *
+     * @return true if time = 0
+     */
     public boolean isAtBeginning() {
         return time == 0f;
     }
 
+    /**
+     * Returns if {@link #time} is greater than or equal to {@link #duration}.
+     *
+     * @return true if time >= duration
+     */
     public boolean isFinished() {
         return time >= duration;
     }
 
+    /**
+     * Returns if {@link #time} is greater than or equal to {@link #duration} and was not previously.
+     *
+     * @return true is time just became greater than or equal to duration
+     */
     public boolean isJustFinished() {
         return justFinished;
     }
@@ -72,16 +147,16 @@ public class Timer implements Updatable, Resettable {
 
     @Override
     public void reset() {
-        setTime(0f);
+        time = 0f;
     }
 
-    public static class Marker {
+    private static class Marker {
 
-        public float time;
-        public boolean isSurpassed = false;
-        public boolean wasSurpassed = false;
+        private final float time;
+        private boolean isSurpassed = false;
+        private boolean wasSurpassed = false;
 
-        public Marker(Float time) {
+        private Marker(Float time) {
             this.time = time;
         }
 

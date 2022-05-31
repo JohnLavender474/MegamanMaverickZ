@@ -53,14 +53,14 @@ public abstract class System implements Updatable {
      *
      * @param delta the delta time
      */
-    protected abstract void preProcess(float delta);
+    protected void preProcess(float delta) {}
 
     /**
      * Called once after {@link #entities} is filtered through {@link #processEntity(Entity, float)}.
      *
      * @param delta the delta time
      */
-    protected abstract void postProcess(float delta);
+    protected void postProcess(float delta) {}
 
     @Override
     public void update(float delta) {

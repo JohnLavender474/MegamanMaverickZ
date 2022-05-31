@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.mygdx.game.utils.Pair;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 /**
  * Defines the case in which {@link Intersector#intersectRectangles(Rectangle, Rectangle, Rectangle)}, provided with
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
  * fixtures in the same order as the supplied FixtureType arguments. Otherwise, the mask pair remains null.
  */
 @Getter
+@ToString
 @RequiredArgsConstructor
 public class Contact {
 
@@ -40,23 +42,11 @@ public class Contact {
         return mask != null;
     }
 
-    /**
-     * Returns if {@link Fixture#getFixtureType()} of {@link #fixture1} equals the supplied {@link FixtureType}.
-     *
-     * @param fixtureType the fixture type
-     * @return if the fixture type of fixture 1 matches the supplied argument
-     */
-    public boolean acceptFixture1Mask(FixtureType fixtureType) {
+    private boolean acceptFixture1Mask(FixtureType fixtureType) {
         return fixture1.getFixtureType().equals(fixtureType);
     }
 
-    /**
-     * Returns if {@link Fixture#getFixtureType()} of {@link #fixture2} equals the supplied {@link FixtureType}.
-     *
-     * @param fixtureType the fixture type
-     * @return if the fixture type of fixture 2 matches the supplied argument
-     */
-    public boolean acceptFixture2Mask(FixtureType fixtureType) {
+    private boolean acceptFixture2Mask(FixtureType fixtureType) {
         return fixture2.getFixtureType().equals(fixtureType);
     }
 

@@ -1,5 +1,6 @@
 package com.mygdx.game.utils;
 
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
@@ -9,6 +10,15 @@ import com.badlogic.gdx.math.Vector2;
 public class UtilMethods {
 
     /**
+     * Returns String of long dotted line.
+     *
+     * @return long dotted line.
+     */
+    public static String longDottedLine() {
+        return "---------------------------------------------------------";
+    }
+
+    /**
      * Fetches {@link Class#getSimpleName()} of the provided Object.
      *
      * @param o the Object
@@ -16,6 +26,55 @@ public class UtilMethods {
      */
     public static String objName(Object o) {
         return o.getClass().getSimpleName();
+    }
+
+    /**
+     * Returns the interpolations of the x and y values of the two {@link Vector2} instances.
+     * See {@link #interpolate(float, float, float)}.
+     *
+     * @param start the starting coordinates
+     * @param target the target coordinates
+     * @param delta the delta time
+     * @return the interpolation
+     */
+    public static Vector2 interpolate(Vector2 start, Vector2 target, float delta) {
+        Vector2 interPos = new Vector2();
+        interPos.x = interpolate(start.x, target.x, delta);
+        interPos.y = interpolate(start.y, target.y, delta);
+        return interPos;
+    }
+
+    /**
+     * Returns the interpolated value from start to target.
+     *
+     * @param start the starting value
+     * @param target the target value
+     * @param delta the delta time
+     * @return the interpolation
+     */
+    public static float interpolate(float start, float target, float delta) {
+        return start - (start - target) * delta;
+    }
+
+    /**
+     * Returns the direction in which the first {@link Rectangle} should be pushed in order to resolve it overlapping
+     * the second Rectangle. If there is no overlap, then return null.
+     *
+     * @param toBePushed the Rectangle to be pushed
+     * @param other the other Rectangle
+     * @param overlap the overlap of the two Rectangles
+     * @return null if there is no overlap, otherwise the direction in which the first Rectangle should be pushed
+     */
+    public static Direction getOverlapPushDirection(Rectangle toBePushed, Rectangle other, Rectangle overlap) {
+        Intersector.intersectRectangles(toBePushed, other, overlap);
+        if (overlap.width == 0 && overlap.height == 0) {
+            return null;
+        }
+        if (overlap.width > overlap.height) {
+            return toBePushed.y > other.y ? Direction.UP : Direction.DOWN;
+        } else {
+            return toBePushed.x > other.x ? Direction.RIGHT : Direction.LEFT;
+        }
     }
 
     /**
