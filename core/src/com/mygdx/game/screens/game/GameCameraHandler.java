@@ -1,8 +1,10 @@
-package com.mygdx.game.utils;
+package com.mygdx.game.screens.game;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.mygdx.game.utils.*;
+import com.mygdx.game.utils.TimeTicker;
 
 import java.util.*;
 
@@ -11,9 +13,9 @@ import java.util.*;
  */
 public class GameCameraHandler implements Updatable {
 
+    private final TimeTicker transitionTimeTicker = new TimeTicker();
     private final Vector2 transTargetPos = new Vector2();
     private final Vector2 transStartPos = new Vector2();
-    private final Timer transitionTimer = new Timer();
     private final OrthographicCamera gameCamera;
     private final Set<Rectangle> gameRooms;
     private Direction transitionDirection;
@@ -29,7 +31,7 @@ public class GameCameraHandler implements Updatable {
      * @param gameRooms          the game rooms
      */
     public GameCameraHandler(OrthographicCamera gameCamera, float transitionDuration, Set<Rectangle> gameRooms) {
-        transitionTimer.setDuration(transitionDuration);
+        transitionTimeTicker.setDuration(transitionDuration);
         this.gameCamera = gameCamera;
         this.gameRooms = gameRooms;
     }
@@ -95,7 +97,7 @@ public class GameCameraHandler implements Updatable {
         // Transition process is requested but is uninitialized.
         if (transitionState == null) {
             transitionState = ProcessState.BEGIN;
-            transitionTimer.reset();
+            transitionTimeTicker.reset();
             Rectangle overlap = new Rectangle();
             transitionDirection = UtilMethods.getOverlapPushDirection(
                     currentGameRoom, focusable.boundingBox(), overlap);
@@ -123,8 +125,8 @@ public class GameCameraHandler implements Updatable {
         Vector2 pos = UtilMethods.interpolate(transStartPos, transTargetPos, delta);
         gameCamera.position.x = pos.x;
         gameCamera.position.y = pos.y;
-        transitionTimer.update(delta);
-        transitionState = transitionTimer.isFinished() ? ProcessState.END : ProcessState.CONTINUE;
+        transitionTimeTicker.update(delta);
+        transitionState = transitionTimeTicker.isFinished() ? ProcessState.END : ProcessState.CONTINUE;
     }
 
     private void correctBounds() {

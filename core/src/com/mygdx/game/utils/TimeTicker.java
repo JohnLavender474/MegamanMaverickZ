@@ -9,7 +9,7 @@ import java.util.Map;
  * Timer that ticks up from 0 to {@link #duration}. Can be injected with {@link Marker} instances.
  */
 @NoArgsConstructor
-public class Timer implements Updatable, Resettable {
+public class TimeTicker implements Updatable, Resettable {
 
     private float time = 0f;
     private float duration = 0f;
@@ -17,11 +17,11 @@ public class Timer implements Updatable, Resettable {
     private final Map<String, Marker> markers = new HashMap<>();
 
     /**
-     * Instantiates a new Timer.
+     * Instantiates a new TimeTicker.
      *
      * @param duration the duration
      */
-    public Timer(float duration) {
+    public TimeTicker(float duration) {
         setDuration(duration);
     }
 
