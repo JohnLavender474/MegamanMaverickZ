@@ -36,20 +36,20 @@ public interface SpriteSettings {
     }
 
     /**
-     * Returns amount of x offset for {@link Sprite#getX()} in relation to {@link Entity#getBoundingBox()}.
+     * Returns amount of x offset for {@link Sprite#getX()} in relation to center of {@link Entity#getBoundingBox()}.
      *
      * @return the x offset
      */
-    default float offsetX() {
+    default float translateOffsetX() {
         return 0f;
     }
 
     /**
-     * Returns amount of y offset for {@link Sprite#getY()} in relation to {@link Entity#getBoundingBox()}.
+     * Returns amount of y offset for {@link Sprite#getY()} in relation to center of {@link Entity#getBoundingBox()}.
      *
      * @return the y offset
      */
-    default float offsetY() {
+    default float translateOffsetY() {
         return 0f;
     }
 

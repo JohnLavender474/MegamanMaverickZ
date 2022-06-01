@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.mygdx.game.SystemTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2022-06-01T05:54:15" hostname="Johns-MBP.lan" time="0.042">
+  <properties/>
+  <testcase name="entityQualifiesMembership" classname="com.mygdx.game.SystemTest" time="0.001"/>
+  <testcase name="entityQueuedToBeAdded" classname="com.mygdx.game.SystemTest" time="0.038"/>
+  <testcase name="entityQueuedToBeDeleted" classname="com.mygdx.game.SystemTest" time="0.001"/>
+  <testcase name="processEntity" classname="com.mygdx.game.SystemTest" time="0.002"/>
+  <testcase name="entityDoesNotQualityMembership" classname="com.mygdx.game.SystemTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

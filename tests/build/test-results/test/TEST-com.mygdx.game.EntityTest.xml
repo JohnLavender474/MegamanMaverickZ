@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.mygdx.game.EntityTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2022-06-01T05:54:15" hostname="Johns-MBP.lan" time="0.011">
+  <properties/>
+  <testcase name="failToAddComponent" classname="com.mygdx.game.EntityTest" time="0.011"/>
+  <testcase name="successfullyAddComponents" classname="com.mygdx.game.EntityTest" time="0.0"/>
+  <testcase name="componentEquality" classname="com.mygdx.game.EntityTest" time="0.0"/>
+  <testcase name="removeComponents" classname="com.mygdx.game.EntityTest" time="0.0"/>
+  <testcase name="componentInequality" classname="com.mygdx.game.EntityTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

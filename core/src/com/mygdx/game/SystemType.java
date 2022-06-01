@@ -1,5 +1,7 @@
 package com.mygdx.game;
 
 public enum SystemType {
-    WORLD
+    WORLD,
+    SPRITE,
+    ANIMATION
 }

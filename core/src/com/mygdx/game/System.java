@@ -17,13 +17,15 @@ import static com.mygdx.game.utils.UtilMethods.objName;
 @RequiredArgsConstructor
 public abstract class System implements Updatable {
 
-    private final Set<Entity> entities = new HashSet<>();
+    @Getter
+    private boolean updating;
+    @Getter
+    private final SystemType systemType;
+    @Setter
+    private Comparator<Entity> entityComparator;
+    private final List<Entity> entities = new ArrayList<>();
     private final Queue<Entity> entitiesToAddQueue = new LinkedList<>();
     private final Queue<Entity> entitiesToRemoveQueue = new LinkedList<>();
-
-    @Getter(AccessLevel.PUBLIC)
-    @Setter(AccessLevel.PRIVATE)
-    private boolean updating = false;
 
     /**
      * Defines the set of {@link GameState} that designates when this System should not be processed.
@@ -49,14 +51,14 @@ public abstract class System implements Updatable {
     protected abstract void processEntity(Entity entity, float delta);
 
     /**
-     * Called once before {@link #entities} is filtered through {@link #processEntity(Entity, float)}.
+     * Optional method. Called once before {@link #entities} is filtered through {@link #processEntity(Entity, float)}.
      *
      * @param delta the delta time
      */
     protected void preProcess(float delta) {}
 
     /**
-     * Called once after {@link #entities} is filtered through {@link #processEntity(Entity, float)}.
+     * Optional method. Called once after {@link #entities} is filtered through {@link #processEntity(Entity, float)}.
      *
      * @param delta the delta time
      */
@@ -70,11 +72,14 @@ public abstract class System implements Updatable {
         while (!entitiesToRemoveQueue.isEmpty()) {
             entities.remove(entitiesToRemoveQueue.poll());
         }
-        setUpdating(true);
+        if (entityComparator != null) {
+            entities.sort(entityComparator);
+        }
+        updating = true;
         preProcess(delta);
         entities.forEach(entity -> processEntity(entity, delta));
         postProcess(delta);
-        setUpdating(false);
+        updating = false;
     }
 
     /**
@@ -122,12 +127,12 @@ public abstract class System implements Updatable {
     }
 
     /**
-     * Copy of {@link Entity} set.
+     * Copy of {@link Entity} list.
      *
      * @return the copy set of entities
      */
-    public Set<Entity> getEntities() {
-        return Collections.unmodifiableSet(entities);
+    public List<Entity> getUnmodifiableCopyOfListOfEntities() {
+        return Collections.unmodifiableList(entities);
     }
 
     /**

@@ -3,11 +3,45 @@ package com.mygdx.game.utils;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.BoundingBox;
 
 /**
  * Global utility methods.
  */
 public class UtilMethods {
+
+    /**
+     * Returns {@link BoundingBox} representation of {@link Rectangle}.
+     *
+     * @param rectangle the rectangle
+     * @return the bounding box representation
+     */
+    public static BoundingBox rectToBBox(Rectangle rectangle) {
+        return new BoundingBox(new Vector3(rectangle.getX(), rectangle.getY(), 0.0f),
+                               new Vector3(rectangle.getX() + rectangle.getWidth(),
+                                           rectangle.getY() + rectangle.getHeight(), 0.0f));
+    }
+
+    /**
+     * Converts {@link Vector2} to {@link Vector3} with {@link Vector3#z} equal to 0.
+     *
+     * @param vector2 the vector2
+     * @return vector3
+     */
+    public static Vector3 toVec3(Vector2 vector2) {
+        return new Vector3(vector2.x, vector2.y, 0f);
+    }
+
+    /**
+     * Converts {@link Vector3} to {@link Vector2}. {@link Vector3#z} is ignored.
+     *
+     * @param vector3 the vector3
+     * @return vector2
+     */
+    public static Vector2 toVec2(Vector3 vector3) {
+        return new Vector2(vector3.x, vector3.y);
+    }
 
     /**
      * Returns String of long dotted line.
@@ -67,7 +101,7 @@ public class UtilMethods {
      */
     public static Direction getOverlapPushDirection(Rectangle toBePushed, Rectangle other, Rectangle overlap) {
         Intersector.intersectRectangles(toBePushed, other, overlap);
-        if (overlap.width == 0 && overlap.height == 0) {
+        if (overlap.width == 0f && overlap.height == 0f) {
             return null;
         }
         if (overlap.width > overlap.height) {

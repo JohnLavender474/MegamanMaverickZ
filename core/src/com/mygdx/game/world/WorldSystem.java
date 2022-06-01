@@ -3,15 +3,12 @@ package com.mygdx.game.world;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.mygdx.game.Component;
-import com.mygdx.game.Entity;
-import com.mygdx.game.GameState;
+import com.mygdx.game.*;
 import com.mygdx.game.System;
 import com.mygdx.game.utils.UtilMethods;
 import com.mygdx.game.utils.exceptions.InvalidFieldException;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -24,17 +21,22 @@ import java.util.stream.Collectors;
  * <p>
  * Getter annotation instantiates protected getters for all fields for the purpose of being able to test private fields.
  */
-@RequiredArgsConstructor
 @Getter(AccessLevel.PROTECTED)
 public class WorldSystem extends System {
 
-    private final Set<BodyComponent> bodyComponents = new HashSet<>();
     private final Set<Contact> currentContacts = new HashSet<>();
     private final Set<Contact> priorContacts = new HashSet<>();
     private final CollisionHandler collisionHandler;
     private final ContactListener contactListener;
     private final float fixedTimeStep;
     private float accumulator;
+
+    public WorldSystem(CollisionHandler collisionHandler, ContactListener contactListener, float fixedTimeStep) {
+        super(SystemType.WORLD);
+        this.collisionHandler = collisionHandler;
+        this.contactListener = contactListener;
+        this.fixedTimeStep = fixedTimeStep;
+    }
 
     @Override
     public Set<GameState> getSwitchOffStates() {
@@ -97,7 +99,7 @@ public class WorldSystem extends System {
     @Override
     protected void postProcess(float delta) {
         // Fetch all Body Components
-        Set<BodyComponent> bodyComponents = getEntities()
+        Set<BodyComponent> bodyComponents = getUnmodifiableCopyOfListOfEntities()
                 .stream().map(entity -> entity.getComponent(BodyComponent.class))
                 .collect(Collectors.toSet());
         // Reset impulse to zero

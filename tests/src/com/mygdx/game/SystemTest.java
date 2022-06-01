@@ -14,6 +14,10 @@ public class SystemTest {
 
         public float p = 0;
 
+        public TestSystem() {
+            super(null);
+        }
+
         @Override
         public Set<GameState> getSwitchOffStates() {
             return Set.of(GameState.PAUSED);
