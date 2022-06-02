@@ -1,6 +1,5 @@
-package com.mygdx.game;
+package com.mygdx.game.utils;
 
-import com.mygdx.game.utils.Updatable;
 import com.mygdx.game.utils.exceptions.InvalidArgumentException;
 
 import java.util.LinkedHashMap;

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.mygdx.game.screens.game.ScrollingGameCameraManagerTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2022-06-01T05:54:16" hostname="Johns-MBP.lan" time="0.067">
+<testsuite name="com.mygdx.game.screens.game.ScrollingGameCameraManagerTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2022-06-02T02:49:47" hostname="Johns-MBP.lan" time="0.063">
   <properties/>
   <testcase name="arrivedAtSecondTarget" classname="com.mygdx.game.screens.game.ScrollingGameCameraManagerTest" time="0.002"/>
   <testcase name="arrivedAtFirstTarget" classname="com.mygdx.game.screens.game.ScrollingGameCameraManagerTest" time="0.001"/>
   <testcase name="cameraCorrectAtInitialPos" classname="com.mygdx.game.screens.game.ScrollingGameCameraManagerTest" time="0.0"/>
-  <testcase name="overHalfwayThroughFirst" classname="com.mygdx.game.screens.game.ScrollingGameCameraManagerTest" time="0.001"/>
+  <testcase name="overHalfwayThroughFirst" classname="com.mygdx.game.screens.game.ScrollingGameCameraManagerTest" time="0.0"/>
   <testcase name="overHalfwayThroughSecond" classname="com.mygdx.game.screens.game.ScrollingGameCameraManagerTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

@@ -1,7 +1,6 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.math.Rectangle;
-import com.mygdx.game.Component;
 import com.mygdx.game.utils.exceptions.ClashException;
 import lombok.Getter;
 import lombok.ToString;

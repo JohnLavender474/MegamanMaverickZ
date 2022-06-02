@@ -19,11 +19,6 @@ public class SystemTest {
         }
 
         @Override
-        public Set<GameState> getSwitchOffStates() {
-            return Set.of(GameState.PAUSED);
-        }
-
-        @Override
         public Set<Class<? extends Component>> getComponentMask() {
             return Set.of(Component1.class, Component2.class);
         }

@@ -3,6 +3,7 @@ package com.mygdx.game.world;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.mygdx.game.Entity;
+import com.mygdx.game.MegamanMaverick;
 import com.mygdx.game.utils.KeyValuePair;
 import com.mygdx.game.utils.Pair;
 import com.mygdx.game.utils.ProcessState;
@@ -44,8 +45,8 @@ public class WorldSystemTest {
     private class TestWorldSystem extends WorldSystem {
 
         public TestWorldSystem() {
-            super(new TestCollisionHandler(), new TestContactListener(),
-                  fixedTimeStep);
+            super(new MegamanMaverick(), new TestCollisionHandler(),
+                  new TestContactListener(), fixedTimeStep);
         }
 
         @Override

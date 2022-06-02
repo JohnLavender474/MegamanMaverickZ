@@ -2,16 +2,14 @@ package com.mygdx.game.screens;
 
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.audio.Music;
-import com.mygdx.game.GameContext;
+import com.mygdx.game.MegamanMaverick;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public abstract class BaseScreen extends ScreenAdapter {
 
-    private final GameContext gameContext;
+    private final MegamanMaverick megamanGameContext;
     protected Music music;
-
-    public BaseScreen(GameContext gameContext) {
-        this.gameContext = gameContext;
-    }
 
     @Override
     public void show() {
@@ -20,7 +18,7 @@ public abstract class BaseScreen extends ScreenAdapter {
 
     @Override
     public void resize(int width, int height) {
-        gameContext.getViewports().values().forEach(
+        megamanGameContext.getViewports().values().forEach(
                 viewport -> viewport.update(width, height));
     }
 

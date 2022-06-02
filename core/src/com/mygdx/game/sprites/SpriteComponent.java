@@ -6,12 +6,13 @@ import com.mygdx.game.Entity;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.*;
+
 /**
  * Defines the rendering of the {@link Sprite} for the {@link Entity}.
  */
 @Getter
 @Setter
 public class SpriteComponent implements Component {
-    private SpriteHandle spriteHandle = new SpriteHandle();
-    private SpriteSettings spriteSettings = new SpriteSettings() {};
+    private final Map<String, SpriteHandle> spriteHandles = new HashMap<>();
 }

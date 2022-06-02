@@ -30,9 +30,9 @@ public class WorldSystem extends System {
     private final float fixedTimeStep;
     private float accumulator;
 
-    public WorldSystem(GameContext gameContext, CollisionHandler collisionHandler, ContactListener contactListener,
-                       float fixedTimeStep) {
-        super(gameContext);
+    public WorldSystem(MegamanMaverick megamanMaverick, CollisionHandler collisionHandler,
+                       ContactListener contactListener, float fixedTimeStep) {
+        super(megamanMaverick);
         this.collisionHandler = collisionHandler;
         this.contactListener = contactListener;
         this.fixedTimeStep = fixedTimeStep;

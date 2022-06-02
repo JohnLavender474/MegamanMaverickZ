@@ -18,7 +18,7 @@ import static com.mygdx.game.utils.UtilMethods.objName;
 @RequiredArgsConstructor
 public abstract class System implements Updatable {
 
-    protected final GameContext gameContext;
+    protected final MegamanMaverick megamanMaverick;
 
     @Getter
     private boolean updating;

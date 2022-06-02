@@ -1,7 +1,8 @@
 package com.mygdx.game.sprites;
 
 /**
- * The z-pos of renderables. The order of the constants must be BACKGROUND, PLAYGROUND, FOREGROUND, and then UI.
+ * The z-positiong of renderables relative to the camera. The order of the constants must in ascending order be
+ * BACKGROUND, PLAYGROUND, FOREGROUND, and then UI.
  */
 public enum RenderingGround {
     BACKGROUND,
