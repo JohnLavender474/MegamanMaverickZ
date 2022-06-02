@@ -9,12 +9,12 @@ import java.util.*;
 
 /**
  * Handler for {@link OrthographicCamera} that makes it scroll from one {@link Vector2} target to the next.
- * Targets are supplied via collection of {@link ScrollSectionDef}.
+ * Targets are supplied via collection of {@link ScrollingSectionDef}.
  */
 public class ScrollingGameCameraManager extends GameCameraManager {
 
     private final Vector2 initialPos = new Vector2();
-    private final List<ScrollSectionDef> scrollSectionDefs = new ArrayList<>();
+    private final List<ScrollingSectionDef> scrollingSectionDefs = new ArrayList<>();
     private int currentIndex = 0;
 
     /**
@@ -22,10 +22,10 @@ public class ScrollingGameCameraManager extends GameCameraManager {
      * {@link OrthographicCamera#position} is passed to initial position parameter.
      *
      * @param camera            the camera
-     * @param scrollSectionDefs the scroll section defs
+     * @param scrollingSectionDefs the scroll section defs
      */
-    public ScrollingGameCameraManager(OrthographicCamera camera, Collection<ScrollSectionDef> scrollSectionDefs) {
-        this(camera, UtilMethods.toVec2(camera.position), scrollSectionDefs);
+    public ScrollingGameCameraManager(OrthographicCamera camera, Collection<ScrollingSectionDef> scrollingSectionDefs) {
+        this(camera, UtilMethods.toVec2(camera.position), scrollingSectionDefs);
     }
 
     /**
@@ -33,13 +33,13 @@ public class ScrollingGameCameraManager extends GameCameraManager {
      *
      * @param camera            the camera
      * @param initialPos        the initial pos
-     * @param scrollSectionDefs the scroll section defs
+     * @param scrollingSectionDefs the scroll section defs
      */
     public ScrollingGameCameraManager(OrthographicCamera camera, Vector2 initialPos,
-                                      Collection<ScrollSectionDef> scrollSectionDefs) {
+                                      Collection<ScrollingSectionDef> scrollingSectionDefs) {
         super(camera);
         this.initialPos.set(initialPos);
-        this.scrollSectionDefs.addAll(scrollSectionDefs);
+        this.scrollingSectionDefs.addAll(scrollingSectionDefs);
     }
 
     /**
@@ -49,7 +49,7 @@ public class ScrollingGameCameraManager extends GameCameraManager {
      * @return the key of the current scroll section def
      */
     public String getKeyOfCurrentScrollSectionDef() {
-        return isFinished() ? null : scrollSectionDefs.get(currentIndex).key();
+        return isFinished() ? null : scrollingSectionDefs.get(currentIndex).key();
     }
 
     /**
@@ -58,7 +58,7 @@ public class ScrollingGameCameraManager extends GameCameraManager {
      * @return is finished
      */
     public boolean isFinished() {
-        return currentIndex >= scrollSectionDefs.size();
+        return currentIndex >= scrollingSectionDefs.size();
     }
 
     /**
@@ -75,16 +75,16 @@ public class ScrollingGameCameraManager extends GameCameraManager {
      *
      * @param currentIndex the index to set the current index to
      * @throws InvalidArgumentException thrown if index is less than 0 or greater than or equal to size of
-     *                                  {@link #scrollSectionDefs}
+     *                                  {@link #scrollingSectionDefs}
      */
     public void setCurrentIndex(int currentIndex)
             throws InvalidArgumentException {
-        if (currentIndex < 0 || currentIndex >= scrollSectionDefs.size()) {
+        if (currentIndex < 0 || currentIndex >= scrollingSectionDefs.size()) {
             throw new InvalidArgumentException(String.valueOf(currentIndex), "current index");
         }
         if (currentIndex > 0) {
-            ScrollSectionDef scrollSectionDef = scrollSectionDefs.get(currentIndex - 1);
-            initialPos.set(scrollSectionDef.target());
+            ScrollingSectionDef scrollingSectionDef = scrollingSectionDefs.get(currentIndex - 1);
+            initialPos.set(scrollingSectionDef.target());
         }
         this.currentIndex = currentIndex;
     }
@@ -94,16 +94,16 @@ public class ScrollingGameCameraManager extends GameCameraManager {
         if (isFinished()) {
             return;
         }
-        ScrollSectionDef scrollSectionDef = scrollSectionDefs.get(currentIndex);
-        scrollSectionDef.timeTicker().update(delta);
-        Vector2 pos = UtilMethods.interpolate(initialPos, scrollSectionDef.target(),
-                                              scrollSectionDef.timeTicker().getRatio());
+        ScrollingSectionDef scrollingSectionDef = scrollingSectionDefs.get(currentIndex);
+        scrollingSectionDef.timeTicker().update(delta);
+        Vector2 pos = UtilMethods.interpolate(initialPos, scrollingSectionDef.target(),
+                                              scrollingSectionDef.timeTicker().getRatio());
         camera.position.x = pos.x;
         camera.position.y = pos.y;
-        if (scrollSectionDef.timeTicker().isFinished()) {
+        if (scrollingSectionDef.timeTicker().isFinished()) {
             currentIndex++;
-            scrollSectionDef.timeTicker().reset();
-            initialPos.set(scrollSectionDef.target());
+            scrollingSectionDef.timeTicker().reset();
+            initialPos.set(scrollingSectionDef.target());
         }
     }
 

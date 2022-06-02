@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.mygdx.game.*;
 import com.mygdx.game.System;
+import com.mygdx.game.Entity;
 import com.mygdx.game.utils.UtilMethods;
 import com.mygdx.game.utils.exceptions.InvalidFieldException;
 import lombok.AccessLevel;
@@ -18,8 +19,6 @@ import java.util.stream.Collectors;
 /**
  * {@link System} implementation that handles the logic of the "game world physics", i.e. gravity, collision handling,
  * and contact-event-handling.
- * <p>
- * Getter annotation instantiates protected getters for all fields for the purpose of being able to test private fields.
  */
 @Getter(AccessLevel.PROTECTED)
 public class WorldSystem extends System {
@@ -31,16 +30,12 @@ public class WorldSystem extends System {
     private final float fixedTimeStep;
     private float accumulator;
 
-    public WorldSystem(CollisionHandler collisionHandler, ContactListener contactListener, float fixedTimeStep) {
-        super(SystemType.WORLD);
+    public WorldSystem(GameContext gameContext, CollisionHandler collisionHandler, ContactListener contactListener,
+                       float fixedTimeStep) {
+        super(gameContext);
         this.collisionHandler = collisionHandler;
         this.contactListener = contactListener;
         this.fixedTimeStep = fixedTimeStep;
-    }
-
-    @Override
-    public Set<GameState> getSwitchOffStates() {
-        return Set.of(GameState.PAUSED);
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.mygdx.game.animation;
+package com.mygdx.game.animations;
 
 import com.mygdx.game.Component;
 import com.mygdx.game.utils.SoundAndAnimationState;

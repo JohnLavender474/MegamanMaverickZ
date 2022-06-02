@@ -11,31 +11,23 @@ import static com.mygdx.game.utils.UtilMethods.objName;
 /**
  * The base class of game systems. Instances of this class perform game logic on a set of {@link Entity} instances.
  * Entities are eligible to be added to a System only if {@link Entity#hasAllComponents(Collection)} contains all the
- * elements of {@link #getComponentMask}.
+ * elements of {@link #getComponentMask}. Because the behavior of systems is independent of game state, systems should
+ * only be initialized once.
  */
 @ToString
 @RequiredArgsConstructor
 public abstract class System implements Updatable {
 
+    protected final GameContext gameContext;
+
     @Getter
     private boolean updating;
-    @Getter
-    private final SystemType systemType;
-    @Setter
-    private Comparator<Entity> entityComparator;
     private final List<Entity> entities = new ArrayList<>();
     private final Queue<Entity> entitiesToAddQueue = new LinkedList<>();
     private final Queue<Entity> entitiesToRemoveQueue = new LinkedList<>();
 
     /**
-     * Defines the set of {@link GameState} that designates when this System should not be processed.
-     *
-     * @return the set of switch off game states
-     */
-    public abstract Set<GameState> getSwitchOffStates();
-
-    /**
-     * Defines the set of {@link Class<Component>} instances that designates the component mask of this System.
+     * Defines the set of {@link Component} instances that designates the component mask of this System.
      * See {@link #qualifiesMembership(Entity)}.
      *
      * @return the set of component class instances for masking
@@ -66,16 +58,14 @@ public abstract class System implements Updatable {
 
     @Override
     public void update(float delta) {
+        updating = true;
         while (!entitiesToAddQueue.isEmpty()) {
             entities.add(entitiesToAddQueue.poll());
         }
         while (!entitiesToRemoveQueue.isEmpty()) {
             entities.remove(entitiesToRemoveQueue.poll());
         }
-        if (entityComparator != null) {
-            entities.sort(entityComparator);
-        }
-        updating = true;
+        entities.removeIf(entity -> !qualifiesMembership(entity));
         preProcess(delta);
         entities.forEach(entity -> processEntity(entity, delta));
         postProcess(delta);

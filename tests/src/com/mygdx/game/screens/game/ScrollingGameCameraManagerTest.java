@@ -28,21 +28,21 @@ public class ScrollingGameCameraManagerTest {
     @Before
     public void setUp() {
         status = null;
-        List<ScrollSectionDef> scrollSectionDefs = new ArrayList<>();
+        List<ScrollingSectionDef> scrollingSectionDefs = new ArrayList<>();
         // define scroll section def 1
         TimeTicker timeTicker1 = new TimeTicker(1f, new TimeMarkedRunnable(
                 0.5f, () -> status = HALFWAY_THROUGH_FIRST));
-        scrollSectionDefs.add(new ScrollSectionDef(
+        scrollingSectionDefs.add(new ScrollingSectionDef(
                 "First", new Vector2(10f, 12f), timeTicker1));
         // define scroll section def 2
         TimeTicker timeTicker2 = new TimeTicker(2f, new TimeMarkedRunnable(
                 1f, () -> status = HALFWAY_THROUGH_SECOND));
-        scrollSectionDefs.add(new ScrollSectionDef(
+        scrollingSectionDefs.add(new ScrollingSectionDef(
                 "Second", new Vector2(-30f, 15f), timeTicker2));
         // define scrroling game camera handler
         camera = new OrthographicCamera();
         scrollingGameCameraManager = new ScrollingGameCameraManager(
-                camera, new Vector2(2f, 10f), scrollSectionDefs);
+                camera, new Vector2(2f, 10f), scrollingSectionDefs);
     }
 
     @Test

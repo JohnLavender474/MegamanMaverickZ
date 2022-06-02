@@ -1,9 +1,10 @@
-package com.mygdx.game.animation;
+package com.mygdx.game.animations;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.mygdx.game.*;
 import com.mygdx.game.System;
-import com.mygdx.game.sprite.SpriteComponent;
+import com.mygdx.game.Entity;
+import com.mygdx.game.sprites.SpriteComponent;
 import com.mygdx.game.utils.TimedAnimation;
 
 import java.util.Set;
@@ -13,13 +14,13 @@ import java.util.Set;
  */
 public class AnimationSystem extends System {
 
-    public AnimationSystem() {
-        super(SystemType.ANIMATION);
-    }
-
-    @Override
-    public Set<GameState> getSwitchOffStates() {
-        return Set.of(GameState.PAUSED);
+    /**
+     * Instantiates a new Animation System.
+     *
+     * @param gameContext the game context
+     */
+    public AnimationSystem(GameContext gameContext) {
+        super(gameContext);
     }
 
     @Override
@@ -43,7 +44,7 @@ public class AnimationSystem extends System {
             case STOP -> timedAnimation.reset();
         }
         SpriteComponent spriteComponent = entity.getComponent(SpriteComponent.class);
-        spriteComponent.getSprite().setRegion(timedAnimation.getCurrentT());
+        spriteComponent.getSpriteHandle().getSprite().setRegion(timedAnimation.getCurrentT());
         if (!currentKey.equals(animationComponent.getPriorKey())) {
             TimedAnimation priorAnimation = animationComponent.getAnimations().get(animationComponent.getPriorKey());
             if (priorAnimation != null) {

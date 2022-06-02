@@ -1,4 +1,4 @@
-package com.mygdx.game.sprite;
+package com.mygdx.game.sprites;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.mygdx.game.Entity;
@@ -9,7 +9,16 @@ import com.mygdx.game.Entity;
 public interface SpriteSettings {
 
     /**
-     * Returns if the {@link Sprite} should be hidden (i.e., not rendered).
+     * Returns the {@link RenderingGround} of the {@link Sprite}.
+     *
+     * @return the rendering ground
+     */
+    default RenderingGround renderingGround() {
+        return RenderingGround.PLAYGROUND;
+    }
+
+    /**
+     * Returns if the {@link Sprite} should be hidden, i.e., not rendered.
      *
      * @return if the Sprite should be hidden
      */

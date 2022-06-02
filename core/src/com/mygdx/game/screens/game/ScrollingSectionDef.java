@@ -6,4 +6,4 @@ import com.mygdx.game.utils.TimeTicker;
 /**
  * The definition class of a scrolling section in a game level.
  */
-public record ScrollSectionDef(String key, Vector2 target, TimeTicker timeTicker) {}
+public record ScrollingSectionDef(String key, Vector2 target, TimeTicker timeTicker) {}
