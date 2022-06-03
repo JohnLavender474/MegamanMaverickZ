@@ -48,8 +48,10 @@ project(":desktop") {
 
     dependencies {
         implementation project(":core")
+        api "com.badlogicgames.gdx:gdx-tools:1.6.3"
         api "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+        api "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
         api "com.badlogicgames.gdx-controllers:gdx-controllers-desktop:$gdxControllersVersion"
         providedCompile "org.projectlombok:lombok:1.16.6"
         annotationProcessor 'org.projectlombok:lombok:1.18.20'
@@ -64,6 +66,8 @@ project(":core") {
         testImplementation "junit:junit:+"
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
         api "com.badlogicgames.gdx-controllers:gdx-controllers-core:$gdxControllersVersion"
+        api "com.badlogicgames.gdx:gdx-freetype:1.11.0"
+        api "com.badlogicgames.gdx:gdx-tools:1.6.3"
         api "com.badlogicgames.ashley:ashley:$ashleyVersion"
         providedCompile "org.projectlombok:lombok:1.16.6"
         annotationProcessor 'org.projectlombok:lombok:1.18.20'

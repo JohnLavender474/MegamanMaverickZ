@@ -1,16 +1,25 @@
 package com.mygdx.game.utils;
 
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 /**
  * Represents percentage.
  */
 @Getter
 @EqualsAndHashCode
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Percentage implements Comparable<Percentage> {
 
     private Integer percentage;
+
+    public static Percentage of(int percent) {
+        Percentage percentage = new Percentage();
+        percentage.setPercentage(percent);
+        return percentage;
+    }
 
     /**
      * Sets the percentage.

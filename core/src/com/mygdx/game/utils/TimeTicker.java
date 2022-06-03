@@ -16,6 +16,10 @@ public class TimeTicker implements Updatable, Resettable {
     private final Set<TimeMarkedRunnable> timeMarkedRunnables = new TreeSet<>();
     private final Queue<TimeMarkedRunnable> timeMarkedRunnableQueue = new PriorityQueue<>();
 
+    public TimeTicker() {
+        this(1f);
+    }
+
     public TimeTicker(float duration, TimeMarkedRunnable... timeMarkedRunnables)
             throws InvalidArgumentException {
         this(duration, Arrays.asList(timeMarkedRunnables));

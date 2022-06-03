@@ -1,8 +1,8 @@
 package com.mygdx.game.sprites;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.mygdx.game.Component;
-import com.mygdx.game.Entity;
+import com.mygdx.game.core.Component;
+import com.mygdx.game.core.Entity;
 import lombok.Getter;
 import lombok.Setter;
 

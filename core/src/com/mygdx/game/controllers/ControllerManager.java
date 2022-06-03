@@ -1,19 +1,20 @@
 package com.mygdx.game.controllers;
 
-import com.mygdx.game.utils.Updatable;
-
 import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static com.mygdx.game.controllers.ControllerUtils.*;
 
 /**
  * Manages player input on a controller or keyboard.
  */
-public class ControllerManager implements Updatable {
+public class ControllerManager {
 
     private final Map<ControllerButton, ControllerButtonDefinition> controllerButtons =
             new EnumMap<>(ControllerButton.class);
+    private final Set<ControllerListener> controllerListeners = new HashSet<>();
 
     /**
      * Instantiates a new Controller manager.
@@ -22,6 +23,24 @@ public class ControllerManager implements Updatable {
         for (ControllerButton controllerButton : ControllerButton.values()) {
             controllerButtons.put(controllerButton, new ControllerButtonDefinition());
         }
+    }
+
+    /**
+     * Add controller listener.
+     *
+     * @param controllerListener the controller listener
+     */
+    public void addControllerListener(ControllerListener controllerListener) {
+        controllerListeners.add(controllerListener);
+    }
+
+    /**
+     * Remove controller listener.
+     *
+     * @param controllerListener the controller listener
+     */
+    public void removeControllerListener(ControllerListener controllerListener) {
+        controllerListeners.remove(controllerListener);
     }
 
     /**
@@ -62,8 +81,10 @@ public class ControllerManager implements Updatable {
         }
     }
 
-    @Override
-    public void update(float delta) {
+    /**
+     * Update controller statuses.
+     */
+    public void updateControllerStatuses() {
         for (ControllerButton controllerButton : ControllerButton.values()) {
             ControllerButtonDefinition controllerButtonDefinition = controllerButtons.get(controllerButton);
             ControllerButtonStatus controllerButtonStatus = controllerButtonDefinition.getControllerButtonStatus();
@@ -94,6 +115,17 @@ public class ControllerManager implements Updatable {
                     controllerButtonDefinition.setControllerButtonStatus(ControllerButtonStatus.IS_JUST_RELEASED);
                 }
             }
+        }
+    }
+
+    /**
+     * Update controller listeners.
+     */
+    public void updateControllerListeners() {
+        for (Map.Entry<ControllerButton, ControllerButtonDefinition> entry : controllerButtons.entrySet()) {
+            controllerListeners.forEach(controllerListener -> controllerListener
+                    .listenToController(entry.getKey(),
+                                        entry.getValue().getControllerButtonStatus()));
         }
     }
 

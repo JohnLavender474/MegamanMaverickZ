@@ -3,13 +3,12 @@ package com.mygdx.game.world;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.mygdx.game.*;
-import com.mygdx.game.System;
-import com.mygdx.game.Entity;
+import com.mygdx.game.core.Component;
+import com.mygdx.game.core.System;
+import com.mygdx.game.core.Entity;
 import com.mygdx.game.utils.UtilMethods;
 import com.mygdx.game.utils.exceptions.InvalidFieldException;
-import lombok.AccessLevel;
-import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -20,7 +19,7 @@ import java.util.stream.Collectors;
  * {@link System} implementation that handles the logic of the "game world physics", i.e. gravity, collision handling,
  * and contact-event-handling.
  */
-@Getter(AccessLevel.PROTECTED)
+@RequiredArgsConstructor
 public class WorldSystem extends System {
 
     private final Set<Contact> currentContacts = new HashSet<>();
@@ -29,14 +28,6 @@ public class WorldSystem extends System {
     private final ContactListener contactListener;
     private final float fixedTimeStep;
     private float accumulator;
-
-    public WorldSystem(MegamanMaverick megamanMaverick, CollisionHandler collisionHandler,
-                       ContactListener contactListener, float fixedTimeStep) {
-        super(megamanMaverick);
-        this.collisionHandler = collisionHandler;
-        this.contactListener = contactListener;
-        this.fixedTimeStep = fixedTimeStep;
-    }
 
     @Override
     public Set<Class<? extends Component>> getComponentMask() {

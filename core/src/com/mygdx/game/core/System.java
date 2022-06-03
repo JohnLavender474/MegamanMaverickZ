@@ -1,4 +1,4 @@
-package com.mygdx.game;
+package com.mygdx.game.core;
 
 import com.mygdx.game.utils.Updatable;
 import com.mygdx.game.utils.exceptions.InvalidActionException;
@@ -14,14 +14,9 @@ import static com.mygdx.game.utils.UtilMethods.objName;
  * elements of {@link #getComponentMask}. Because the behavior of systems is independent of game state, systems should
  * only be initialized once.
  */
-@ToString
-@RequiredArgsConstructor
 public abstract class System implements Updatable {
 
-    protected final MegamanMaverick megamanMaverick;
-
-    @Getter
-    private boolean updating;
+    @Getter private boolean updating;
     private final List<Entity> entities = new ArrayList<>();
     private final Queue<Entity> entitiesToAddQueue = new LinkedList<>();
     private final Queue<Entity> entitiesToRemoveQueue = new LinkedList<>();

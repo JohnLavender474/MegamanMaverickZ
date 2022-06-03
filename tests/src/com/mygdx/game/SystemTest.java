@@ -1,5 +1,8 @@
 package com.mygdx.game;
 
+import com.mygdx.game.core.Component;
+import com.mygdx.game.core.Entity;
+import com.mygdx.game.core.System;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -13,10 +16,6 @@ public class SystemTest {
     private static class TestSystem extends System {
 
         public float p = 0;
-
-        public TestSystem() {
-            super(null);
-        }
 
         @Override
         public Set<Class<? extends Component>> getComponentMask() {

@@ -1,4 +1,4 @@
-package com.mygdx.game;
+package com.mygdx.game.core;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.mygdx.game.utils.exceptions.ClashException;

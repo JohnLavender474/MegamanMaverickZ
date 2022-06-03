@@ -1,7 +1,10 @@
 package com.mygdx.game.sprites;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.mygdx.game.ConstVals.RenderingGround;
+import com.mygdx.game.utils.Drawable;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -9,9 +12,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @RequiredArgsConstructor
-public class SpriteHandle implements Comparable<SpriteHandle> {
+public class SpriteHandle implements Drawable {
 
-    private Integer zpos = 0;
     private float alpha = 1f;
     private boolean hidden = false;
     private boolean isFlipX = false;
@@ -22,8 +24,12 @@ public class SpriteHandle implements Comparable<SpriteHandle> {
     private RenderingGround renderingGround;
 
     @Override
-    public int compareTo(SpriteHandle o) {
-        return zpos.compareTo(o.getZpos());
+    public void draw(SpriteBatch spriteBatch)
+            throws IllegalStateException {
+        if (sprite == null) {
+            throw new IllegalStateException("Sprite cannot be null");
+        }
+        sprite.draw(spriteBatch);
     }
 
     @Override
@@ -36,5 +42,4 @@ public class SpriteHandle implements Comparable<SpriteHandle> {
     public int hashCode() {
         return sprite.hashCode();
     }
-
 }

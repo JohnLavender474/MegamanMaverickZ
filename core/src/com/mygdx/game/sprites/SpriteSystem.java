@@ -2,24 +2,24 @@ package com.mygdx.game.sprites;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
-import com.mygdx.game.Component;
-import com.mygdx.game.Entity;
-import com.mygdx.game.MegamanMaverick;
-import com.mygdx.game.System;
+import com.mygdx.game.core.Component;
+import com.mygdx.game.core.Entity;
+import com.mygdx.game.core.System;
+import com.mygdx.game.utils.Drawable;
 import com.mygdx.game.utils.UtilMethods;
-import com.mygdx.game.utils.exceptions.InvalidActionException;
+import lombok.RequiredArgsConstructor;
 
+import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 /**
  * {@link System} implementation for rendering and optionally animating {@link Sprite} instances.
  */
+@RequiredArgsConstructor
 public class SpriteSystem extends System {
 
-    public SpriteSystem(MegamanMaverick megamanMaverick)
-            throws InvalidActionException {
-        super(megamanMaverick);
-    }
+    private final Map<String, Collection<Drawable>> drawables;
 
     @Override
     public Set<Class<? extends Component>> getComponentMask() {
@@ -41,7 +41,7 @@ public class SpriteSystem extends System {
             if (spriteAnimator != null) {
                 spriteAnimator.animate(sprite, delta);
             }
-            megamanMaverick.getRenderables().get(spriteHandle.getRenderingGround()).add(spriteHandle);
+            drawables.get(spriteHandle.getRenderingGround().name()).add(spriteHandle);
         }
     }
 

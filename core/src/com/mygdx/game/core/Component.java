@@ -1,3 +1,3 @@
-package com.mygdx.game;
+package com.mygdx.game.core;
 
 public interface Component {}
