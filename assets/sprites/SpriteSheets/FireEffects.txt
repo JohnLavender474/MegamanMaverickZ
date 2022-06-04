@@ -1,0 +1,75 @@
+FireEffects.png
+size: 1568, 1472
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+BigFireBurst
+  rotate: false
+  xy: 704, 896
+  size: 768, 576
+  orig: 768, 576
+  offset: 0, 0
+  index: -1
+Fire1
+  rotate: false
+  xy: 0, 0
+  size: 96, 96
+  orig: 96, 96
+  offset: 0, 0
+  index: -1
+Fire2
+  rotate: false
+  xy: 96, 0
+  size: 128, 96
+  orig: 128, 96
+  offset: 0, 0
+  index: -1
+FireAttack
+  rotate: false
+  xy: 992, 384
+  size: 576, 432
+  orig: 576, 432
+  offset: 0, 0
+  index: -1
+Fireball
+  rotate: false
+  xy: 544, 0
+  size: 384, 288
+  orig: 384, 288
+  offset: 0, 0
+  index: -1
+FireDash
+  rotate: false
+  xy: 0, 896
+  size: 704, 528
+  orig: 704, 528
+  offset: 0, 0
+  index: -1
+FireOval
+  rotate: false
+  xy: 224, 0
+  size: 320, 240
+  orig: 320, 240
+  offset: 0, 0
+  index: -1
+FlameBurstDown
+  rotate: false
+  xy: 480, 384
+  size: 512, 512
+  orig: 512, 512
+  offset: 0, 0
+  index: -1
+FlameBurstUp
+  rotate: false
+  xy: 928, 0
+  size: 480, 384
+  orig: 480, 384
+  offset: 0, 0
+  index: -1
+KindleUp
+  rotate: false
+  xy: 0, 384
+  size: 480, 480
+  orig: 480, 480
+  offset: 0, 0
+  index: -1

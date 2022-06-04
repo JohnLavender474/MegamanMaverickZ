@@ -1,0 +1,82 @@
+Decorations.png
+size: 1920, 1750
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Arrow
+  rotate: false
+  xy: 0, 0
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+Black
+  rotate: false
+  xy: 256, 0
+  size: 200, 200
+  orig: 200, 200
+  offset: 0, 0
+  index: -1
+Blue
+  rotate: false
+  xy: 456, 0
+  size: 225, 225
+  orig: 225, 225
+  offset: 0, 0
+  index: -1
+Disintegration
+  rotate: false
+  xy: 32, 0
+  size: 96, 32
+  orig: 96, 32
+  offset: 0, 0
+  index: -1
+Explosion
+  rotate: false
+  xy: 0, 400
+  size: 704, 64
+  orig: 704, 64
+  offset: 0, 0
+  index: -1
+MegamanHelmet
+  rotate: false
+  xy: 681, 0
+  size: 300, 284
+  orig: 300, 284
+  offset: 0, 0
+  index: -1
+MegamanSubtitle
+  rotate: false
+  xy: 704, 400
+  size: 1078, 270
+  orig: 1078, 270
+  offset: 0, 0
+  index: -1
+MegamanTitle
+  rotate: false
+  xy: 0, 670
+  size: 1920, 1080
+  orig: 1920, 1080
+  offset: 0, 0
+  index: -1
+PlayerExplosionOrbs
+  rotate: false
+  xy: 128, 0
+  size: 128, 64
+  orig: 128, 64
+  offset: 0, 0
+  index: -1
+StageSelectBox_Highlighted
+  rotate: false
+  xy: 981, 0
+  size: 400, 400
+  orig: 400, 400
+  offset: 0, 0
+  index: -1
+StageSelectBox_Unhighlighted
+  rotate: false
+  xy: 1381, 0
+  size: 400, 400
+  orig: 400, 400
+  offset: 0, 0
+  index: -1

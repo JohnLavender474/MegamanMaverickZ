@@ -3,6 +3,7 @@ package com.mygdx.game.screens.menus;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.mygdx.game.ConstVals.WorldView;
 import com.mygdx.game.GameContext2d;
 import com.mygdx.game.controllers.ControllerButton;
 import com.mygdx.game.controllers.ControllerButtonStatus;
@@ -27,7 +28,6 @@ public abstract class MenuScreen extends BaseScreen implements ControllerListene
                 put(ControllerButton.RIGHT, Direction.RIGHT);
             }};
 
-    protected final Stage stage;
     protected final Viewport viewport;
     @Getter private String currentMenuButtonKey;
     private final Map<String, MenuButton> menuButtons;
@@ -39,11 +39,9 @@ public abstract class MenuScreen extends BaseScreen implements ControllerListene
      */
     public MenuScreen(GameContext2d gameContext2d) {
         super(gameContext2d);
-        this.viewport = new FitViewport(gameContext2d.getViewWidthMeters(),
-                                   gameContext2d.getViewHeightMeters());
-        this.stage = new Stage(viewport, gameContext2d.getSpriteBatch());
-        gameContext.getControllerManager().addControllerListener(this);
+        this.viewport = new FitViewport(WorldView.VIEW_WIDTH, WorldView.VIEW_HEIGHT);
         this.menuButtons = defineMenuButtons();
+        gameContext.getControllerManager().addControllerListener(this);
     }
 
     /**
@@ -55,7 +53,6 @@ public abstract class MenuScreen extends BaseScreen implements ControllerListene
 
     @Override
     public void render(float delta) {
-        stage.draw();
         MenuButton menuButton = menuButtons.get(currentMenuButtonKey);
         if (menuButton != null) {
             menuButton.onHighlighted();

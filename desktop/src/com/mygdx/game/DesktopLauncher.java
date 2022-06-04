@@ -9,6 +9,9 @@ public class DesktopLauncher {
 	public static void main (String[] arg) {
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
 		config.setForegroundFPS(60);
+		config.setIdleFPS(30);
+		config.setTitle("Megaman Maverick");
+		config.setWindowedMode(256, 224);
 		new Lwjgl3Application(new MegamanMaverick(), config);
 	}
 }

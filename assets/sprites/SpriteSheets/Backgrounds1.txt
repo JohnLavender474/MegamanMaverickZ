@@ -1,0 +1,75 @@
+Backgrounds1.png
+size: 1964, 834
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+BKG01
+  rotate: false
+  xy: 1, 1
+  size: 416, 832
+  orig: 416, 832
+  offset: 0, 0
+  index: -1
+BKG02
+  rotate: false
+  xy: 419, 1
+  size: 256, 512
+  orig: 256, 512
+  offset: 0, 0
+  index: -1
+BKG03
+  rotate: true
+  xy: 419, 515
+  size: 256, 512
+  orig: 256, 512
+  offset: 0, 0
+  index: -1
+BKG04
+  rotate: false
+  xy: 677, 1
+  size: 256, 512
+  orig: 256, 512
+  offset: 0, 0
+  index: -1
+BKG05
+  rotate: true
+  xy: 933, 515
+  size: 256, 512
+  orig: 256, 512
+  offset: 0, 0
+  index: -1
+BKG06
+  rotate: false
+  xy: 935, 1
+  size: 256, 512
+  orig: 256, 512
+  offset: 0, 0
+  index: -1
+BKG07
+  rotate: false
+  xy: 1193, 1
+  size: 256, 512
+  orig: 256, 512
+  offset: 0, 0
+  index: -1
+BKG08
+  rotate: true
+  xy: 1451, 1
+  size: 256, 512
+  orig: 256, 512
+  offset: 0, 0
+  index: -1
+BKG09
+  rotate: true
+  xy: 1451, 259
+  size: 256, 512
+  orig: 256, 512
+  offset: 0, 0
+  index: -1
+BKG10
+  rotate: true
+  xy: 1447, 517
+  size: 256, 512
+  orig: 256, 512
+  offset: 0, 0
+  index: -1

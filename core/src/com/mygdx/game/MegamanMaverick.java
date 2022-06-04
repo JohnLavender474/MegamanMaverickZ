@@ -8,6 +8,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.utils.Disposable;
@@ -24,7 +25,7 @@ import static com.mygdx.game.ConstVals.SoundAssets.*;
 import static com.mygdx.game.ConstVals.TextureAssets.*;
 
 /**
- * The entry point into the game. Initializes all assets and classes that need to be initialized before gameplay
+ * The entry point into the Megaman game. Initializes all assets and classes that need to be initialized before gameplay
  * is possible. The view method is responsible only for clearing textures from the screen and calling
  * {@link com.badlogic.gdx.Screen#render(float)} on {@link #getScreen()} every frame.
  */
@@ -90,21 +91,6 @@ public class MegamanMaverick extends Game implements GameContext2d {
         for (String source : sources) {
             assetManager.load(source, sClass);
         }
-    }
-
-    @Override
-    public Float getPixelsPerMeter() {
-        return 16f;
-    }
-
-    @Override
-    public Float getViewWidthMeters() {
-        return 16f;
-    }
-
-    @Override
-    public Float getViewHeightMeters() {
-        return 14f;
     }
 
     @Override

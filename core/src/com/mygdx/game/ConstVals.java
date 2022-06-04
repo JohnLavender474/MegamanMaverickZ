@@ -20,6 +20,12 @@ public class ConstVals {
         BACKGROUND
     }
 
+    public static class WorldView {
+        public static final float VIEW_WIDTH = 16f;
+        public static final float VIEW_HEIGHT = 14f;
+        public static final float PPM = 16f;
+    }
+
     public static class TextureAssets {
         public static final String OBJECTS_TEXTURE_ATLAS = "sprites/SpriteSheets/Objects.txt";
         public static final String MET_TEXTURE_ATLAS = "sprites/SpriteSheets/Met.txt";

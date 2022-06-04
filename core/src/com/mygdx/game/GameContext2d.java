@@ -11,27 +11,6 @@ import com.mygdx.game.core.SystemsManager;
 public interface GameContext2d {
 
     /**
-     * Gets pixels per meter.
-     *
-     * @return the pixels per meter
-     */
-    Float getPixelsPerMeter();
-
-    /**
-     * Gets view width meters.
-     *
-     * @return the view width meters
-     */
-    Float getViewWidthMeters();
-
-    /**
-     * Gets view height meters.
-     *
-     * @return the view height meters
-     */
-    Float getViewHeightMeters();
-
-    /**
      * Gets sprite batch.
      *
      * @return the sprite batch

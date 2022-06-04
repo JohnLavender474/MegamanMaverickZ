@@ -1,0 +1,75 @@
+BuffEffects.png
+size: 1824, 720
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+BlueOvalGather
+  rotate: false
+  xy: 1424, 0
+  size: 400, 320
+  orig: 400, 320
+  offset: 0, 0
+  index: -1
+Diamond
+  rotate: false
+  xy: 240, 0
+  size: 256, 192
+  orig: 256, 192
+  offset: 0, 0
+  index: -1
+EnergyGather
+  rotate: false
+  xy: 0, 320
+  size: 400, 320
+  orig: 400, 320
+  offset: 0, 0
+  index: -1
+FlameUp
+  rotate: false
+  xy: 800, 320
+  size: 448, 336
+  orig: 448, 336
+  offset: 0, 0
+  index: -1
+GreenBurst
+  rotate: false
+  xy: 1248, 320
+  size: 448, 336
+  orig: 448, 336
+  offset: 0, 0
+  index: -1
+GroundBurst
+  rotate: false
+  xy: 0, 0
+  size: 240, 160
+  orig: 240, 160
+  offset: 0, 0
+  index: -1
+TealBurst
+  rotate: false
+  xy: 496, 0
+  size: 288, 192
+  orig: 288, 192
+  offset: 0, 0
+  index: -1
+VioletFlame
+  rotate: false
+  xy: 400, 320
+  size: 400, 400
+  orig: 400, 400
+  offset: 0, 0
+  index: -1
+VioletGather
+  rotate: false
+  xy: 784, 0
+  size: 320, 320
+  orig: 320, 320
+  offset: 0, 0
+  index: -1
+WhirlUp
+  rotate: false
+  xy: 1104, 0
+  size: 320, 256
+  orig: 320, 256
+  offset: 0, 0
+  index: -1

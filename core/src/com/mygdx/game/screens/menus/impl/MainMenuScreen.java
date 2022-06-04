@@ -2,6 +2,7 @@ package com.mygdx.game.screens.menus.impl;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.mygdx.game.ConstVals.TextureAssets;
 import com.mygdx.game.GameContext2d;
 import com.mygdx.game.screens.menus.MenuButton;
@@ -56,6 +57,7 @@ public class MainMenuScreen extends MenuScreen {
         title.setRegion(textureAtlas.findRegion("MegamanTitle"));
         helmet.setRegion(textureAtlas.findRegion("MegamanHelmet"));
         subtitle.setRegion(textureAtlas.findRegion("MegamanSubtitle"));
+
     }
 
     @Override
