@@ -1,7 +1,7 @@
 Decorations.png
 size: 1920, 1750
 format: RGBA8888
-filter: Linear,Linear
+filter: Nearest,Nearest
 repeat: none
 Arrow
   rotate: false

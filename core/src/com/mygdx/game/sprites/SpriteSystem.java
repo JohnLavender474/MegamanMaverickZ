@@ -1,25 +1,33 @@
 package com.mygdx.game.sprites;
 
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.mygdx.game.ConstVals.RenderingGround;
 import com.mygdx.game.core.Component;
 import com.mygdx.game.core.Entity;
 import com.mygdx.game.core.System;
-import com.mygdx.game.utils.Drawable;
 import com.mygdx.game.utils.UtilMethods;
-import lombok.RequiredArgsConstructor;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * {@link System} implementation for rendering and optionally animating {@link Sprite} instances.
  */
-@RequiredArgsConstructor
 public class SpriteSystem extends System {
 
-    private final Map<String, Collection<Drawable>> drawables;
+    private final SpriteBatch spriteBatch;
+    private final OrthographicCamera camera;
+    private final Map<RenderingGround, Queue<Sprite>> sprites = new EnumMap<>(RenderingGround.class);
+
+    public SpriteSystem(OrthographicCamera camera, SpriteBatch spriteBatch) {
+        this.camera = camera;
+        this.spriteBatch = spriteBatch;
+        for (RenderingGround renderingGround : RenderingGround.values()) {
+            sprites.put(renderingGround, new ArrayDeque<>());
+        }
+    }
 
     @Override
     public Set<Class<? extends Component>> getComponentMask() {
@@ -41,7 +49,26 @@ public class SpriteSystem extends System {
             if (spriteAnimator != null) {
                 spriteAnimator.animate(sprite, delta);
             }
-            drawables.get(spriteHandle.getRenderingGround().name()).add(spriteHandle);
+            sprites.get(spriteHandle.getRenderingGround()).add(sprite);
+        }
+    }
+
+    @Override
+    protected void postProcess(float delta) {
+        spriteBatch.setProjectionMatrix(camera.combined);
+        boolean isDrawing = spriteBatch.isDrawing();
+        if (!isDrawing) {
+            spriteBatch.begin();
+        }
+        for (RenderingGround renderingGround : RenderingGround.values()) {
+            Queue<Sprite> spriteQueue = sprites.get(renderingGround);
+            while (!spriteQueue.isEmpty()) {
+                Sprite sprite = spriteQueue.poll();
+                sprite.draw(spriteBatch);
+            }
+        }
+        if (!isDrawing) {
+            spriteBatch.end();
         }
     }
 

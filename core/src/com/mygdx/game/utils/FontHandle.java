@@ -13,7 +13,7 @@ import lombok.Setter;
 public class FontHandle implements Drawable {
 
     private final BitmapFont font;
-    private final Vector2 position = new Vector2();
+    @Getter private final Vector2 position = new Vector2();
     @Setter private String text;
 
     public FontHandle(String ttfSrc, int fontSize) {

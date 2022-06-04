@@ -1,9 +1,12 @@
 package com.mygdx.game.screens.menus;
 
-import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.mygdx.game.ConstVals.WorldView;
 import com.mygdx.game.GameContext2d;
 import com.mygdx.game.controllers.ControllerButton;
 import com.mygdx.game.controllers.ControllerButtonStatus;
@@ -11,9 +14,12 @@ import com.mygdx.game.controllers.ControllerListener;
 import com.mygdx.game.screens.BaseScreen;
 import com.mygdx.game.utils.Direction;
 import lombok.Getter;
+import org.lwjgl.Sys;
 
 import java.util.EnumMap;
 import java.util.Map;
+
+import static com.mygdx.game.ConstVals.ViewVals.*;
 
 /**
  * The type Menu screen.
@@ -39,7 +45,11 @@ public abstract class MenuScreen extends BaseScreen implements ControllerListene
      */
     public MenuScreen(GameContext2d gameContext2d) {
         super(gameContext2d);
-        this.viewport = new FitViewport(WorldView.VIEW_WIDTH, WorldView.VIEW_HEIGHT);
+        /*
+        this.viewport = new ScreenViewport(
+                new OrthographicCamera(VIEW_WIDTH * PPM, VIEW_HEIGHT * PPM));
+         */
+        this.viewport = new FitViewport(VIEW_WIDTH * PPM, VIEW_HEIGHT * PPM);
         this.menuButtons = defineMenuButtons();
         gameContext.getControllerManager().addControllerListener(this);
     }
@@ -50,25 +60,6 @@ public abstract class MenuScreen extends BaseScreen implements ControllerListene
      * @return the map of menu buttons
      */
     protected abstract Map<String, MenuButton> defineMenuButtons();
-
-    @Override
-    public void render(float delta) {
-        MenuButton menuButton = menuButtons.get(currentMenuButtonKey);
-        if (menuButton != null) {
-            menuButton.onHighlighted();
-        }
-    }
-
-    @Override
-    public void resize(int width, int height) {
-        viewport.update(width, height);
-    }
-
-    @Override
-    public void dispose() {
-        super.dispose();
-        gameContext.getControllerManager().removeControllerListener(this);
-    }
 
     /**
      * Sets menu button.
@@ -82,6 +73,7 @@ public abstract class MenuScreen extends BaseScreen implements ControllerListene
     @Override
     public void listenToController(ControllerButton controllerButton, ControllerButtonStatus controllerButtonStatus) {
         if (controllerButtonStatus == ControllerButtonStatus.IS_JUST_PRESSED) {
+            System.out.println("Is just pressed: " + controllerButton);
             MenuButton menuButton = menuButtons.get(currentMenuButtonKey);
             if (menuButton != null) {
                 switch (controllerButton) {
@@ -93,6 +85,24 @@ public abstract class MenuScreen extends BaseScreen implements ControllerListene
                 }
             }
         }
+    }
+
+    @Override
+    public void show() {
+        Vector3 camPos = viewport.getCamera().position;
+        camPos.x = Gdx.graphics.getWidth() / 2f;
+        camPos.y = Gdx.graphics.getHeight() / 2f;
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        viewport.update(width, height);
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        gameContext.getControllerManager().removeControllerListener(this);
     }
 
 }

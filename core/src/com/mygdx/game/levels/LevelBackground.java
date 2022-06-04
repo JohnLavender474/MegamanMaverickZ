@@ -1,14 +1,16 @@
 package com.mygdx.game.levels;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.mygdx.game.utils.Drawable;
+import com.mygdx.game.utils.Resettable;
 import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
-public class LevelBackground {
+public class LevelBackground implements Drawable {
 
     private final List<Sprite> backgroundSprites = new ArrayList<>();
 
@@ -23,6 +25,15 @@ public class LevelBackground {
                 backgroundSprites.add(backgroundSprite);
             }
         }
+    }
+
+    public void translate(float x, float y) {
+        backgroundSprites.forEach(sprite -> sprite.translate(x, y));
+    }
+
+    @Override
+    public void draw(SpriteBatch spriteBatch) {
+        backgroundSprites.forEach(sprite -> sprite.draw(spriteBatch));
     }
 
 }

@@ -8,6 +8,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -15,6 +16,7 @@ import com.badlogic.gdx.utils.Disposable;
 import com.mygdx.game.ConstVals.GameState;
 import com.mygdx.game.controllers.ControllerManager;
 import com.mygdx.game.core.SystemsManager;
+import com.mygdx.game.screens.menus.impl.MainMenuScreen;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -35,9 +37,9 @@ public class MegamanMaverick extends Game implements GameContext2d {
     private final List<Disposable> disposables = new ArrayList<>();
     private final Map<String, Object> blackBoard = new HashMap<>();
     private final Map<String, Screen> screens = new HashMap<>();
-    @Getter @Setter private GameState gameState;
     @Getter private ControllerManager controllerManager;
     @Getter private SystemsManager systemsManager;
+    @Getter @Setter private GameState gameState;
     @Getter private AssetManager assetManager;
     @Getter private SpriteBatch spriteBatch;
 
@@ -85,6 +87,8 @@ public class MegamanMaverick extends Game implements GameContext2d {
                    ELECTRIC_BALL_TEXTURE_ATLAS,
                    DECORATIONS_TEXTURE_ATLAS,
                    HEALTH_WEAPON_STATS_TEXTURE_ATLAS);
+        assetManager.finishLoading();
+        setScreen(new MainMenuScreen(this));
     }
 
     private <S> void loadAssets(Class<S> sClass, String... sources) {

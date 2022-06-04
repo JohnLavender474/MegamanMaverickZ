@@ -20,10 +20,17 @@ public class ConstVals {
         BACKGROUND
     }
 
-    public static class WorldView {
+    public enum GameScreen {
+        MAIN_MENU,
+        PASSWORD,
+        SETTINGS,
+        BOSS_SELECT
+    }
+
+    public static class ViewVals {
         public static final float VIEW_WIDTH = 16f;
         public static final float VIEW_HEIGHT = 14f;
-        public static final float PPM = 16f;
+        public static final float PPM = 32f;
     }
 
     public static class TextureAssets {

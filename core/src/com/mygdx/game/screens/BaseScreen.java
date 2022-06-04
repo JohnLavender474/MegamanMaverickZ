@@ -5,6 +5,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.mygdx.game.ConstVals.TextureAssets;
 import com.mygdx.game.GameContext2d;
@@ -33,7 +34,7 @@ public abstract class BaseScreen implements Screen {
         fadeTimer = new TimeTicker();
         blackBoxSprite = new Sprite();
         TextureRegion blackBoxRegion = gameContext.getAsset(
-                TextureAssets.DECORATIONS_TEXTURE_ATLAS, TextureRegion.class);
+                TextureAssets.DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class).findRegion("Black");
         blackBoxSprite.setRegion(blackBoxRegion);
     }
 

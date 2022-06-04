@@ -14,12 +14,6 @@ public interface MenuButton {
     void onSelect();
 
     /**
-     * Action on highlighted.
-     *
-     */
-    void onHighlighted();
-
-    /**
      * On navigate.
      *
      * @param direction  the direction

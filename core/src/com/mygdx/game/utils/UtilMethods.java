@@ -27,7 +27,7 @@ public class UtilMethods {
      * Converts {@link Vector2} to {@link Vector3} with {@link Vector3#z} equal to 0.
      *
      * @param vector2 the vector2
-     * @return vector3
+     * @return vector3 vector 3
      */
     public static Vector3 toVec3(Vector2 vector2) {
         return new Vector3(vector2.x, vector2.y, 0f);
@@ -37,7 +37,7 @@ public class UtilMethods {
      * Converts {@link Vector3} to {@link Vector2}. {@link Vector3#z} is ignored.
      *
      * @param vector3 the vector3
-     * @return vector2
+     * @return vector2 vector 2
      */
     public static Vector2 toVec2(Vector3 vector3) {
         return new Vector2(vector3.x, vector3.y);
@@ -66,9 +66,9 @@ public class UtilMethods {
      * Returns the interpolations of the x and y values of the two {@link Vector2} instances.
      * See {@link #interpolate(float, float, float)}.
      *
-     * @param start the starting coordinates
+     * @param start  the starting coordinates
      * @param target the target coordinates
-     * @param delta the delta time
+     * @param delta  the delta time
      * @return the interpolation
      */
     public static Vector2 interpolate(Vector2 start, Vector2 target, float delta) {
@@ -81,9 +81,9 @@ public class UtilMethods {
     /**
      * Returns the interpolated value from start to target.
      *
-     * @param start the starting value
+     * @param start  the starting value
      * @param target the target value
-     * @param delta the delta time
+     * @param delta  the delta time
      * @return the interpolation
      */
     public static float interpolate(float start, float target, float delta) {
@@ -95,8 +95,8 @@ public class UtilMethods {
      * the second Rectangle. If there is no overlap, then return null.
      *
      * @param toBePushed the Rectangle to be pushed
-     * @param other the other Rectangle
-     * @param overlap the overlap of the two Rectangles
+     * @param other      the other Rectangle
+     * @param overlap    the overlap of the two Rectangles
      * @return null if there is no overlap, otherwise the direction in which the first Rectangle should be pushed
      */
     public static Direction getOverlapPushDirection(Rectangle toBePushed, Rectangle other, Rectangle overlap) {
@@ -144,6 +144,26 @@ public class UtilMethods {
             case BOTTOM_RIGHT ->
                     setBottomRightToPoint(toBeMoved, bottomRightPoint(staticRect));
         }
+    }
+
+    /**
+     * Max x float.
+     *
+     * @param rectangle the rectangle
+     * @return the float
+     */
+    public static float maxX(Rectangle rectangle) {
+        return rectangle.x + rectangle.width;
+    }
+
+    /**
+     * Max y float.
+     *
+     * @param rectangle the rectangle
+     * @return the float
+     */
+    public static float maxY(Rectangle rectangle) {
+        return rectangle.y + rectangle.height;
     }
 
     /**

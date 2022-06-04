@@ -1,7 +1,5 @@
-package com.mygdx.game;
+package com.mygdx.game.core;
 
-import com.mygdx.game.core.Component;
-import com.mygdx.game.core.Entity;
 import com.mygdx.game.utils.exceptions.ClashException;
 import org.junit.Before;
 import org.junit.Test;

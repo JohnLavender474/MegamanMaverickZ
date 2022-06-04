@@ -1,4 +1,4 @@
-package com.mygdx.game;
+package com.mygdx.game.core;
 
 import com.mygdx.game.core.Component;
 import com.mygdx.game.core.Entity;

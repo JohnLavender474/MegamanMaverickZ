@@ -11,7 +11,7 @@ import java.util.List;
 
 /**
  * Defines an animation where each {@link TextureRegion} has a set duration. The constructors of this class are
- * compatible only with {@link TextureRegion} instances consisting of only one row.
+ * compatible only with {@link TextureRegion} instances consisting of only one addRow.
  */
 @Getter
 @Setter
