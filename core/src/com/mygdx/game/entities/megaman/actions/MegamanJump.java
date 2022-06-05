@@ -1,6 +1,6 @@
-package com.mygdx.game.megaman.actions;
+package com.mygdx.game.entities.megaman.actions;
 
-import com.mygdx.game.megaman.Megaman;
+import com.mygdx.game.entities.megaman.Megaman;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor

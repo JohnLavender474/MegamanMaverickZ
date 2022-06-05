@@ -1,4 +1,4 @@
-package com.mygdx.game.megaman;
+package com.mygdx.game.entities.megaman;
 
 import com.mygdx.game.core.Component;
 

@@ -27,7 +27,7 @@ public class Contact {
     /**
      * Checks if {@link Fixture#getFixtureType()} of {@link #fixture1} and {@link #fixture2} matches the supplied
      * {@link FixtureType} arguments. If so, then return true and set {@link #mask}, otherwise return false and
-     * keep the mask pair null.
+     * keep the mask pair the same as it was, null if never initialized by accepted mask.
      *
      * @param fixtureType1 the fixture type 1
      * @param fixtureType2 the fixture type 2
@@ -36,10 +36,12 @@ public class Contact {
     public boolean acceptMask(FixtureType fixtureType1, FixtureType fixtureType2) {
         if (acceptFixture1Mask(fixtureType1) && acceptFixture2Mask(fixtureType2)) {
             mask = new Pair<>(fixture1, fixture2);
+            return true;
         } else if (acceptFixture1Mask(fixtureType2) && acceptFixture2Mask(fixtureType1)) {
             mask = new Pair<>(fixture2, fixture1);
+            return true;
         }
-        return mask != null;
+        return false;
     }
 
     private boolean acceptFixture1Mask(FixtureType fixtureType) {

@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.mygdx.game.world.WorldSystemTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2022-06-05T02:19:41" hostname="Johns-MBP.lan" time="0.011">
+<testsuite name="com.mygdx.game.world.WorldSystemTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2022-06-05T04:47:26" hostname="Johns-MBP.lan" time="0.026">
   <properties/>
-  <testcase name="contactHandling" classname="com.mygdx.game.world.WorldSystemTest" time="0.008"/>
-  <testcase name="frictionScalar" classname="com.mygdx.game.world.WorldSystemTest" time="0.001"/>
-  <testcase name="testImpulseAndVelocityAndGravity" classname="com.mygdx.game.world.WorldSystemTest" time="0.0"/>
-  <testcase name="testAcceptsEntity" classname="com.mygdx.game.world.WorldSystemTest" time="0.0"/>
-  <testcase name="testImpulseAndVelocity" classname="com.mygdx.game.world.WorldSystemTest" time="0.001"/>
-  <testcase name="collisionHandling" classname="com.mygdx.game.world.WorldSystemTest" time="0.0"/>
-  <testcase name="throwsOnAddAttempt" classname="com.mygdx.game.world.WorldSystemTest" time="0.001"/>
+  <testcase name="contactHandling" classname="com.mygdx.game.world.WorldSystemTest" time="0.026"/>
   <system-out><![CDATA[---------------------------------------------------------
 ]]></system-out>
   <system-err><![CDATA[]]></system-err>

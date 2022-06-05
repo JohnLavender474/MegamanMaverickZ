@@ -24,7 +24,6 @@ public class WorldSystem extends System {
 
     private final Set<Contact> currentContacts = new HashSet<>();
     private final Set<Contact> priorContacts = new HashSet<>();
-    private final CollisionHandler collisionHandler;
     private final ContactListener contactListener;
     private final float fixedTimeStep;
     private float accumulator;
@@ -101,7 +100,7 @@ public class WorldSystem extends System {
                 Rectangle overlap = new Rectangle();
                 if (Intersector.intersectRectangles(bodyComponent.getCollisionBox(),
                                                     otherBC.getCollisionBox(), overlap)) {
-                    collisionHandler.handleCollision(bodyComponent, otherBC, overlap, delta);
+                    handleCollision(bodyComponent, otherBC, overlap);
                 }
                 for (Fixture f1 : bodyComponent.getFixtures()) {
                     for (Fixture f2 : otherBC.getFixtures()) {
@@ -116,9 +115,7 @@ public class WorldSystem extends System {
         }
         // Handles Contact instances in the current contacts set
         currentContacts.forEach(currentContact -> {
-            if (priorContacts.contains(currentContact)) {
-                contactListener.continueContact(currentContact, delta);
-            } else {
+            if (!priorContacts.contains(currentContact)) {
                 contactListener.beginContact(currentContact, delta);
             }
         });
@@ -132,6 +129,22 @@ public class WorldSystem extends System {
         priorContacts.clear();
         priorContacts.addAll(currentContacts);
         currentContacts.clear();
+    }
+
+    private void handleCollision(BodyComponent bc1, BodyComponent bc2, Rectangle overlap) {
+        if (overlap.getWidth() > overlap.getHeight()) {
+            if (bc1.getCollisionBox().getY() > bc2.getCollisionBox().getY()) {
+                bc1.getCollisionBox().y += overlap.getHeight();
+            } else {
+                bc1.getCollisionBox().y -= overlap.getHeight();
+            }
+        } else {
+            if (bc1.getCollisionBox().getX() > bc2.getCollisionBox().getX()) {
+                bc1.getCollisionBox().x += overlap.getWidth();
+            } else {
+                bc1.getCollisionBox().x -= overlap.getWidth();
+            }
+        }
     }
 
 }

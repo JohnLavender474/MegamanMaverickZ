@@ -19,13 +19,6 @@ public class WorldSystemTest {
 
     private record TestCollisionDef(Pair<BodyComponent> bodyComponentPair, Rectangle overlap, float delta) {}
 
-    private class TestCollisionHandler implements CollisionHandler {
-        @Override
-        public void handleCollision(BodyComponent bc1, BodyComponent bc2, Rectangle overlap, float delta) {
-            testCollisionDef = new TestCollisionDef(new Pair<>(bc1, bc2), overlap, delta);
-        }
-    }
-
     private class TestContactListener implements ContactListener {
         @Override
         public void endContact(Contact contact, float delta) {
@@ -34,10 +27,6 @@ public class WorldSystemTest {
         @Override
         public void beginContact(Contact contact, float delta) {
             testContactPair = new KeyValuePair<>(ProcessState.BEGIN, contact);
-        }
-        @Override
-        public void continueContact(Contact contact, float delta) {
-            testContactPair = new KeyValuePair<>(ProcessState.CONTINUE, contact);
         }
     }
 
@@ -49,8 +38,7 @@ public class WorldSystemTest {
     public void setUp() {
         testContactPair = null;
         testCollisionDef = null;
-        worldSystem = new WorldSystem(new TestCollisionHandler(),
-                                      new TestContactListener(), fixedTimeStep);
+        worldSystem = new WorldSystem(new TestContactListener(), fixedTimeStep);
     }
 
     @Test
@@ -202,20 +190,6 @@ public class WorldSystemTest {
         assertEquals(fixture2, mask1.first());
         assertEquals(fixture1, mask1.second());
         // when
-        // move body component 1 away from 2 but still keep them overlapping
-        bodyComponent1.getCollisionBox().x += .5f;
-        testContactPair = null;
-        worldSystem.update(fixedTimeStep);
-        // then
-        assertNotNull(testContactPair);
-        assertEquals(ProcessState.CONTINUE, testContactPair.key());
-        Contact contact2 = testContactPair.value();
-        assertTrue(contact2.acceptMask(FixtureType.HEAD, FixtureType.FEET));
-        Pair<Fixture> mask2 = contact2.getMask();
-        assertEquals(fixture1, mask2.first());
-        assertEquals(fixture2, mask2.second());
-        // when
-        // move bodies completely off of each other
         bodyComponent1.getCollisionBox().x += 10f;
         bodyComponent2.getCollisionBox().x -= 10f;
         testContactPair = null;

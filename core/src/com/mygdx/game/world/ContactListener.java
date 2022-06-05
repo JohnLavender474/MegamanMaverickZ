@@ -7,14 +7,6 @@ package com.mygdx.game.world;
 public interface ContactListener {
 
     /**
-     * End of contact.
-     *
-     * @param contact the contact
-     * @param delta   the delta time
-     */
-    void endContact(Contact contact, float delta);
-
-    /**
      * Beginning contact.
      *
      * @param contact the contact
@@ -23,11 +15,11 @@ public interface ContactListener {
     void beginContact(Contact contact, float delta);
 
     /**
-     * Continuing contact.
+     * End of contact.
      *
      * @param contact the contact
      * @param delta   the delta time
      */
-    void continueContact(Contact contact, float delta);
+    void endContact(Contact contact, float delta);
 
 }

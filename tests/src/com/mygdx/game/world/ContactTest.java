@@ -14,6 +14,10 @@ public class ContactTest {
         Contact contact = new Contact(fixture1, fixture2);
         // then
         assertTrue(contact.acceptMask(FixtureType.HEAD, FixtureType.FEET));
+        assertEquals(fixture1, contact.getMask().first());
+        assertNotEquals(fixture2, contact.getMask().first());
+        assertEquals(fixture2, contact.getMask().second());
+        assertNotEquals(fixture1, contact.getMask().second());
     }
 
     @Test
@@ -24,6 +28,10 @@ public class ContactTest {
         Contact contact = new Contact(fixture1, fixture2);
         // then
         assertTrue(contact.acceptMask(FixtureType.FEET, FixtureType.FEET));
+        assertEquals(fixture1, contact.getMask().first());
+        assertNotEquals(fixture2, contact.getMask().first());
+        assertEquals(fixture2, contact.getMask().second());
+        assertNotEquals(fixture1, contact.getMask().second());
     }
 
     @Test
