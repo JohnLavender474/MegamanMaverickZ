@@ -27,6 +27,10 @@ public class ConstVals {
         BOSS_SELECT
     }
 
+    public static class WorldVals {
+        public static final float FIXED_TIME_STEP = 1f / 150f;
+    }
+
     public static class ViewVals {
         public static final float VIEW_WIDTH = 16f;
         public static final float VIEW_HEIGHT = 14f;

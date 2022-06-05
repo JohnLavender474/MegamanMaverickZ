@@ -1,11 +1,7 @@
 package com.mygdx.game.screens.menus;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.game.GameContext2d;
 import com.mygdx.game.controllers.ControllerButton;
@@ -14,7 +10,6 @@ import com.mygdx.game.controllers.ControllerListener;
 import com.mygdx.game.screens.BaseScreen;
 import com.mygdx.game.utils.Direction;
 import lombok.Getter;
-import org.lwjgl.Sys;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -34,6 +29,9 @@ public abstract class MenuScreen extends BaseScreen implements ControllerListene
                 put(ControllerButton.RIGHT, Direction.RIGHT);
             }};
 
+    /**
+     * The Viewport.
+     */
     protected final Viewport viewport;
     @Getter private String currentMenuButtonKey;
     private final Map<String, MenuButton> menuButtons;
@@ -45,13 +43,8 @@ public abstract class MenuScreen extends BaseScreen implements ControllerListene
      */
     public MenuScreen(GameContext2d gameContext2d) {
         super(gameContext2d);
-        /*
-        this.viewport = new ScreenViewport(
-                new OrthographicCamera(VIEW_WIDTH * PPM, VIEW_HEIGHT * PPM));
-         */
         this.viewport = new FitViewport(VIEW_WIDTH * PPM, VIEW_HEIGHT * PPM);
         this.menuButtons = defineMenuButtons();
-        gameContext.getControllerManager().addControllerListener(this);
     }
 
     /**
@@ -71,17 +64,23 @@ public abstract class MenuScreen extends BaseScreen implements ControllerListene
     }
 
     @Override
-    public void listenToController(ControllerButton controllerButton, ControllerButtonStatus controllerButtonStatus) {
-        if (controllerButtonStatus == ControllerButtonStatus.IS_JUST_PRESSED) {
-            System.out.println("Is just pressed: " + controllerButton);
+    public void render(float delta) {
+        super.render(delta);
+        viewport.apply();
+    }
+
+    @Override
+    public void listenToController(ControllerButton button, ControllerButtonStatus status, float delta) {
+        if (status == ControllerButtonStatus.IS_JUST_PRESSED) {
+            System.out.println("Is just pressed: " + button);
             MenuButton menuButton = menuButtons.get(currentMenuButtonKey);
             if (menuButton != null) {
-                switch (controllerButton) {
+                switch (button) {
                     case UP, DOWN, LEFT, RIGHT -> {
-                        Direction direction = directionalControllerButtonMappings.get(controllerButton);
-                        menuButton.onNavigate(direction);
+                        Direction direction = directionalControllerButtonMappings.get(button);
+                        menuButton.onNavigate(direction, delta);
                     }
-                    case START, X -> menuButton.onSelect();
+                    case START, X -> menuButton.onSelect(delta);
                 }
             }
         }
@@ -90,19 +89,13 @@ public abstract class MenuScreen extends BaseScreen implements ControllerListene
     @Override
     public void show() {
         Vector3 camPos = viewport.getCamera().position;
-        camPos.x = Gdx.graphics.getWidth() / 2f;
-        camPos.y = Gdx.graphics.getHeight() / 2f;
+        camPos.x = (VIEW_WIDTH * PPM) / 2f;
+        camPos.y = (VIEW_HEIGHT * PPM) / 2f;
     }
 
     @Override
     public void resize(int width, int height) {
         viewport.update(width, height);
-    }
-
-    @Override
-    public void dispose() {
-        super.dispose();
-        gameContext.getControllerManager().removeControllerListener(this);
     }
 
 }

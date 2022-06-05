@@ -8,24 +8,41 @@ import java.util.*;
 /**
  * Timer that ticks up from 0 to {@link #duration}. Can be injected with {@link TimeMarkedRunnable} instances.
  */
-public class TimeTicker implements Updatable, Resettable {
+public class Timer implements Updatable, Resettable {
 
-    private float time = 0f;
+    private float time;
+    private float duration;
     private boolean justFinished;
-    private final float duration;
     private final Set<TimeMarkedRunnable> timeMarkedRunnables = new TreeSet<>();
     private final Queue<TimeMarkedRunnable> timeMarkedRunnableQueue = new PriorityQueue<>();
 
-    public TimeTicker() {
+    /**
+     * Instantiates a new Time ticker.
+     */
+    public Timer() {
         this(1f);
     }
 
-    public TimeTicker(float duration, TimeMarkedRunnable... timeMarkedRunnables)
+    /**
+     * Instantiates a new Time ticker.
+     *
+     * @param duration            the duration
+     * @param timeMarkedRunnables the time marked runnables
+     * @throws InvalidArgumentException the invalid argument exception
+     */
+    public Timer(float duration, TimeMarkedRunnable... timeMarkedRunnables)
             throws InvalidArgumentException {
         this(duration, Arrays.asList(timeMarkedRunnables));
     }
 
-    public TimeTicker(float duration, Collection<TimeMarkedRunnable> timeMarkedRunnables)
+    /**
+     * Instantiates a new Time ticker.
+     *
+     * @param duration            the duration
+     * @param timeMarkedRunnables the time marked runnables
+     * @throws InvalidArgumentException the invalid argument exception
+     */
+    public Timer(float duration, Collection<TimeMarkedRunnable> timeMarkedRunnables)
             throws InvalidArgumentException {
         if (duration <= 0f) {
             throw new InvalidArgumentException(String.valueOf(duration), "duration (which must be greater than 0)");
@@ -39,6 +56,20 @@ public class TimeTicker implements Updatable, Resettable {
         this.timeMarkedRunnables.addAll(timeMarkedRunnables);
         this.duration = duration;
         reset();
+    }
+
+    /**
+     * Sets duration.
+     *
+     * @param duration the duration
+     * @throws InvalidArgumentException thrown if duration is less than zero
+     */
+    public void setDuration(float duration)
+        throws InvalidArgumentException {
+        if (duration < 0f) {
+            throw new InvalidArgumentException(String.valueOf(duration), "duration");
+        }
+        this.duration = duration;
     }
 
     /**

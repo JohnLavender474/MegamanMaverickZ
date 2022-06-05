@@ -7,7 +7,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.GdxTestRunner;
 import com.mygdx.game.utils.Direction;
 import com.mygdx.game.utils.ProcessState;
-import com.mygdx.game.utils.TimeTicker;
+import com.mygdx.game.utils.Timer;
 import com.mygdx.game.utils.UtilMethods;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,32 +20,32 @@ import static org.junit.Assert.*;
 @RunWith(GdxTestRunner.class)
 public class RoomsGameCameraManagerTest {
 
-    private static class TestFocusable extends Rectangle implements Focusable {
+    private static class TestGameCameraFocusable extends Rectangle implements GameCameraFocusable {
 
-        private TestFocusable(float width, float height) {
+        private TestGameCameraFocusable(float width, float height) {
             super(0f, 0f, width, height);
         }
 
         @Override
-        public Vector2 focus() {
+        public Vector2 getFocus() {
             return UtilMethods.centerPoint(this);
         }
 
         @Override
-        public Rectangle boundingBox() {
+        public Rectangle getBoundingBox() {
             return this;
         }
 
     }
 
     private OrthographicCamera camera;
-    private TestFocusable testFocusable;
+    private TestGameCameraFocusable testFocusable;
     private RoomsGameCameraManager rgch;
     private Map<Rectangle, String> gameRooms;
 
     @Before
     public void setUp() {
-        testFocusable = new TestFocusable(1f, 1f);
+        testFocusable = new TestGameCameraFocusable(1f, 1f);
         camera = new OrthographicCamera();
         gameRooms = new HashMap<>();
         gameRooms.put(new Rectangle(0f, 10f, 10f, 10f), "Top");
@@ -54,7 +54,7 @@ public class RoomsGameCameraManagerTest {
         gameRooms.put(new Rectangle(0f, -10f, 10f, 10f), "Bottom");
         gameRooms.put(new Rectangle(0f, 0f, 10f, 10f), "Center");
         rgch = new RoomsGameCameraManager(camera, testFocusable,
-                                          gameRooms, new TimeTicker(1f));
+                                          gameRooms, new Timer(1f));
     }
 
     @Test
@@ -70,7 +70,7 @@ public class RoomsGameCameraManagerTest {
         // then
         assertNull(rgch.getTransitionState());
         assertEquals("Center", rgch.getCurrentGameRoomName());
-        assertEquals(UtilMethods.toVec3(testFocusable.focus()), camera.position);
+        assertEquals(UtilMethods.toVec3(testFocusable.getFocus()), camera.position);
     }
 
     @Test
@@ -86,9 +86,9 @@ public class RoomsGameCameraManagerTest {
         // then
         assertNull(rgch.getTransitionState());
         assertEquals("Center", rgch.getCurrentGameRoomName());
-        assertEquals(UtilMethods.toVec3(testFocusable.focus()), camera.position);
+        assertEquals(UtilMethods.toVec3(testFocusable.getFocus()), camera.position);
         // when
-        Vector2 oldPos = testFocusable.focus();
+        Vector2 oldPos = testFocusable.getFocus();
         testFocusable.setPosition(9.55f, 0f);
         rgch.update(1f);
         // then
@@ -145,7 +145,7 @@ public class RoomsGameCameraManagerTest {
         // then
         assertNull(rgch.getTransitionState());
         assertEquals("Bottom", rgch.getCurrentGameRoomName());
-        assertEquals(UtilMethods.toVec3(testFocusable.focus()), camera.position);
+        assertEquals(UtilMethods.toVec3(testFocusable.getFocus()), camera.position);
         // when
         testFocusable.setPosition(100f, 100f);
         Vector3 pos = camera.position.cpy();
@@ -171,7 +171,7 @@ public class RoomsGameCameraManagerTest {
         // then
         assertNull(rgch.getTransitionState());
         assertEquals("Left", rgch.getCurrentGameRoomName());
-        assertEquals(UtilMethods.toVec3(testFocusable.focus()), camera.position);
+        assertEquals(UtilMethods.toVec3(testFocusable.getFocus()), camera.position);
         // when
         Vector3 pos = camera.position.cpy();
         testFocusable.setCenter(15f, 5f);

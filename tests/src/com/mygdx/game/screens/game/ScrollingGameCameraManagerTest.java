@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector2;
 import com.mygdx.game.GdxTestRunner;
 import com.mygdx.game.utils.TimeMarkedRunnable;
-import com.mygdx.game.utils.TimeTicker;
+import com.mygdx.game.utils.Timer;
 import com.mygdx.game.utils.UtilMethods;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,15 +30,15 @@ public class ScrollingGameCameraManagerTest {
         status = null;
         List<ScrollingSectionDef> scrollingSectionDefs = new ArrayList<>();
         // define scroll section def 1
-        TimeTicker timeTicker1 = new TimeTicker(1f, new TimeMarkedRunnable(
+        Timer timer1 = new Timer(1f, new TimeMarkedRunnable(
                 0.5f, () -> status = HALFWAY_THROUGH_FIRST));
         scrollingSectionDefs.add(new ScrollingSectionDef(
-                "First", new Vector2(10f, 12f), timeTicker1));
+                "First", new Vector2(10f, 12f), timer1));
         // define scroll section def 2
-        TimeTicker timeTicker2 = new TimeTicker(2f, new TimeMarkedRunnable(
+        Timer timer2 = new Timer(2f, new TimeMarkedRunnable(
                 1f, () -> status = HALFWAY_THROUGH_SECOND));
         scrollingSectionDefs.add(new ScrollingSectionDef(
-                "Second", new Vector2(-30f, 15f), timeTicker2));
+                "Second", new Vector2(-30f, 15f), timer2));
         // define scrroling game camera handler
         camera = new OrthographicCamera();
         scrollingGameCameraManager = new ScrollingGameCameraManager(

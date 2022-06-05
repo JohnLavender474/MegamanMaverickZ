@@ -6,15 +6,20 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /**
- * Represents percentage.
+ * Percentage in integer representation.
  */
-@Getter
 @EqualsAndHashCode
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Percentage implements Comparable<Percentage> {
 
     private Integer percentage;
 
+    /**
+     * Of percentage.
+     *
+     * @param percent the percent
+     * @return the percentage
+     */
     public static Percentage of(int percent) {
         Percentage percentage = new Percentage();
         percentage.setPercentage(percent);
@@ -22,7 +27,34 @@ public class Percentage implements Comparable<Percentage> {
     }
 
     /**
-     * Sets the percentage.
+     * Get percentage.
+     *
+     * @return the integer percentage
+     */
+    public Integer get() {
+        return percentage;
+    }
+
+    /**
+     * Returns true if 100%, else false
+     *
+     * @return true if 100%, else false
+     */
+    public boolean isFull() {
+        return percentage == 100;
+    }
+
+    /**
+     * Returns true if 0%, else false
+     *
+     * @return true if 0%, else false
+     */
+    public boolean isZero() {
+        return percentage == 0;
+    }
+
+    /**
+     * Sets the percentage. Maximum is 100 and minimum is 0.
      *
      * @param percentage the percentage
      */
@@ -35,9 +67,9 @@ public class Percentage implements Comparable<Percentage> {
     }
 
     /**
-     * Translate the percentage.
+     * Translate the percentage. Caps at 100 and lowest is 0.
      *
-     * @param delta the delta
+     * @param delta the delta translation
      */
     public void translate(int delta) {
         setPercentage(percentage - delta);
@@ -45,7 +77,7 @@ public class Percentage implements Comparable<Percentage> {
 
     @Override
     public int compareTo(Percentage o) {
-        return percentage.compareTo(o.getPercentage());
+        return percentage.compareTo(o.get());
     }
 
 }

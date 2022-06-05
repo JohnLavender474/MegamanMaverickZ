@@ -95,14 +95,14 @@ public class ScrollingGameCameraManager extends GameCameraManager {
             return;
         }
         ScrollingSectionDef scrollingSectionDef = scrollingSectionDefs.get(currentIndex);
-        scrollingSectionDef.timeTicker().update(delta);
+        scrollingSectionDef.timer().update(delta);
         Vector2 pos = UtilMethods.interpolate(initialPos, scrollingSectionDef.target(),
-                                              scrollingSectionDef.timeTicker().getRatio());
+                                              scrollingSectionDef.timer().getRatio());
         camera.position.x = pos.x;
         camera.position.y = pos.y;
-        if (scrollingSectionDef.timeTicker().isFinished()) {
+        if (scrollingSectionDef.timer().isFinished()) {
             currentIndex++;
-            scrollingSectionDef.timeTicker().reset();
+            scrollingSectionDef.timer().reset();
             initialPos.set(scrollingSectionDef.target());
         }
     }

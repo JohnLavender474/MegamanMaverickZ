@@ -1,8 +1,5 @@
 package com.mygdx.game.core;
 
-import com.mygdx.game.core.Component;
-import com.mygdx.game.core.Entity;
-import com.mygdx.game.core.System;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

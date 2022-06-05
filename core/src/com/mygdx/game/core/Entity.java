@@ -3,6 +3,7 @@ package com.mygdx.game.core;
 import com.badlogic.gdx.math.Rectangle;
 import com.mygdx.game.utils.exceptions.ClashException;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 import java.util.Collection;
@@ -17,10 +18,9 @@ import static com.mygdx.game.utils.UtilMethods.objName;
 @ToString
 public class Entity {
 
-    @Getter
-    private final Rectangle boundingBox = new Rectangle();
-
+    @Getter private final Rectangle boundingBox = new Rectangle();
     private final Map<Class<? extends Component>, Component> components = new HashMap<>();
+    @Getter @Setter private boolean markedForRemoval;
 
     /**
      * Fetches the {@link Component} instances mapped to the provided {@link Class<Component>} if it exists.
@@ -68,15 +68,6 @@ public class Entity {
                                      "existing component " + objName(component) + " in " + this);
         }
         components.put(component.getClass(), component);
-    }
-
-    /**
-     * Removes the {@link Component} from this Entity's Component set.
-     *
-     * @param clazz the class of the Component to be removed
-     */
-    public void removeComponent(Class<? extends Component> clazz) {
-        components.remove(clazz);
     }
 
 }

@@ -1,7 +1,7 @@
 package com.mygdx.game.utils;
 
 /**
- * Intended to be used with {@link TimeTicker}. Performs {@link Runnable#run()} on each {@link Runnable} in the
+ * Intended to be used with {@link Timer}. Performs {@link Runnable#run()} on each {@link Runnable} in the
  * supplied Collection when the supplied time has just been surpassed by a timer.
  */
 public record TimeMarkedRunnable(Float time, Runnable runnable)

@@ -21,84 +21,84 @@ public enum ControllerButton {
 
     START {
         @Override
-        public Integer getDefaultKeyboardBindingCode() {
+        public Integer getKeyboardBindingCode() {
             return Keys.SPACE;
         }
 
         @Override
-        public Integer getDefaultControllerBindingCode() {
+        public Integer getControllerBindingCode() {
             return isControllerConnected() ? getController().getMapping().buttonStart : null;
         }
     },
 
     UP {
         @Override
-        public Integer getDefaultKeyboardBindingCode() {
+        public Integer getKeyboardBindingCode() {
             return Keys.W;
         }
 
         @Override
-        public Integer getDefaultControllerBindingCode() {
+        public Integer getControllerBindingCode() {
             return isControllerConnected() ? getController().getMapping().buttonDpadUp : null;
         }
     },
 
     DOWN {
         @Override
-        public Integer getDefaultKeyboardBindingCode() {
+        public Integer getKeyboardBindingCode() {
             return Keys.S;
         }
 
         @Override
-        public Integer getDefaultControllerBindingCode() {
+        public Integer getControllerBindingCode() {
             return isControllerConnected() ? getController().getMapping().buttonDpadDown : null;
         }
     },
 
     LEFT {
         @Override
-        public Integer getDefaultKeyboardBindingCode() {
+        public Integer getKeyboardBindingCode() {
             return Keys.A;
         }
 
         @Override
-        public Integer getDefaultControllerBindingCode() {
+        public Integer getControllerBindingCode() {
             return isControllerConnected() ? getController().getMapping().buttonDpadLeft : null;
         }
     },
 
     RIGHT {
         @Override
-        public Integer getDefaultKeyboardBindingCode() {
+        public Integer getKeyboardBindingCode() {
             return Keys.D;
         }
 
         @Override
-        public Integer getDefaultControllerBindingCode() {
+        public Integer getControllerBindingCode() {
             return isControllerConnected() ? getController().getMapping().buttonDpadRight : null;
         }
     },
 
     A {
         @Override
-        public Integer getDefaultKeyboardBindingCode() {
+        public Integer getKeyboardBindingCode() {
             return Keys.K;
         }
 
         @Override
-        public Integer getDefaultControllerBindingCode() {
+        public Integer getControllerBindingCode() {
             return isControllerConnected() ? getController().getMapping().buttonA : null;
         }
     },
 
     X {
         @Override
-        public Integer getDefaultKeyboardBindingCode() {
+        public Integer getKeyboardBindingCode() {
             return Keys.J;
         }
 
         @Override
-        public Integer getDefaultControllerBindingCode() {
+        public Integer getControllerBindingCode() {
             return isControllerConnected() ? getController().getMapping().buttonX : null;
         }
     };
@@ -108,7 +108,7 @@ public enum ControllerButton {
      *
      * @return the default keyboard binding code
      */
-    public abstract Integer getDefaultKeyboardBindingCode();
+    public abstract Integer getKeyboardBindingCode();
 
     /**
      * Returns the default controller binding code for the controller button value. Returns null if no
@@ -116,6 +116,6 @@ public enum ControllerButton {
      *
      * @return the default controller binding code
      */
-    public abstract Integer getDefaultControllerBindingCode();
+    public abstract Integer getControllerBindingCode();
 
 }

@@ -1,6 +1,5 @@
 package com.mygdx.game.core;
 
-import com.mygdx.game.GameContext2d;
 import com.mygdx.game.utils.Updatable;
 import com.mygdx.game.utils.exceptions.InvalidActionException;
 import lombok.*;
@@ -15,7 +14,6 @@ import static com.mygdx.game.utils.UtilMethods.objName;
  * elements of {@link #getComponentMask}. Because the behavior of systems is independent of game state, systems should
  * only be initialized once.
  */
-@RequiredArgsConstructor
 public abstract class System implements Updatable {
 
     @Getter private boolean updating;
@@ -62,7 +60,7 @@ public abstract class System implements Updatable {
         while (!entitiesToRemoveQueue.isEmpty()) {
             entities.remove(entitiesToRemoveQueue.poll());
         }
-        entities.removeIf(entity -> !qualifiesMembership(entity));
+        entities.removeIf(entity -> !qualifiesMembership(entity) || entity.isMarkedForRemoval());
         preProcess(delta);
         entities.forEach(entity -> processEntity(entity, delta));
         postProcess(delta);

@@ -47,18 +47,6 @@ public class EntityTest {
     }
 
     @Test
-    public void removeComponents() {
-        // given
-        entity.addComponent(component1);
-        entity.addComponent(component2);
-        entity.addComponent(component3);
-        // when
-        entity.removeComponent(Component1.class);
-        // then
-        assertFalse(entity.hasComponent(Component1.class));
-    }
-
-    @Test
     public void componentEquality() {
         // given
         entity.addComponent(component1);

@@ -9,7 +9,8 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.mygdx.game.ConstVals.TextureAssets;
 import com.mygdx.game.GameContext2d;
-import com.mygdx.game.utils.TimeTicker;
+import com.mygdx.game.controllers.ControllerListener;
+import com.mygdx.game.utils.Timer;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -18,12 +19,15 @@ import lombok.RequiredArgsConstructor;
  */
 @Getter
 @RequiredArgsConstructor
-public abstract class BaseScreen implements Screen {
+public abstract class BaseScreen implements Screen, ControllerListener {
 
+    /**
+     * The Game context.
+     */
     protected final GameContext2d gameContext;
 
     private Sprite blackBoxSprite;
-    private TimeTicker fadeTimer;
+    private Timer fadeTimer;
     private boolean fadingOut;
     private boolean fadingIn;
     private boolean paused;
@@ -31,11 +35,16 @@ public abstract class BaseScreen implements Screen {
 
     @Override
     public void show() {
-        fadeTimer = new TimeTicker();
+        fadeTimer = new Timer();
         blackBoxSprite = new Sprite();
         TextureRegion blackBoxRegion = gameContext.getAsset(
                 TextureAssets.DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class).findRegion("Black");
         blackBoxSprite.setRegion(blackBoxRegion);
+    }
+
+    @Override
+    public void render(float delta) {
+        gameContext.getControllerManager().listenToController(this, delta);
     }
 
     @Override
@@ -63,7 +72,8 @@ public abstract class BaseScreen implements Screen {
     /**
      * Sets music.
      *
-     * @param key the key
+     * @param key  the key
+     * @param loop the loop
      */
     public void setMusic(String key, boolean loop) {
         if (music != null) {
@@ -123,7 +133,6 @@ public abstract class BaseScreen implements Screen {
         }
         fadingOut = !fadeTimer.isFinished();
     }
-
 
     private void initFadeIn()
             throws IllegalStateException {

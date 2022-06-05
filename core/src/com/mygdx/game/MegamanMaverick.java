@@ -8,8 +8,6 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.utils.Disposable;
@@ -120,7 +118,6 @@ public class MegamanMaverick extends Game implements GameContext2d {
             Gdx.app.exit();
         }
         controllerManager.updateControllerStatuses();
-        controllerManager.updateControllerListeners();
         super.render();
     }
 

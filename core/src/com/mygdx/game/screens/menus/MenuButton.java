@@ -11,13 +11,13 @@ public interface MenuButton {
      * Action on select.
      *
      */
-    void onSelect();
+    void onSelect(float delta);
 
     /**
      * On navigate.
      *
      * @param direction  the direction
      */
-    void onNavigate(Direction direction);
+    void onNavigate(Direction direction, float delta);
 
 }

@@ -71,6 +71,7 @@ project(":core") {
         api "com.badlogicgames.ashley:ashley:$ashleyVersion"
         providedCompile "org.projectlombok:lombok:1.16.6"
         annotationProcessor 'org.projectlombok:lombok:1.18.20'
+        implementation 'com.kotcrab.vis:vis-ui:0.7.1'
     }
 }
 

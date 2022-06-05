@@ -1,9 +1,7 @@
 package com.mygdx.game.controllers;
 
 import java.util.EnumMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import static com.mygdx.game.controllers.ControllerUtils.*;
 
@@ -12,121 +10,43 @@ import static com.mygdx.game.controllers.ControllerUtils.*;
  */
 public class ControllerManager {
 
-    private final Map<ControllerButton, ControllerButtonDefinition> controllerButtons =
+    private final Map<ControllerButton, ControllerButtonStatus> controllerButtons =
             new EnumMap<>(ControllerButton.class);
-    private final Set<ControllerListener> controllerListeners = new HashSet<>();
 
     /**
      * Instantiates a new Controller manager.
      */
     public ControllerManager() {
         for (ControllerButton controllerButton : ControllerButton.values()) {
-            controllerButtons.put(controllerButton, new ControllerButtonDefinition());
+            controllerButtons.put(controllerButton, ControllerButtonStatus.IS_RELEASED);
         }
     }
 
-    /**
-     * Add controller listener.
-     *
-     * @param controllerListener the controller listener
-     */
-    public void addControllerListener(ControllerListener controllerListener) {
-        controllerListeners.add(controllerListener);
-    }
-
-    /**
-     * Remove controller listener.
-     *
-     * @param controllerListener the controller listener
-     */
-    public void removeControllerListener(ControllerListener controllerListener) {
-        controllerListeners.remove(controllerListener);
-    }
-
-    /**
-     * Gets controller button status.
-     *
-     * @param controllerButton the controller button
-     * @return the controller button status
-     */
-    public ControllerButtonStatus getControllerButtonStatus(ControllerButton controllerButton) {
-        ControllerButtonDefinition controllerButtonDefinition = controllerButtons.get(controllerButton);
-        return controllerButtonDefinition != null ? controllerButtonDefinition.getControllerButtonStatus() :
-                ControllerButtonStatus.IS_RELEASED;
-    }
-
-    /**
-     * Sets custom keyboard button code.
-     *
-     * @param controllerButton   the controller button
-     * @param keyboardButtonCode the keyboard button code
-     */
-    public void setCustomKeyboardButtonCode(ControllerButton controllerButton, Integer keyboardButtonCode) {
-        ControllerButtonDefinition controllerButtonDefinition = controllerButtons.get(controllerButton);
-        if (controllerButtonDefinition != null) {
-            controllerButtonDefinition.setCustomKeyboardButtonCode(keyboardButtonCode);
-        }
-    }
-
-    /**
-     * Sets custom controller button code.
-     *
-     * @param controllerButton     the controller button
-     * @param controllerButtonCode the controller button code
-     */
-    public void setCustomControllerButtonCode(ControllerButton controllerButton, Integer controllerButtonCode) {
-        ControllerButtonDefinition controllerButtonDefinition = controllerButtons.get(controllerButton);
-        if (controllerButtonDefinition != null) {
-            controllerButtonDefinition.setCustomControllerButtonCode(controllerButtonCode);
-        }
-    }
-
-    /**
-     * Update controller statuses.
-     */
     public void updateControllerStatuses() {
         for (ControllerButton controllerButton : ControllerButton.values()) {
-            ControllerButtonDefinition controllerButtonDefinition = controllerButtons.get(controllerButton);
-            ControllerButtonStatus controllerButtonStatus = controllerButtonDefinition.getControllerButtonStatus();
-            boolean isControllerButtonPressed;
-            if (isControllerConnected()) {
-                Integer controllerButtonCode = controllerButtonDefinition.getCustomControllerButtonCode() != null ?
-                        controllerButtonDefinition.getCustomControllerButtonCode() :
-                        controllerButton.getDefaultControllerBindingCode();
-                isControllerButtonPressed = isControllerButtonPressed(controllerButtonCode);
-            } else {
-                Integer keyboardButtonCode = controllerButtonDefinition.getCustomKeyboardButtonCode() != null ?
-                        controllerButtonDefinition.getCustomKeyboardButtonCode() :
-                        controllerButton.getDefaultKeyboardBindingCode();
-                isControllerButtonPressed = isKeyboardButtonPressed(keyboardButtonCode);
-            }
+            ControllerButtonStatus status = controllerButtons.get(controllerButton);
+            boolean isControllerButtonPressed = isControllerConnected() ?
+                    isControllerButtonPressed(controllerButton.getControllerBindingCode()) :
+                    isKeyboardButtonPressed(controllerButton.getKeyboardBindingCode());
             if (isControllerButtonPressed) {
-                if (controllerButtonStatus == ControllerButtonStatus.IS_RELEASED ||
-                        controllerButtonStatus == ControllerButtonStatus.IS_JUST_RELEASED) {
-                    controllerButtonDefinition.setControllerButtonStatus(ControllerButtonStatus.IS_JUST_PRESSED);
+                if (status == ControllerButtonStatus.IS_RELEASED ||
+                        status == ControllerButtonStatus.IS_JUST_RELEASED) {
+                    controllerButtons.replace(controllerButton, ControllerButtonStatus.IS_JUST_PRESSED);
                 } else {
-                    controllerButtonDefinition.setControllerButtonStatus(ControllerButtonStatus.IS_PRESSED);
+                    controllerButtons.replace(controllerButton, ControllerButtonStatus.IS_PRESSED);
                 }
+            } else if (status == ControllerButtonStatus.IS_JUST_RELEASED ||
+                    status == ControllerButtonStatus.IS_RELEASED) {
+                controllerButtons.replace(controllerButton, ControllerButtonStatus.IS_RELEASED);
             } else {
-                if (controllerButtonStatus == ControllerButtonStatus.IS_JUST_RELEASED ||
-                        controllerButtonStatus == ControllerButtonStatus.IS_RELEASED) {
-                    controllerButtonDefinition.setControllerButtonStatus(ControllerButtonStatus.IS_RELEASED);
-                } else {
-                    controllerButtonDefinition.setControllerButtonStatus(ControllerButtonStatus.IS_JUST_RELEASED);
-                }
+                controllerButtons.replace(controllerButton, ControllerButtonStatus.IS_JUST_RELEASED);
             }
         }
     }
 
-    /**
-     * Update controller listeners.
-     */
-    public void updateControllerListeners() {
-        for (Map.Entry<ControllerButton, ControllerButtonDefinition> entry : controllerButtons.entrySet()) {
-            controllerListeners.forEach(controllerListener -> controllerListener
-                    .listenToController(entry.getKey(),
-                                        entry.getValue().getControllerButtonStatus()));
-        }
+    public void listenToController(ControllerListener listener, float delta) {
+        controllerButtons.forEach(
+                (key, value) -> listener.listenToController(key, value, delta));
     }
 
 }

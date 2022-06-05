@@ -65,10 +65,7 @@ public class BodyComponent implements Component {
     private Set<Fixture> fixtures = new HashSet<>();
     private Rectangle collisionBox = new Rectangle();
     private Position positionOnEntity = Position.CENTER;
-
-    @Setter(AccessLevel.NONE)
-    @Getter(AccessLevel.NONE)
-    private Vector2 frictionScalar = new Vector2(1f, 1f);
+    @Setter(AccessLevel.NONE) @Getter(AccessLevel.NONE) private Vector2 frictionScalar = new Vector2(1f, 1f);
 
     /**
      * Sets friction scalar values. Must be less than or equal to 1 and greater than 0, otherwise will throw exception.
