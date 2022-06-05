@@ -44,7 +44,7 @@ import java.util.Set;
  * Of course, this means that, contrary to intuition, the smaller the values of {@link #frictionScalar} are, the
  * greater the "friction" resistance. This means that, for example, 0.1f results in greater "friction" than 0.9f.
  * <p>
- * {@link #impulse} defines the movement of the body per frame. Impulse is reset to zero after every frame.
+ * {@link #impulse} defines the movement of the body for one frame. Impulse is reset to zero after every frame.
  * <p>
  * {@link #velocity} defines the movement of the body per frame. This is in addition to {@link #impulse}.
  * The difference between the two values is that impulse is reset to zero after every frame but the value

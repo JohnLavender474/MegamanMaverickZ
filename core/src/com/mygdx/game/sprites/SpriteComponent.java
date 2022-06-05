@@ -15,4 +15,5 @@ import java.util.*;
 @Setter
 public class SpriteComponent implements Component {
     private final Map<String, SpriteHandle> spriteHandles = new HashMap<>();
+    private SpriteAnimator spriteAnimator;
 }
