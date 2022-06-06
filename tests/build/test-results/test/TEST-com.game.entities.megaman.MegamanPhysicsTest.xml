@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.game.entities.megaman.MegamanPhysicsTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2022-06-05T23:14:23" hostname="Johns-MBP.lan" time="0.003">
+  <properties/>
+  <testcase name="runLeft" classname="com.game.entities.megaman.MegamanPhysicsTest" time="0.003"/>
+  <system-out><![CDATA[[-64.111984,-16.0,16.0,32.0]
+[-64.0,0.0,16.0,16.0]
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
