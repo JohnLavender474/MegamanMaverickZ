@@ -1,6 +1,8 @@
 package com.game.entities.megaman;
 
 import com.badlogic.gdx.math.Rectangle;
+import com.game.animations.AnimationComponent;
+import com.game.animations.Animator;
 import com.game.controllers.ControllerButton;
 import com.game.controllers.ControllerButtonActuator;
 import com.game.controllers.ControllerComponent;
@@ -10,10 +12,12 @@ import com.game.screens.levels.LevelCameraFocusable;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
 import com.game.utils.Direction;
+import com.game.utils.TimedAnimation;
 import com.game.world.BodyComponent;
 import lombok.Getter;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 import static com.game.ConstVals.ViewVals.PPM;
 import static com.game.entities.ActorState.*;
@@ -35,6 +39,9 @@ public class Megaman extends Entity implements Actor, LevelCameraFocusable {
     private final Set<Direction> movementDirections = new HashSet<>();
     private final MegamanStats megamanStats;
 
+    // default facing right, if not true then must be facing left
+    private boolean facingRight = true;
+
     /**
      * Instantiates a new Megaman.
      */
@@ -45,6 +52,7 @@ public class Megaman extends Entity implements Actor, LevelCameraFocusable {
         }
         addComponent(new SpriteComponent());
         addComponent(defineBodyComponent());
+        addComponent(defineAnimationComponent());
         addComponent(defineUpdatableComponent());
         addComponent(defineControllerComponent());
     }
@@ -55,23 +63,9 @@ public class Megaman extends Entity implements Actor, LevelCameraFocusable {
         return bodyComponent.getCollisionBox();
     }
 
-    public boolean is(ActorState actorState) {
-        return states.contains(actorState);
-    }
-
-    /**
-     * Is colliding with obstacle.
-     *
-     * @param direction the direction of the collision to check for
-     * @return if there is a collision in the direction
-     */
-    public boolean isCollidingWithObstacle(Direction direction) {
-        return collisionFlags.get(direction);
-    }
-
     private void runLeft(float delta) {
         states.add(ActorState.RUNNING_LEFT);
-        if (isCollidingWithObstacle(Direction.LEFT)) {
+        if (isColliding(Direction.LEFT)) {
             return;
         }
         BodyComponent bodyComponent = getComponent(BodyComponent.class);
@@ -80,11 +74,42 @@ public class Megaman extends Entity implements Actor, LevelCameraFocusable {
 
     private void runRight(float delta) {
         states.add(RUNNING_RIGHT);
-        if (isCollidingWithObstacle(Direction.RIGHT)) {
+        if (isColliding(Direction.RIGHT)) {
             return;
         }
         BodyComponent bodyComponent = getComponent(BodyComponent.class);
         bodyComponent.getImpulse().x += RUN_SPEED_PER_SECOND * PPM * delta;
+    }
+
+    private AnimationComponent defineAnimationComponent() {
+        // Key supplier
+        Supplier<String> keySupplier = () -> {
+            if (is(DAMAGED)) {
+                return "Damaged";
+            } else if (isAirDashing()) {
+                return "AirDash";
+            } else if (isGroundDashing()) {
+                return "GroundDash";
+            } else if (isWallSliding()) {
+                return "WallSlide";
+            } else if (is(JUMPING)) {
+                return "Jump";
+            } else if (isRunning()) {
+                return "Run";
+            } else if (isClimbing()) {
+                return "Climb";
+            } else {
+                return "Stand";
+            }
+        };
+        // Define animations
+
+        // Animations map
+        Map<String, TimedAnimation> animations = new HashMap<>();
+        // Define component
+        Animator animator = new Animator(keySupplier, animations);
+        AnimationComponent animationComponent = new AnimationComponent(animator);
+        return animationComponent;
     }
 
     private BodyComponent defineBodyComponent() {
@@ -99,8 +124,10 @@ public class Megaman extends Entity implements Actor, LevelCameraFocusable {
         // update running
         updatableComponent.getUpdatables().add((delta) -> {
             if (is(RUNNING_LEFT)) {
+                facingRight = false;
                 runLeft(delta);
             } else if (is(RUNNING_RIGHT)) {
+                facingRight = true;
                 runRight(delta);
             }
         });
