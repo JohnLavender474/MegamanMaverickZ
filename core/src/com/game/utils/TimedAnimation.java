@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,18 +27,22 @@ public class TimedAnimation implements Updatable, Resettable {
     private boolean loop;
 
     /**
+     * Instantiates a new Timed animation. Default number of frames is 1, default duration is 1 second.
+     *
+     * @param textureRegion the texture region
+     */
+    public TimedAnimation(TextureRegion textureRegion) {
+        this(textureRegion, 1, 1f);
+    }
+
+    /**
      * Instantiates a new Timed animation.
      *
-     * @param frameTimeKeyValuePairs the frame time key value pairs
+     * @param textureRegion the texture region
+     * @param durations     the durations
      */
-    public TimedAnimation(List<KeyValuePair<Float, TextureRegion>> frameTimeKeyValuePairs) {
-        frameTimeKeyValuePairs.forEach(frameTimeKeyValuePair -> {
-            TextureRegion t = frameTimeKeyValuePair.value();
-            Float f = frameTimeKeyValuePair.key();
-            animationDuration += f;
-            frameTimes.add(f);
-            frames.add(t);
-        });
+    public TimedAnimation(TextureRegion textureRegion, float[] durations) {
+        instantiate(textureRegion, durations);
     }
 
     /**
@@ -48,27 +53,39 @@ public class TimedAnimation implements Updatable, Resettable {
      * @param duration      the duration
      */
     public TimedAnimation(TextureRegion textureRegion, int numFrames, float duration) {
-        int width = textureRegion.getRegionWidth() / numFrames;
-        int height = textureRegion.getRegionHeight();
-        for (int i = 0; i < numFrames; i++) {
-            animationDuration += duration;
-            frameTimes.add(duration);
-            frames.add(new TextureRegion(textureRegion, width * i, 0, width, height));
-        }
+        float[] durations = new float[numFrames];
+        Arrays.fill(durations, duration);
+        instantiate(textureRegion, durations);
     }
 
     /**
      * Instantiates a new Timed animation.
      *
-     * @param timedAnimation the timed animation
+     * @param frameTimeKeyValuePairs the frame time key value pairs
      */
-    public TimedAnimation(TimedAnimation timedAnimation) {
-        frames.addAll(timedAnimation.getFrames());
-        frameTimes.addAll(timedAnimation.getFrameTimes());
-        for (float f : frameTimes) {
-            animationDuration += f;
+    public TimedAnimation(List<KeyValuePair<Float, TextureRegion>> frameTimeKeyValuePairs) {
+        instantiate(frameTimeKeyValuePairs);
+    }
+
+    private void instantiate(TextureRegion textureRegion, float[] durations) {
+        int width = textureRegion.getRegionWidth() / durations.length;
+        int height = textureRegion.getRegionHeight();
+        List<KeyValuePair<Float, TextureRegion>> frameTimeKeyValuePairs = new ArrayList<>();
+        for (int i = 0; i < durations.length; i++) {
+            frameTimeKeyValuePairs.add(new KeyValuePair<>(durations[i], new TextureRegion(
+                    textureRegion, width * i, 0, width, height)));
         }
-        setLoop(timedAnimation.isLoop());
+        instantiate(frameTimeKeyValuePairs);
+    }
+
+    private void instantiate(List<KeyValuePair<Float, TextureRegion>> frameTimeKeyValuePairs) {
+        frameTimeKeyValuePairs.forEach(frameTimeKeyValuePair -> {
+            TextureRegion t = frameTimeKeyValuePair.value();
+            Float f = frameTimeKeyValuePair.key();
+            animationDuration += f;
+            frameTimes.add(f);
+            frames.add(t);
+        });
     }
 
     /**
@@ -101,6 +118,13 @@ public class TimedAnimation implements Updatable, Resettable {
         timeElapsed = 0.0f;
     }
 
+    /**
+     * Of timed animation.
+     *
+     * @param textureRegion the texture region
+     * @param durations     the durations
+     * @return the timed animation
+     */
     public static TimedAnimation of(TextureRegion textureRegion, List<Float> durations) {
         int width = textureRegion.getRegionWidth() / durations.size();
         int height = textureRegion.getRegionHeight();

@@ -12,17 +12,20 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.utils.Disposable;
 import com.game.ConstVals.MegamanVals;
-import com.game.controllers.ControllerManager;
+import com.game.controllers.ControllerButton;
+import com.game.controllers.ControllerButtonStatus;
 import com.game.entities.Entity;
 import com.game.entities.megaman.MegamanStats;
 import com.game.screens.menu.impl.MainMenuScreen;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.*;
 
 import static com.game.ConstVals.MusicAssets.*;
 import static com.game.ConstVals.SoundAssets.*;
 import static com.game.ConstVals.TextureAssets.*;
+import static com.game.controllers.ControllerUtils.*;
 
 /**
  * The entry point into the Megaman game. Initializes all assets and classes that need to be initialized before gameplay
@@ -32,18 +35,22 @@ import static com.game.ConstVals.TextureAssets.*;
 @Getter
 public class MegamanMaverick extends Game implements GameContext2d {
 
+    private final Map<ControllerButton, ControllerButtonStatus> controllerButtons =
+            new EnumMap<>(ControllerButton.class);
     private final Map<Class<? extends System>, System> systems = new HashMap<>();
     private final List<Disposable> disposables = new ArrayList<>();
     private final Map<String, Object> blackBoard = new HashMap<>();
     private final Map<String, Screen> screens = new HashMap<>();
     private final Set<Entity> entities = new HashSet<>();
-    @Getter private ControllerManager controllerManager;
-    @Getter private AssetManager assetManager;
+    @Getter @Setter private GameState gameState;
     @Getter private SpriteBatch spriteBatch;
+    private AssetManager assetManager;
 
     @Override
     public void create() {
-        controllerManager = new ControllerManager();
+        for (ControllerButton controllerButton : ControllerButton.values()) {
+            controllerButtons.put(controllerButton, ControllerButtonStatus.IS_RELEASED);
+        }
         assetManager = new AssetManager();
         spriteBatch = new SpriteBatch();
         disposables.addAll(List.of(assetManager, spriteBatch));
@@ -85,6 +92,7 @@ public class MegamanMaverick extends Game implements GameContext2d {
                    HEALTH_WEAPON_STATS_TEXTURE_ATLAS);
         assetManager.finishLoading();
         putBlackboardObject(MegamanVals.MEGAMAN_STATS, new MegamanStats());
+        setGameState(GameState.IN_MENU);
         setScreen(new MainMenuScreen(this));
     }
 
@@ -159,6 +167,65 @@ public class MegamanMaverick extends Game implements GameContext2d {
         setScreen(screen);
     }
 
+
+    /**
+     * If controller button is just pressed.
+     *
+     * @param controllerButton the controller button
+     * @return if controller button is just pressed
+     */
+    public boolean isJustPressed(ControllerButton controllerButton) {
+        return controllerButtons.get(controllerButton) == ControllerButtonStatus.IS_JUST_PRESSED;
+    }
+
+    /**
+     * If controller button is pressed. Include if just pressed.
+     *
+     * @param controllerButton the controller button
+     * @return if the controller button is pressed or just pressed
+     */
+    public boolean isPressed(ControllerButton controllerButton) {
+        ControllerButtonStatus controllerButtonStatus = controllerButtons.get(controllerButton);
+        return controllerButtonStatus == ControllerButtonStatus.IS_JUST_PRESSED ||
+                controllerButtonStatus == ControllerButtonStatus.IS_PRESSED;
+    }
+
+    /**
+     * If controller button is just released.
+     *
+     * @param controllerButton the controller button
+     * @return if the controller button is just released
+     */
+    public boolean isJustReleased(ControllerButton controllerButton) {
+        return controllerButtons.get(controllerButton) == ControllerButtonStatus.IS_JUST_RELEASED;
+    }
+
+    /**
+     * Update controller statuses.
+     */
+    public void updateControllerStatuses() {
+        for (ControllerButton controllerButton : ControllerButton.values()) {
+            ControllerButtonStatus status = controllerButtons.get(controllerButton);
+            boolean isControllerButtonPressed = isControllerConnected() ?
+                    isControllerButtonPressed(controllerButton.getControllerBindingCode()) :
+                    isKeyboardButtonPressed(controllerButton.getKeyboardBindingCode());
+            if (isControllerButtonPressed) {
+                if (status == ControllerButtonStatus.IS_RELEASED ||
+                        status == ControllerButtonStatus.IS_JUST_RELEASED) {
+                    controllerButtons.replace(controllerButton, ControllerButtonStatus.IS_JUST_PRESSED);
+                } else {
+                    controllerButtons.replace(controllerButton, ControllerButtonStatus.IS_PRESSED);
+                }
+            } else if (status == ControllerButtonStatus.IS_JUST_RELEASED ||
+                    status == ControllerButtonStatus.IS_RELEASED) {
+                controllerButtons.replace(controllerButton, ControllerButtonStatus.IS_RELEASED);
+            } else {
+                controllerButtons.replace(controllerButton, ControllerButtonStatus.IS_JUST_RELEASED);
+            }
+        }
+    }
+
+
     @Override
     public void render() {
         Gdx.gl20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -174,7 +241,7 @@ public class MegamanMaverick extends Game implements GameContext2d {
             }
         });
         entities.removeIf(Entity::isMarkedForRemoval);
-        controllerManager.updateControllerStatuses();
+        updateControllerStatuses();
         super.render();
     }
 

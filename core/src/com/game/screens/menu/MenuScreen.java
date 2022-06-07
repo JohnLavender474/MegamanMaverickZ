@@ -6,12 +6,9 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.game.GameContext2d;
 import com.game.controllers.ControllerButton;
-import com.game.controllers.ControllerButtonStatus;
-import com.game.controllers.ControllerListener;
 import com.game.utils.Direction;
 import lombok.Getter;
 
-import java.util.EnumMap;
 import java.util.Map;
 
 import static com.game.ConstVals.ViewVals.*;
@@ -19,15 +16,7 @@ import static com.game.ConstVals.ViewVals.*;
 /**
  * The base class for all menu screens. Menu buttons need to be defined via {@link #defineMenuButtons()}.
  */
-public abstract class MenuScreen extends ScreenAdapter implements ControllerListener {
-
-    private static final Map<ControllerButton, Direction> directionalControllerButtonMappings =
-            new EnumMap<>(ControllerButton.class) {{
-                put(ControllerButton.UP, Direction.UP);
-                put(ControllerButton.DOWN, Direction.DOWN);
-                put(ControllerButton.LEFT, Direction.LEFT);
-                put(ControllerButton.RIGHT, Direction.RIGHT);
-            }};
+public abstract class MenuScreen extends ScreenAdapter {
 
     protected final Viewport viewport;
     protected final GameContext2d gameContext;
@@ -65,21 +54,21 @@ public abstract class MenuScreen extends ScreenAdapter implements ControllerList
     public void render(float delta) {
         super.render(delta);
         viewport.apply();
-    }
-
-    @Override
-    public void listenToController(ControllerButton button, ControllerButtonStatus status, float delta) {
-        if (status == ControllerButtonStatus.IS_JUST_PRESSED) {
-            System.out.println("Is just pressed: " + button);
-            MenuButton menuButton = menuButtons.get(currentMenuButtonKey);
-            if (menuButton != null) {
-                switch (button) {
-                    case UP, DOWN, LEFT, RIGHT -> {
-                        Direction direction = directionalControllerButtonMappings.get(button);
-                        menuButton.onNavigate(direction, delta);
-                    }
-                    case START, X -> menuButton.onSelect(delta);
-                }
+        MenuButton menuButton = menuButtons.get(currentMenuButtonKey);
+        if (menuButton != null) {
+            if (gameContext.isJustPressed(ControllerButton.X) ||
+                    gameContext.isJustPressed(ControllerButton.A) ||
+                    gameContext.isJustPressed(ControllerButton.START)) {
+                menuButton.onSelect(delta);
+            }
+            if (gameContext.isJustPressed(ControllerButton.UP)) {
+                menuButton.onNavigate(Direction.UP, delta);
+            } else if (gameContext.isJustPressed(ControllerButton.DOWN)) {
+                menuButton.onNavigate(Direction.DOWN, delta);
+            } else if (gameContext.isJustPressed(ControllerButton.LEFT)) {
+                menuButton.onNavigate(Direction.LEFT, delta);
+            } else if (gameContext.isJustPressed(ControllerButton.RIGHT)) {
+                menuButton.onNavigate(Direction.RIGHT, delta);
             }
         }
     }

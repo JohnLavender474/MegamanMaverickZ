@@ -17,9 +17,8 @@ import static com.game.utils.UtilMethods.objName;
  */
 public abstract class System implements Updatable {
 
-    @Getter private boolean updating;
     @Setter private boolean isOn = true;
-    private final List<Entity> entities = new ArrayList<>();
+    private final Set<Entity> entities = new HashSet<>();
     private final Queue<Entity> entitiesToAddQueue = new LinkedList<>();
     private final Queue<Entity> entitiesToRemoveQueue = new LinkedList<>();
 
@@ -54,11 +53,10 @@ public abstract class System implements Updatable {
     protected void postProcess(float delta) {}
 
     @Override
-    public void update(float delta) {
+    public final void update(float delta) {
         if (!isOn) {
             return;
         }
-        updating = true;
         while (!entitiesToAddQueue.isEmpty()) {
             entities.add(entitiesToAddQueue.poll());
         }
@@ -69,7 +67,6 @@ public abstract class System implements Updatable {
         preProcess(delta);
         entities.forEach(entity -> processEntity(entity, delta));
         postProcess(delta);
-        updating = false;
     }
 
     /**
@@ -95,11 +92,7 @@ public abstract class System implements Updatable {
         if (!qualifiesMembership(entity)) {
             throw new InvalidActionException("Cannot add " + objName(entity) + " as member of " + this);
         }
-        if (isUpdating()) {
-            entitiesToAddQueue.add(entity);
-        } else {
-            entities.add(entity);
-        }
+        entitiesToAddQueue.add(entity);
     }
 
     /**
@@ -109,20 +102,7 @@ public abstract class System implements Updatable {
      * @param entity the entity
      */
     public void removeEntity(Entity entity) {
-        if (isUpdating()) {
-            entitiesToRemoveQueue.add(entity);
-        } else {
-            entities.remove(entity);
-        }
-    }
-
-    /**
-     * Copy of {@link Entity} list.
-     *
-     * @return the copy set of entities
-     */
-    public List<Entity> getUnmodifiableCopyOfListOfEntities() {
-        return Collections.unmodifiableList(entities);
+        entitiesToRemoveQueue.add(entity);
     }
 
     /**

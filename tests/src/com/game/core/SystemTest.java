@@ -109,7 +109,6 @@ public class SystemTest {
         entity.addComponent(new Component2());
         entity.addComponent(new Component3());
         TestSystem spyTestSystem = Mockito.spy(testSystem);
-        Mockito.doReturn(true).when(spyTestSystem).isUpdating();
         // when
         spyTestSystem.addEntity(entity);
         // then
@@ -125,7 +124,6 @@ public class SystemTest {
         entity.addComponent(new Component3());
         TestSystem spyTestSystem = Mockito.spy(testSystem);
         spyTestSystem.addEntity(entity);
-        Mockito.doReturn(true).when(spyTestSystem).isUpdating();
         // when
         spyTestSystem.removeEntity(entity);
         // then

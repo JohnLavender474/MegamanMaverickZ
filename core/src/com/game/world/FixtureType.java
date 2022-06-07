@@ -4,8 +4,6 @@ public enum FixtureType {
     HEAD,
     FEET,
     ITEM,
-    LEFT,
-    RIGHT,
     DEATH,
     BLOCK,
     LADDER,

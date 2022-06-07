@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.game.game.ExampleTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2022-06-05T23:14:23" hostname="Johns-MBP.lan" time="0.017">
-  <properties/>
-  <testcase name="stupidTest" classname="com.game.game.ExampleTest" time="0.0"/>
-  <testcase name="badlogicLogoFileExists" classname="com.game.game.ExampleTest" time="0.001"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>

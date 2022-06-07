@@ -1,67 +1,56 @@
 package com.game.world;
 
-import com.badlogic.gdx.math.Intersector;
-import com.badlogic.gdx.math.Rectangle;
 import com.game.utils.Pair;
+import com.game.utils.ProcessState;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
- * Defines the case in which {@link Intersector#intersectRectangles(Rectangle, Rectangle, Rectangle)}, provided with
- * {@link Fixture#getFixtureBox()} of both the {@link Fixture} instances, returns true.
- * <p>
- * {@link #acceptMask(FixtureType, FixtureType)} returns if {@link Fixture#getFixtureType()} of the two fixtures
- * matches the supplied {@link FixtureType} values. If the method returns true, then {@link #mask} is set with the two
- * fixtures in the same order as the supplied FixtureType arguments. Otherwise, the mask pair remains null.
+ * Defines contact between two {@link Fixture} instances. Two contact instances are considered if they both
+ * contain the same fixture instances, regardless of insertion order.
  */
 @Getter
 @ToString
-@RequiredArgsConstructor
 public class Contact {
 
-    private final Fixture fixture1;
-    private final Fixture fixture2;
-    private Pair<Fixture> mask;
+    private final Pair<Fixture> pair;
 
     /**
-     * Checks if {@link Fixture#getFixtureType()} of {@link #fixture1} and {@link #fixture2} matches the supplied
-     * {@link FixtureType} arguments. If so, then return true and set {@link #mask}, otherwise return false and
-     * keep the mask pair the same as it was, null if never initialized by accepted mask.
+     * Instantiates a new Contact.
      *
-     * @param fixtureType1 the fixture type 1
-     * @param fixtureType2 the fixture type 2
-     * @return if the mask is accepted
+     * @param f1 the fixture 1
+     * @param f2 the fixture 2
      */
-    public boolean acceptMask(FixtureType fixtureType1, FixtureType fixtureType2) {
-        if (acceptFixture1Mask(fixtureType1) && acceptFixture2Mask(fixtureType2)) {
-            mask = new Pair<>(fixture1, fixture2);
-            return true;
-        } else if (acceptFixture1Mask(fixtureType2) && acceptFixture2Mask(fixtureType1)) {
-            mask = new Pair<>(fixture2, fixture1);
-            return true;
+    public Contact(Fixture f1, Fixture f2) {
+        pair = new Pair<>(f1, f2);
+    }
+
+    /**
+     * Runs the contact process if any. Each {@link Fixture} is checked if it is listening to contacts with other
+     * fixtures with the provided {@link ProcessState} value and the value of {@link Fixture#getFixtureType()} of
+     * the other fixture. If the case, then the fixture's contact listener {@link Runnable} is run. Otherwise,
+     * nothing happens.
+     *
+     * @param processState the process state
+     */
+    public void run(ProcessState processState) {
+        if (pair.first().isListeningForContact(processState, pair.second().getFixtureType())) {
+            pair.first().runContactListener(processState, pair.second().getFixtureType());
         }
-        return false;
-    }
-
-    private boolean acceptFixture1Mask(FixtureType fixtureType) {
-        return fixture1.getFixtureType().equals(fixtureType);
-    }
-
-    private boolean acceptFixture2Mask(FixtureType fixtureType) {
-        return fixture2.getFixtureType().equals(fixtureType);
+        if (pair.second().isListeningForContact(processState, pair.first().getFixtureType())) {
+            pair.second().runContactListener(processState, pair.first().getFixtureType());
+        }
     }
 
     @Override
     public boolean equals(Object o) {
         return o instanceof Contact contact &&
-                ((fixture1.equals(contact.getFixture1()) && fixture2.equals(contact.getFixture2())) ||
-                        (fixture1.equals(contact.getFixture2()) && fixture2.equals(contact.getFixture1())));
+                pair.equals(contact.getPair());
     }
 
     @Override
     public int hashCode() {
-        return fixture1.hashCode() + fixture2.hashCode();
+        return pair.hashCode();
     }
 
 }

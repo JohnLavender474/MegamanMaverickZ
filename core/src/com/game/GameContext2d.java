@@ -1,15 +1,30 @@
 package com.game;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.game.controllers.ControllerManager;
+import com.game.controllers.ControllerButton;
 import com.game.entities.Entity;
 
 import java.util.Collection;
 
 /**
- * Represents the bare essentials for a 2D game.
+ * Represents the essentials for a 2D game, including game state management, entity and systems management, controller
+ * listening, asset loading, sprite batch, screen management, and blackboard.
  */
 public interface GameContext2d {
+
+    /**
+     * Set current state.
+     *
+     * @param gameState the game state
+     */
+    void setGameState(GameState gameState);
+
+    /**
+     * Get current state.
+     *
+     * @return the current state
+     */
+    GameState getGameState();
 
     /**
      * Add {@link Entity}. To remove the entity, {@link Entity#isMarkedForRemoval()} should be set to true.
@@ -27,7 +42,7 @@ public interface GameContext2d {
     Collection<Entity> viewOfEntities();
 
     /**
-     * Gets {@link System}.
+     * Get {@link System}.
      *
      * @param <S>    the type parameter of the system
      * @param sClass the system class
@@ -36,18 +51,35 @@ public interface GameContext2d {
     <S extends System> S getSystem(Class<S> sClass);
 
     /**
-     * Gets sprite batch.
+     * Get sprite batch.
      *
      * @return the sprite batch
      */
     SpriteBatch getSpriteBatch();
 
     /**
-     * Gets controller manager.
+     * If controller button is just pressed.
      *
-     * @return the controller manager
+     * @param controllerButton the controller button
+     * @return if controller button is just pressed
      */
-    ControllerManager getControllerManager();
+    boolean isJustPressed(ControllerButton controllerButton);
+
+    /**
+     * If controller button is pressed. Include if just pressed.
+     *
+     * @param controllerButton the controller button
+     * @return if the controller button is pressed or just pressed
+     */
+    boolean isPressed(ControllerButton controllerButton);
+
+    /**
+     * If controller button is just released.
+     *
+     * @param controllerButton the controller button
+     * @return if the controller button is just released
+     */
+    boolean isJustReleased(ControllerButton controllerButton);
 
     /**
      * Put blackboard object.
@@ -68,7 +100,7 @@ public interface GameContext2d {
     <T> T getBlackboardObject(String key, Class<T> tClass);
 
     /**
-     * Gets asset such as music or sound effect object.
+     * Get asset such as music or sound effect object.
      *
      * @param <T>    the type parameter of the object
      * @param key    the key
@@ -78,7 +110,7 @@ public interface GameContext2d {
     <T> T loadAsset(String key, Class<T> tClass);
 
     /**
-     * Sets screen.
+     * Set screen.
      *
      * @param key the key
      */

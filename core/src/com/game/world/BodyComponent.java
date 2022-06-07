@@ -5,15 +5,12 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
 import com.game.entities.Entity;
+import com.game.utils.Direction;
 import com.game.utils.Position;
 import com.game.utils.exceptions.InvalidArgumentException;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Defines the body and world rules of the {@link Entity}.
@@ -36,11 +33,11 @@ import java.util.Set;
  *     // other logic performed on x and y
  *     // before adding x and y to body component collision box
  *
- * }****</pre>
+ * }*******</pre>
  * Of course, this means that, contrary to intuition, the smaller the values of {@link #frictionScalar} are, the
  * greater the "friction" resistance. This means that, for example, 0.1f results in greater "friction" than 0.9f.
  * <p>
- * {@link #impulse} defines the movement of the body for one frame. Impulse is reset to zero after every frame.
+ * {@link #impulse} defines the movement of the body for one fram      e. Impulse is reset to zero after every frame.
  * <p>
  * {@link #velocity} defines the movement of the body per frame. This is in addition to {@link #impulse}.
  * The difference between the two values is that impulse is reset to zero after every frame but the value
@@ -51,19 +48,50 @@ import java.util.Set;
 @Getter
 @Setter
 @ToString
-public class BodyComponent implements Component {
+public class BodyComponent implements Component, Collidable {
 
     private Color debugColor = Color.GREEN;
     private Vector2 gravity = new Vector2();
     private Vector2 impulse = new Vector2();
     private Vector2 velocity = new Vector2();
     private BodyType bodyType = BodyType.ABSTRACT;
-    private Set<Fixture> fixtures = new HashSet<>();
     private Rectangle collisionBox = new Rectangle();
+    private List<Fixture> fixtures = new ArrayList<>();
+    private Map<Direction, Boolean> collisionFlags = new EnumMap<>(Direction.class);
     @Setter(AccessLevel.NONE) @Getter(AccessLevel.NONE) private Vector2 frictionScalar = new Vector2(1f, 1f);
 
     /**
+     * Instantiates a new Body component.
+     */
+    public BodyComponent() {
+        resetCollisionFlags();
+    }
+
+    /**
+     * See {@link #setFrictionScalar(float, float)}.
+     *
+     * @param x the x value of the friction scalar
+     * @throws InvalidArgumentException thrown if the value of x is greater than 1 or less than or equal to 0
+     */
+    public void setFrictionScalarX(float x)
+            throws InvalidArgumentException {
+        setFrictionScalar(x, frictionScalar.y);
+    }
+
+    /**
+     * See {@link #setFrictionScalar(float, float)}.
+     *
+     * @param y the y value of the friction scalar
+     * @throws InvalidArgumentException thrown if the value of y is greater than 1 or less than or equal to 0
+     */
+    public void setFrictionScalarY(float y)
+            throws InvalidArgumentException {
+        setFrictionScalar(frictionScalar.x, y);
+    }
+
+    /**
      * Sets friction scalar values. Must be less than or equal to 1 and greater than 0, otherwise will throw exception.
+     * Friction scalar values are reset back to 1 after every frame.
      *
      * @param x the x friction scalar value
      * @param y the y friction scalar value

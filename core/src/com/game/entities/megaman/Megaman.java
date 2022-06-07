@@ -1,60 +1,73 @@
 package com.game.entities.megaman;
 
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Rectangle;
+import com.game.ConstVals.TextureAssets;
+import com.game.GameContext2d;
+import com.game.acting.Actor;
+import com.game.acting.ActorAction;
+import com.game.acting.ActorComponent;
+import com.game.acting.ActorState;
 import com.game.animations.AnimationComponent;
 import com.game.animations.Animator;
 import com.game.controllers.ControllerButton;
-import com.game.controllers.ControllerButtonActuator;
-import com.game.controllers.ControllerComponent;
 import com.game.entities.Entity;
-import com.game.entities.*;
 import com.game.screens.levels.LevelCameraFocusable;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
-import com.game.utils.Direction;
-import com.game.utils.TimedAnimation;
+import com.game.utils.*;
+import com.game.utils.Timer;
 import com.game.world.BodyComponent;
+import com.game.world.Collidable;
+import com.game.world.Fixture;
+import com.game.world.FixtureType;
 import lombok.Getter;
 
 import java.util.*;
 import java.util.function.Supplier;
 
 import static com.game.ConstVals.ViewVals.PPM;
-import static com.game.entities.ActorState.*;
+import static com.game.acting.ActorState.*;
 
 /**
  * Megaman implementation of {@link Entity}.
  */
 @Getter
-public class Megaman extends Entity implements Actor, LevelCameraFocusable {
+public class Megaman extends Entity implements Actor, Collidable, LevelCameraFocusable {
+
+    public enum A_ButtonAction {
+        JUMP,
+        AIR_DASH
+    }
 
     // all constants are expressed in world units
+    public static final float JUMP_IMPULSE_PER_SECOND = 9f;
+    public static final float MAX_GRAVITY_PER_SECOND = -9f;
     public static final float RUN_SPEED_PER_SECOND = 3.5f;
-    public static final float JUMP_INIT_IMPULSE = 9f;
     public static final float GRAVITY_DELTA = 0.5f;
-    public static final float MAX_GRAVITY = -9f;
 
-    private final Map<Direction, Boolean> collisionFlags = new EnumMap<>(Direction.class);
-    private final Set<ActorState> states = EnumSet.noneOf(ActorState.class);
-    private final Set<Direction> movementDirections = new HashSet<>();
+    private final GameContext2d gameContext;
     private final MegamanStats megamanStats;
+    private final Set<Direction> movementDirections = new HashSet<>();
 
-    // default facing right, if not true then must be facing left
+    private final Timer wallJumpingTimer = new Timer(0.1f);
+
+    // Set sprite facing direction right, if false then face left
     private boolean facingRight = true;
+    // Action for the A button, no action if null
+    private A_ButtonAction aButtonAction;
 
     /**
      * Instantiates a new Megaman.
      */
-    public Megaman(MegamanStats megamanStats) {
+    public Megaman(GameContext2d gameContext, MegamanStats megamanStats) {
+        this.gameContext = gameContext;
         this.megamanStats = megamanStats;
-        for (Direction direction : Direction.values()) {
-            collisionFlags.put(direction, false);
-        }
         addComponent(new SpriteComponent());
         addComponent(defineBodyComponent());
+        addComponent(defineActorComponent());
         addComponent(defineAnimationComponent());
         addComponent(defineUpdatableComponent());
-        addComponent(defineControllerComponent());
     }
 
     @Override
@@ -63,22 +76,101 @@ public class Megaman extends Entity implements Actor, LevelCameraFocusable {
         return bodyComponent.getCollisionBox();
     }
 
-    private void runLeft(float delta) {
-        states.add(ActorState.RUNNING_LEFT);
-        if (isColliding(Direction.LEFT)) {
-            return;
-        }
-        BodyComponent bodyComponent = getComponent(BodyComponent.class);
-        bodyComponent.getImpulse().x -= RUN_SPEED_PER_SECOND * PPM * delta;
+    @Override
+    public Set<ActorState> getActiveStates() {
+        ActorComponent actorComponent = getComponent(ActorComponent.class);
+        return actorComponent.getActiveStates();
     }
 
-    private void runRight(float delta) {
-        states.add(RUNNING_RIGHT);
-        if (isColliding(Direction.RIGHT)) {
+    @Override
+    public Map<Direction, Boolean> getCollisionFlags() {
+        BodyComponent bodyComponent = getComponent(BodyComponent.class);
+        return bodyComponent.getCollisionFlags();
+    }
+
+    private void run(float delta) {
+        if ((facingRight && isColliding(Direction.RIGHT)) ||
+                (!facingRight && isColliding(Direction.LEFT))) {
             return;
         }
         BodyComponent bodyComponent = getComponent(BodyComponent.class);
-        bodyComponent.getImpulse().x += RUN_SPEED_PER_SECOND * PPM * delta;
+        float x = RUN_SPEED_PER_SECOND * PPM * delta;
+        bodyComponent.getImpulse().x += facingRight ? x : -x;
+    }
+
+    private void jump(float delta) {
+        BodyComponent bodyComponent = getComponent(BodyComponent.class);
+        bodyComponent.getImpulse().y += JUMP_IMPULSE_PER_SECOND * PPM * delta;
+    }
+
+    private UpdatableComponent defineUpdatableComponent() {
+        /*
+        UpdatableComponent updatableComponent = new UpdatableComponent();
+        // Update states
+        updatableComponent.getUpdatables().add((delta) -> {
+            if (isColliding(Direction.DOWN)) {
+                setIs(GROUNDED);
+            }
+        });
+        updatableComponent.getUpdatables().add((delta) -> {
+            boolean canWallSlide = (isColliding(Direction.LEFT) &&
+                    gameContext.isPressed(ControllerButton.LEFT)) ||
+                    (isColliding(Direction.RIGHT) &&
+                            gameContext.isPressed(ControllerButton.RIGHT));
+            if (canWallSlide && !is(AIR_DASHING) && !is(GROUND_DASHING) && !is(GROUNDED)) {
+                setIs(WALL_SLIDING);
+            }
+        });
+        // Body jumping and gravity
+        updatableComponent.getUpdatables().add((delta) -> {
+            BodyComponent bodyComponent = getComponent(BodyComponent.class);
+            if (bodyComponent.getImpulse().y < 0f) {
+                setIsNot(JUMPING);
+            }
+            if (is(GROUNDED) || isClimbing() || isDashing()) {
+                setIsNot(JUMPING);
+                bodyComponent.getGravity().y = 0f;
+            } else {
+                bodyComponent.getGravity().y = Math.max(
+                        MAX_GRAVITY_PER_SECOND * PPM * delta,
+                        bodyComponent.getGravity().y - (GRAVITY_DELTA * PPM * delta));
+            }
+        });
+        // Clear states
+        updatableComponent.getUpdatables().add((delta) -> clearStates());
+        return updatableComponent;
+         */
+        return null;
+    }
+
+    private ActorComponent defineActorComponent() {
+        ActorComponent actorComponent = new ActorComponent(this);
+        // Running
+        List<Supplier<Boolean>> runningOverrides = List.of(() -> is(RUNNING),
+                                                               () -> is(DAMAGED),
+                                                               () -> is(AIR_DASHING),
+                                                               () -> is(GROUND_DASHING),
+                                                               () -> isColliding(Direction.LEFT));
+        actorComponent.getActions().add(new ActorAction(
+                RUNNING, runningOverrides, this::run));
+        // Wall sliding
+        List<Supplier<Boolean>> wallSlidingOverrides = List.of(() -> is(DAMAGED),
+                                                               () -> is(JUMPING),
+                                                               () -> is(GROUNDED),
+                                                               () -> is(AIR_DASHING),
+                                                               () -> is(GROUND_DASHING));
+        actorComponent.getActions().add(new ActorAction(
+                WALL_SLIDING, wallSlidingOverrides, (delta) -> {
+            BodyComponent bodyComponent = getComponent(BodyComponent.class);
+            bodyComponent.setFrictionScalarY(0.5f);
+        }));
+        // Jumping
+        List<Supplier<Boolean>> jumpingOverrides = List.of(() -> is(DAMAGED),
+                                                           () -> is(GROUNDED),
+                                                           () -> is(WALL_SLIDING),
+                                                           () -> is(HITTING_HEAD));
+        actorComponent.getActions().add(new ActorAction(JUMPING, jumpingOverrides, this::jump));
+        return actorComponent;
     }
 
     private AnimationComponent defineAnimationComponent() {
@@ -86,26 +178,42 @@ public class Megaman extends Entity implements Actor, LevelCameraFocusable {
         Supplier<String> keySupplier = () -> {
             if (is(DAMAGED)) {
                 return "Damaged";
-            } else if (isAirDashing()) {
+            } else if (is(AIR_DASHING)) {
                 return "AirDash";
-            } else if (isGroundDashing()) {
+            } else if (is(GROUND_DASHING)) {
                 return "GroundDash";
-            } else if (isWallSliding()) {
+            } else if (is(WALL_SLIDING)) {
                 return "WallSlide";
             } else if (is(JUMPING)) {
                 return "Jump";
-            } else if (isRunning()) {
+            } else if (is(RUNNING)) {
                 return "Run";
-            } else if (isClimbing()) {
+            } else if (is(CLIMBING)) {
                 return "Climb";
             } else {
                 return "Stand";
             }
         };
         // Define animations
-
-        // Animations map
         Map<String, TimedAnimation> animations = new HashMap<>();
+        TextureAtlas textureAtlas = gameContext.loadAsset(
+                TextureAssets.MEGAMAN_TEXTURE_ATLAS, TextureAtlas.class);
+        animations.put("Climb", new TimedAnimation(
+                textureAtlas.findRegion("Climb"), 2, 0.125f));
+        animations.put("Stand", new TimedAnimation(
+                textureAtlas.findRegion("Stand"), new float[]{1.5f, 0.15f}));
+        animations.put("Damaged", new TimedAnimation(
+                textureAtlas.findRegion("Damaged"), 3, 0.05f));
+        animations.put("Run", new TimedAnimation(
+                textureAtlas.findRegion("Run"), 4, 0.125f));
+        animations.put("Jump", new TimedAnimation(
+                textureAtlas.findRegion("Run"), 4, 0.125f));
+        animations.put("WallSlide", new TimedAnimation(
+                textureAtlas.findRegion("WallSlide")));
+        animations.put("GroundDash", new TimedAnimation(
+                textureAtlas.findRegion("GroundDash")));
+        animations.put("AirDash", new TimedAnimation(
+                textureAtlas.findRegion("AirDash")));
         // Define component
         Animator animator = new Animator(keySupplier, animations);
         AnimationComponent animationComponent = new AnimationComponent(animator);
@@ -114,83 +222,9 @@ public class Megaman extends Entity implements Actor, LevelCameraFocusable {
 
     private BodyComponent defineBodyComponent() {
         BodyComponent bodyComponent = new BodyComponent();
-
+        bodyComponent.getCollisionBox().setSize(0.75f, 1.5f);
         // TODO: define body component
         return bodyComponent;
-    }
-
-    private UpdatableComponent defineUpdatableComponent() {
-        UpdatableComponent updatableComponent = new UpdatableComponent();
-        // update running
-        updatableComponent.getUpdatables().add((delta) -> {
-            if (is(RUNNING_LEFT)) {
-                facingRight = false;
-                runLeft(delta);
-            } else if (is(RUNNING_RIGHT)) {
-                facingRight = true;
-                runRight(delta);
-            }
-        });
-        // update jumping
-        updatableComponent.getUpdatables().add((delta) -> {
-            BodyComponent bodyComponent = getComponent(BodyComponent.class);
-            if (is(JUMPING)) {
-                bodyComponent.getImpulse().y += JUMP_INIT_IMPULSE * PPM;
-            }
-            if (bodyComponent.getImpulse().y <= 0f) {
-                setIsNot(JUMPING);
-            }
-        });
-        // update gravity
-        updatableComponent.getUpdatables().add((delta) -> {
-            BodyComponent bodyComponent = getComponent(BodyComponent.class);
-            if (is(GROUNDED)) {
-                bodyComponent.getGravity().y = 0f;
-            } else {
-                bodyComponent.getGravity().y = Math.max(MAX_GRAVITY * PPM * delta,
-                                                        bodyComponent.getGravity().y - (GRAVITY_DELTA * PPM * delta));
-            }
-        });
-        return updatableComponent;
-    }
-
-    private ControllerComponent defineControllerComponent() {
-        ControllerComponent controllerComponent = new ControllerComponent();
-        controllerComponent.putActuator(ControllerButton.LEFT, new ControllerButtonActuator() {
-            @Override
-            public void onJustPressed(float delta) {
-                setIs(RUNNING_LEFT);
-                setIsNot(RUNNING_RIGHT);
-            }
-            @Override
-            public void onJustReleased(float delta) {
-                setIsNot(RUNNING_LEFT);
-            }
-        });
-        controllerComponent.putActuator(ControllerButton.RIGHT, new ControllerButtonActuator() {
-            @Override
-            public void onJustPressed(float delta) {
-                setIs(RUNNING_RIGHT);
-                setIsNot(RUNNING_LEFT);
-            }
-            @Override
-            public void onJustReleased(float delta) {
-                setIsNot(RUNNING_RIGHT);
-            }
-        });
-        controllerComponent.putActuator(ControllerButton.X, new ControllerButtonActuator() {
-            @Override
-            public void onJustPressed(float delta) {
-                if (is(GROUNDED)) {
-                    setIs(JUMPING);
-                }
-            }
-            @Override
-            public void onJustReleased(float delta) {
-                setIsNot(JUMPING);
-            }
-        });
-        return controllerComponent;
     }
 
 }

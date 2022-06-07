@@ -19,11 +19,12 @@ public class Behavior implements Updatable {
     private final List<Supplier<Boolean>> overrides = new ArrayList<>();
     @Getter private Boolean runningPrior = false;
     @Getter private Boolean runningNow = false;
-    private final Supplier<Boolean> evaluator;
     @Getter @Setter private Object userData;
+    private final Supplier<Boolean> evaluator;
     private final Runnable initializer;
     private final Updatable actuator;
     private final Runnable ender;
+
 
     /**
      * Add override.

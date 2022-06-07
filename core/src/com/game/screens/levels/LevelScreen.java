@@ -13,14 +13,11 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.game.ConstVals;
 import com.game.ConstVals.MegamanVals;
 import com.game.ConstVals.TextureAssets;
 import com.game.GameContext2d;
 import com.game.controllers.ControllerButton;
 import com.game.controllers.ControllerButtonStatus;
-import com.game.controllers.ControllerListener;
-import com.game.controllers.ControllerSystem;
 import com.game.entities.megaman.Megaman;
 import com.game.entities.megaman.MegamanStats;
 import com.game.updatables.UpdateSystem;
@@ -36,16 +33,7 @@ import java.util.stream.Collectors;
 import static com.game.ConstVals.LevelTiledMapLayer.GAME_ROOMS;
 import static com.game.ConstVals.ViewVals.*;
 
-public class LevelScreen extends ScreenAdapter implements ControllerListener {
-
-    private enum LevelScreenState {
-        READY,
-        PAUSED,
-        RUNNING,
-        CAM_TRANS,
-        LEVEL_END,
-        PLAYER_DEAD
-    }
+public class LevelScreen extends ScreenAdapter {
 
     private static final float DEATH_DELAY_DURATION = 3f;
     private static final float PLAYER_ENTRANCE_DURATION = 1f;
@@ -82,7 +70,7 @@ public class LevelScreen extends ScreenAdapter implements ControllerListener {
         // Load Megaman
         MegamanStats megamanStats = gameContext.getBlackboardObject(
                 MegamanVals.MEGAMAN_STATS, MegamanStats.class);
-        megaman = new Megaman(megamanStats);
+        megaman = new Megaman(gameContext, megamanStats);
         // Load tiled map
         levelTiledMap = new LevelTiledMap((OrthographicCamera) gameViewport.getCamera(), tmxFile);
         Map<Rectangle, String> gameRooms = levelTiledMap.getObjectsOfLayer(GAME_ROOMS.getLayerName())
@@ -113,14 +101,12 @@ public class LevelScreen extends ScreenAdapter implements ControllerListener {
     @Override
     public void render(float delta) {
         super.render(delta);
-        gameContext.getControllerManager().listenToController(this, delta);
         levelCameraManager.update(delta);
         if (levelCameraManager.getTransitionState() != null) {
             switch (levelCameraManager.getTransitionState()) {
                 case BEGIN -> {
                     gameContext.getSystem(WorldSystem.class).setOn(false);
                     gameContext.getSystem(UpdateSystem.class).setOn(false);
-                    gameContext.getSystem(ControllerSystem.class).setOn(false);
                     gameContext.viewOfEntities().forEach(entity -> {
                         if (entity instanceof CullOnLevelCamTrans) {
                             entity.setMarkedForRemoval(true);
@@ -144,18 +130,12 @@ public class LevelScreen extends ScreenAdapter implements ControllerListener {
                 case END -> {
                     gameContext.getSystem(WorldSystem.class).setOn(true);
                     gameContext.getSystem(UpdateSystem.class).setOn(true);
-                    gameContext.getSystem(ControllerSystem.class).setOn(true);
                 }
             }
         }
         uiViewport.apply();
         gameViewport.apply();
         bgViewport.apply();
-    }
-
-    @Override
-    public void listenToController(ControllerButton button, ControllerButtonStatus status, float delta) {
-
     }
 
     @Override

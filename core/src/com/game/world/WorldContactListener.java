@@ -14,6 +14,14 @@ public interface WorldContactListener {
     void beginContact(Contact contact, float delta);
 
     /**
+     * Continue contact.
+     *
+     * @param contact the contact
+     * @param delta   the delta
+     */
+    void continueContact(Contact contact, float delta);
+
+    /**
      * End contact.
      *
      * @param contact the contact
