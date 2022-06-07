@@ -19,8 +19,6 @@ import com.game.utils.*;
 import com.game.utils.Timer;
 import com.game.world.BodyComponent;
 import com.game.world.Collidable;
-import com.game.world.Fixture;
-import com.game.world.FixtureType;
 import lombok.Getter;
 
 import java.util.*;
@@ -41,15 +39,16 @@ public class Megaman extends Entity implements Actor, Collidable, LevelCameraFoc
     }
 
     // all constants are expressed in world units
+    public static final float GRAVITY_DELTA = 0.5f;
+    public static final float RUN_SPEED_PER_SECOND = 3.5f;
     public static final float JUMP_IMPULSE_PER_SECOND = 9f;
     public static final float MAX_GRAVITY_PER_SECOND = -9f;
-    public static final float RUN_SPEED_PER_SECOND = 3.5f;
-    public static final float GRAVITY_DELTA = 0.5f;
 
     private final GameContext2d gameContext;
     private final MegamanStats megamanStats;
     private final Set<Direction> movementDirections = new HashSet<>();
 
+    private final Timer dashingTimer = new Timer(0.75f);
     private final Timer wallJumpingTimer = new Timer(0.1f);
 
     // Set sprite facing direction right, if false then face left
@@ -104,14 +103,14 @@ public class Megaman extends Entity implements Actor, Collidable, LevelCameraFoc
     }
 
     private UpdatableComponent defineUpdatableComponent() {
-        /*
         UpdatableComponent updatableComponent = new UpdatableComponent();
-        // Update states
+        // Is grounded
         updatableComponent.getUpdatables().add((delta) -> {
             if (isColliding(Direction.DOWN)) {
                 setIs(GROUNDED);
             }
         });
+        // Is wall sliding
         updatableComponent.getUpdatables().add((delta) -> {
             boolean canWallSlide = (isColliding(Direction.LEFT) &&
                     gameContext.isPressed(ControllerButton.LEFT)) ||
@@ -121,15 +120,22 @@ public class Megaman extends Entity implements Actor, Collidable, LevelCameraFoc
                 setIs(WALL_SLIDING);
             }
         });
-        // Body jumping and gravity
+        // Is jumping
         updatableComponent.getUpdatables().add((delta) -> {
             BodyComponent bodyComponent = getComponent(BodyComponent.class);
-            if (bodyComponent.getImpulse().y < 0f) {
-                setIsNot(JUMPING);
+            if (bodyComponent.getImpulse().y > 0f && !is(CLIMBING)) {
+                setIs(JUMPING);
             }
-            if (is(GROUNDED) || isClimbing() || isDashing()) {
-                setIsNot(JUMPING);
+        });
+        // Set gravity
+        updatableComponent.getUpdatables().add((delta) -> {
+            BodyComponent bodyComponent = getComponent(BodyComponent.class);
+            if (is(CLIMBING) || is(AIR_DASHING)) {
                 bodyComponent.getGravity().y = 0f;
+            } else if (is(GROUNDED) || is(GROUND_DASHING)) {
+                bodyComponent.getGravity().y = -0.15f;
+            } else if (is(WALL_SLIDING)) {
+                bodyComponent.getGravity().y = (MAX_GRAVITY_PER_SECOND * PPM * delta) / 3f;
             } else {
                 bodyComponent.getGravity().y = Math.max(
                         MAX_GRAVITY_PER_SECOND * PPM * delta,
@@ -139,20 +145,34 @@ public class Megaman extends Entity implements Actor, Collidable, LevelCameraFoc
         // Clear states
         updatableComponent.getUpdatables().add((delta) -> clearStates());
         return updatableComponent;
-         */
-        return null;
     }
 
     private ActorComponent defineActorComponent() {
         ActorComponent actorComponent = new ActorComponent(this);
+        final BodyComponent bodyComponent = getComponent(BodyComponent.class);
+        // Grounded
+        actorComponent.getActions().add(new ActorAction(
+                GROUNDED, List.of(), (delta) -> bodyComponent.getGravity().y = -0.1f));
+        // Climbing
+        List<Supplier<Boolean>> climbingOverrides = List.of(() -> is(DAMAGED));
+        actorComponent.getActions().add(new ActorAction(
+                CLIMBING, climbingOverrides, (delta) -> bodyComponent.getGravity().y = 0f));
         // Running
         List<Supplier<Boolean>> runningOverrides = List.of(() -> is(RUNNING),
+                                                           () -> is(CLIMBING),
                                                                () -> is(DAMAGED),
                                                                () -> is(AIR_DASHING),
                                                                () -> is(GROUND_DASHING),
                                                                () -> isColliding(Direction.LEFT));
         actorComponent.getActions().add(new ActorAction(
                 RUNNING, runningOverrides, this::run));
+        // Ground dashing
+        List<Supplier<Boolean>> groundDashingOverrides = List.of(() -> !is(GROUNDED),
+                                                                 () -> isColliding(Direction.LEFT),
+                                                                 () -> isColliding(Direction.RIGHT));
+        actorComponent.getActions().add(new ActorAction(
+                GROUND_DASHING, groundDashingOverrides, (delta) ->
+                bodyComponent.getGravity().y = 0.15f));
         // Wall sliding
         List<Supplier<Boolean>> wallSlidingOverrides = List.of(() -> is(DAMAGED),
                                                                () -> is(JUMPING),
@@ -160,10 +180,8 @@ public class Megaman extends Entity implements Actor, Collidable, LevelCameraFoc
                                                                () -> is(AIR_DASHING),
                                                                () -> is(GROUND_DASHING));
         actorComponent.getActions().add(new ActorAction(
-                WALL_SLIDING, wallSlidingOverrides, (delta) -> {
-            BodyComponent bodyComponent = getComponent(BodyComponent.class);
-            bodyComponent.setFrictionScalarY(0.5f);
-        }));
+                WALL_SLIDING, wallSlidingOverrides, (delta) ->
+            bodyComponent.getGravity().y = (MAX_GRAVITY_PER_SECOND * PPM * delta) / 3f));
         // Jumping
         List<Supplier<Boolean>> jumpingOverrides = List.of(() -> is(DAMAGED),
                                                            () -> is(GROUNDED),
