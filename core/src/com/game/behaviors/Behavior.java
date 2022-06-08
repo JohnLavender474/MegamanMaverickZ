@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
+/**
+ * Defines a behavior that can be executed.
+ */
 @Getter
 @RequiredArgsConstructor
 public abstract class Behavior implements Updatable {
@@ -16,14 +19,36 @@ public abstract class Behavior implements Updatable {
     private boolean runningPrior = false;
     private final List<Supplier<Boolean>> overrides = new ArrayList<>();
 
+    /**
+     * Returns if the behavior is accepted to run
+     *
+     * @param delta the delta time
+     * @return if the behavior is accepted to run
+     */
     protected abstract boolean evaluate(float delta);
 
+    /**
+     * Init.
+     */
     protected abstract void init();
 
+    /**
+     * Act.
+     *
+     * @param delta the delta time
+     */
     protected abstract void act(float delta);
 
+    /**
+     * End.
+     */
     protected abstract void end();
 
+    /**
+     * Add override.
+     *
+     * @param override the override
+     */
     public void addOverride(Supplier<Boolean> override) {
         overrides.add(override);
     }
