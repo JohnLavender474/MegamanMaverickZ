@@ -1,7 +1,7 @@
 package com.game.behaviors;
 
 import com.game.Component;
-import com.game.entities.Entity;
+import com.game.Entity;
 import com.game.System;
 
 import java.util.Set;
@@ -19,7 +19,7 @@ public class BehaviorSystem extends System {
     @Override
     protected void processEntity(Entity entity, float delta) {
         BehaviorComponent behaviorComponent = entity.getComponent(BehaviorComponent.class);
-        behaviorComponent.getBehaviors().values().forEach(behavior -> behavior.update(delta));
+        behaviorComponent.getBehaviors().forEach(behavior -> behavior.update(delta));
     }
 
 }

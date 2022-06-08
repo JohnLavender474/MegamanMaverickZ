@@ -5,12 +5,15 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
 import com.game.System;
-import com.game.entities.Entity;
+import com.game.Entity;
+import com.game.utils.Pair;
 import com.game.utils.ProcessState;
-import com.game.utils.exceptions.InvalidFieldException;
+import com.game.utils.Updatable;
 import lombok.RequiredArgsConstructor;
 
 import java.util.*;
+
+import static com.game.utils.ProcessState.*;
 
 /**
  * {@link System} implementation that handles the logic of the "game world physics", i.e. gravity, collision handling,
@@ -19,9 +22,9 @@ import java.util.*;
 @RequiredArgsConstructor
 public class WorldSystem extends System {
 
+    private final Set<Pair<Fixture>> currentContacts = new HashSet<>();
+    private final Set<Pair<Fixture>> priorContacts = new HashSet<>();
     private final List<BodyComponent> bodies = new ArrayList<>();
-    private final Set<Contact> currentContacts = new HashSet<>();
-    private final Set<Contact> priorContacts = new HashSet<>();
     private final float fixedTimeStep;
     private float accumulator;
 
@@ -43,27 +46,26 @@ public class WorldSystem extends System {
 
     @Override
     protected void postProcess(float delta) {
-        bodies.forEach(Collidable::resetCollisionFlags);
+        // Clear collision flags for each body
+        bodies.forEach(bodyComponent -> {
+            bodyComponent.clearCollisionFlags();
+            Updatable preProcess = bodyComponent.getPreProcess();
+            if (preProcess != null) {
+                preProcess.update(delta);
+            }
+        });
+        // ImpulseMovement and collision handling is time-stepped
         accumulator += delta;
         while (accumulator >= fixedTimeStep) {
             accumulator -= fixedTimeStep;
             // Apply forces
             bodies.forEach(bodyComponent -> {
-                Vector2 frictionScalar = bodyComponent.getFrictionScalarCopy();
-                if (frictionScalar.x > 1f || frictionScalar.x < 0f) {
-                    throw new InvalidFieldException(String.valueOf(frictionScalar.x),
-                                                    "friction scalar x", "body component " + bodyComponent);
-                }
-                if (frictionScalar.y > 1f || frictionScalar.y < 0f) {
-                    throw new InvalidFieldException(String.valueOf(frictionScalar.x),
-                                                    "friction scalar y", "body component " + bodyComponent);
-                }
                 // Apply velocity, impulse, and gravity
-                float x = bodyComponent.getVelocity().x + bodyComponent.getImpulse().x + bodyComponent.getGravity().x;
-                float y = bodyComponent.getVelocity().y + bodyComponent.getImpulse().y + bodyComponent.getGravity().y;
+                float x = bodyComponent.getImpulse().x + bodyComponent.getGravity().x;
+                float y = bodyComponent.getImpulse().y + bodyComponent.getGravity().y;
                 // Scale to fixed time step and friction scalar
-                bodyComponent.getCollisionBox().x += x * fixedTimeStep * frictionScalar.x;
-                bodyComponent.getCollisionBox().y += y * fixedTimeStep * frictionScalar.y;
+                bodyComponent.getCollisionBox().x += x * fixedTimeStep * bodyComponent.getFrictionScalarCopy().x;
+                bodyComponent.getCollisionBox().y += y * fixedTimeStep * bodyComponent.getFrictionScalarCopy().y;
                 // Each Fixture is moved to conform to its position center from the center of the Body Component
                 bodyComponent.getFixtures().forEach(fixture -> {
                     Vector2 center = new Vector2();
@@ -87,7 +89,7 @@ public class WorldSystem extends System {
                     for (Fixture f1 : bc1.getFixtures()) {
                         for (Fixture f2 : bc2.getFixtures()) {
                             if (Intersector.overlaps(f1.getFixtureBox(), f2.getFixtureBox())) {
-                                currentContacts.add(new Contact(f1, f2));
+                                currentContacts.add(new Pair<>(f1, f2));
                             }
                         }
                     }
@@ -103,29 +105,46 @@ public class WorldSystem extends System {
                     }
                 }
             }
-            // Handles Contact instances in the current contacts set
-            currentContacts.forEach(contact -> {
-                if (priorContacts.contains(contact)) {
-                    contact.run(ProcessState.CONTINUE);
-                } else {
-                    contact.run(ProcessState.BEGIN);
-                }
-            });
-            // Handles Contact instances in the prior contacts set
-            priorContacts.forEach(contact -> {
-                if (!currentContacts.contains(contact)) {
-                    contact.run(ProcessState.END);
-                }
-            });
-            // Moves current contacts to prior, then clears the set of current contacts
-            priorContacts.clear();
-            priorContacts.addAll(currentContacts);
-            currentContacts.clear();
         }
+        // Handle contacts in the current contacts set
+        currentContacts.forEach(contact -> {
+            if (priorContacts.contains(contact)) {
+                runContact(CONTINUE, contact, delta);
+            } else {
+                runContact(BEGIN, contact, delta);
+            }
+        });
+        // Handle contacts in the prior contacts set
+        priorContacts.forEach(contact -> {
+            if (!currentContacts.contains(contact)) {
+                runContact(END, contact, delta);
+            }
+        });
+        // Move current contacts to prior contacts set, then clear the current contacts set
+        priorContacts.clear();
+        priorContacts.addAll(currentContacts);
+        currentContacts.clear();
         bodies.forEach(bodyComponent -> {
             bodyComponent.getImpulse().setZero();
             bodyComponent.setFrictionScalar(1f, 1f);
+            Updatable postProcess = bodyComponent.getPostProcess();
+            if (postProcess != null) {
+                postProcess.update(delta);
+            }
         });
+    }
+
+    private void runContact(ProcessState processState, Pair<Fixture> contact, float delta) {
+        // Fixture 1 listen to contact with Fixture 2
+        ContactListener contactListener1 = contact.first().getContactListeners().get(processState);
+        if (contactListener1 != null) {
+            contactListener1.listen(contact.second().getFixtureType(), delta);
+        }
+        // Fixture 2 listen to contact with Fixture 1
+        ContactListener contactListener2 = contact.second().getContactListeners().get(processState);
+        if (contactListener2 != null) {
+            contactListener2.listen(contact.first().getFixtureType(), delta);
+        }
     }
 
     private void handleCollision(BodyComponent bc1, BodyComponent bc2, Rectangle overlap) {

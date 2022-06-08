@@ -4,18 +4,20 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
-import com.game.entities.Entity;
+import com.game.Entity;
 import com.game.utils.Direction;
 import com.game.utils.Position;
+import com.game.utils.Updatable;
 import com.game.utils.exceptions.InvalidArgumentException;
 import lombok.*;
 
 import java.util.*;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * Defines the body and world rules of the {@link Entity}.
- * <p>
- * {@link #debugColor} defines the color outline of the {@link #collisionBox} when world debugging is turned on.
  * <p>
  * {@link #bodyType} defines the "worldly rules" and "physicality" of the body. See {@link Position} for details.
  * <p>
@@ -33,38 +35,80 @@ import java.util.*;
  *     // other logic performed on x and y
  *     // before adding x and y to body component collision box
  *
- * }*******</pre>
+ * }********</pre>
  * Of course, this means that, contrary to intuition, the smaller the values of {@link #frictionScalar} are, the
  * greater the "friction" resistance. This means that, for example, 0.1f results in greater "friction" than 0.9f.
  * <p>
  * {@link #impulse} defines the movement of the body for one fram      e. Impulse is reset to zero after every frame.
- * <p>
- * {@link #velocity} defines the movement of the body per frame. This is in addition to {@link #impulse}.
- * The difference between the two values is that impulse is reset to zero after every frame but the value
- * of velocity remains the same each frame until it is changed by a caller.
  * <p>
  * {@link #fixtures} defines the {@link Fixture} instances attached to this body.
  */
 @Getter
 @Setter
 @ToString
-public class BodyComponent implements Component, Collidable {
+@RequiredArgsConstructor
+public class BodyComponent implements Component {
 
-    private Color debugColor = Color.GREEN;
-    private Vector2 gravity = new Vector2();
-    private Vector2 impulse = new Vector2();
-    private Vector2 velocity = new Vector2();
-    private BodyType bodyType = BodyType.ABSTRACT;
-    private Rectangle collisionBox = new Rectangle();
-    private List<Fixture> fixtures = new ArrayList<>();
-    private Map<Direction, Boolean> collisionFlags = new EnumMap<>(Direction.class);
-    @Setter(AccessLevel.NONE) @Getter(AccessLevel.NONE) private Vector2 frictionScalar = new Vector2(1f, 1f);
+    private final BodyType bodyType;
+    private final Vector2 impulse = new Vector2();
+    private final Vector2 gravity = new Vector2();
+    private final Rectangle collisionBox = new Rectangle();
+    private final List<Fixture> fixtures = new ArrayList<>();
+    private final Vector2 gravityScalar = new Vector2(1f, 1f);
+    private final Vector2 frictionScalar = new Vector2(1f, 1f);
+    private final Map<Direction, Boolean> collisionFlags = new EnumMap<>(Direction.class) {{
+        for (Direction direction : Direction.values()) {
+            put(direction, false);
+        }
+    }};
+    // Called once before contacts and collisions are detected and forces are applied
+    private Updatable preProcess;
+    // Called once after contacts and collisions are detected and forces are applied
+    private Updatable postProcess;
 
     /**
-     * Instantiates a new Body component.
+     * Clear collision flags.
      */
-    public BodyComponent() {
-        resetCollisionFlags();
+    public void clearCollisionFlags() {
+        getCollisionFlags().replaceAll((direction, aBoolean) -> false);
+    }
+
+    /**
+     * Is colliding in the provided direction.
+     *
+     * @param direction the direction
+     * @return is colliding in the provided direction
+     */
+    public boolean isColliding(Direction direction) {
+        return getCollisionFlags().get(direction);
+    }
+
+    /**
+     * Set colliding left.
+     */
+    public void setCollidingLeft() {
+        collisionFlags.replace(Direction.LEFT, true);
+    }
+
+    /**
+     * Set colliding right.
+     */
+    public void setCollidingRight() {
+        collisionFlags.replace(Direction.RIGHT, true);
+    }
+
+    /**
+     * Set colliding up.
+     */
+    public void setCollidingUp() {
+        collisionFlags.replace(Direction.UP, true);
+    }
+
+    /**
+     * Set colliding down.
+     */
+    public void setCollidingDown() {
+        collisionFlags.replace(Direction.DOWN, true);
     }
 
     /**
@@ -75,7 +119,10 @@ public class BodyComponent implements Component, Collidable {
      */
     public void setFrictionScalarX(float x)
             throws InvalidArgumentException {
-        setFrictionScalar(x, frictionScalar.y);
+        if (x > 1f || x <= 0f) {
+            throw new InvalidArgumentException(String.valueOf(x), "friction scalar x");
+        }
+        frictionScalar.x = x;
     }
 
     /**
@@ -86,7 +133,10 @@ public class BodyComponent implements Component, Collidable {
      */
     public void setFrictionScalarY(float y)
             throws InvalidArgumentException {
-        setFrictionScalar(frictionScalar.x, y);
+        if (y > 1f || y <= 0f) {
+            throw new InvalidArgumentException(String.valueOf(y), "friction scalar y");
+        }
+        frictionScalar.y = y;
     }
 
     /**
@@ -99,13 +149,8 @@ public class BodyComponent implements Component, Collidable {
      */
     public void setFrictionScalar(float x, float y)
             throws InvalidArgumentException {
-        if (x > 1f || x <= 0f) {
-            throw new InvalidArgumentException(String.valueOf(x), "friction scalar x");
-        }
-        if (y > 1f || y <= 0f) {
-            throw new InvalidArgumentException(String.valueOf(y), "friction scalar y");
-        }
-        frictionScalar.set(x, y);
+        setFrictionScalarX(x);
+        setFrictionScalarY(y);
     }
 
     /**

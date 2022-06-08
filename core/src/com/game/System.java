@@ -1,6 +1,5 @@
 package com.game;
 
-import com.game.entities.Entity;
 import com.game.utils.Updatable;
 import com.game.utils.exceptions.InvalidActionException;
 import lombok.*;

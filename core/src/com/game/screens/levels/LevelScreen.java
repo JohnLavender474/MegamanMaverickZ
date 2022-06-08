@@ -16,11 +16,8 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.game.ConstVals.MegamanVals;
 import com.game.ConstVals.TextureAssets;
 import com.game.GameContext2d;
-import com.game.controllers.ControllerButton;
-import com.game.controllers.ControllerButtonStatus;
-import com.game.entities.megaman.Megaman;
-import com.game.entities.megaman.MegamanStats;
-import com.game.updatables.UpdateSystem;
+import com.game.megaman.Megaman;
+import com.game.megaman.MegamanStats;
 import com.game.utils.Direction;
 import com.game.utils.FontHandle;
 import com.game.utils.Timer;
@@ -106,7 +103,7 @@ public class LevelScreen extends ScreenAdapter {
             switch (levelCameraManager.getTransitionState()) {
                 case BEGIN -> {
                     gameContext.getSystem(WorldSystem.class).setOn(false);
-                    gameContext.getSystem(UpdateSystem.class).setOn(false);
+                    // TODO: turn off other relevant systems
                     gameContext.viewOfEntities().forEach(entity -> {
                         if (entity instanceof CullOnLevelCamTrans) {
                             entity.setMarkedForRemoval(true);
@@ -129,7 +126,7 @@ public class LevelScreen extends ScreenAdapter {
                 }
                 case END -> {
                     gameContext.getSystem(WorldSystem.class).setOn(true);
-                    gameContext.getSystem(UpdateSystem.class).setOn(true);
+                    // TODO: turn on other relevant systems
                 }
             }
         }

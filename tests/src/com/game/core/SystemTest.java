@@ -2,7 +2,7 @@ package com.game.core;
 
 import com.game.Component;
 import com.game.System;
-import com.game.entities.Entity;
+import com.game.Entity;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

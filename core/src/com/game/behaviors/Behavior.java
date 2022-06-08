@@ -3,34 +3,27 @@ package com.game.behaviors;
 import com.game.utils.Updatable;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-/**
- * Defines the update cycle of a behavior. Optional {@link #userData} field can be used to store a reference to
- * the "container" of this class that doesn't extend {@link Behavior}, or any other object desired.
- */
+@Getter
 @RequiredArgsConstructor
-public class Behavior implements Updatable {
+public abstract class Behavior implements Updatable {
 
+    private boolean runningNow = false;
+    private boolean runningPrior = false;
     private final List<Supplier<Boolean>> overrides = new ArrayList<>();
-    @Getter private Boolean runningPrior = false;
-    @Getter private Boolean runningNow = false;
-    @Getter @Setter private Object userData;
-    private final Supplier<Boolean> evaluator;
-    private final Runnable initializer;
-    private final Updatable actuator;
-    private final Runnable ender;
 
+    protected abstract boolean evaluate(float delta);
 
-    /**
-     * Add override.
-     *
-     * @param override the override
-     */
+    protected abstract void init();
+
+    protected abstract void act(float delta);
+
+    protected abstract void end();
+
     public void addOverride(Supplier<Boolean> override) {
         overrides.add(override);
     }
@@ -38,15 +31,15 @@ public class Behavior implements Updatable {
     @Override
     public void update(float delta) {
         runningPrior = runningNow;
-        runningNow = overrides.stream().noneMatch(Supplier::get) && evaluator.get();
+        runningNow = overrides.stream().noneMatch(Supplier::get) && evaluate(delta);
         if (runningNow && !runningPrior) {
-            initializer.run();
+            init();
         }
         if (runningNow) {
-            actuator.update(delta);
+            act(delta);
         }
         if (!runningNow && runningPrior) {
-            ender.run();
+            end();
         }
     }
 

@@ -2,7 +2,6 @@ package com.game;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.game.controllers.ControllerButton;
-import com.game.entities.Entity;
 
 import java.util.Collection;
 

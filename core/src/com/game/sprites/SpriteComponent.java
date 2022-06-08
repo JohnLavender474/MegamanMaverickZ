@@ -13,8 +13,9 @@ import java.util.function.Consumer;
  * {@link Component} implementation for handling {@link Sprite}.
  */
 @Getter
+@Setter
 @RequiredArgsConstructor
 public class SpriteComponent implements Component {
+    private Consumer<Sprite> spriteUpdater;
     private final Sprite sprite = new Sprite();
-    private Consumer<Sprite> spriteConsumer;
 }

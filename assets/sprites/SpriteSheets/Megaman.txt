@@ -66,14 +66,14 @@ FinishClimbCharging
   orig: 64, 32
   offset: 0, 0
   index: -1
-GroundDash
+GroundSlide
   rotate: false
   xy: 96, 0
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
-GroundDashCharging
+GroundSlideCharging
   rotate: false
   xy: 192, 64
   size: 64, 32

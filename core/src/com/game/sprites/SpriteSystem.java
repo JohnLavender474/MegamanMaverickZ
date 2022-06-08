@@ -4,8 +4,9 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.game.Component;
-import com.game.entities.Entity;
+import com.game.Entity;
 import com.game.System;
+import com.game.utils.Updatable;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Set;
@@ -39,9 +40,9 @@ public class SpriteSystem extends System {
     protected void processEntity(Entity entity, float delta) {
         SpriteComponent spriteComponent = entity.getComponent(SpriteComponent.class);
         Sprite sprite = spriteComponent.getSprite();
-        Consumer<Sprite> spriteConsumer = spriteComponent.getSpriteConsumer();
-        if (spriteConsumer != null) {
-            spriteConsumer.accept(sprite);
+        Consumer<Sprite> spriteUpdater = spriteComponent.getSpriteUpdater();
+        if (spriteUpdater != null) {
+            spriteUpdater.accept(sprite);
         }
         sprite.draw(spriteBatch);
     }
