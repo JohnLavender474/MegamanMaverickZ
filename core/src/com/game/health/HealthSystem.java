@@ -6,7 +6,6 @@ import com.game.System;
 import com.game.utils.Updatable;
 
 import java.util.Set;
-import java.util.function.Consumer;
 
 /**
  * {@link System} implementation for entity health.

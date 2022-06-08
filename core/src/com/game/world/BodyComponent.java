@@ -35,7 +35,7 @@ import java.util.function.Supplier;
  *     // other logic performed on x and y
  *     // before adding x and y to body component collision box
  *
- * }********</pre>
+ * }*********</pre>
  * Of course, this means that, contrary to intuition, the smaller the values of {@link #frictionScalar} are, the
  * greater the "friction" resistance. This means that, for example, 0.1f results in greater "friction" than 0.9f.
  * <p>
@@ -56,6 +56,7 @@ public class BodyComponent implements Component {
     private final List<Fixture> fixtures = new ArrayList<>();
     private final Vector2 gravityScalar = new Vector2(1f, 1f);
     private final Vector2 frictionScalar = new Vector2(1f, 1f);
+    private final Set<BodySense> bodySenses = EnumSet.noneOf(BodySense.class);
     private final Map<Direction, Boolean> collisionFlags = new EnumMap<>(Direction.class) {{
         for (Direction direction : Direction.values()) {
             put(direction, false);
@@ -65,6 +66,34 @@ public class BodyComponent implements Component {
     private Updatable preProcess;
     // Called once after contacts and collisions are detected and forces are applied
     private Updatable postProcess;
+
+    /**
+     * Is body sense true.
+     *
+     * @param bodySense the body sense
+     * @return is body sense true
+     */
+    public boolean is(BodySense bodySense) {
+        return getBodySenses().contains(bodySense);
+    }
+
+    /**
+     * Set is sensing body sense.
+     *
+     * @param bodySense the body sense
+     */
+    public void setIs(BodySense bodySense) {
+        getBodySenses().add(bodySense);
+    }
+
+    /**
+     * Set body sense not true.
+     *
+     * @param bodySense the body sense
+     */
+    public void setIsNot(BodySense bodySense) {
+        getBodySenses().remove(bodySense);
+    }
 
     /**
      * Clear collision flags.

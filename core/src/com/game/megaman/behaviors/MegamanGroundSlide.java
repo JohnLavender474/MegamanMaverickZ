@@ -10,6 +10,7 @@ import com.game.utils.Direction;
 import com.game.utils.Facing;
 import com.game.utils.Timer;
 import com.game.world.BodyComponent;
+import com.game.world.BodySense;
 
 import static com.game.ConstVals.ViewVals.PPM;
 
@@ -46,7 +47,8 @@ public class MegamanGroundSlide extends Behavior {
         }
         // If already ground sliding and head is touching block, then continue ground sliding even if
         // timer is depleted or down-and-A button combo is not pressed
-        if (behaviorComponent.is(BehaviorType.GROUND_SLIDING) && megaman.isHeadTouchingBlock()) {
+        if (behaviorComponent.is(BehaviorType.GROUND_SLIDING) &&
+                bodyComponent.is(BodySense.HEAD_TOUCHING_BLOCK)) {
             return true;
         }
         // Down-and-A button combo must be pressed and ground slide timer must not be depleted

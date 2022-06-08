@@ -41,15 +41,12 @@ public class Megaman extends Entity implements Faceable, LevelCameraFocusable, R
     }
 
     private final MegamanStats megamanStats;
-    private final Set<Direction> movementDirections = new HashSet<>();
     private final Timer dashingTimer = new Timer(0.75f);
     private final Timer wallJumpingTimer = new Timer(0.1f);
-    // Set either facing left or right
-    private Facing facing = Facing.RIGHT;
     // Action for the A button, no action if null
     private A_ButtonAction aButtonAction;
-    // Reset to false before every contact detection cycle, set to true if head fixture touches block
-    private boolean headTouchingBlock;
+    // Set megaman facing either left or right
+    private Facing facing = Facing.RIGHT;
 
     /**
      * Instantiates a new Megaman.
@@ -78,7 +75,10 @@ public class Megaman extends Entity implements Faceable, LevelCameraFocusable, R
     private BodyComponent defineBodyComponent() {
         BodyComponent bodyComponent = new BodyComponent(BodyType.DYNAMIC);
         bodyComponent.getCollisionBox().setSize(0.75f * PPM, 1.5f * PPM);
-        bodyComponent.setPreProcess((delta) -> headTouchingBlock = false);
+        bodyComponent.setPreProcess((delta) -> {
+            // TODO: set gravity
+            BehaviorComponent behaviorComponent = getComponent(BehaviorComponent.class);
+        });
         // TODO: define body component
         return bodyComponent;
     }

@@ -54,7 +54,7 @@ public abstract class Behavior implements Updatable {
     }
 
     @Override
-    public void update(float delta) {
+    public final void update(float delta) {
         runningPrior = runningNow;
         runningNow = overrides.stream().noneMatch(Supplier::get) && evaluate(delta);
         if (runningNow && !runningPrior) {
