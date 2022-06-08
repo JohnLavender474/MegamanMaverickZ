@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.game.ConstVals.MegamanVals;
@@ -21,6 +22,7 @@ import com.game.megaman.MegamanStats;
 import com.game.utils.Direction;
 import com.game.utils.FontHandle;
 import com.game.utils.Timer;
+import com.game.utils.UtilMethods;
 import com.game.world.BodyComponent;
 import com.game.world.WorldSystem;
 
@@ -32,8 +34,10 @@ import static com.game.ConstVals.ViewVals.*;
 
 public class LevelScreen extends ScreenAdapter {
 
+    // expressed in seconds
     private static final float DEATH_DELAY_DURATION = 3f;
     private static final float PLAYER_ENTRANCE_DURATION = 1f;
+    // expressed in world units
     private static final float LEVEL_CAM_TRANS_DURATION = 1f;
     private static final float MEGAMAN_DELTA_ON_CAM_TRANS = 3f;
 
@@ -87,7 +91,7 @@ public class LevelScreen extends ScreenAdapter {
                 .findRegion("HealthbarFullBit");
         healthBarUi = new HealthBarUi(uiViewport.getCamera(),
                                       containerRegion, containerBounds,
-                                      healthBitRegion, MegamanVals.MAX_HEALTH);
+                                      healthBitRegion, MegamanVals.MAX_HEALTH_BITS);
         TextureRegion blackBoxRegion = gameContext
                 .loadAsset(TextureAssets.DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class)
                 .findRegion("Black");
@@ -98,6 +102,19 @@ public class LevelScreen extends ScreenAdapter {
     @Override
     public void render(float delta) {
         super.render(delta);
+        gameContext.viewOfEntities().forEach(entity -> {
+            if (entity instanceof CullOnOutOfGameCamBounds cullable) {
+                BoundingBox cullBBox = UtilMethods.rectToBBox(cullable.getBoundingBox());
+                if (!gameViewport.getCamera().frustum.boundsInFrustum(cullBBox)) {
+                    cullable.getCullTimer().update(delta);
+                    if (cullable.getCullTimer().isFinished()) {
+                        entity.setMarkedForRemoval(true);
+                    }
+                } else {
+                    cullable.getCullTimer().reset();
+                }
+            }
+        });
         levelCameraManager.update(delta);
         if (levelCameraManager.getTransitionState() != null) {
             switch (levelCameraManager.getTransitionState()) {
@@ -146,6 +163,7 @@ public class LevelScreen extends ScreenAdapter {
     public void dispose() {
         super.dispose();
         levelTiledMap.dispose();
+        gameContext.purgeAllEntities();
     }
 
     private void fadeIn(float delta) {

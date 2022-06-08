@@ -17,14 +17,17 @@ public class ConstVals {
     @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     public enum LevelTiledMapLayer {
 
-        GAME_ROOMS("GameRooms");
+        GAME_ROOMS("GameRooms"),
+        ENEMY_SPAWNS("EnemySpawns"),
+        PLAYER_SPAWNS("PlayerSpawns"),
+        STATIC_BLOCKS("StaticBlocks");
 
         private final String layerName;
 
     }
 
     public static class MegamanVals {
-        public static final int MAX_HEALTH = 20;
+        public static final int MAX_HEALTH_BITS = 20;
         public static final int MAX_HEALTH_TANKS = 4;
         public static final String MEGAMAN_STATS = "MegamanStats";
     }

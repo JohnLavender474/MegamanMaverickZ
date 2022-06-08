@@ -10,12 +10,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static com.game.ConstVals.MegamanVals.MAX_HEALTH_TANKS;
+
 @Getter
 @Setter
 public class MegamanStats {
     private MutableInt credits = MutableInt.of(0);
     private Percentage health = Percentage.of(100);
-    private Map<Integer, Percentage> healthTanks = new HashMap<>();
+    private Percentage[] healthTanks = new Percentage[MAX_HEALTH_TANKS];
     private Set<MegamanSpecialAbility> specialAbilities = new HashSet<>();
     private Map<MegamanSpecialWeapon, Percentage> specialWeapons = new HashMap<>();
 }

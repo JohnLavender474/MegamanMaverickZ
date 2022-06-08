@@ -44,15 +44,6 @@ public class UtilMethods {
     }
 
     /**
-     * Returns String of long dotted line.
-     *
-     * @return long dotted line.
-     */
-    public static String longDottedLine() {
-        return "---------------------------------------------------------";
-    }
-
-    /**
      * Fetches {@link Class#getSimpleName()} of the provided Object.
      *
      * @param o the Object

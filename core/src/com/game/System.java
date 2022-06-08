@@ -135,4 +135,13 @@ public abstract class System implements Updatable {
         return entitiesToRemoveQueue.contains(entity);
     }
 
+    /**
+     * Purge all entities.
+     */
+    public void purgeAllEntities() {
+        entities.clear();
+        entitiesToAddQueue.clear();
+        entitiesToRemoveQueue.clear();
+    }
+
 }

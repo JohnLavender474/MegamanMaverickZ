@@ -8,7 +8,10 @@ import com.game.animations.AnimationComponent;
 import com.game.animations.Animator;
 import com.game.Entity;
 import com.game.behaviors.BehaviorComponent;
+import com.game.controllers.ControllerAdapter;
+import com.game.controllers.ControllerButton;
 import com.game.controllers.ControllerComponent;
+import com.game.health.HealthComponent;
 import com.game.megaman.behaviors.MegamanRun;
 import com.game.screens.levels.LevelCameraFocusable;
 import com.game.sprites.SpriteComponent;
@@ -30,7 +33,7 @@ import static com.game.behaviors.BehaviorType.*;
  */
 @Getter
 @Setter
-public class Megaman extends Entity implements Faceable, LevelCameraFocusable {
+public class Megaman extends Entity implements Faceable, LevelCameraFocusable, Resettable {
 
     public enum A_ButtonAction {
         JUMP,
@@ -54,6 +57,7 @@ public class Megaman extends Entity implements Faceable, LevelCameraFocusable {
     public Megaman(GameContext2d gameContext, MegamanStats megamanStats) {
         this.megamanStats = megamanStats;
         addComponent(defineBodyComponent());
+        addComponent(defineHealthComponent());
         addComponent(defineControllerComponent());
         addComponent(defineBehaviorComponent(gameContext));
         addComponent(defineAnimationComponent(gameContext.loadAsset(
@@ -62,9 +66,13 @@ public class Megaman extends Entity implements Faceable, LevelCameraFocusable {
     }
 
     @Override
+    public void reset() {
+        getComponent(HealthComponent.class).reset();
+    }
+
+    @Override
     public Rectangle getBoundingBox() {
-        BodyComponent bodyComponent = getComponent(BodyComponent.class);
-        return bodyComponent.getCollisionBox();
+        return getComponent(BodyComponent.class).getCollisionBox();
     }
 
     private BodyComponent defineBodyComponent() {
@@ -75,8 +83,22 @@ public class Megaman extends Entity implements Faceable, LevelCameraFocusable {
         return bodyComponent;
     }
 
+    private HealthComponent defineHealthComponent() {
+        HealthComponent healthComponent = new HealthComponent();
+        healthComponent.setHealthUpdater((delta) -> {
+
+        });
+        return healthComponent;
+    }
+
     private ControllerComponent defineControllerComponent() {
         ControllerComponent controllerComponent = new ControllerComponent();
+        controllerComponent.getControllerAdapters().put(ControllerButton.LEFT, new ControllerAdapter() {
+            @Override
+            public void onPressContinued(float delta) {
+                ControllerAdapter.super.onPressContinued(delta);
+            }
+        });
         return controllerComponent;
     }
 

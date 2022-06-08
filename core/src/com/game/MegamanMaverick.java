@@ -7,15 +7,19 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Disposable;
 import com.game.ConstVals.MegamanVals;
 import com.game.controllers.ControllerButton;
 import com.game.controllers.ControllerButtonStatus;
 import com.game.megaman.MegamanStats;
 import com.game.screens.menu.impl.MainMenuScreen;
+import com.game.utils.KeyValuePair;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -37,11 +41,13 @@ public class MegamanMaverick extends Game implements GameContext2d {
     private final Map<ControllerButton, ControllerButtonStatus> controllerButtons =
             new EnumMap<>(ControllerButton.class);
     private final Map<Class<? extends System>, System> systems = new HashMap<>();
+    private final Queue<KeyValuePair<Rectangle, Color>> debugQueue = new ArrayDeque<>();
     private final List<Disposable> disposables = new ArrayList<>();
     private final Map<String, Object> blackBoard = new HashMap<>();
     private final Map<String, Screen> screens = new HashMap<>();
     private final Set<Entity> entities = new HashSet<>();
     @Getter @Setter private GameState gameState;
+    @Getter private ShapeRenderer shapeRenderer;
     @Getter private SpriteBatch spriteBatch;
     private AssetManager assetManager;
 
@@ -50,9 +56,10 @@ public class MegamanMaverick extends Game implements GameContext2d {
         for (ControllerButton controllerButton : ControllerButton.values()) {
             controllerButtons.put(controllerButton, ControllerButtonStatus.IS_RELEASED);
         }
+        shapeRenderer = new ShapeRenderer();
         assetManager = new AssetManager();
         spriteBatch = new SpriteBatch();
-        disposables.addAll(List.of(assetManager, spriteBatch));
+        disposables.addAll(List.of(assetManager, spriteBatch, shapeRenderer));
         loadAssets(Music.class,
                    MMX3_INTRO_STAGE_MUSIC,
                    MMZ_NEO_ARCADIA_MUSIC,
@@ -111,6 +118,12 @@ public class MegamanMaverick extends Game implements GameContext2d {
         return Collections.unmodifiableCollection(entities);
     }
 
+    @Override
+    public void purgeAllEntities() {
+        systems.values().forEach(System::purgeAllEntities);
+        entities.clear();
+    }
+
     /**
      * Gets system.
      *
@@ -121,24 +134,6 @@ public class MegamanMaverick extends Game implements GameContext2d {
     @Override
     public <S extends System> S getSystem(Class<S> sClass) {
         return sClass.cast(systems.get(sClass));
-    }
-
-    private void filterEntityThroughSystems(Entity entity) {
-        systems.values().forEach(system -> {
-            if (!system.entityIsMember(entity) && system.qualifiesMembership(entity)) {
-                system.addEntity(entity);
-            } else if (system.entityIsMember(entity) && !system.qualifiesMembership(entity)) {
-                system.removeEntity(entity);
-            }
-        });
-    }
-
-    private void removeEntityFromSystems(Entity entity) {
-        systems.values().forEach(system -> {
-            if (system.entityIsMember(entity)) {
-                system.removeEntity(entity);
-            }
-        });
     }
 
     @Override
@@ -224,24 +219,62 @@ public class MegamanMaverick extends Game implements GameContext2d {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * Override super method to call {@link Screen#dispose()} instead of {@link Screen#hide()} on old screen.
+     *
+     * @param screen the new screen
+     */
+    @Override
+    public void setScreen(Screen screen) {
+        if (this.screen != null) {
+            this.screen.dispose();
+        }
+        this.screen = screen;
+        if (this.screen != null) {
+            this.screen.show();
+            this.screen.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        }
+    }
 
     @Override
     public void render() {
         Gdx.gl20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
-        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             Gdx.app.exit();
         }
-        entities.forEach(entity -> {
+        Iterator<Entity> entityIterator = entities.iterator();
+        while (entityIterator.hasNext()) {
+            Entity entity = entityIterator.next();
             if (entity.isMarkedForRemoval()) {
                 removeEntityFromSystems(entity);
+                entityIterator.remove();
             } else {
                 filterEntityThroughSystems(entity);
             }
-        });
-        entities.removeIf(Entity::isMarkedForRemoval);
+        }
         updateControllerStatuses();
         super.render();
+    }
+
+    private void removeEntityFromSystems(Entity entity) {
+        systems.values().forEach(system -> {
+            if (system.entityIsMember(entity)) {
+                system.removeEntity(entity);
+            }
+        });
+    }
+
+    private void filterEntityThroughSystems(Entity entity) {
+        systems.values().forEach(system -> {
+            if (!system.entityIsMember(entity) && system.qualifiesMembership(entity)) {
+                system.addEntity(entity);
+            } else if (system.entityIsMember(entity) && !system.qualifiesMembership(entity)) {
+                system.removeEntity(entity);
+            }
+        });
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.game;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.game.controllers.ControllerButton;
 
 import java.util.Collection;
@@ -41,6 +42,11 @@ public interface GameContext2d {
     Collection<Entity> viewOfEntities();
 
     /**
+     * Should be called when leaving a level screen and all entities need to be disposed of.
+     */
+    void purgeAllEntities();
+
+    /**
      * Get {@link System}.
      *
      * @param <S>    the type parameter of the system
@@ -55,6 +61,13 @@ public interface GameContext2d {
      * @return the sprite batch
      */
     SpriteBatch getSpriteBatch();
+
+    /**
+     * Get shape renderer.
+     *
+     * @return the shape renderer
+     */
+    ShapeRenderer getShapeRenderer();
 
     /**
      * If controller button is just pressed.
