@@ -64,8 +64,8 @@ public class WorldSystem extends System {
                 float x = bodyComponent.getImpulse().x + bodyComponent.getGravity().x;
                 float y = bodyComponent.getImpulse().y + bodyComponent.getGravity().y;
                 // Scale to fixed time step and friction scalar
-                bodyComponent.getCollisionBox().x += x * fixedTimeStep * bodyComponent.getFrictionScalarCopy().x;
-                bodyComponent.getCollisionBox().y += y * fixedTimeStep * bodyComponent.getFrictionScalarCopy().y;
+                bodyComponent.getCollisionBox().x += x * fixedTimeStep * bodyComponent.getFrictionScalar().x;
+                bodyComponent.getCollisionBox().y += y * fixedTimeStep * bodyComponent.getFrictionScalar().y;
                 // Each Fixture is moved to conform to its position center from the center of the Body Component
                 bodyComponent.getFixtures().forEach(fixture -> {
                     Vector2 center = new Vector2();
@@ -126,7 +126,6 @@ public class WorldSystem extends System {
         currentContacts.clear();
         bodies.forEach(bodyComponent -> {
             bodyComponent.getImpulse().setZero();
-            bodyComponent.setFrictionScalar(1f, 1f);
             Updatable postProcess = bodyComponent.getPostProcess();
             if (postProcess != null) {
                 postProcess.update(delta);

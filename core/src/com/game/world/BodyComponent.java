@@ -1,6 +1,5 @@
 package com.game.world;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
@@ -8,13 +7,9 @@ import com.game.Entity;
 import com.game.utils.Direction;
 import com.game.utils.Position;
 import com.game.utils.Updatable;
-import com.game.utils.exceptions.InvalidArgumentException;
 import lombok.*;
 
 import java.util.*;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
  * Defines the body and world rules of the {@link Entity}.
@@ -44,7 +39,6 @@ import java.util.function.Supplier;
  * {@link #fixtures} defines the {@link Fixture} instances attached to this body.
  */
 @Getter
-@Setter
 @ToString
 @RequiredArgsConstructor
 public class BodyComponent implements Component {
@@ -56,16 +50,18 @@ public class BodyComponent implements Component {
     private final List<Fixture> fixtures = new ArrayList<>();
     private final Vector2 gravityScalar = new Vector2(1f, 1f);
     private final Vector2 frictionScalar = new Vector2(1f, 1f);
-    private final Set<BodySense> bodySenses = EnumSet.noneOf(BodySense.class);
-    private final Map<Direction, Boolean> collisionFlags = new EnumMap<>(Direction.class) {{
-        for (Direction direction : Direction.values()) {
-            put(direction, false);
-        }
-    }};
+    @Getter(AccessLevel.NONE) private final Set<BodySense> bodySenses =
+            EnumSet.noneOf(BodySense.class);
+    @Getter(AccessLevel.NONE) private final Map<Direction, Boolean> collisionFlags =
+            new EnumMap<>(Direction.class) {{
+                for (Direction direction : Direction.values()) {
+                    put(direction, false);
+                }
+            }};
     // Called once before contacts and collisions are detected and forces are applied
-    private Updatable preProcess;
+    @Setter private Updatable preProcess;
     // Called once after contacts and collisions are detected and forces are applied
-    private Updatable postProcess;
+    @Setter private Updatable postProcess;
 
     /**
      * Is body sense true.
@@ -74,7 +70,7 @@ public class BodyComponent implements Component {
      * @return is body sense true
      */
     public boolean is(BodySense bodySense) {
-        return getBodySenses().contains(bodySense);
+        return bodySenses.contains(bodySense);
     }
 
     /**
@@ -83,7 +79,7 @@ public class BodyComponent implements Component {
      * @param bodySense the body sense
      */
     public void setIs(BodySense bodySense) {
-        getBodySenses().add(bodySense);
+        bodySenses.add(bodySense);
     }
 
     /**
@@ -92,14 +88,14 @@ public class BodyComponent implements Component {
      * @param bodySense the body sense
      */
     public void setIsNot(BodySense bodySense) {
-        getBodySenses().remove(bodySense);
+        bodySenses.remove(bodySense);
     }
 
     /**
      * Clear collision flags.
      */
     public void clearCollisionFlags() {
-        getCollisionFlags().replaceAll((direction, aBoolean) -> false);
+        collisionFlags.replaceAll((direction, aBoolean) -> false);
     }
 
     /**
@@ -109,7 +105,7 @@ public class BodyComponent implements Component {
      * @return is colliding in the provided direction
      */
     public boolean isColliding(Direction direction) {
-        return getCollisionFlags().get(direction);
+        return collisionFlags.get(direction);
     }
 
     /**
@@ -138,57 +134,6 @@ public class BodyComponent implements Component {
      */
     public void setCollidingDown() {
         collisionFlags.replace(Direction.DOWN, true);
-    }
-
-    /**
-     * See {@link #setFrictionScalar(float, float)}.
-     *
-     * @param x the x value of the friction scalar
-     * @throws InvalidArgumentException thrown if the value of x is greater than 1 or less than or equal to 0
-     */
-    public void setFrictionScalarX(float x)
-            throws InvalidArgumentException {
-        if (x > 1f || x <= 0f) {
-            throw new InvalidArgumentException(String.valueOf(x), "friction scalar x");
-        }
-        frictionScalar.x = x;
-    }
-
-    /**
-     * See {@link #setFrictionScalar(float, float)}.
-     *
-     * @param y the y value of the friction scalar
-     * @throws InvalidArgumentException thrown if the value of y is greater than 1 or less than or equal to 0
-     */
-    public void setFrictionScalarY(float y)
-            throws InvalidArgumentException {
-        if (y > 1f || y <= 0f) {
-            throw new InvalidArgumentException(String.valueOf(y), "friction scalar y");
-        }
-        frictionScalar.y = y;
-    }
-
-    /**
-     * Sets friction scalar values. Must be less than or equal to 1 and greater than 0, otherwise will throw exception.
-     * Friction scalar values are reset back to 1 after every frame.
-     *
-     * @param x the x friction scalar value
-     * @param y the y friction scalar value
-     * @throws InvalidArgumentException thrown if the value of x or y is greater than 1 or less than or equal to 0
-     */
-    public void setFrictionScalar(float x, float y)
-            throws InvalidArgumentException {
-        setFrictionScalarX(x);
-        setFrictionScalarY(y);
-    }
-
-    /**
-     * Gets copy of friction scalar {@link Vector2}.
-     *
-     * @return the friction scalar values
-     */
-    public Vector2 getFrictionScalarCopy() {
-        return new Vector2(frictionScalar);
     }
 
 }

@@ -9,14 +9,19 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.game.ConstVals.MegamanVals;
+import com.game.ConstVals.RenderingGround;
 import com.game.ConstVals.TextureAssets;
+import com.game.Entity;
 import com.game.GameContext2d;
+import com.game.blocks.StaticBlockFactory;
 import com.game.megaman.Megaman;
 import com.game.megaman.MegamanStats;
 import com.game.utils.Direction;
@@ -26,11 +31,15 @@ import com.game.utils.UtilMethods;
 import com.game.world.BodyComponent;
 import com.game.world.WorldSystem;
 
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.game.ConstVals.LevelTiledMapLayer.GAME_ROOMS;
+import static com.game.ConstVals.LevelTiledMapLayer.*;
+import static com.game.ConstVals.RenderingGround.PLAYGROUND;
 import static com.game.ConstVals.ViewVals.*;
+
+// TODO: Dispose of assets in level screen when leaving level
 
 public class LevelScreen extends ScreenAdapter {
 
@@ -41,9 +50,6 @@ public class LevelScreen extends ScreenAdapter {
     private static final float LEVEL_CAM_TRANS_DURATION = 1f;
     private static final float MEGAMAN_DELTA_ON_CAM_TRANS = 3f;
 
-    private final Viewport gameViewport = new FitViewport(VIEW_WIDTH * PPM, VIEW_HEIGHT * PPM);
-    private final Viewport uiViewport = new FitViewport(VIEW_WIDTH * PPM, VIEW_HEIGHT * PPM);
-    private final Viewport bgViewport = new FitViewport(VIEW_WIDTH * PPM, VIEW_HEIGHT * PPM);
     private final FontHandle readyFont = new FontHandle("Megaman10Font.ttf", 8);
     private final Timer playerEntrance = new Timer(PLAYER_ENTRANCE_DURATION);
     private final Timer deathDelay = new Timer(DEATH_DELAY_DURATION);
@@ -68,19 +74,40 @@ public class LevelScreen extends ScreenAdapter {
 
     @Override
     public void show() {
-        // Load Megaman
+        // Level tiled map
+        levelTiledMap = new LevelTiledMap(
+                (OrthographicCamera) gameContext.getViewport(
+                        PLAYGROUND).getCamera(), tmxFile);
+        // Megaman
+        Map<String, Rectangle> megamanSpawns = levelTiledMap.getObjectsOfLayer(PLAYER_SPAWNS.getLayerName())
+                .stream().collect(Collectors.toMap(
+                        MapObject::getName, RectangleMapObject::getRectangle));
         MegamanStats megamanStats = gameContext.getBlackboardObject(
                 MegamanVals.MEGAMAN_STATS, MegamanStats.class);
-        megaman = new Megaman(gameContext, megamanStats);
-        // Load tiled map
-        levelTiledMap = new LevelTiledMap((OrthographicCamera) gameViewport.getCamera(), tmxFile);
+        megaman = new Megaman(gameContext, megamanSpawns, megamanStats);
+        megaman.setCurrentSpawn("Start");
+        // ------------------------------------------------------------------------------
+        // TODO: Replace with proper entrance
+        Vector2 testSpawnPos = new Vector2();
+        megamanSpawns.get("Start").getPosition(testSpawnPos);
+        megaman.getComponent(BodyComponent.class).getCollisionBox().setPosition(testSpawnPos);
+        // ------------------------------------------------------------------------------
+        gameContext.addEntity(megaman);
+        // Static blocks
+        List<RectangleMapObject> blockRectangleMapObjs = levelTiledMap
+                .getObjectsOfLayer(STATIC_BLOCKS.getLayerName());
+        StaticBlockFactory staticBlockFactory = new StaticBlockFactory();
+        staticBlockFactory.create(blockRectangleMapObjs).forEach(gameContext::addEntity);
+        // Get game rooms layer
         Map<Rectangle, String> gameRooms = levelTiledMap.getObjectsOfLayer(GAME_ROOMS.getLayerName())
                 .stream().collect(Collectors.toMap(
                         RectangleMapObject::getRectangle, MapObject::getName));
         // Load level camera manager
         levelCameraManager = new LevelCameraManager(
-                gameViewport.getCamera(), new Timer(LEVEL_CAM_TRANS_DURATION),
+                gameContext.getViewport(PLAYGROUND).getCamera(),
+                new Timer(LEVEL_CAM_TRANS_DURATION),
                 gameRooms, megaman);
+        /*
         // Load health bar UI
         TextureRegion containerRegion = gameContext
                 .loadAsset(TextureAssets.DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class)
@@ -97,6 +124,7 @@ public class LevelScreen extends ScreenAdapter {
                 .findRegion("Black");
         // Load black box sprite for fading in/out
         blackBoxSprite.setRegion(blackBoxRegion);
+         */
     }
 
     @Override
@@ -105,7 +133,8 @@ public class LevelScreen extends ScreenAdapter {
         gameContext.viewOfEntities().forEach(entity -> {
             if (entity instanceof CullOnOutOfGameCamBounds cullable) {
                 BoundingBox cullBBox = UtilMethods.rectToBBox(cullable.getBoundingBox());
-                if (!gameViewport.getCamera().frustum.boundsInFrustum(cullBBox)) {
+                if (!gameContext.getViewport(PLAYGROUND).getCamera()
+                        .frustum.boundsInFrustum(cullBBox)) {
                     cullable.getCullTimer().update(delta);
                     if (cullable.getCullTimer().isFinished()) {
                         entity.setMarkedForRemoval(true);
@@ -147,16 +176,6 @@ public class LevelScreen extends ScreenAdapter {
                 }
             }
         }
-        uiViewport.apply();
-        gameViewport.apply();
-        bgViewport.apply();
-    }
-
-    @Override
-    public void resize(int width, int height) {
-        uiViewport.update(width, height);
-        gameViewport.update(width, height);
-        bgViewport.update(width, height);
     }
 
     @Override

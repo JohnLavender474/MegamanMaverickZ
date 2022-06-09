@@ -54,6 +54,7 @@ public class MegamanGroundSlide extends Behavior {
         // Down-and-A button combo must be pressed and ground slide timer must not be depleted
         return gameContext.isPressed(ControllerButton.DOWN) &&
                 gameContext.isPressed(ControllerButton.A) &&
+                bodyComponent.is(BodySense.FEET_ON_GROUND) &&
                 !groundSlideTimer.isFinished();
     }
 

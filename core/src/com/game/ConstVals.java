@@ -13,6 +13,12 @@ public class ConstVals {
         BOSS_SELECT
     }
 
+    public enum RenderingGround {
+        UI,
+        PLAYGROUND,
+        BACKGROUND
+    }
+
     @Getter
     @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     public enum LevelTiledMapLayer {
@@ -20,7 +26,8 @@ public class ConstVals {
         GAME_ROOMS("GameRooms"),
         ENEMY_SPAWNS("EnemySpawns"),
         PLAYER_SPAWNS("PlayerSpawns"),
-        STATIC_BLOCKS("StaticBlocks");
+        STATIC_BLOCKS("StaticBlocks"),
+        DEATH_BLOCKS("DeathBlocks");
 
         private final String layerName;
 

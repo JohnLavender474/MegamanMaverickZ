@@ -2,15 +2,26 @@ package com.game;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.utils.viewport.Viewport;
+import com.game.ConstVals.RenderingGround;
 import com.game.controllers.ControllerButton;
 
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * Represents the essentials for a 2D game, including game state management, entity and systems management, controller
  * listening, asset loading, sprite batch, screen management, and blackboard.
  */
 public interface GameContext2d {
+
+    /**
+     * Gets uiViewport.
+     *
+     * @param renderingGround the rendering ground
+     * @return the uiViewport
+     */
+    Viewport getViewport(RenderingGround renderingGround);
 
     /**
      * Set current state.
@@ -45,6 +56,13 @@ public interface GameContext2d {
      * Should be called when leaving a level screen and all entities need to be disposed of.
      */
     void purgeAllEntities();
+
+    /**
+     * Add system.
+     *
+     * @param system the system
+     */
+    void addSystem(System system);
 
     /**
      * Get {@link System}.

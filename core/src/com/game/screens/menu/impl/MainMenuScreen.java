@@ -92,7 +92,7 @@ public class MainMenuScreen extends MenuScreen {
             arrowBlinkTimer.reset();
         }
         SpriteBatch spriteBatch = gameContext.getSpriteBatch();
-        spriteBatch.setProjectionMatrix(viewport.getCamera().combined);
+        spriteBatch.setProjectionMatrix(uiViewport.getCamera().combined);
         spriteBatch.begin();
         title.draw(spriteBatch);
         subtitle.draw(spriteBatch);

@@ -14,12 +14,18 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import com.game.ConstVals.MegamanVals;
+import com.game.ConstVals.RenderingGround;
+import com.game.ConstVals.WorldVals;
 import com.game.controllers.ControllerButton;
 import com.game.controllers.ControllerButtonStatus;
+import com.game.controllers.ControllerSystem;
 import com.game.megaman.MegamanStats;
 import com.game.screens.menu.impl.MainMenuScreen;
 import com.game.utils.KeyValuePair;
+import com.game.world.WorldSystem;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -28,6 +34,7 @@ import java.util.*;
 import static com.game.ConstVals.MusicAssets.*;
 import static com.game.ConstVals.SoundAssets.*;
 import static com.game.ConstVals.TextureAssets.*;
+import static com.game.ConstVals.ViewVals.*;
 import static com.game.controllers.ControllerUtils.*;
 
 /**
@@ -38,10 +45,11 @@ import static com.game.controllers.ControllerUtils.*;
 @Getter
 public class MegamanMaverick extends Game implements GameContext2d {
 
+    private final Map<RenderingGround, Viewport> viewports = new EnumMap<>(RenderingGround.class);
+    private final Queue<KeyValuePair<Rectangle, Color>> debugQueue = new ArrayDeque<>();
     private final Map<ControllerButton, ControllerButtonStatus> controllerButtons =
             new EnumMap<>(ControllerButton.class);
     private final Map<Class<? extends System>, System> systems = new HashMap<>();
-    private final Queue<KeyValuePair<Rectangle, Color>> debugQueue = new ArrayDeque<>();
     private final List<Disposable> disposables = new ArrayList<>();
     private final Map<String, Object> blackBoard = new HashMap<>();
     private final Map<String, Screen> screens = new HashMap<>();
@@ -53,6 +61,10 @@ public class MegamanMaverick extends Game implements GameContext2d {
 
     @Override
     public void create() {
+        for (RenderingGround renderingGround : RenderingGround.values()) {
+            viewports.put(renderingGround, new FitViewport(
+                    VIEW_WIDTH * PPM, VIEW_HEIGHT * PPM));
+        }
         for (ControllerButton controllerButton : ControllerButton.values()) {
             controllerButtons.put(controllerButton, ControllerButtonStatus.IS_RELEASED);
         }
@@ -97,6 +109,8 @@ public class MegamanMaverick extends Game implements GameContext2d {
                    DECORATIONS_TEXTURE_ATLAS,
                    HEALTH_WEAPON_STATS_TEXTURE_ATLAS);
         assetManager.finishLoading();
+        addSystem(new ControllerSystem(this));
+        addSystem(new WorldSystem(WorldVals.FIXED_TIME_STEP));
         putBlackboardObject(MegamanVals.MEGAMAN_STATS, new MegamanStats());
         setGameState(GameState.IN_MENU);
         setScreen(new MainMenuScreen(this));
@@ -106,6 +120,11 @@ public class MegamanMaverick extends Game implements GameContext2d {
         for (String source : sources) {
             assetManager.load(source, sClass);
         }
+    }
+
+    @Override
+    public Viewport getViewport(RenderingGround renderingGround) {
+        return viewports.get(renderingGround);
     }
 
     @Override
@@ -124,13 +143,11 @@ public class MegamanMaverick extends Game implements GameContext2d {
         entities.clear();
     }
 
-    /**
-     * Gets system.
-     *
-     * @param <S>   the type parameter
-     * @param sClass the system class
-     * @return the system
-     */
+    @Override
+    public void addSystem(System system) {
+        systems.put(system.getClass(), system);
+    }
+
     @Override
     public <S extends System> S getSystem(Class<S> sClass) {
         return sClass.cast(systems.get(sClass));
@@ -161,81 +178,21 @@ public class MegamanMaverick extends Game implements GameContext2d {
         setScreen(screen);
     }
 
-
-    /**
-     * If controller button is just pressed.
-     *
-     * @param controllerButton the controller button
-     * @return if controller button is just pressed
-     */
+    @Override
     public boolean isJustPressed(ControllerButton controllerButton) {
         return controllerButtons.get(controllerButton) == ControllerButtonStatus.IS_JUST_PRESSED;
     }
 
-    /**
-     * If controller button is pressed. Include if just pressed.
-     *
-     * @param controllerButton the controller button
-     * @return if the controller button is pressed or just pressed
-     */
+    @Override
     public boolean isPressed(ControllerButton controllerButton) {
         ControllerButtonStatus controllerButtonStatus = controllerButtons.get(controllerButton);
         return controllerButtonStatus == ControllerButtonStatus.IS_JUST_PRESSED ||
                 controllerButtonStatus == ControllerButtonStatus.IS_PRESSED;
     }
 
-    /**
-     * If controller button is just released.
-     *
-     * @param controllerButton the controller button
-     * @return if the controller button is just released
-     */
+    @Override
     public boolean isJustReleased(ControllerButton controllerButton) {
         return controllerButtons.get(controllerButton) == ControllerButtonStatus.IS_JUST_RELEASED;
-    }
-
-    /**
-     * Update controller statuses.
-     */
-    public void updateControllerStatuses() {
-        for (ControllerButton controllerButton : ControllerButton.values()) {
-            ControllerButtonStatus status = controllerButtons.get(controllerButton);
-            boolean isControllerButtonPressed = isControllerConnected() ?
-                    isControllerButtonPressed(controllerButton.getControllerBindingCode()) :
-                    isKeyboardButtonPressed(controllerButton.getKeyboardBindingCode());
-            if (isControllerButtonPressed) {
-                if (status == ControllerButtonStatus.IS_RELEASED ||
-                        status == ControllerButtonStatus.IS_JUST_RELEASED) {
-                    controllerButtons.replace(controllerButton, ControllerButtonStatus.IS_JUST_PRESSED);
-                } else {
-                    controllerButtons.replace(controllerButton, ControllerButtonStatus.IS_PRESSED);
-                }
-            } else if (status == ControllerButtonStatus.IS_JUST_RELEASED ||
-                    status == ControllerButtonStatus.IS_RELEASED) {
-                controllerButtons.replace(controllerButton, ControllerButtonStatus.IS_RELEASED);
-            } else {
-                controllerButtons.replace(controllerButton, ControllerButtonStatus.IS_JUST_RELEASED);
-            }
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * Override super method to call {@link Screen#dispose()} instead of {@link Screen#hide()} on old screen.
-     *
-     * @param screen the new screen
-     */
-    @Override
-    public void setScreen(Screen screen) {
-        if (this.screen != null) {
-            this.screen.dispose();
-        }
-        this.screen = screen;
-        if (this.screen != null) {
-            this.screen.show();
-            this.screen.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        }
     }
 
     @Override
@@ -257,6 +214,29 @@ public class MegamanMaverick extends Game implements GameContext2d {
         }
         updateControllerStatuses();
         super.render();
+        viewports.values().forEach(Viewport::apply);
+    }
+
+    private void updateControllerStatuses() {
+        for (ControllerButton controllerButton : ControllerButton.values()) {
+            ControllerButtonStatus status = controllerButtons.get(controllerButton);
+            boolean isControllerButtonPressed = isControllerConnected() ?
+                    isControllerButtonPressed(controllerButton.getControllerBindingCode()) :
+                    isKeyboardButtonPressed(controllerButton.getKeyboardBindingCode());
+            if (isControllerButtonPressed) {
+                if (status == ControllerButtonStatus.IS_RELEASED ||
+                        status == ControllerButtonStatus.IS_JUST_RELEASED) {
+                    controllerButtons.replace(controllerButton, ControllerButtonStatus.IS_JUST_PRESSED);
+                } else {
+                    controllerButtons.replace(controllerButton, ControllerButtonStatus.IS_PRESSED);
+                }
+            } else if (status == ControllerButtonStatus.IS_JUST_RELEASED ||
+                    status == ControllerButtonStatus.IS_RELEASED) {
+                controllerButtons.replace(controllerButton, ControllerButtonStatus.IS_RELEASED);
+            } else {
+                controllerButtons.replace(controllerButton, ControllerButtonStatus.IS_JUST_RELEASED);
+            }
+        }
     }
 
     private void removeEntityFromSystems(Entity entity) {
@@ -281,6 +261,11 @@ public class MegamanMaverick extends Game implements GameContext2d {
     public void dispose() {
         super.dispose();
         disposables.forEach(Disposable::dispose);
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        viewports.values().forEach(viewport -> viewport.update(width, height));
     }
 
 }

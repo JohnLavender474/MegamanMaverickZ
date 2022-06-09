@@ -2,8 +2,8 @@ package com.game.screens.menu;
 
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.game.ConstVals.RenderingGround;
 import com.game.GameContext2d;
 import com.game.controllers.ControllerButton;
 import com.game.utils.Direction;
@@ -18,7 +18,7 @@ import static com.game.ConstVals.ViewVals.*;
  */
 public abstract class MenuScreen extends ScreenAdapter {
 
-    protected final Viewport viewport;
+    protected final Viewport uiViewport;
     protected final GameContext2d gameContext;
     @Getter private String currentMenuButtonKey;
     private final Map<String, MenuButton> menuButtons;
@@ -30,7 +30,7 @@ public abstract class MenuScreen extends ScreenAdapter {
      */
     public MenuScreen(GameContext2d gameContext) {
         this.gameContext = gameContext;
-        this.viewport = new FitViewport(VIEW_WIDTH * PPM, VIEW_HEIGHT * PPM);
+        this.uiViewport = gameContext.getViewport(RenderingGround.UI);
         this.menuButtons = defineMenuButtons();
     }
 
@@ -53,7 +53,6 @@ public abstract class MenuScreen extends ScreenAdapter {
     @Override
     public void render(float delta) {
         super.render(delta);
-        viewport.apply();
         MenuButton menuButton = menuButtons.get(currentMenuButtonKey);
         if (menuButton != null) {
             if (gameContext.isJustPressed(ControllerButton.X) ||
@@ -75,14 +74,9 @@ public abstract class MenuScreen extends ScreenAdapter {
 
     @Override
     public void show() {
-        Vector3 camPos = viewport.getCamera().position;
+        Vector3 camPos = uiViewport.getCamera().position;
         camPos.x = (VIEW_WIDTH * PPM) / 2f;
         camPos.y = (VIEW_HEIGHT * PPM) / 2f;
-    }
-
-    @Override
-    public void resize(int width, int height) {
-        viewport.update(width, height);
     }
 
 }
