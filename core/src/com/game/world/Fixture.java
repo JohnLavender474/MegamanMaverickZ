@@ -22,5 +22,4 @@ public class Fixture {
     private final FixtureType fixtureType;
     private final Vector2 offset = new Vector2();
     private final Rectangle fixtureBox = new Rectangle();
-    private final Map<ProcessState, ContactListener> contactListeners = new EnumMap<>(ProcessState.class);
 }

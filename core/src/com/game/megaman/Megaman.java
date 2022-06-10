@@ -1,7 +1,6 @@
 package com.game.megaman;
 
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
 import com.game.ConstVals.TextureAssets;
 import com.game.GameContext2d;
@@ -14,6 +13,7 @@ import com.game.megaman.behaviors.MegamanRun;
 import com.game.screens.levels.LevelCameraFocusable;
 import com.game.sprites.SpriteComponent;
 import com.game.utils.*;
+import com.game.utils.Timer;
 import com.game.world.BodyComponent;
 import com.game.world.BodySense;
 import com.game.world.BodyType;
@@ -33,12 +33,14 @@ import static com.game.behaviors.BehaviorType.*;
 @Setter
 public class Megaman extends Entity implements Faceable, LevelCameraFocusable {
 
-    public static final float STANDARD_GRAVITY = -7f;
+    public static final float MEGAMAN_GRAVITY = -7f;
 
     public enum A_ButtonAction {
         JUMP,
         AIR_DASH
     }
+
+    private final Timer gravityTimer = new Timer(0.5f);
 
     private final Map<String, Rectangle> spawns;
     private final MegamanStats megamanStats;
@@ -68,11 +70,20 @@ public class Megaman extends Entity implements Faceable, LevelCameraFocusable {
     private BodyComponent defineBodyComponent() {
         BodyComponent bodyComponent = new BodyComponent(BodyType.DYNAMIC);
         bodyComponent.getCollisionBox().setSize(0.75f * PPM, 1.5f * PPM);
-        bodyComponent.getGravity().set(0f, STANDARD_GRAVITY);
+        bodyComponent.getGravity().set(0f, MEGAMAN_GRAVITY);
         bodyComponent.setPreProcess((delta) -> {
             // TODO: set gravity
             BehaviorComponent behaviorComponent = getComponent(BehaviorComponent.class);
-            // if grounded, set gravity to minimum
+            // gravity
+            if (bodyComponent.is(BodySense.FEET_ON_GROUND)) {
+                gravityTimer.reset();
+                bodyComponent.getGravity().y = -0.25f;
+            } else {
+                gravityTimer.update(delta);
+                bodyComponent.getGravity().y = gravityTimer.isFinished() ? MEGAMAN_GRAVITY :
+                        MEGAMAN_GRAVITY * gravityTimer.getRatio();
+            }
+            // gravity scalar
             if (behaviorComponent.is(GROUND_SLIDING) ||
                     behaviorComponent.is(AIR_DASHING)) {
                 bodyComponent.getGravityScalar().y = 0f;

@@ -1,8 +1,10 @@
 package com.game;
 
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.game.ConstVals.GameScreen;
 import com.game.ConstVals.RenderingGround;
 import com.game.controllers.ControllerButton;
 
@@ -74,6 +76,13 @@ public interface GameContext2d {
     <S extends System> S getSystem(Class<S> sClass);
 
     /**
+     * Update systems.
+     *
+     * @param delta the delta
+     */
+    void updateSystems(float delta);
+
+    /**
      * Get sprite batch.
      *
      * @return the sprite batch
@@ -142,8 +151,16 @@ public interface GameContext2d {
     /**
      * Set screen.
      *
-     * @param key the key
+     * @param gameScreen the game screen
      */
-    void setScreen(String key);
+    void setScreen(GameScreen gameScreen);
+
+    /**
+     * Put screen.
+     *
+     * @param gameScreen the game screen
+     * @param screen     the screen
+     */
+    void putScreen(GameScreen gameScreen, Screen screen);
 
 }

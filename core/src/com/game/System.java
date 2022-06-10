@@ -16,7 +16,7 @@ import static com.game.utils.UtilMethods.objName;
  */
 public abstract class System implements Updatable {
 
-    @Setter private boolean isOn = true;
+    @Setter @Getter private boolean isOn = true;
     private final Set<Entity> entities = new HashSet<>();
     private final Queue<Entity> entitiesToAddQueue = new LinkedList<>();
     private final Queue<Entity> entitiesToRemoveQueue = new LinkedList<>();
@@ -51,6 +51,13 @@ public abstract class System implements Updatable {
      */
     protected void postProcess(float delta) {}
 
+    /**
+     * {@inheritDoc}
+     *
+     * If {@link #isOn()}, then update the system. Otherwise, do nothing and return.
+     *
+     * @param delta the delta time
+     */
     @Override
     public final void update(float delta) {
         if (!isOn) {

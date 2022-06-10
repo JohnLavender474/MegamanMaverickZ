@@ -1,4 +1,4 @@
-package com.game.game;
+package com.game;
 
 import com.badlogic.gdx.Gdx;
 import org.junit.Test;
@@ -7,7 +7,7 @@ import org.junit.runner.RunWith;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-@RunWith(GdxTestRunner.class)
+@RunWith(GdxHeadlessTestRunner.class)
 public class ExampleTest {
 
     @Test

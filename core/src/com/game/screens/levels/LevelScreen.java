@@ -176,6 +176,7 @@ public class LevelScreen extends ScreenAdapter {
                 }
             }
         }
+        gameContext.updateSystems(delta);
     }
 
     @Override

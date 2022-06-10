@@ -1,4 +1,4 @@
-package com.game.game;
+package com.game;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
@@ -20,11 +20,11 @@ import static org.mockito.Mockito.mock;
  *
  * https://github.com/TomGrill/gdx-testing/blob/master/tests/src/de/tomgrill/gdxtesting/GdxTestRunner.java
  */
-public class GdxTestRunner extends BlockJUnit4ClassRunner implements ApplicationListener {
+public class GdxHeadlessTestRunner extends BlockJUnit4ClassRunner implements ApplicationListener {
 
     private final Map<FrameworkMethod, RunNotifier> invokeInRender = new HashMap<>();
 
-    public GdxTestRunner(Class<?> klass) throws InitializationError {
+    public GdxHeadlessTestRunner(Class<?> klass) throws InitializationError {
         super(klass);
         new HeadlessApplication(this, new HeadlessApplicationConfiguration());
         Gdx.gl = mock(GL20.class);

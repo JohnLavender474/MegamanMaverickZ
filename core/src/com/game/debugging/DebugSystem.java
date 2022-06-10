@@ -38,14 +38,12 @@ public class DebugSystem extends System {
     @Override
     protected void processEntity(Entity entity, float delta) {
         DebugComponent debugComponent = entity.getComponent(DebugComponent.class);
-        Queue<KeyValuePair<Rectangle, Color>> queue = debugComponent.getDebugQueue();
-        while (!queue.isEmpty()) {
-            KeyValuePair<Rectangle, Color> pair = queue.poll();
-            Rectangle rectangle = pair.key();
-            Color color = pair.value();
+        debugComponent.getDebugHandles().forEach(debugHandle -> {
+            Rectangle rectangle = debugHandle.rectangleSupplier().get();
+            Color color = debugHandle.color();
             shapeRenderer.setColor(color);
             shapeRenderer.rect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
-        }
+        });
     }
 
     @Override

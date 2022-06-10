@@ -25,7 +25,7 @@ public class MegamanJump extends Behavior {
 
     // Jump speed in world units, is counteracted by gravity force that increases each frame not grounded,
     // see body pre-process updater initialized in Megaman.java defineBodyComponent().
-    public static final float JUMP_SPEED = 9f;
+    public static final float JUMP_SPEED = 7f;
     // Wall jump horizontal bump init speed
     public static final float WALL_JUMP_BUMP_INIT_SPEED = 3f;
     // Wall jump horizontal bump duration
@@ -56,7 +56,7 @@ public class MegamanJump extends Behavior {
         // otherwise return true if jump button is just pressed and is grounded or wall sliding
         return behaviorComponent.is(BehaviorType.JUMPING) ?
                 // case 1
-                bodyComponent.getImpulse().y > 0f &&
+                bodyComponent.getImpulse().y >= 0f &&
                         !bodyComponent.isColliding(Direction.DOWN) &&
                         gameContext.isPressed(ControllerButton.A) &&
                         !behaviorComponent.is(BehaviorType.WALL_SLIDING) :

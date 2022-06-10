@@ -14,7 +14,7 @@ import static com.game.ConstVals.ViewVals.PPM;
 
 public class MegamanRun extends Behavior {
 
-    public static final float RUN_SPEED_PER_SECOND = 3.5f;
+    public static final float RUN_SPEED_PER_SECOND = 6f;
 
     private final Megaman megaman;
     private final GameContext2d gameContext;

@@ -124,6 +124,7 @@ public class SystemTest {
         entity.addComponent(new Component3());
         TestSystem spyTestSystem = Mockito.spy(testSystem);
         spyTestSystem.addEntity(entity);
+        spyTestSystem.update(1f);
         // when
         spyTestSystem.removeEntity(entity);
         // then

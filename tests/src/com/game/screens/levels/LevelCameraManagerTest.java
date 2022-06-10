@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.game.game.GdxTestRunner;
+import com.game.GdxHeadlessTestRunner;
 import com.game.utils.Direction;
 import com.game.utils.ProcessState;
 import com.game.utils.Timer;
@@ -17,7 +17,7 @@ import java.util.*;
 
 import static org.junit.Assert.*;
 
-@RunWith(GdxTestRunner.class)
+@RunWith(GdxHeadlessTestRunner.class)
 public class LevelCameraManagerTest {
 
     private static class TestLevelCameraFocusable extends Rectangle implements LevelCameraFocusable {
