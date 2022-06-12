@@ -4,7 +4,7 @@
         <key>fileFormatVersion</key>
         <int>5</int>
         <key>texturePackerVersion</key>
-        <string>6.0.1</string>
+        <string>6.0.2</string>
         <key>autoSDSettings</key>
         <array>
             <struct type="AutoSDSettings">
@@ -43,22 +43,12 @@
         <uint>2</uint>
         <key>basisUniversalQualityLevel</key>
         <uint>2</uint>
-        <key>atfCompressData</key>
-        <false/>
-        <key>mipMapMinSize</key>
-        <uint>32768</uint>
         <key>etc1QualityLevel</key>
         <uint>70</uint>
         <key>etc2QualityLevel</key>
         <uint>70</uint>
         <key>dxtCompressionMode</key>
         <enum type="SettingsBase::DxtCompressionMode">DXT_PERCEPTUAL</enum>
-        <key>jxrColorFormat</key>
-        <enum type="SettingsBase::JpegXrColorMode">JXR_YUV444</enum>
-        <key>jxrTrimFlexBits</key>
-        <uint>0</uint>
-        <key>jxrCompressionLevel</key>
-        <uint>0</uint>
         <key>ditherType</key>
         <enum type="SettingsBase::DitherType">NearestNeighbour</enum>
         <key>backgroundColor</key>
@@ -82,8 +72,6 @@
         <key>webpQualityLevel</key>
         <uint>101</uint>
         <key>textureSubPath</key>
-        <string></string>
-        <key>atfFormats</key>
         <string></string>
         <key>textureFormat</key>
         <enum type="SettingsBase::TextureFormat">png</enum>
@@ -188,11 +176,12 @@
             <key type="filename">../Frames/Megaman/AirDash.png</key>
             <key type="filename">../Frames/Megaman/Beam.png</key>
             <key type="filename">../Frames/Megaman/FinishClimb.png</key>
-            <key type="filename">../Frames/Megaman/GroundDash.png</key>
+            <key type="filename">../Frames/Megaman/GroundSlide.png</key>
             <key type="filename">../Frames/Megaman/InitRun.png</key>
             <key type="filename">../Frames/Megaman/InitRunCharging.png</key>
             <key type="filename">../Frames/Megaman/Jump.png</key>
             <key type="filename">../Frames/Megaman/JumpShoot.png</key>
+            <key type="filename">../Frames/Megaman/SlipSlide.png</key>
             <key type="filename">../Frames/Megaman/StandShoot.png</key>
             <key type="filename">../Frames/Megaman/WallSlide.png</key>
             <key type="filename">../Frames/Megaman/WallSlideShoot.png</key>
@@ -216,7 +205,7 @@
             <key type="filename">../Frames/Megaman/ClimbCharging.png</key>
             <key type="filename">../Frames/Megaman/Damaged.png</key>
             <key type="filename">../Frames/Megaman/FinishClimbCharging.png</key>
-            <key type="filename">../Frames/Megaman/GroundDashCharging.png</key>
+            <key type="filename">../Frames/Megaman/GroundSlideCharging.png</key>
             <key type="filename">../Frames/Megaman/JumpCharging.png</key>
             <key type="filename">../Frames/Megaman/Stand.png</key>
             <key type="filename">../Frames/Megaman/StandCharging.png</key>

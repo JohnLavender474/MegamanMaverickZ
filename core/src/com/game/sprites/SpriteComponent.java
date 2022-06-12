@@ -1,6 +1,7 @@
 package com.game.sprites;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
 import com.game.utils.Updatable;
@@ -15,6 +16,6 @@ import java.util.function.Consumer;
  */
 @Getter
 public class SpriteComponent implements Component {
-    private final Sprite sprite = new Sprite();
     @Setter private Updatable spriteUpdater;
+    private final Sprite sprite = new Sprite();
 }

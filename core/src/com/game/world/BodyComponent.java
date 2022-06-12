@@ -19,6 +19,7 @@ public class BodyComponent implements Component {
     private final Vector2 velocity = new Vector2();
     private final Rectangle collisionBox = new Rectangle();
     private final List<Fixture> fixtures = new ArrayList<>();
+    private final Rectangle priorCollisionBox = new Rectangle();
     private final Vector2 resistance = new Vector2(1f, 1f);
     private final Set<BodySense> bodySenses = EnumSet.noneOf(BodySense.class);
     private final Map<Direction, Boolean> collisionFlags = new EnumMap<>(Direction.class) {{
@@ -61,6 +62,24 @@ public class BodyComponent implements Component {
      */
     public void setSize(float width, float height) {
         collisionBox.setSize(width, height);
+    }
+
+    /**
+     * Set width.
+     *
+     * @param width the width
+     */
+    public void setWidth(float width) {
+        collisionBox.setWidth(width);
+    }
+
+    /**
+     * Set height.
+     *
+     * @param height the height
+     */
+    public void setHeight(float height) {
+        collisionBox.setHeight(height);
     }
 
     /**
@@ -338,6 +357,13 @@ public class BodyComponent implements Component {
      */
     public void addFixture(Fixture fixture) {
         fixtures.add(fixture);
+    }
+
+    /**
+     * Set prior collision box to current.
+     */
+    public void setPriorCollisionBoxToCurrent() {
+        priorCollisionBox.set(collisionBox);
     }
 
 }

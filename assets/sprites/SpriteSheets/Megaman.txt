@@ -1,7 +1,7 @@
 Megaman.png
 size: 256, 448
 format: RGBA8888
-filter: Linear,Linear
+filter: Nearest,Nearest
 repeat: none
 AirDash
   rotate: false
@@ -12,7 +12,7 @@ AirDash
   index: -1
 AirDashCharging
   rotate: false
-  xy: 96, 32
+  xy: 128, 32
   size: 64, 32
   orig: 64, 32
   offset: 0, 0
@@ -26,7 +26,7 @@ Beam
   index: -1
 BeamLand
   rotate: false
-  xy: 160, 32
+  xy: 192, 32
   size: 64, 32
   orig: 64, 32
   offset: 0, 0
@@ -143,6 +143,13 @@ RunShoot
   orig: 128, 32
   offset: 0, 0
   index: -1
+SlipSlide
+  rotate: false
+  xy: 0, 32
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
 Stand
   rotate: false
   xy: 64, 96
@@ -159,14 +166,14 @@ StandCharging
   index: -1
 StandShoot
   rotate: false
-  xy: 0, 32
+  xy: 32, 32
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 WallSlide
   rotate: false
-  xy: 32, 32
+  xy: 64, 32
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
@@ -180,7 +187,7 @@ WallSlideCharging
   index: -1
 WallSlideShoot
   rotate: false
-  xy: 64, 32
+  xy: 96, 32
   size: 32, 32
   orig: 32, 32
   offset: 0, 0

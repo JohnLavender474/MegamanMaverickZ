@@ -17,7 +17,8 @@ public class MegamanMaverickRunner {
 		// test_World_System(config);
 		// test_Camera_Room_Shift(config);
 		// test_Ground_Dash_And_Friction(config);
-		test_Special_Movements(config);
+		// test_Special_Movements(config);
+		test_Megaman_Animations(config);
 	}
 
 	private static void test_PPM_And_Movement_Speeds(Lwjgl3ApplicationConfiguration config) {
@@ -43,6 +44,11 @@ public class MegamanMaverickRunner {
 	private static void test_Special_Movements(Lwjgl3ApplicationConfiguration config) {
 		new Lwjgl3Application(new GameTestRunner(
 				TestScreen.TEST_SPECIAL_MOVEMENTS), config);
+	}
+
+	private static void test_Megaman_Animations(Lwjgl3ApplicationConfiguration config) {
+		new Lwjgl3Application(new GameTestRunner(
+				TestScreen.TEST_MEGAMAN_ANIMATIONS), config);
 	}
 
 }

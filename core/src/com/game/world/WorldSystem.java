@@ -42,6 +42,7 @@ public class WorldSystem extends System {
     @Override
     protected void processEntity(Entity entity, float delta) {
         BodyComponent bodyComponent = entity.getComponent(BodyComponent.class);
+        bodyComponent.setPriorCollisionBoxToCurrent();
         bodyComponent.clearCollisionFlags();
         bodies.add(bodyComponent);
         if (bodyComponent.getPreProcess() != null) {

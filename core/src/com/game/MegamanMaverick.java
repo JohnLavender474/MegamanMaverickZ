@@ -300,6 +300,7 @@ public class MegamanMaverick extends Game implements GameContext2d {
     @Override
     public void dispose() {
         super.dispose();
+        screen.dispose();
         disposables.forEach(Disposable::dispose);
     }
     

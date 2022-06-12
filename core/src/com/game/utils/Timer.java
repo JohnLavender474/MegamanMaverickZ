@@ -1,5 +1,6 @@
 package com.game.utils;
 
+import com.game.animations.TimeMarkedRunnable;
 import com.game.utils.exceptions.InvalidArgumentException;
 import com.game.utils.exceptions.InvalidFieldException;
 import lombok.Getter;

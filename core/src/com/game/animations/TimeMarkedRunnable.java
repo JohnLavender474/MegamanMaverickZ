@@ -1,4 +1,6 @@
-package com.game.utils;
+package com.game.animations;
+
+import com.game.utils.Timer;
 
 /**
  * Intended to be used with {@link Timer}. Performs {@link Runnable#run()} on each {@link Runnable} in the

@@ -1,7 +1,10 @@
-package com.game.utils;
+package com.game.animations;
 
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.game.utils.KeyValuePair;
+import com.game.utils.Resettable;
+import com.game.utils.Updatable;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,7 +15,7 @@ import java.util.List;
 
 /**
  * Defines an animation where each {@link TextureRegion} has a set duration. The constructors of this class are
- * compatible only with {@link TextureRegion} instances consisting of only one addRow.
+ * compatible only with {@link TextureRegion} instances consisting of one row. {@link #isLoop()} is true by default.
  */
 @Getter
 @Setter
@@ -22,9 +25,9 @@ public class TimedAnimation implements Updatable, Resettable {
     private final List<Float> frameTimes = new ArrayList<>();
     private float animationDuration;
     private TextureRegion currentT;
+    private boolean loop = true;
     private boolean isFinished;
     private float timeElapsed;
-    private boolean loop;
 
     /**
      * Instantiates a new Timed animation. Default number of frames is 1, default duration is 1 second.
