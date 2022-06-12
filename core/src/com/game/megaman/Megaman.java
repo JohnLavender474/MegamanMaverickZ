@@ -69,39 +69,15 @@ public class Megaman extends Entity implements Faceable, LevelCameraFocusable {
 
     private BodyComponent defineBodyComponent() {
         BodyComponent bodyComponent = new BodyComponent(BodyType.DYNAMIC);
-        bodyComponent.getCollisionBox().setSize(0.75f * PPM, 1.5f * PPM);
-        bodyComponent.getGravity().set(0f, MEGAMAN_GRAVITY);
-        bodyComponent.setPreProcess((delta) -> {
-            // TODO: set gravity
-            BehaviorComponent behaviorComponent = getComponent(BehaviorComponent.class);
-            // gravity
-            if (bodyComponent.is(BodySense.FEET_ON_GROUND)) {
-                gravityTimer.reset();
-                bodyComponent.getGravity().y = -0.25f;
-            } else {
-                gravityTimer.update(delta);
-                bodyComponent.getGravity().y = gravityTimer.isFinished() ? MEGAMAN_GRAVITY :
-                        MEGAMAN_GRAVITY * gravityTimer.getRatio();
-            }
-            // gravity scalar
-            if (behaviorComponent.is(GROUND_SLIDING) ||
-                    behaviorComponent.is(AIR_DASHING)) {
-                bodyComponent.getGravityScalar().y = 0f;
-            } else if (behaviorComponent.is(WALL_SLIDING) ||
-                    bodyComponent.is(BodySense.FEET_ON_GROUND)) {
-                bodyComponent.getGravityScalar().y = 0.2f;
-            } else {
-                bodyComponent.getGravityScalar().y = 1f;
-            }
-        });
-        // TODO: define body component
+        bodyComponent.setSize(0.75f * PPM, 1.5f * PPM);
+        // TODO: Define gravity, friction, etc.
         return bodyComponent;
     }
 
     private HealthComponent defineHealthComponent() {
         HealthComponent healthComponent = new HealthComponent();
-        healthComponent.setHealthUpdater((delta) -> {
-
+        healthComponent.setHealthUpdater(delta -> {
+            // TODO: Define health updater
         });
         return healthComponent;
     }
@@ -152,7 +128,7 @@ public class Megaman extends Entity implements Faceable, LevelCameraFocusable {
                 textureAtlas.findRegion("GroundSlide")));
         animations.put("AirDash", new TimedAnimation(
                 textureAtlas.findRegion("AirDash")));
-        // Define component
+        // Define animation component
         Animator animator = new Animator(keySupplier, animations);
         AnimationComponent animationComponent = new AnimationComponent(animator);
         return animationComponent;
@@ -160,8 +136,8 @@ public class Megaman extends Entity implements Faceable, LevelCameraFocusable {
 
     private SpriteComponent defineSpriteComponent() {
         SpriteComponent spriteComponent = new SpriteComponent();
-        spriteComponent.setSpriteUpdater(sprite -> {
-
+        spriteComponent.setSpriteUpdater(delta -> {
+            // TODO: Define sprite updater
         });
         return spriteComponent;
     }

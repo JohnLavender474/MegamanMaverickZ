@@ -12,5 +12,11 @@ import java.util.List;
  */
 @Getter
 public class DebugComponent implements Component {
+
     private final List<DebugHandle> debugHandles = new ArrayList<>();
+
+    public void addDebugHandle(DebugHandle debugHandle) {
+        debugHandles.add(debugHandle);
+    }
+
 }

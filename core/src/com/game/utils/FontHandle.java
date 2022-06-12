@@ -14,7 +14,7 @@ public class FontHandle implements Drawable {
 
     private final BitmapFont font;
     @Getter private final Vector2 position = new Vector2();
-    @Setter private String text;
+    @Setter private String text = "";
 
     public FontHandle(String ttfSrc, int fontSize) {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal(ttfSrc));

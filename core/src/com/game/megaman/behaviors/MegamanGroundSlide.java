@@ -71,7 +71,7 @@ public class MegamanGroundSlide extends Behavior {
         if (megaman.isFacing(Facing.LEFT)) {
             x *= -1f;
         }
-        bodyComponent.getImpulse().x += x;
+        bodyComponent.applyImpulse(x, 0f);
     }
 
     @Override

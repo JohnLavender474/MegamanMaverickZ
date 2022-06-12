@@ -20,14 +20,12 @@ import com.game.debugging.DebugSystem;
 import com.game.megaman.behaviors.MegamanRun;
 import com.game.utils.Direction;
 import com.game.utils.FontHandle;
-import com.game.utils.Timer;
 import com.game.world.*;
 
 import static com.game.ConstVals.ViewVals.*;
 import static com.game.ConstVals.ViewVals.PPM;
-import static com.game.megaman.Megaman.MEGAMAN_GRAVITY;
 
-public class TestWorldSystem1 extends ScreenAdapter {
+public class TestWorldSystemScreen extends ScreenAdapter {
 
     private Entity player;
     private WorldSystem worldSystem;
@@ -40,7 +38,8 @@ public class TestWorldSystem1 extends ScreenAdapter {
     private ShapeRenderer shapeRenderer;
     private FontHandle collisionFont;
 
-    private final Timer gravityTimer = new Timer(1f);
+    private boolean runningLeft;
+    private boolean runningRight;
 
     @Override
     public void show() {
@@ -54,7 +53,8 @@ public class TestWorldSystem1 extends ScreenAdapter {
         uiViewport.getCamera().position.y = 0f;
         playgroundViewport = new FitViewport(VIEW_WIDTH * PPM, VIEW_HEIGHT * PPM);
         worldSystem = new WorldSystem(
-                new WorldContactListenerImpl(), WorldVals.FIXED_TIME_STEP);
+                new WorldContactListenerImpl(),
+                WorldVals.AIR_RESISTANCE, WorldVals.FIXED_TIME_STEP);
         debugSystem = new DebugSystem(shapeRenderer,
                                       (OrthographicCamera) playgroundViewport.getCamera());
         behaviorSystem = new BehaviorSystem();
@@ -63,19 +63,34 @@ public class TestWorldSystem1 extends ScreenAdapter {
     }
 
     private void defineBlocks() {
-        Entity entity = new Entity();
-        BodyComponent bodyComponent = new BodyComponent(BodyType.STATIC);
-        bodyComponent.getCollisionBox().set(0f, 0f, 20f * PPM, PPM);
-        Fixture block = new Fixture(FixtureType.BLOCK);
-        block.getFixtureBox().set(0f, 0f, 20f * PPM, PPM);
-        bodyComponent.getFixtures().add(block);
-        entity.addComponent(bodyComponent);
-        DebugComponent debugComponent = new DebugComponent();
-        debugComponent.getDebugHandles().add(new DebugHandle(
-                bodyComponent::getCollisionBox, Color.RED));
-        entity.addComponent(debugComponent);
-        worldSystem.addEntity(entity);
-        debugSystem.addEntity(entity);
+        // first
+        Entity entity1 = new Entity();
+        BodyComponent bodyComponent1 = new BodyComponent(BodyType.STATIC);
+        bodyComponent1.getCollisionBox().set(0f, 0f, 20f * PPM, PPM);
+        Fixture block1 = new Fixture(bodyComponent1, FixtureType.BLOCK);
+        block1.getFixtureBox().set(0f, 0f, 20f * PPM, PPM);
+        bodyComponent1.getFixtures().add(block1);
+        entity1.addComponent(bodyComponent1);
+        DebugComponent debugComponent1 = new DebugComponent();
+        debugComponent1.getDebugHandles().add(new DebugHandle(
+                bodyComponent1::getCollisionBox, Color.RED));
+        entity1.addComponent(debugComponent1);
+        worldSystem.addEntity(entity1);
+        debugSystem.addEntity(entity1);
+        // second
+        Entity entity2 = new Entity();
+        BodyComponent bodyComponent2 = new BodyComponent(BodyType.STATIC);
+        bodyComponent2.getCollisionBox().set(23f * PPM, 0f, 20f * PPM, PPM);
+        Fixture block2 = new Fixture(bodyComponent2, FixtureType.BLOCK);
+        block2.getFixtureBox().set(23f * PPM, 0f, 20f * PPM, PPM);
+        bodyComponent2.getFixtures().add(block2);
+        entity2.addComponent(bodyComponent2);
+        DebugComponent debugComponent2 = new DebugComponent();
+        debugComponent2.getDebugHandles().add(new DebugHandle(
+                bodyComponent2::getCollisionBox, Color.RED));
+        entity2.addComponent(debugComponent2);
+        worldSystem.addEntity(entity2);
+        debugSystem.addEntity(entity2);
     }
 
     private void definePlayer() {
@@ -84,30 +99,18 @@ public class TestWorldSystem1 extends ScreenAdapter {
         // Body component
         BodyComponent bodyComponent = new BodyComponent(BodyType.DYNAMIC);
         bodyComponent.getCollisionBox().set(3f * PPM, 3f * PPM, PPM, PPM);
-        bodyComponent.getGravity().set(0f, MEGAMAN_GRAVITY);
         bodyComponent.setPreProcess((delta) -> {
-            // gravity
-            if (bodyComponent.isColliding(Direction.DOWN)) {
-                gravityTimer.reset();
-                bodyComponent.getGravity().y = -0.25f * PPM;
+            if (bodyComponent.getVelocity().y < 0f && !bodyComponent.isColliding(Direction.DOWN)) {
+                bodyComponent.setGravity(-50f * PPM);
             } else {
-                bodyComponent.getGravity().y = -7f * PPM;
-            }
-            // gravity scale
-            if (bodyComponent.isColliding(Direction.DOWN)) {
-                bodyComponent.getGravityScalar().y = 0f;
-            } else if (bodyComponent.isColliding(Direction.LEFT) ||
-                    bodyComponent.isColliding(Direction.RIGHT)) {
-                bodyComponent.getGravityScalar().y = 0.2f;
-            } else {
-                bodyComponent.getGravityScalar().y = 1f;
+                bodyComponent.setGravity(-20f * PPM);
             }
         });
-        Fixture feet = new Fixture(FixtureType.FEET);
-        feet.getFixtureBox().setSize(15f, 3f);
+        Fixture feet = new Fixture(bodyComponent, FixtureType.FEET);
+        feet.getFixtureBox().setSize(10f, 3f);
         feet.getOffset().set(0f, -PPM / 2f);
         bodyComponent.getFixtures().add(feet);
-        Fixture head = new Fixture(FixtureType.HEAD);
+        Fixture head = new Fixture(bodyComponent, FixtureType.HEAD);
         head.getFixtureBox().setSize(15f, 3f);
         head.getOffset().set(0f, PPM / 2f);
         bodyComponent.getFixtures().add(head);
@@ -117,15 +120,14 @@ public class TestWorldSystem1 extends ScreenAdapter {
         Behavior jump = new Behavior() {
 
             private boolean isJumping;
-            private final Timer timer = new Timer(0.65f);
 
             @Override
             protected boolean evaluate(float delta) {
                 return isJumping ?
                         // case 1
-                        bodyComponent.getImpulse().y >= 0f &&
-                                !bodyComponent.isColliding(Direction.DOWN) &&
-                                Gdx.input.isKeyPressed(Keys.W) :
+                        bodyComponent.getVelocity().y >= 0f &&
+                                Gdx.input.isKeyPressed(Keys.W) &&
+                                !bodyComponent.is(BodySense.FEET_ON_GROUND) :
                         // case 2
                         Gdx.input.isKeyJustPressed(Keys.W) &&
                                 bodyComponent.isColliding(Direction.DOWN);
@@ -134,19 +136,16 @@ public class TestWorldSystem1 extends ScreenAdapter {
             @Override
             protected void init() {
                 isJumping = true;
+                bodyComponent.applyImpulse(0f, 16f * PPM);
             }
 
             @Override
-            protected void act(float delta) {
-                timer.update(delta);
-                float inverseRatio = 20f * timer.getRatio();
-                bodyComponent.getImpulse().y += (20f - inverseRatio) * PPM;
-            }
+            protected void act(float delta) {}
 
             @Override
             protected void end() {
+                bodyComponent.getVelocity().y = 0f;
                 isJumping = false;
-                timer.reset();
             }
 
         };
@@ -176,17 +175,26 @@ public class TestWorldSystem1 extends ScreenAdapter {
         spriteBatch.begin();
         collisionFont.draw(spriteBatch);
         spriteBatch.end();
-        if (Gdx.input.isKeyPressed(Keys.LEFT)) {
-            bodyComponent.getImpulse().x = -PPM * MegamanRun.RUN_SPEED_PER_SECOND;
+        boolean wasRunningRight = runningRight;
+        runningRight = Gdx.input.isKeyPressed(Keys.RIGHT);
+        if (runningRight && bodyComponent.getVelocity().x < MegamanRun.RUN_SPEED * PPM) {
+            bodyComponent.applyImpulse(PPM * 0.5f, 0f);
         }
-        if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
-            bodyComponent.getImpulse().x = PPM * MegamanRun.RUN_SPEED_PER_SECOND;
+        if (wasRunningRight && !runningRight) {
+            bodyComponent.getVelocity().x = 0f;
+        }
+        boolean wasRunningLeft = runningLeft;
+        runningLeft = Gdx.input.isKeyPressed(Keys.LEFT);
+        if (runningLeft && bodyComponent.getVelocity().x > -MegamanRun.RUN_SPEED * PPM) {
+            bodyComponent.applyImpulse(-PPM * 0.5f, 0f);
+        }
+        if (wasRunningLeft && !runningLeft) {
+            bodyComponent.getVelocity().x = 0f;
         }
         worldSystem.update(delta);
         debugSystem.update(delta);
         behaviorSystem.update(delta);
         playgroundViewport.getCamera().position.x = bodyComponent.getCollisionBox().x;
-        playgroundViewport.getCamera().position.y = bodyComponent.getCollisionBox().y;
         playgroundViewport.apply();
         uiViewport.apply();
     }

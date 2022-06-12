@@ -2,12 +2,14 @@ package com.game.utils;
 
 import com.game.utils.exceptions.InvalidArgumentException;
 import com.game.utils.exceptions.InvalidFieldException;
+import lombok.Getter;
 
 import java.util.*;
 
 /**
  * Timer that ticks up from 0 to {@link #duration}. Can be injected with {@link TimeMarkedRunnable} instances.
  */
+@Getter
 public class Timer implements Updatable, Resettable {
 
     private float time;
@@ -44,9 +46,8 @@ public class Timer implements Updatable, Resettable {
      */
     public Timer(float duration, Collection<TimeMarkedRunnable> timeMarkedRunnables)
             throws InvalidArgumentException {
-        if (duration <= 0f) {
-            throw new InvalidArgumentException(String.valueOf(duration), "duration (which must be greater than 0)");
-        }
+        setDuration(duration);
+        reset();
         timeMarkedRunnables.forEach(timeMarkedRunnable -> {
             if (timeMarkedRunnable.time() < 0f || timeMarkedRunnable.time() > duration) {
                 throw new InvalidFieldException(String.valueOf(timeMarkedRunnable.time()),
@@ -54,8 +55,6 @@ public class Timer implements Updatable, Resettable {
             }
         });
         this.timeMarkedRunnables.addAll(timeMarkedRunnables);
-        this.duration = duration;
-        reset();
     }
 
     /**
@@ -106,6 +105,10 @@ public class Timer implements Updatable, Resettable {
      */
     public boolean isJustFinished() {
         return justFinished;
+    }
+
+    public void setToEnd() {
+        time = duration;
     }
 
     @Override

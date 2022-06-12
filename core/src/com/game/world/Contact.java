@@ -34,22 +34,16 @@ public class Contact {
      * @return if the mask is accepted
      */
     public boolean acceptMask(FixtureType fixtureType1, FixtureType fixtureType2) {
-        if (acceptFixture1Mask(fixtureType1) && acceptFixture2Mask(fixtureType2)) {
+        if (fixture1.getFixtureType().equals(fixtureType1) &&
+                fixture2.getFixtureType().equals(fixtureType2)) {
             mask = new Pair<>(fixture1, fixture2);
             return true;
-        } else if (acceptFixture1Mask(fixtureType2) && acceptFixture2Mask(fixtureType1)) {
+        } else if (fixture2.getFixtureType().equals(fixtureType1) &&
+                fixture1.getFixtureType().equals(fixtureType2)) {
             mask = new Pair<>(fixture2, fixture1);
             return true;
         }
         return false;
-    }
-
-    private boolean acceptFixture1Mask(FixtureType fixtureType) {
-        return fixture1.getFixtureType().equals(fixtureType);
-    }
-
-    private boolean acceptFixture2Mask(FixtureType fixtureType) {
-        return fixture2.getFixtureType().equals(fixtureType);
     }
 
     @Override
@@ -61,7 +55,10 @@ public class Contact {
 
     @Override
     public int hashCode() {
-        return fixture1.hashCode() + fixture2.hashCode();
+        int hash = 49;
+        hash += 7 * fixture1.hashCode();
+        hash += 7 * fixture2.hashCode();
+        return hash;
     }
 
 }

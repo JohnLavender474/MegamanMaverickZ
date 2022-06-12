@@ -3,65 +3,279 @@ package com.game.world;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
-import com.game.Entity;
 import com.game.utils.Direction;
-import com.game.utils.Position;
 import com.game.utils.Updatable;
 import lombok.*;
 
 import java.util.*;
 
 /**
- * Defines the body and world rules of the {@link Entity}.
- * <p>
- * {@link #bodyType} defines the "worldly rules" and "physicality" of the body. See {@link Position} for details.
- * <p>
- * {@link #frictionScalar} defines the friction scalar applied to this body. The value must be between 0f and 1f.
- * Each frame, the movement of {@link #collisionBox} is calculated via
- * <pre>{@code
- *
- *     BodyComponent bc = // fetch BodyComponent from Entity instance
- *     // assert bc.getFrictionScalarCopy() x and y values are between 0f and 1f,
- *     // throw exception if not true
- *     float x = bc.getVelocity().x * bc.getFrictionScalarCopy().x;
- *     float y = bc.getVelocity().y * bc.getFrictionScalarCopy().y;
- *     x += bc.getImpulse().x * bc.getFrictionScalarCopy().x;
- *     y += bc.getImpulse().y * bc.getFrictionScalarCopy().y;
- *     // other logic performed on x and y
- *     // before adding x and y to body component collision box
- *
- * }*********</pre>
- * Of course, this means that, contrary to intuition, the smaller the values of {@link #frictionScalar} are, the
- * greater the "friction" resistance. This means that, for example, 0.1f results in greater "friction" than 0.9f.
- * <p>
- * {@link #impulse} defines the movement of the body for one fram      e. Impulse is reset to zero after every frame.
- * <p>
- * {@link #fixtures} defines the {@link Fixture} instances attached to this body.
+ * {@link Component} implementation for world bodies.
  */
 @Getter
-@ToString
-@RequiredArgsConstructor
 public class BodyComponent implements Component {
 
-    private final BodyType bodyType;
-    private final Vector2 impulse = new Vector2();
-    private final Vector2 gravity = new Vector2();
+    private final Vector2 friction = new Vector2();
+    private final Vector2 velocity = new Vector2();
     private final Rectangle collisionBox = new Rectangle();
     private final List<Fixture> fixtures = new ArrayList<>();
-    private final Vector2 gravityScalar = new Vector2(1f, 1f);
-    private final Vector2 frictionScalar = new Vector2(1f, 1f);
-    @Getter(AccessLevel.NONE) private final Set<BodySense> bodySenses =
-            EnumSet.noneOf(BodySense.class);
-    @Getter(AccessLevel.NONE) private final Map<Direction, Boolean> collisionFlags =
-            new EnumMap<>(Direction.class) {{
-                for (Direction direction : Direction.values()) {
-                    put(direction, false);
-                }
-            }};
-    // Called once before contacts and collisions are detected and forces are applied
+    private final Vector2 resistance = new Vector2(1f, 1f);
+    private final Set<BodySense> bodySenses = EnumSet.noneOf(BodySense.class);
+    private final Map<Direction, Boolean> collisionFlags = new EnumMap<>(Direction.class) {{
+        for (Direction direction : Direction.values()) {
+            put(direction, false);
+        }
+    }};
+    @Setter private float gravity;
+    @Setter private BodyType bodyType;
     @Setter private Updatable preProcess;
-    // Called once after contacts and collisions are detected and forces are applied
     @Setter private Updatable postProcess;
+    @Setter private boolean gravityOn = true;
+
+    /**
+     * Instantiates a new Body Component.
+     *
+     * @param bodyType the body type
+     */
+    public BodyComponent(BodyType bodyType) {
+        this.bodyType = bodyType;
+    }
+
+    /**
+     * Set bounds.
+     *
+     * @param x      the x
+     * @param y      the y
+     * @param width  the width
+     * @param height the height
+     */
+    public void set(float x, float y, float width, float height) {
+        collisionBox.set(x, y, width, height);
+    }
+
+    /**
+     * Set size.
+     *
+     * @param width  the width
+     * @param height the height
+     */
+    public void setSize(float width, float height) {
+        collisionBox.setSize(width, height);
+    }
+
+    /**
+     * Get size.
+     *
+     * @return the size
+     */
+    public Vector2 getSize() {
+        Vector2 size = new Vector2();
+        collisionBox.getSize(size);
+        return size;
+    }
+
+    /**
+     * Sets position.
+     *
+     * @param position the position
+     */
+    public void setPosition(Vector2 position) {
+        setPosition(position.x, position.y);
+    }
+
+    /**
+     * Set position.
+     *
+     * @param x the x
+     * @param y the y
+     */
+    public void setPosition(float x, float y) {
+        collisionBox.setPosition(x, y);
+    }
+
+    /**
+     * Get position.
+     *
+     * @return the position
+     */
+    public Vector2 getPosition() {
+        Vector2 position = new Vector2();
+        collisionBox.getPosition(position);
+        return position;
+    }
+
+    /**
+     * Sets center.
+     *
+     * @param center the center
+     */
+    public void setCenter(Vector2 center) {
+        setCenter(center.x, center.y);
+    }
+
+    /**
+     * Set center.
+     *
+     * @param x the x
+     * @param y the y
+     */
+    public void setCenter(float x, float y) {
+        collisionBox.setCenter(x, y);
+    }
+
+    /**
+     * Get center.
+     *
+     * @return the center
+     */
+    public Vector2 getCenter() {
+        Vector2 center = new Vector2();
+        collisionBox.getCenter(center);
+        return center;
+    }
+
+    /**
+     * Translate.
+     *
+     * @param x the x
+     * @param y the y
+     */
+    public void translate(float x, float y) {
+        collisionBox.x += x;
+        collisionBox.y += y;
+    }
+
+    /**
+     * Apply impulse.
+     *
+     * @param impulse the impulse
+     */
+    public void applyImpulse(Vector2 impulse) {
+        applyImpulse(impulse.x, impulse.y);
+    }
+
+    /**
+     * Apply impulse.
+     *
+     * @param x the x
+     * @param y the y
+     */
+    public void applyImpulse(float x, float y) {
+        velocity.add(x, y);
+    }
+
+    /**
+     * Sets velocity.
+     *
+     * @param velocity the velocity
+     */
+    public void setVelocity(Vector2 velocity) {
+        setVelocity(velocity.x, velocity.y);
+    }
+
+    /**
+     * Set velocity.
+     *
+     * @param x the x
+     * @param y the y
+     */
+    public void setVelocity(float x, float y) {
+        setVelocityX(x);
+        setVelocityY(y);
+    }
+
+    /**
+     * Set velocity x.
+     *
+     * @param x the x
+     */
+    public void setVelocityX(float x) {
+        velocity.x = x;
+    }
+
+    /**
+     * Set velocity y.
+     *
+     * @param y the y
+     */
+    public void setVelocityY(float y) {
+        velocity.y = y;
+    }
+
+    /**
+     * Set friction.
+     *
+     * @param friction the friction
+     */
+    public void setFriction(Vector2 friction) {
+        setFriction(friction.x, friction.y);
+    }
+
+    /**
+     * Sets friction.
+     *
+     * @param x the x
+     * @param y the y
+     */
+    public void setFriction(float x, float y) {
+        setFrictionX(x);
+        setFrictionY(y);
+    }
+
+    /**
+     * Set friction x.
+     *
+     * @param x the x
+     */
+    public void setFrictionX(float x) {
+        friction.x = x;
+    }
+
+    /**
+     * Set friction y.
+     *
+     * @param y the y
+     */
+    public void setFrictionY(float y) {
+        friction.y = y;
+    }
+
+    /**
+     * Set resistance.
+     *
+     * @param resistance the resistance
+     */
+    public void setResistance(Vector2 resistance) {
+        setResistance(resistance.x, resistance.y);
+    }
+
+    /**
+     * Set resistance.
+     *
+     * @param x the x
+     * @param y the y
+     */
+    public void setResistance(float x, float y) {
+        resistance.set(x, y);
+    }
+
+    /**
+     * Add friction x.
+     *
+     * @param x the x
+     */
+    public void applyResistanceX(float x) {
+        resistance.x += x;
+    }
+
+    /**
+     * Add friction y.
+     *
+     * @param y the y
+     */
+    public void applyResistanceY(float y) {
+        resistance.y += y;
+    }
 
     /**
      * Is body sense true.
@@ -109,31 +323,21 @@ public class BodyComponent implements Component {
     }
 
     /**
-     * Set colliding left.
+     * Set colliding.
+     *
+     * @param direction the direction
      */
-    public void setCollidingLeft() {
-        collisionFlags.replace(Direction.LEFT, true);
+    public void setColliding(Direction direction) {
+        collisionFlags.replace(direction, true);
     }
 
     /**
-     * Set colliding right.
+     * Add fixture.
+     *
+     * @param fixture the fixture
      */
-    public void setCollidingRight() {
-        collisionFlags.replace(Direction.RIGHT, true);
-    }
-
-    /**
-     * Set colliding up.
-     */
-    public void setCollidingUp() {
-        collisionFlags.replace(Direction.UP, true);
-    }
-
-    /**
-     * Set colliding down.
-     */
-    public void setCollidingDown() {
-        collisionFlags.replace(Direction.DOWN, true);
+    public void addFixture(Fixture fixture) {
+        fixtures.add(fixture);
     }
 
 }

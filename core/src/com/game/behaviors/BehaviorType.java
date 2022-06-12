@@ -8,5 +8,6 @@ public enum BehaviorType {
     ATTACKING,
     AIR_DASHING,
     WALL_SLIDING,
+    WALL_JUMPING,
     GROUND_SLIDING
 }

@@ -14,15 +14,35 @@ public class MegamanMaverickRunner {
 		config.setWindowedMode(1920, 1080);
 		// new Lwjgl3Application(new MegamanMaverick(), config);
 		// test_PPM_And_Movement_Speeds(config);
-		test_World_System_1(config);
+		// test_World_System(config);
+		// test_Camera_Room_Shift(config);
+		// test_Ground_Dash_And_Friction(config);
+		test_Special_Movements(config);
 	}
 
 	private static void test_PPM_And_Movement_Speeds(Lwjgl3ApplicationConfiguration config) {
-		new Lwjgl3Application(new GameTestRunner(TestScreen.PPM_AND_MOVEMENT_SPEEDS), config);
+		new Lwjgl3Application(new GameTestRunner(
+				TestScreen.TEST_PPM_AND_MOVEMENT_SPEEDS), config);
 	}
 
-	private static void test_World_System_1(Lwjgl3ApplicationConfiguration config) {
-		new Lwjgl3Application(new GameTestRunner(TestScreen.TEST_WORLD_SYSTEM_1), config);
+	private static void test_World_System(Lwjgl3ApplicationConfiguration config) {
+		new Lwjgl3Application(new GameTestRunner(
+				TestScreen.TEST_WORLD_SYSTEM), config);
+	}
+
+	private static void test_Camera_Room_Shift(Lwjgl3ApplicationConfiguration config) {
+		new Lwjgl3Application(new GameTestRunner(
+				TestScreen.TEST_CAMERA_ROOM_SHIFT), config);
+	}
+
+	private static void test_Ground_Dash_And_Friction(Lwjgl3ApplicationConfiguration config) {
+		new Lwjgl3Application(new GameTestRunner(
+				TestScreen.TEST_GROUND_DASH_AND_FRICTION), config);
+	}
+
+	private static void test_Special_Movements(Lwjgl3ApplicationConfiguration config) {
+		new Lwjgl3Application(new GameTestRunner(
+				TestScreen.TEST_SPECIAL_MOVEMENTS), config);
 	}
 
 }

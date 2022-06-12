@@ -151,6 +151,7 @@ public class LevelCameraManager implements Updatable {
                     transitionDirection = null;
                     transStartPos.setZero();
                     transTargetPos.setZero();
+                    transitionTimer.reset();
                     break;
                 case BEGIN:
                     transitionState = ProcessState.CONTINUE;

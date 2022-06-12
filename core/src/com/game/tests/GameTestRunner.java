@@ -5,8 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
-import com.game.tests.screens.TestPPMAndMovementSpeedsScreen;
-import com.game.tests.screens.TestWorldSystem1;
+import com.game.tests.screens.*;
 import lombok.RequiredArgsConstructor;
 
 import java.util.HashMap;
@@ -16,15 +15,21 @@ import java.util.Map;
 public class GameTestRunner extends Game {
 
     public enum TestScreen {
-        PPM_AND_MOVEMENT_SPEEDS,
-        TEST_WORLD_SYSTEM_1
+        TEST_PPM_AND_MOVEMENT_SPEEDS,
+        TEST_GROUND_DASH_AND_FRICTION,
+        TEST_CAMERA_ROOM_SHIFT,
+        TEST_SPECIAL_MOVEMENTS,
+        TEST_WORLD_SYSTEM,
     }
 
     private final TestScreen testKey;
 
     private final Map<TestScreen, Screen> testScreens = new HashMap<>() {{
-        put(TestScreen.PPM_AND_MOVEMENT_SPEEDS, new TestPPMAndMovementSpeedsScreen());
-        put(TestScreen.TEST_WORLD_SYSTEM_1, new TestWorldSystem1());
+        put(TestScreen.TEST_PPM_AND_MOVEMENT_SPEEDS, new TestPPMAndMovementSpeedsScreen());
+        put(TestScreen.TEST_CAMERA_ROOM_SHIFT, new TestCameraRoomShiftScreen());
+        put(TestScreen.TEST_WORLD_SYSTEM, new TestWorldSystemScreen());
+        put(TestScreen.TEST_SPECIAL_MOVEMENTS, new TestSpecialMovements());
+        put(TestScreen.TEST_GROUND_DASH_AND_FRICTION, new TestGroundDashAndFrictionScreen());
     }};
 
     @Override

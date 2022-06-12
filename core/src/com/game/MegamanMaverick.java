@@ -128,7 +128,8 @@ public class MegamanMaverick extends Game implements GameContext2d {
         addSystem(new HealthSystem());
         addSystem(new ControllerSystem(this));
         addSystem(new WorldSystem(
-                new WorldContactListenerImpl(), WorldVals.FIXED_TIME_STEP));
+                new WorldContactListenerImpl(),
+                WorldVals.AIR_RESISTANCE, WorldVals.FIXED_TIME_STEP));
         addSystem(new BehaviorSystem());
         addSystem(new AnimationSystem());
         addSystem(new SpriteSystem(

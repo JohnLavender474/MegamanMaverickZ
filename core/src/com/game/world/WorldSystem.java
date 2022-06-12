@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
 import com.game.System;
 import com.game.Entity;
+import com.game.utils.Direction;
 import com.game.utils.Updatable;
 import lombok.RequiredArgsConstructor;
 
@@ -21,7 +22,9 @@ public class WorldSystem extends System {
     private final Set<Contact> priorContacts = new HashSet<>();
     private final Set<Contact> currentContacts = new HashSet<>();
     private final List<BodyComponent> bodies = new ArrayList<>();
+    private final List<Updatable> postProcess = new ArrayList<>();
     private final WorldContactListener worldContactListener;
+    private final Vector2 airResistance;
     private final float fixedTimeStep;
     private float accumulator;
 
@@ -32,55 +35,74 @@ public class WorldSystem extends System {
 
     @Override
     protected void preProcess(float delta) {
+        postProcess.clear();
         bodies.clear();
     }
 
     @Override
     protected void processEntity(Entity entity, float delta) {
         BodyComponent bodyComponent = entity.getComponent(BodyComponent.class);
+        bodyComponent.clearCollisionFlags();
         bodies.add(bodyComponent);
+        if (bodyComponent.getPreProcess() != null) {
+            bodyComponent.getPreProcess().update(delta);
+        }
+        if (bodyComponent.getPostProcess() != null) {
+            postProcess.add(bodyComponent.getPostProcess());
+        }
     }
 
     @Override
     protected void postProcess(float delta) {
-        // Clear collision flags for each body
-        bodies.forEach(bodyComponent -> {
-            bodyComponent.clearCollisionFlags();
-            Updatable preProcess = bodyComponent.getPreProcess();
-            if (preProcess != null) {
-                preProcess.update(delta);
-            }
-        });
         // ImpulseMovement and collision handling is time-stepped
         accumulator += delta;
         while (accumulator >= fixedTimeStep) {
             accumulator -= fixedTimeStep;
             // Apply forces
             bodies.forEach(bodyComponent -> {
-                // Apply velocity, impulse, and gravity
-                float x = bodyComponent.getImpulse().x + bodyComponent.getGravity().x;
-                float y = bodyComponent.getImpulse().y + bodyComponent.getGravity().y;
-                // Scale to fixed time step and friction scalar
-                bodyComponent.getCollisionBox().x += x * fixedTimeStep * bodyComponent.getFrictionScalar().x;
-                bodyComponent.getCollisionBox().y += y * fixedTimeStep * bodyComponent.getFrictionScalar().y;
+                // If below 0.5 speed, then set to 0
+                if (Math.abs(bodyComponent.getVelocity().x) < 0.5f) {
+                    bodyComponent.setVelocityX(0f);
+                }
+                if (Math.abs(bodyComponent.getVelocity().y) < 0.5f) {
+                    bodyComponent.setVelocityY(0f);
+                }
+                // Prevent clipping through obstacles left and right
+                if (bodyComponent.isColliding(Direction.LEFT)) {
+                    bodyComponent.getVelocity().x = Math.max(0f, bodyComponent.getVelocity().x);
+                } else if (bodyComponent.isColliding(Direction.RIGHT)) {
+                    bodyComponent.getVelocity().x = Math.min(0f, bodyComponent.getVelocity().x);
+                }
+                // Apply resistance
+                bodyComponent.getVelocity().x *= 1f / Math.max(1f, bodyComponent.getResistance().x);
+                bodyComponent.getVelocity().y *= 1f / Math.max(1f, bodyComponent.getResistance().y);
+                // Reset resistance
+                bodyComponent.setResistance(airResistance);
+                // If gravity on: if colliding down, minimum gravity is -0.5f, otherwise apply gravity
+                // If gravity off: set to zero
+                if (bodyComponent.isGravityOn()) {
+                    if (bodyComponent.isColliding(Direction.DOWN)) {
+                        bodyComponent.setVelocityY(-0.5f);
+                    } else {
+                        bodyComponent.applyImpulse(0f, bodyComponent.getGravity() * fixedTimeStep);
+                    }
+                }
+                // Round to 2 decimal places
+                bodyComponent.setVelocity(Math.round(bodyComponent.getVelocity().x * 100f) / 100f,
+                                          Math.round(bodyComponent.getVelocity().y * 100f) / 100f);
+                // Translate
+                bodyComponent.translate(bodyComponent.getVelocity().x * fixedTimeStep,
+                                        bodyComponent.getVelocity().y * fixedTimeStep);
                 // Each Fixture is moved to conform to its position center from the center of the Body Component
                 bodyComponent.getFixtures().forEach(fixture -> {
-                    Vector2 center = new Vector2();
-                    bodyComponent.getCollisionBox().getCenter(center);
+                    Vector2 center = bodyComponent.getCenter();
                     center.add(fixture.getOffset());
-                    fixture.getFixtureBox().setCenter(center);
+                    fixture.setCenter(center);
                 });
             });
-            // Handle contacts
-            Set<BodyComponent> staticBodies = new HashSet<>();
-            Set<BodyComponent> dynamicBodies = new HashSet<>();
             for (int i = 0; i < bodies.size(); i++) {
                 BodyComponent bc1 = bodies.get(i);
-                if (bc1.getBodyType() == BodyType.STATIC) {
-                    staticBodies.add(bc1);
-                } else if (bc1.getBodyType() == BodyType.DYNAMIC) {
-                    dynamicBodies.add(bc1);
-                }
+                // Handle contacts
                 for (int j = i + 1; j < bodies.size(); j++) {
                     BodyComponent bc2 = bodies.get(j);
                     for (Fixture f1 : bc1.getFixtures()) {
@@ -93,12 +115,14 @@ public class WorldSystem extends System {
                 }
             }
             // Handle collisions
-            for (BodyComponent staticBC : staticBodies) {
-                for (BodyComponent dynamicBC : dynamicBodies) {
+            for (int i = 0; i < bodies.size(); i++) {
+                for (int j = i + 1; j < bodies.size(); j++) {
+                    BodyComponent bc1 = bodies.get(i);
+                    BodyComponent bc2 = bodies.get(j);
                     Rectangle overlap = new Rectangle();
-                    if (Intersector.intersectRectangles(dynamicBC.getCollisionBox(),
-                                                        staticBC.getCollisionBox(), overlap)) {
-                        handleCollision(dynamicBC, staticBC, overlap);
+                    if (Intersector.intersectRectangles(
+                            bc1.getCollisionBox(), bc2.getCollisionBox(), overlap)) {
+                        handleCollision(bc1, bc2, overlap);
                     }
                 }
             }
@@ -121,35 +145,90 @@ public class WorldSystem extends System {
         priorContacts.clear();
         priorContacts.addAll(currentContacts);
         currentContacts.clear();
-        bodies.forEach(bodyComponent -> {
-            bodyComponent.getImpulse().setZero();
-            Updatable postProcess = bodyComponent.getPostProcess();
-            if (postProcess != null) {
-                postProcess.update(delta);
-            }
-        });
+        postProcess.forEach(postProcessable -> postProcessable.update(delta));
     }
 
+    /**
+     * Handles collision between {@link BodyType#DYNAMIC} and {@link BodyType#STATIC} {@link BodyComponent} instances
+     * where parameter bc1 should be dynamic and bc2 static. Dynamic body is adjusted out of collision and has static
+     * body's friction applied.
+     *
+     * @param bc1 the first body
+     * @param bc2 the second body
+     * @param overlap the overlap between both bodies
+     */
     private void handleCollision(BodyComponent bc1, BodyComponent bc2, Rectangle overlap) {
         if (overlap.getWidth() > overlap.getHeight()) {
             if (bc1.getCollisionBox().getY() > bc2.getCollisionBox().getY()) {
-                bc1.getCollisionBox().y += overlap.getHeight();
-                bc1.setCollidingDown();
-                bc2.setCollidingUp();
+                // Apply resistance
+                if (bc1.getVelocity().y <= 0f) {
+                    bc1.applyResistanceX(bc2.getFriction().x);
+                }
+                if (bc2.getVelocity().y >= 0f) {
+                    bc2.applyResistanceX(bc1.getFriction().x);
+                }
+                // Set collision flags
+                bc1.setColliding(Direction.DOWN);
+                bc2.setColliding(Direction.UP);
+                // If one is dynamic and the other static, handle collision
+                if (bc1.getBodyType() == BodyType.DYNAMIC && bc2.getBodyType() == BodyType.STATIC) {
+                    bc1.getCollisionBox().y += overlap.getHeight();
+                } else if (bc2.getBodyType() == BodyType.DYNAMIC && bc1.getBodyType() == BodyType.STATIC) {
+                    bc2.getCollisionBox().y -= overlap.getHeight();
+                }
             } else {
-                bc1.getCollisionBox().y -= overlap.getHeight();
-                bc1.setCollidingUp();
-                bc2.setCollidingDown();
+                // Apply resistance
+                if (bc1.getVelocity().y > 0f) {
+                    bc1.applyResistanceX(bc2.getFriction().x);
+                }
+                if (bc2.getVelocity().y < 0f) {
+                    bc2.applyResistanceX(bc1.getFriction().x);
+                }
+                // Set collision flags
+                bc1.setColliding(Direction.UP);
+                bc2.setColliding(Direction.DOWN);
+                // If one is dynamic and the other static, handle collision
+                if (bc1.getBodyType() == BodyType.DYNAMIC && bc2.getBodyType() == BodyType.STATIC) {
+                    bc1.getCollisionBox().y -= overlap.getHeight();
+                } else if (bc2.getBodyType() == BodyType.DYNAMIC && bc1.getBodyType() == BodyType.STATIC) {
+                    bc2.getCollisionBox().y += overlap.getHeight();
+                }
             }
         } else {
             if (bc1.getCollisionBox().getX() > bc2.getCollisionBox().getX()) {
-                bc1.getCollisionBox().x += overlap.getWidth();
-                bc1.setCollidingLeft();
-                bc2.setCollidingRight();
+                // Apply resistance
+                if (bc1.getVelocity().x < 0f) {
+                    bc1.applyResistanceY(bc2.getFriction().y);
+                }
+                if (bc2.getVelocity().x > 0f) {
+                    bc2.applyResistanceY(bc1.getFriction().y);
+                }
+                // Set collision flags
+                bc1.setColliding(Direction.LEFT);
+                bc2.setColliding(Direction.RIGHT);
+                // If one is dynamic and the other static, handle collision
+                if (bc1.getBodyType() == BodyType.DYNAMIC && bc2.getBodyType() == BodyType.STATIC) {
+                    bc1.getCollisionBox().x += overlap.getWidth();
+                } else if (bc2.getBodyType() == BodyType.DYNAMIC && bc1.getBodyType() == BodyType.STATIC) {
+                    bc2.getCollisionBox().x -= overlap.getWidth();
+                }
             } else {
-                bc1.getCollisionBox().x -= overlap.getWidth();
-                bc1.setCollidingRight();
-                bc2.setCollidingLeft();
+                // Apply resistance
+                if (bc1.getVelocity().x > 0f) {
+                    bc1.applyResistanceY(bc2.getFriction().y);
+                }
+                if (bc2.getVelocity().x < 0f) {
+                    bc2.applyResistanceY(bc1.getFriction().y);
+                }
+                // Set collision flags
+                bc1.setColliding(Direction.RIGHT);
+                bc2.setColliding(Direction.LEFT);
+                // If one is dynamic and the other static, handle collision
+                if (bc1.getBodyType() == BodyType.DYNAMIC && bc2.getBodyType() == BodyType.STATIC) {
+                    bc1.getCollisionBox().x -= overlap.getWidth();
+                } else if (bc2.getBodyType() == BodyType.DYNAMIC && bc1.getBodyType() == BodyType.STATIC) {
+                    bc2.getCollisionBox().x += overlap.getWidth();
+                }
             }
         }
     }

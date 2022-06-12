@@ -54,6 +54,7 @@ public class MegamanJump extends Behavior {
     protected boolean evaluate(float delta) {
         // If already jumping, then continue if jump button still pressed, not begun wall sliding, and not falling,
         // otherwise return true if jump button is just pressed and is grounded or wall sliding
+        /*
         return behaviorComponent.is(BehaviorType.JUMPING) ?
                 // case 1
                 bodyComponent.getImpulse().y >= 0f &&
@@ -64,6 +65,8 @@ public class MegamanJump extends Behavior {
                 gameContext.isJustPressed(ControllerButton.A) &&
                         (bodyComponent.is(BodySense.FEET_ON_GROUND) ||
                                 behaviorComponent.is(BehaviorType.WALL_SLIDING));
+         */
+        return false;
     }
 
     @Override
@@ -81,6 +84,7 @@ public class MegamanJump extends Behavior {
 
     @Override
     protected void act(float delta) {
+        /*
         bodyComponent.getImpulse().y += JUMP_SPEED * PPM;
         if (jumpType == WALL_JUMP && !wallJumpBumpTimer.isFinished()) {
             wallJumpBumpTimer.update(delta);
@@ -88,6 +92,7 @@ public class MegamanJump extends Behavior {
                     WALL_JUMP_BUMP_INIT_SPEED, 0f, wallJumpBumpTimer.getRatio());
             bodyComponent.getImpulse().x += wallJumpBumpLeft ? -x : x;
         }
+         */
     }
 
     @Override

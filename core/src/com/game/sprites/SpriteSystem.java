@@ -10,7 +10,6 @@ import com.game.utils.Updatable;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Set;
-import java.util.function.Consumer;
 
 /**
  * {@link System} implementation for rendering and optionally animating {@link Sprite} instances.
@@ -40,9 +39,9 @@ public class SpriteSystem extends System {
     protected void processEntity(Entity entity, float delta) {
         SpriteComponent spriteComponent = entity.getComponent(SpriteComponent.class);
         Sprite sprite = spriteComponent.getSprite();
-        Consumer<Sprite> spriteUpdater = spriteComponent.getSpriteUpdater();
+        Updatable spriteUpdater = spriteComponent.getSpriteUpdater();
         if (spriteUpdater != null) {
-            spriteUpdater.accept(sprite);
+            spriteUpdater.update(delta);
         }
         sprite.draw(spriteBatch);
     }

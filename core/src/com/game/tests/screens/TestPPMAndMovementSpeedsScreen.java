@@ -19,7 +19,7 @@ import static com.game.ConstVals.ViewVals.*;
 
 /**
  * Simply tests that each grid rectangle is 32 x 32 pixels and moves in any direction at speed
- * {@link com.game.megaman.behaviors.MegamanRun#RUN_SPEED_PER_SECOND} world units per second.
+ * {@link com.game.megaman.behaviors.MegamanRun#RUN_SPEED} world units per second.
  */
 @RequiredArgsConstructor
 public class TestPPMAndMovementSpeedsScreen extends ScreenAdapter {
@@ -49,16 +49,16 @@ public class TestPPMAndMovementSpeedsScreen extends ScreenAdapter {
     @Override
     public void render(float delta) {
         if (Gdx.input.isKeyPressed(Keys.LEFT)) {
-            badlogicSprite.translateX(-PPM * MegamanRun.RUN_SPEED_PER_SECOND * delta);
+            badlogicSprite.translateX(-PPM * MegamanRun.RUN_SPEED * delta);
         }
         if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
-            badlogicSprite.translateX(PPM * MegamanRun.RUN_SPEED_PER_SECOND * delta);
+            badlogicSprite.translateX(PPM * MegamanRun.RUN_SPEED * delta);
         }
         if (Gdx.input.isKeyPressed(Keys.UP)) {
-            badlogicSprite.translateY(PPM * MegamanRun.RUN_SPEED_PER_SECOND * delta);
+            badlogicSprite.translateY(PPM * MegamanRun.RUN_SPEED * delta);
         }
         if (Gdx.input.isKeyPressed(Keys.DOWN)) {
-            badlogicSprite.translateY(-PPM * MegamanRun.RUN_SPEED_PER_SECOND * delta);
+            badlogicSprite.translateY(-PPM * MegamanRun.RUN_SPEED * delta);
         }
         viewport.getCamera().position.x = badlogicSprite.getX();
         viewport.getCamera().position.y = badlogicSprite.getY();

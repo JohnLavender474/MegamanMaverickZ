@@ -6,22 +6,13 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapObject;
-import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.collision.BoundingBox;
-import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.Viewport;
 import com.game.ConstVals.MegamanVals;
-import com.game.ConstVals.RenderingGround;
-import com.game.ConstVals.TextureAssets;
-import com.game.Entity;
 import com.game.GameContext2d;
-import com.game.blocks.StaticBlockFactory;
 import com.game.megaman.Megaman;
 import com.game.megaman.MegamanStats;
 import com.game.utils.Direction;
@@ -44,11 +35,11 @@ import static com.game.ConstVals.ViewVals.*;
 public class LevelScreen extends ScreenAdapter {
 
     // expressed in seconds
-    private static final float DEATH_DELAY_DURATION = 3f;
-    private static final float PLAYER_ENTRANCE_DURATION = 1f;
+    public static final float DEATH_DELAY_DURATION = 3f;
+    public static final float PLAYER_ENTRANCE_DURATION = 1f;
     // expressed in world units
-    private static final float LEVEL_CAM_TRANS_DURATION = 1f;
-    private static final float MEGAMAN_DELTA_ON_CAM_TRANS = 3f;
+    public static final float LEVEL_CAM_TRANS_DURATION = 1f;
+    public static final float MEGAMAN_DELTA_ON_CAM_TRANS = 3f;
 
     private final FontHandle readyFont = new FontHandle("Megaman10Font.ttf", 8);
     private final Timer playerEntrance = new Timer(PLAYER_ENTRANCE_DURATION);
@@ -96,8 +87,8 @@ public class LevelScreen extends ScreenAdapter {
         // Static blocks
         List<RectangleMapObject> blockRectangleMapObjs = levelTiledMap
                 .getObjectsOfLayer(STATIC_BLOCKS.getLayerName());
-        StaticBlockFactory staticBlockFactory = new StaticBlockFactory();
-        staticBlockFactory.create(blockRectangleMapObjs).forEach(gameContext::addEntity);
+        // Blocks
+
         // Get game rooms layer
         Map<Rectangle, String> gameRooms = levelTiledMap.getObjectsOfLayer(GAME_ROOMS.getLayerName())
                 .stream().collect(Collectors.toMap(

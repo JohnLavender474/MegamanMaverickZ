@@ -5,7 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static com.game.ConstVals.ViewVals.PPM;
-import static com.game.megaman.behaviors.MegamanRun.RUN_SPEED_PER_SECOND;
+import static com.game.megaman.behaviors.MegamanRun.RUN_SPEED;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -36,7 +36,7 @@ public class MegamanPhysicsTest {
     public void runLeft() {
         // given
         for (int i = 0; i < 60; i++) {
-            megamanBody.x -= RUN_SPEED_PER_SECOND * PPM * DELTA;
+            megamanBody.x -= RUN_SPEED * PPM * DELTA;
         }
         // then
         assertEquals((-3.5 * PPM) - megamanBody.width / 2f, megamanBody.x, 0.25f);

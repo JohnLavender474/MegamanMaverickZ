@@ -14,7 +14,7 @@ import static com.game.ConstVals.ViewVals.PPM;
 
 public class MegamanRun extends Behavior {
 
-    public static final float RUN_SPEED_PER_SECOND = 6f;
+    public static final float RUN_SPEED = 4f;
 
     private final Megaman megaman;
     private final GameContext2d gameContext;
@@ -49,11 +49,11 @@ public class MegamanRun extends Behavior {
 
     @Override
     protected void act(float delta) {
-        float x = RUN_SPEED_PER_SECOND * PPM;
+        float x = RUN_SPEED * PPM;
         if (megaman.isFacing(Facing.LEFT)) {
             x *= -1f;
         }
-        bodyComponent.getImpulse().x += x;
+        bodyComponent.applyImpulse(x, 0f);
     }
 
     @Override
