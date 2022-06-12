@@ -49,7 +49,6 @@ public class TestSpecialMovements extends ScreenAdapter {
     private Viewport playgroundViewport;
     private ShapeRenderer shapeRenderer;
     private SpriteBatch spriteBatch;
-    private FontHandle message1;
     private FontHandle message2;
     private FontHandle message3;
     private FontHandle message4;
@@ -65,18 +64,15 @@ public class TestSpecialMovements extends ScreenAdapter {
     @Override
     public void show() {
         spriteBatch = new SpriteBatch();
-        message1 = new FontHandle("Megaman10Font.ttf", 6);
-        message1.getFont().setColor(Color.WHITE);
-        message1.getPosition().set(-VIEW_WIDTH * PPM / 3f, -VIEW_HEIGHT * PPM / 4f);
         message2 = new FontHandle("Megaman10Font.ttf", 6);
         message2.getFont().setColor(Color.WHITE);
-        message2.getPosition().set(-VIEW_WIDTH * PPM / 3f, (-VIEW_HEIGHT * PPM / 4f) + PPM);
+        message2.getPosition().set(-VIEW_WIDTH * PPM / 3f, (-VIEW_HEIGHT * PPM / 4f));
         message3 = new FontHandle("Megaman10Font.ttf", 6);
         message3.getFont().setColor(Color.WHITE);
-        message3.getPosition().set(-VIEW_WIDTH * PPM / 3f, (-VIEW_HEIGHT * PPM / 4f) + 2 * PPM);
+        message3.getPosition().set(-VIEW_WIDTH * PPM / 3f, (-VIEW_HEIGHT * PPM / 4f) + PPM);
         message4 = new FontHandle("Megaman10Font.ttf", 6);
         message4.getFont().setColor(Color.WHITE);
-        message4.getPosition().set(-VIEW_WIDTH * PPM / 3f, (-VIEW_HEIGHT * PPM / 4f) + 3 * PPM);
+        message4.getPosition().set(-VIEW_WIDTH * PPM / 3f, (-VIEW_HEIGHT * PPM / 4f) + 2 * PPM);
         shapeRenderer = new ShapeRenderer();
         uiViewport = new FitViewport(VIEW_WIDTH * PPM, VIEW_HEIGHT * PPM);
         uiViewport.getCamera().position.x = 0f;
@@ -190,7 +186,6 @@ public class TestSpecialMovements extends ScreenAdapter {
             protected void init() {
                 behaviorComponent.setIs(BehaviorType.WALL_SLIDING);
                 w_button_task = W_BUTTON_TASK.JUMP;
-                message1.setText("Wall sliding");
             }
 
             @Override
@@ -200,7 +195,6 @@ public class TestSpecialMovements extends ScreenAdapter {
             protected void end() {
                 behaviorComponent.setIsNot(BehaviorType.WALL_SLIDING);
                 w_button_task = W_BUTTON_TASK.AIR_DASH;
-                message1.setText("Not wall sliding");
             }
 
         };
@@ -401,7 +395,6 @@ public class TestSpecialMovements extends ScreenAdapter {
         }
         spriteBatch.setProjectionMatrix(uiViewport.getCamera().combined);
         spriteBatch.begin();
-        message1.draw(spriteBatch);
         message2.setText("Player velocity: " + bodyComponent.getVelocity());
         message2.draw(spriteBatch);
         message3.setText("W button task: " + w_button_task);
@@ -421,6 +414,7 @@ public class TestSpecialMovements extends ScreenAdapter {
         debugSystem.update(delta);
         behaviorSystem.update(delta);
         playgroundViewport.getCamera().position.x = bodyComponent.getCollisionBox().x;
+        playgroundViewport.getCamera().position.y = bodyComponent.getCollisionBox().y;
         playgroundViewport.apply();
         uiViewport.apply();
     }
