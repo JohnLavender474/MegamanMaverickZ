@@ -7,6 +7,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.game.ConstVals.GameScreen;
 import com.game.ConstVals.RenderingGround;
 import com.game.controllers.ControllerButton;
+import com.game.controllers.IController;
 
 import java.util.Collection;
 import java.util.Map;
@@ -15,7 +16,7 @@ import java.util.Map;
  * Represents the essentials for a 2D game, including game state management, entity and systems management, controller
  * listening, asset loading, sprite batch, screen management, and blackboard.
  */
-public interface GameContext2d {
+public interface GameContext2d extends IController {
 
     /**
      * Gets uiViewport.
@@ -95,30 +96,6 @@ public interface GameContext2d {
      * @return the shape renderer
      */
     ShapeRenderer getShapeRenderer();
-
-    /**
-     * If controller button is just pressed.
-     *
-     * @param controllerButton the controller button
-     * @return if controller button is just pressed
-     */
-    boolean isJustPressed(ControllerButton controllerButton);
-
-    /**
-     * If controller button is pressed. Include if just pressed.
-     *
-     * @param controllerButton the controller button
-     * @return if the controller button is pressed or just pressed
-     */
-    boolean isPressed(ControllerButton controllerButton);
-
-    /**
-     * If controller button is just released.
-     *
-     * @param controllerButton the controller button
-     * @return if the controller button is just released
-     */
-    boolean isJustReleased(ControllerButton controllerButton);
 
     /**
      * Put blackboard object.

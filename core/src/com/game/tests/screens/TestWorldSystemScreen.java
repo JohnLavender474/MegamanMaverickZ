@@ -67,7 +67,8 @@ public class TestWorldSystemScreen extends ScreenAdapter {
         Entity entity1 = new Entity();
         BodyComponent bodyComponent1 = new BodyComponent(BodyType.STATIC);
         bodyComponent1.getCollisionBox().set(0f, 0f, 20f * PPM, PPM);
-        Fixture block1 = new Fixture(bodyComponent1, FixtureType.BLOCK);
+        Fixture block1 = new Fixture(FixtureType.BLOCK);
+        block1.setUserData(entity1);
         block1.getFixtureBox().set(0f, 0f, 20f * PPM, PPM);
         bodyComponent1.getFixtures().add(block1);
         entity1.addComponent(bodyComponent1);
@@ -81,7 +82,8 @@ public class TestWorldSystemScreen extends ScreenAdapter {
         Entity entity2 = new Entity();
         BodyComponent bodyComponent2 = new BodyComponent(BodyType.STATIC);
         bodyComponent2.getCollisionBox().set(23f * PPM, 0f, 20f * PPM, PPM);
-        Fixture block2 = new Fixture(bodyComponent2, FixtureType.BLOCK);
+        Fixture block2 = new Fixture(FixtureType.BLOCK);
+        block2.setUserData(entity2);
         block2.getFixtureBox().set(23f * PPM, 0f, 20f * PPM, PPM);
         bodyComponent2.getFixtures().add(block2);
         entity2.addComponent(bodyComponent2);
@@ -106,11 +108,13 @@ public class TestWorldSystemScreen extends ScreenAdapter {
                 bodyComponent.setGravity(-20f * PPM);
             }
         });
-        Fixture feet = new Fixture(bodyComponent, FixtureType.FEET);
+        Fixture feet = new Fixture(FixtureType.FEET);
+        feet.setUserData(player);
         feet.getFixtureBox().setSize(10f, 3f);
         feet.getOffset().set(0f, -PPM / 2f);
         bodyComponent.getFixtures().add(feet);
-        Fixture head = new Fixture(bodyComponent, FixtureType.HEAD);
+        Fixture head = new Fixture(FixtureType.HEAD);
+        head.setUserData(player);
         head.getFixtureBox().setSize(15f, 3f);
         head.getOffset().set(0f, PPM / 2f);
         bodyComponent.getFixtures().add(head);

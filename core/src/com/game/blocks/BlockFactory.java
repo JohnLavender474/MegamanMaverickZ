@@ -11,7 +11,6 @@ import com.game.world.BodyType;
 import com.game.world.Fixture;
 import com.game.world.FixtureType;
 
-import javax.print.attribute.standard.JobImpressionsCompleted;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -51,7 +50,7 @@ public class BlockFactory {
      */
     protected void define(Entity entity, RectangleMapObject rectangleMapObject) {
         BodyComponent bodyComponent = new BodyComponent(BodyType.STATIC);
-        defineBodyComponent(bodyComponent, rectangleMapObject);
+        defineBodyComponent(entity, bodyComponent, rectangleMapObject);
         entity.addComponent(bodyComponent);
     }
 
@@ -61,12 +60,11 @@ public class BlockFactory {
      * @param bodyComponent      the body component
      * @param rectangleMapObject the rectangle map object
      */
-    protected void defineBodyComponent(
-            BodyComponent bodyComponent, RectangleMapObject rectangleMapObject) {
+    protected void defineBodyComponent(Entity entity, BodyComponent bodyComponent, RectangleMapObject rectangleMapObject) {
         bodyComponent.getCollisionBox().set(rectangleMapObject.getRectangle());
         bodyComponent.setGravity(gravity(rectangleMapObject));
         bodyComponent.setFriction(friction(rectangleMapObject));
-        defineWallSlideSensors(bodyComponent, rectangleMapObject);
+        defineWallSlideSensors(entity, bodyComponent, rectangleMapObject);
     }
 
     /**
@@ -95,11 +93,12 @@ public class BlockFactory {
         return friction;
     }
 
-    protected void defineWallSlideSensors(BodyComponent bodyComponent, RectangleMapObject rectangleMapObject) {
+    protected void defineWallSlideSensors(Entity entity, BodyComponent bodyComponent, RectangleMapObject rectangleMapObject) {
         Boolean canWallSlideLeft = rectangleMapObject.getProperties().get(
                 "CanWallSlideLeft", Boolean.class);
         if (canWallSlideLeft != null && canWallSlideLeft) {
-            Fixture wallSlideLeft = new Fixture(bodyComponent, FixtureType.WALL_SLIDE_SENSOR);
+            Fixture wallSlideLeft = new Fixture(FixtureType.WALL_SLIDE_SENSOR);
+            wallSlideLeft.setUserData(entity);
             wallSlideLeft.setSize(3f, bodyComponent.getSize().y - 10f);
             wallSlideLeft.setOffset(-bodyComponent.getSize().x / 2f, 0f);
             bodyComponent.getFixtures().add(wallSlideLeft);
@@ -107,7 +106,8 @@ public class BlockFactory {
         Boolean canWallSlideRight = rectangleMapObject.getProperties().get(
                 "CanWallSlideRight", Boolean.class);
         if (canWallSlideRight != null && canWallSlideRight) {
-            Fixture wallSlideRight = new Fixture(bodyComponent, FixtureType.WALL_SLIDE_SENSOR);
+            Fixture wallSlideRight = new Fixture(FixtureType.WALL_SLIDE_SENSOR);
+            wallSlideRight.setUserData(entity);
             wallSlideRight.setSize(3f, bodyComponent.getSize().y - 10f);
             wallSlideRight.setOffset(bodyComponent.getSize().x / 2f, 0f);
             bodyComponent.getFixtures().add(wallSlideRight);

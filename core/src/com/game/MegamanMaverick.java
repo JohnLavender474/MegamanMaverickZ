@@ -252,12 +252,13 @@ public class MegamanMaverick extends Game implements GameContext2d {
                 filterEntityThroughSystems(entity);
             }
         }
-        updateControllerStatuses();
+        updateController();
         super.render();
         viewports.values().forEach(Viewport::apply);
     }
-    
-    private void updateControllerStatuses() {
+
+    @Override
+    public void updateController() {
         for (ControllerButton controllerButton : ControllerButton.values()) {
             ControllerButtonStatus status = controllerButtons.get(controllerButton);
             boolean isControllerButtonPressed = isControllerConnected() ?

@@ -11,6 +11,17 @@ import java.util.Map;
  */
 @Getter
 public class ControllerComponent implements Component {
-    private final Map<ControllerButton, ControllerAdapter> controllerAdapters =
-            new EnumMap<>(ControllerButton.class);
+
+    private final Map<ControllerButton, ControllerAdapter> controllerAdapters = new EnumMap<>(ControllerButton.class);
+
+    /**
+     * Add controller adapter.
+     *
+     * @param controllerButton  the controller button
+     * @param controllerAdapter the controller adapter
+     */
+    public void addControllerAdapter(ControllerButton controllerButton, ControllerAdapter controllerAdapter) {
+        controllerAdapters.put(controllerButton, controllerAdapter);
+    }
+
 }

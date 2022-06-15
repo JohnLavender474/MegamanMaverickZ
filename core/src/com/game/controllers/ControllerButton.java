@@ -34,7 +34,7 @@ public enum ControllerButton {
     UP {
         @Override
         public Integer getKeyboardBindingCode() {
-            return Keys.W;
+            return Keys.UP;
         }
 
         @Override
@@ -46,7 +46,7 @@ public enum ControllerButton {
     DOWN {
         @Override
         public Integer getKeyboardBindingCode() {
-            return Keys.S;
+            return Keys.DOWN;
         }
 
         @Override
@@ -58,7 +58,7 @@ public enum ControllerButton {
     LEFT {
         @Override
         public Integer getKeyboardBindingCode() {
-            return Keys.A;
+            return Keys.LEFT;
         }
 
         @Override
@@ -70,7 +70,7 @@ public enum ControllerButton {
     RIGHT {
         @Override
         public Integer getKeyboardBindingCode() {
-            return Keys.D;
+            return Keys.RIGHT;
         }
 
         @Override
@@ -82,7 +82,7 @@ public enum ControllerButton {
     A {
         @Override
         public Integer getKeyboardBindingCode() {
-            return Keys.K;
+            return Keys.W;
         }
 
         @Override
@@ -94,7 +94,7 @@ public enum ControllerButton {
     X {
         @Override
         public Integer getKeyboardBindingCode() {
-            return Keys.J;
+            return Keys.D;
         }
 
         @Override

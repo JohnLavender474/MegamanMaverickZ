@@ -2,7 +2,6 @@ package com.game.controllers;
 
 import com.game.Component;
 import com.game.Entity;
-import com.game.GameContext2d;
 import com.game.System;
 import lombok.RequiredArgsConstructor;
 
@@ -14,7 +13,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class ControllerSystem extends System {
 
-    private final GameContext2d gameContext;
+    private final IController iController;
 
     @Override
     public Set<Class<? extends Component>> getComponentMask() {
@@ -29,11 +28,11 @@ public class ControllerSystem extends System {
             if (controllerAdapter == null) {
                 continue;
             }
-            if (gameContext.isJustPressed(controllerButton)) {
+            if (iController.isJustPressed(controllerButton)) {
                 controllerAdapter.onJustPressed(delta);
-            } else if (gameContext.isPressed(controllerButton)) {
+            } else if (iController.isPressed(controllerButton)) {
                 controllerAdapter.onPressContinued(delta);
-            } else if (gameContext.isJustReleased(controllerButton)) {
+            } else if (iController.isJustReleased(controllerButton)) {
                 controllerAdapter.onJustReleased(delta);
             }
         }

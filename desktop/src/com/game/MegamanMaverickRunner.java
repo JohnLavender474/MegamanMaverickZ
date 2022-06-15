@@ -18,37 +18,36 @@ public class MegamanMaverickRunner {
 		// test_Camera_Room_Shift(config);
 		// test_Ground_Dash_And_Friction(config);
 		// test_Special_Movements(config);
-		test_Megaman_Animations(config);
+		// test_Megaman_Animations(config);
+		test_Megaman_Shooting(config);
 	}
 
 	private static void test_PPM_And_Movement_Speeds(Lwjgl3ApplicationConfiguration config) {
-		new Lwjgl3Application(new GameTestRunner(
-				TestScreen.TEST_PPM_AND_MOVEMENT_SPEEDS), config);
+		new Lwjgl3Application(new GameTestRunner(TestScreen.TEST_PPM_AND_MOVEMENT_SPEEDS), config);
 	}
 
 	private static void test_World_System(Lwjgl3ApplicationConfiguration config) {
-		new Lwjgl3Application(new GameTestRunner(
-				TestScreen.TEST_WORLD_SYSTEM), config);
+		new Lwjgl3Application(new GameTestRunner(TestScreen.TEST_WORLD_SYSTEM), config);
 	}
 
 	private static void test_Camera_Room_Shift(Lwjgl3ApplicationConfiguration config) {
-		new Lwjgl3Application(new GameTestRunner(
-				TestScreen.TEST_CAMERA_ROOM_SHIFT), config);
+		new Lwjgl3Application(new GameTestRunner(TestScreen.TEST_CAMERA_ROOM_SHIFT), config);
 	}
 
 	private static void test_Ground_Dash_And_Friction(Lwjgl3ApplicationConfiguration config) {
-		new Lwjgl3Application(new GameTestRunner(
-				TestScreen.TEST_GROUND_DASH_AND_FRICTION), config);
+		new Lwjgl3Application(new GameTestRunner(TestScreen.TEST_GROUND_DASH_AND_FRICTION), config);
 	}
 
 	private static void test_Special_Movements(Lwjgl3ApplicationConfiguration config) {
-		new Lwjgl3Application(new GameTestRunner(
-				TestScreen.TEST_SPECIAL_MOVEMENTS), config);
+		new Lwjgl3Application(new GameTestRunner(TestScreen.TEST_SPECIAL_MOVEMENTS), config);
 	}
 
 	private static void test_Megaman_Animations(Lwjgl3ApplicationConfiguration config) {
-		new Lwjgl3Application(new GameTestRunner(
-				TestScreen.TEST_MEGAMAN_ANIMATIONS), config);
+		new Lwjgl3Application(new GameTestRunner(TestScreen.TEST_MEGAMAN_ANIMATIONS), config);
+	}
+
+	private static void test_Megaman_Shooting(Lwjgl3ApplicationConfiguration config) {
+		new Lwjgl3Application(new GameTestRunner(TestScreen.TEST_MEGAMAN_SHOOTING), config);
 	}
 
 }

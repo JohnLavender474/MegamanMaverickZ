@@ -34,23 +34,42 @@ public class Contact {
      * @return if the mask is accepted
      */
     public boolean acceptMask(FixtureType fixtureType1, FixtureType fixtureType2) {
-        if (fixture1.getFixtureType().equals(fixtureType1) &&
-                fixture2.getFixtureType().equals(fixtureType2)) {
+        if (fixture1.getFixtureType().equals(fixtureType1) && fixture2.getFixtureType().equals(fixtureType2)) {
             mask = new Pair<>(fixture1, fixture2);
             return true;
-        } else if (fixture2.getFixtureType().equals(fixtureType1) &&
-                fixture1.getFixtureType().equals(fixtureType2)) {
+        } else if (fixture2.getFixtureType().equals(fixtureType1) && fixture1.getFixtureType().equals(fixtureType2)) {
             mask = new Pair<>(fixture2, fixture1);
             return true;
         }
         return false;
     }
 
+    /**
+     * Get first user data.
+     *
+     * @param <T>    the type parameter
+     * @param tClass the t class
+     * @return the first user data
+     */
+    public <T> T getMaskFirstUserData(Class<T> tClass) {
+        return mask.first().getUserData(tClass);
+    }
+
+    /**
+     * Get second user data.
+     *
+     * @param <T>    the type parameter
+     * @param tClass the t class
+     * @return the second user data
+     */
+    public <T> T getMaskSecondUserData(Class<T> tClass) {
+        return mask.second().getUserData(tClass);
+    }
+
     @Override
     public boolean equals(Object o) {
-        return o instanceof Contact contact &&
-                ((fixture1.equals(contact.getFixture1()) && fixture2.equals(contact.getFixture2())) ||
-                        (fixture1.equals(contact.getFixture2()) && fixture2.equals(contact.getFixture1())));
+        return o instanceof Contact contact && ((fixture1.equals(contact.getFixture1()) && fixture2.equals(contact.getFixture2())) ||
+                (fixture1.equals(contact.getFixture2()) && fixture2.equals(contact.getFixture1())));
     }
 
     @Override

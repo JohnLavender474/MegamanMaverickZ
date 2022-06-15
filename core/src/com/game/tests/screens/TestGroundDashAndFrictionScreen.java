@@ -91,7 +91,8 @@ public class TestGroundDashAndFrictionScreen extends ScreenAdapter {
         BodyComponent bodyComponent1 = new BodyComponent(BodyType.STATIC);
         bodyComponent1.set(0f, 0f, 20f * PPM, PPM);
         bodyComponent1.setFriction(.035f, .15f);
-        Fixture block1 = new Fixture(bodyComponent1, FixtureType.BLOCK);
+        Fixture block1 = new Fixture(FixtureType.BLOCK);
+        block1.setUserData(entity1);
         block1.set(0f, 0f, 20f * PPM, PPM);
         bodyComponent1.addFixture(block1);
         entity1.addComponent(bodyComponent1);
@@ -106,7 +107,8 @@ public class TestGroundDashAndFrictionScreen extends ScreenAdapter {
         BodyComponent bodyComponent2 = new BodyComponent(BodyType.STATIC);
         bodyComponent2.setFriction(1.05f, 1.15f);
         bodyComponent2.set(23f * PPM, 0f, 20f * PPM, PPM);
-        Fixture block2 = new Fixture(bodyComponent2, FixtureType.BLOCK);
+        Fixture block2 = new Fixture(FixtureType.BLOCK);
+        block2.setUserData(entity2);
         block2.set(23f * PPM, 0f, 20f * PPM, PPM);
         bodyComponent2.addFixture(block2);
         entity2.addComponent(bodyComponent2);
@@ -121,7 +123,8 @@ public class TestGroundDashAndFrictionScreen extends ScreenAdapter {
         BodyComponent bodyComponent3 = new BodyComponent(BodyType.STATIC);
         bodyComponent3.setFriction(1.5f, 1.65f);
         bodyComponent3.set(10f * PPM, 2f * PPM, PPM, 30f * PPM);
-        Fixture block3 = new Fixture(bodyComponent3, FixtureType.BLOCK);
+        Fixture block3 = new Fixture(FixtureType.BLOCK);
+        block3.setUserData(entity3);
         block3.set(10f * PPM, 2f * PPM, PPM, 30f * PPM);
         bodyComponent3.addFixture(block3);
         entity3.addComponent(bodyComponent3);
@@ -146,11 +149,13 @@ public class TestGroundDashAndFrictionScreen extends ScreenAdapter {
                 bodyComponent.setGravity(-20f * PPM);
             }
         });
-        Fixture feet = new Fixture(bodyComponent, FixtureType.FEET);
+        Fixture feet = new Fixture(FixtureType.FEET);
+        feet.setUserData(player);
         feet.setSize(12f, 3f);
         feet.setOffset(0f, -PPM / 2f);
         bodyComponent.addFixture(feet);
-        Fixture head = new Fixture(bodyComponent, FixtureType.HEAD);
+        Fixture head = new Fixture(FixtureType.HEAD);
+        head.setUserData(player);
         head.setSize(12f, 3f);
         head.setOffset(0f, PPM / 2f);
         bodyComponent.addFixture(head);

@@ -20,6 +20,7 @@ public class GameTestRunner extends Game {
         TEST_MEGAMAN_ANIMATIONS,
         TEST_CAMERA_ROOM_SHIFT,
         TEST_SPECIAL_MOVEMENTS,
+        TEST_MEGAMAN_SHOOTING,
         TEST_WORLD_SYSTEM,
     }
 
@@ -30,6 +31,7 @@ public class GameTestRunner extends Game {
         put(TestScreen.TEST_CAMERA_ROOM_SHIFT, new TestCameraRoomShiftScreen());
         put(TestScreen.TEST_MEGAMAN_ANIMATIONS, new TestMegamanAnimations());
         put(TestScreen.TEST_WORLD_SYSTEM, new TestWorldSystemScreen());
+        put(TestScreen.TEST_MEGAMAN_SHOOTING, new TestMegamanShooting());
         put(TestScreen.TEST_SPECIAL_MOVEMENTS, new TestSpecialMovements());
         put(TestScreen.TEST_GROUND_DASH_AND_FRICTION, new TestGroundDashAndFrictionScreen());
     }};

@@ -1,7 +1,6 @@
 package com.game.tests.screens;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -23,6 +22,7 @@ import com.game.behaviors.Behavior;
 import com.game.behaviors.BehaviorComponent;
 import com.game.behaviors.BehaviorSystem;
 import com.game.behaviors.BehaviorType;
+import com.game.controllers.*;
 import com.game.debugging.DebugComponent;
 import com.game.debugging.DebugHandle;
 import com.game.debugging.DebugSystem;
@@ -39,27 +39,118 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import static com.game.ConstVals.ViewVals.*;
-import static com.game.ConstVals.ViewVals.PPM;
 import static com.game.behaviors.BehaviorType.*;
+import static com.game.controllers.ControllerButtonStatus.*;
+import static com.game.controllers.ControllerUtils.*;
 
-public class TestMegamanAnimations extends ScreenAdapter {
+public class TestMegamanShooting extends ScreenAdapter {
 
     private enum W_BUTTON_TASK {
         JUMP,
         AIR_DASH
     }
 
-    @Getter
-    @Setter
+    @Getter @Setter
     private static class TestPlayer extends Entity implements Faceable {
         private Facing facing = Facing.RIGHT;
+        private W_BUTTON_TASK w_button_task = W_BUTTON_TASK.JUMP;
+        private final Timer airDashTimer = new Timer(0.25f);
+        private final Timer groundSlideTimer = new Timer(0.35f);
+        private final Timer wallJumpImpetusTimer = new Timer(0.2f);
+    }
+
+    private static class TestWorldContactListener implements WorldContactListener {
+
+        @Override
+        public void beginContact(Contact contact, float delta) {
+            if (contact.acceptMask(FixtureType.FEET, FixtureType.BLOCK)) {
+                Entity entity = contact.getMaskFirstUserData(Entity.class);
+                entity.getComponent(BodyComponent.class).setIs(BodySense.FEET_ON_GROUND);
+                if (entity instanceof TestPlayer testPlayer) {
+                    testPlayer.setW_button_task(W_BUTTON_TASK.JUMP);
+                }
+            } else if (contact.acceptMask(FixtureType.HEAD, FixtureType.BLOCK)) {
+                contact.getMaskFirstUserData(Entity.class).getComponent(BodyComponent.class).setIs(BodySense.HEAD_TOUCHING_BLOCK);
+            }
+        }
+
+        @Override
+        public void continueContact(Contact contact, float delta) {
+            if (contact.acceptMask(FixtureType.FEET, FixtureType.BLOCK)) {
+                contact.getMaskFirstUserData(Entity.class).getComponent(BodyComponent.class).setIs(BodySense.FEET_ON_GROUND);
+            } else if (contact.acceptMask(FixtureType.HEAD, FixtureType.BLOCK)) {
+                contact.getMaskFirstUserData(Entity.class).getComponent(BodyComponent.class).setIs(BodySense.HEAD_TOUCHING_BLOCK);
+            }
+        }
+
+        @Override
+        public void endContact(Contact contact, float delta) {
+            if (contact.acceptMask(FixtureType.FEET, FixtureType.BLOCK)) {
+                Entity entity = contact.getMaskFirstUserData(Entity.class);
+                entity.getComponent(BodyComponent.class).setIsNot(BodySense.FEET_ON_GROUND);
+                if (entity instanceof TestPlayer testPlayer) {
+                    testPlayer.setW_button_task(W_BUTTON_TASK.AIR_DASH);
+                }
+            } else if (contact.acceptMask(FixtureType.HEAD, FixtureType.BLOCK)) {
+                contact.getMaskFirstUserData(Entity.class).getComponent(BodyComponent.class).setIsNot(BodySense.HEAD_TOUCHING_BLOCK);
+            }
+        }
+
+    }
+
+    private static class TestController implements IController {
+
+        private final Map<ControllerButton, ControllerButtonStatus> controllerButtons = new HashMap<>() {{
+            for (ControllerButton controllerButton : ControllerButton.values()) {
+                put(controllerButton, IS_RELEASED);
+            }
+        }};
+
+        @Override
+        public boolean isJustPressed(ControllerButton controllerButton) {
+            return controllerButtons.get(controllerButton) == IS_JUST_PRESSED;
+        }
+
+        @Override
+        public boolean isPressed(ControllerButton controllerButton) {
+            return controllerButtons.get(controllerButton) == IS_JUST_PRESSED || controllerButtons.get(controllerButton) == IS_PRESSED;
+        }
+
+        @Override
+        public boolean isJustReleased(ControllerButton controllerButton) {
+            return controllerButtons.get(controllerButton) == IS_JUST_RELEASED;
+        }
+
+        @Override
+        public void updateController() {
+            for (ControllerButton controllerButton : ControllerButton.values()) {
+                ControllerButtonStatus status = controllerButtons.get(controllerButton);
+                boolean isControllerButtonPressed = isControllerConnected() ?
+                        isControllerButtonPressed(controllerButton.getControllerBindingCode()) :
+                        isKeyboardButtonPressed(controllerButton.getKeyboardBindingCode());
+                if (isControllerButtonPressed) {
+                    if (status == IS_RELEASED || status == IS_JUST_RELEASED) {
+                        controllerButtons.replace(controllerButton, IS_JUST_PRESSED);
+                    } else {
+                        controllerButtons.replace(controllerButton, IS_PRESSED);
+                    }
+                } else if (status == IS_RELEASED || status == IS_JUST_RELEASED) {
+                    controllerButtons.replace(controllerButton, IS_RELEASED);
+                } else {
+                    controllerButtons.replace(controllerButton, IS_JUST_RELEASED);
+                }
+            }
+        }
+
     }
 
     private TestPlayer player;
+    private TestController testController;
     private WorldSystem worldSystem;
     private DebugSystem debugSystem;
     private SpriteSystem spriteSystem;
     private AnimationSystem animationSystem;
+    private ControllerSystem controllerSystem;
     private BehaviorSystem behaviorSystem;
     private TextureAtlas textureAtlas;
 
@@ -67,57 +158,31 @@ public class TestMegamanAnimations extends ScreenAdapter {
     private Viewport playgroundViewport;
     private ShapeRenderer shapeRenderer;
     private SpriteBatch spriteBatch;
-    private FontHandle message1;
-    private FontHandle message2;
-    private FontHandle message3;
-    private FontHandle message4;
-    private FontHandle message5;
-
-    private boolean runningLeft;
-    private boolean runningRight;
-
-    private W_BUTTON_TASK w_button_task = W_BUTTON_TASK.JUMP;
-    private final Timer airDashTimer = new Timer(0.25f);
-    private final Timer groundSlideTimer = new Timer(0.35f);
-    private final Timer wallJumpImpetusTimer = new Timer(0.2f);
+    private FontHandle message;
 
     @Override
     public void show() {
-        textureAtlas = new TextureAtlas(
-                Gdx.files.internal(TextureAssets.MEGAMAN_TEXTURE_ATLAS));
+        testController = new TestController();
+        textureAtlas = new TextureAtlas(Gdx.files.internal(TextureAssets.MEGAMAN_TEXTURE_ATLAS));
         spriteBatch = new SpriteBatch();
-        message1 = new FontHandle("Megaman10Font.ttf", 6);
-        message1.getFont().setColor(Color.WHITE);
-        message1.setText("NULL");
-        message1.getPosition().set(-VIEW_WIDTH * PPM / 3f, -VIEW_HEIGHT * PPM / 4f);
-        message2 = new FontHandle("Megaman10Font.ttf", 6);
-        message2.getFont().setColor(Color.WHITE);
-        message2.getPosition().set(-VIEW_WIDTH * PPM / 3f, (-VIEW_HEIGHT * PPM / 4f) + PPM);
-        message3 = new FontHandle("Megaman10Font.ttf", 6);
-        message3.getFont().setColor(Color.WHITE);
-        message3.getPosition().set(-VIEW_WIDTH * PPM / 3f, (-VIEW_HEIGHT * PPM / 4f) + PPM * 2f);
-        message4 = new FontHandle("Megaman10Font.ttf", 6);
-        message4.getFont().setColor(Color.WHITE);
-        message4.getPosition().set(-VIEW_WIDTH * PPM / 3f, (-VIEW_HEIGHT * PPM / 4f) + PPM * 3f);
-        message5 = new FontHandle("Megaman10Font.ttf", 6);
-        message5.getPosition().set(-VIEW_WIDTH * PPM / 3f, (-VIEW_HEIGHT * PPM / 4f) + PPM * 4f);
+        message = new FontHandle("Megaman10Font.ttf", 6);
+        message.getFont().setColor(Color.WHITE);
+        message.setText("NULL");
+        message.getPosition().set(-VIEW_WIDTH * PPM / 3f, -VIEW_HEIGHT * PPM / 4f);
         shapeRenderer = new ShapeRenderer();
         uiViewport = new FitViewport(VIEW_WIDTH * PPM, VIEW_HEIGHT * PPM);
         uiViewport.getCamera().position.x = 0f;
         uiViewport.getCamera().position.y = 0f;
         playgroundViewport = new FitViewport(VIEW_WIDTH * PPM, VIEW_HEIGHT * PPM);
-        worldSystem = new WorldSystem(
-                new WorldContactListenerImpl(),
-                WorldVals.AIR_RESISTANCE, WorldVals.FIXED_TIME_STEP);
-        debugSystem = new DebugSystem(shapeRenderer,
-                                      (OrthographicCamera) playgroundViewport.getCamera());
+        worldSystem = new WorldSystem(new TestWorldContactListener(), WorldVals.AIR_RESISTANCE, WorldVals.FIXED_TIME_STEP);
+        debugSystem = new DebugSystem(shapeRenderer, (OrthographicCamera) playgroundViewport.getCamera());
+        controllerSystem = new ControllerSystem(testController);
         behaviorSystem = new BehaviorSystem();
-        spriteSystem = new SpriteSystem(
-                (OrthographicCamera) playgroundViewport.getCamera(), spriteBatch);
+        spriteSystem = new SpriteSystem((OrthographicCamera) playgroundViewport.getCamera(), spriteBatch);
         animationSystem = new AnimationSystem();
         defineBlocks();
         definePlayer();
-        wallJumpImpetusTimer.setToEnd();
+        player.wallJumpImpetusTimer.setToEnd();
     }
 
     private void defineBlocks() {
@@ -217,6 +282,47 @@ public class TestMegamanAnimations extends ScreenAdapter {
         head.setOffset(0f, PPM / 2f);
         bodyComponent.addFixture(head);
         player.addComponent(bodyComponent);
+        // Controller component
+        ControllerComponent controllerComponent = new ControllerComponent();
+        controllerComponent.addControllerAdapter(ControllerButton.LEFT, new ControllerAdapter() {
+
+            @Override
+            public void onPressContinued(float delta) {
+                if (player.wallJumpImpetusTimer.isFinished()) {
+                    player.setFacing(behaviorComponent.is(WALL_SLIDING) ? Facing.RIGHT : Facing.LEFT);
+                }
+                behaviorComponent.setIs(RUNNING);
+                if (bodyComponent.getVelocity().x > -MegamanRun.RUN_SPEED * PPM) {
+                    bodyComponent.applyImpulse(-PPM * 50f * delta, 0f);
+                }
+            }
+
+            @Override
+            public void onJustReleased(float delta) {
+                behaviorComponent.setIsNot(RUNNING);
+            }
+
+        });
+        controllerComponent.addControllerAdapter(ControllerButton.RIGHT, new ControllerAdapter() {
+
+            @Override
+            public void onPressContinued(float delta) {
+                if (player.wallJumpImpetusTimer.isFinished()) {
+                    player.setFacing(behaviorComponent.is(WALL_SLIDING) ? Facing.LEFT : Facing.RIGHT);
+                }
+                behaviorComponent.setIs(RUNNING);
+                if (bodyComponent.getVelocity().x < MegamanRun.RUN_SPEED * PPM) {
+                    bodyComponent.applyImpulse(PPM * 50f * delta, 0f);
+                }
+            }
+
+            @Override
+            public void onJustReleased(float delta) {
+                behaviorComponent.setIsNot(RUNNING);
+            }
+
+        });
+        player.addComponent(controllerComponent);
         // Wall slide
         Behavior wallSlide = new Behavior() {
 
@@ -231,15 +337,15 @@ public class TestMegamanAnimations extends ScreenAdapter {
                 } else {
                     direction = null;
                 }
-                return direction != null && wallJumpImpetusTimer.isFinished() && !bodyComponent.isColliding(Direction.DOWN) &&
-                        !bodyComponent.is(BodySense.FEET_ON_GROUND) && ((direction == Direction.LEFT && Gdx.input.isKeyPressed(Keys.LEFT)) ||
-                        (direction == Direction.RIGHT && Gdx.input.isKeyPressed(Keys.RIGHT)));
+                return direction != null && player.wallJumpImpetusTimer.isFinished() && !bodyComponent.is(BodySense.FEET_ON_GROUND) &&
+                        ((direction == Direction.LEFT && testController.isPressed(ControllerButton.LEFT)) ||
+                                (direction == Direction.RIGHT && testController.isPressed(ControllerButton.RIGHT)));
             }
 
             @Override
             protected void init() {
-                behaviorComponent.setIs(BehaviorType.WALL_SLIDING);
-                w_button_task = W_BUTTON_TASK.JUMP;
+                behaviorComponent.setIs(WALL_SLIDING);
+                player.setW_button_task(W_BUTTON_TASK.JUMP);
             }
 
             @Override
@@ -247,8 +353,8 @@ public class TestMegamanAnimations extends ScreenAdapter {
 
             @Override
             protected void end() {
-                behaviorComponent.setIsNot(BehaviorType.WALL_SLIDING);
-                w_button_task = W_BUTTON_TASK.AIR_DASH;
+                behaviorComponent.setIsNot(WALL_SLIDING);
+                player.setW_button_task(W_BUTTON_TASK.AIR_DASH);
             }
 
         };
@@ -256,32 +362,30 @@ public class TestMegamanAnimations extends ScreenAdapter {
         // Jump
         Behavior jump = new Behavior() {
 
-            private boolean isJumping;
-
             @Override
             protected boolean evaluate(float delta) {
-                if (Gdx.input.isKeyPressed(Keys.DOWN)) {
+                if (testController.isPressed(ControllerButton.DOWN)) {
                     return false;
                 }
                 if (bodyComponent.is(BodySense.HEAD_TOUCHING_BLOCK)) {
                     return false;
                 }
-                return isJumping ?
+                return behaviorComponent.is(JUMPING) ?
                         // case 1
-                        bodyComponent.getVelocity().y >= 0f && Gdx.input.isKeyPressed(Keys.W) && !bodyComponent.isColliding(Direction.DOWN) :
+                        bodyComponent.getVelocity().y >= 0f && testController.isPressed(ControllerButton.A) &&
+                                !bodyComponent.isColliding(Direction.DOWN) :
                         // case 2
-                        w_button_task == W_BUTTON_TASK.JUMP && Gdx.input.isKeyJustPressed(Keys.W) && (bodyComponent.isColliding(Direction.DOWN) ||
-                                behaviorComponent.is(BehaviorType.WALL_SLIDING));
+                        player.w_button_task == W_BUTTON_TASK.JUMP && testController.isJustPressed(ControllerButton.A) &&
+                                (bodyComponent.isColliding(Direction.DOWN) || behaviorComponent.is(WALL_SLIDING));
             }
 
             @Override
             protected void init() {
                 behaviorComponent.setIs(JUMPING);
-                isJumping = true;
-                w_button_task = W_BUTTON_TASK.AIR_DASH;
-                if (behaviorComponent.is(BehaviorType.WALL_SLIDING)) {
+                // player.setW_button_task(W_BUTTON_TASK.AIR_DASH);
+                if (behaviorComponent.is(WALL_SLIDING)) {
                     bodyComponent.applyImpulse((player.isFacing(Facing.LEFT) ? -1f : 1f) * 9f * PPM, 16f * PPM);
-                    wallJumpImpetusTimer.reset();
+                    player.wallJumpImpetusTimer.reset();
                 } else {
                     bodyComponent.applyImpulse(0f, 18f * PPM);
                 }
@@ -292,10 +396,9 @@ public class TestMegamanAnimations extends ScreenAdapter {
 
             @Override
             protected void end() {
-                w_button_task = W_BUTTON_TASK.AIR_DASH;
+                // player.setW_button_task(W_BUTTON_TASK.AIR_DASH);
                 behaviorComponent.setIsNot(JUMPING);
                 bodyComponent.getVelocity().y = 0f;
-                isJumping = false;
             }
 
         };
@@ -303,28 +406,26 @@ public class TestMegamanAnimations extends ScreenAdapter {
         // Air dash
         Behavior airDash = new Behavior() {
 
-            private boolean isAirDashing;
-
             @Override
             protected boolean evaluate(float delta) {
-                boolean stop = behaviorComponent.is(BehaviorType.WALL_SLIDING) || bodyComponent.isColliding(Direction.DOWN) || airDashTimer.isFinished();
+                boolean stop = behaviorComponent.is(WALL_SLIDING) || bodyComponent.isColliding(Direction.DOWN) || player.airDashTimer.isFinished();
                 if (stop) {
                     return false;
                 }
-                return isAirDashing ? Gdx.input.isKeyPressed(Keys.W) : Gdx.input.isKeyJustPressed(Keys.W) && w_button_task == W_BUTTON_TASK.AIR_DASH;
+                return behaviorComponent.is(AIR_DASHING) ? testController.isPressed(ControllerButton.A) :
+                        testController.isJustPressed(ControllerButton.A) && player.getW_button_task() == W_BUTTON_TASK.AIR_DASH;
             }
 
             @Override
             protected void init() {
-                behaviorComponent.setIs(BehaviorType.AIR_DASHING);
                 bodyComponent.setGravityOn(false);
-                w_button_task = W_BUTTON_TASK.JUMP;
-                isAirDashing = true;
+                behaviorComponent.setIs(BehaviorType.AIR_DASHING);
+                player.setW_button_task(W_BUTTON_TASK.JUMP);
             }
 
             @Override
             protected void act(float delta) {
-                airDashTimer.update(delta);
+                player.airDashTimer.update(delta);
                 bodyComponent.setVelocityY(0f);
                 if (bodyComponent.isColliding(Direction.LEFT) || bodyComponent.isColliding(Direction.RIGHT)) {
                     return;
@@ -338,8 +439,7 @@ public class TestMegamanAnimations extends ScreenAdapter {
 
             @Override
             protected void end() {
-                isAirDashing = false;
-                airDashTimer.reset();
+                player.airDashTimer.reset();
                 bodyComponent.setGravityOn(true);
                 behaviorComponent.setIsNot(BehaviorType.AIR_DASHING);
                 if (player.isFacing(Facing.LEFT)) {
@@ -362,14 +462,14 @@ public class TestMegamanAnimations extends ScreenAdapter {
                 if (!bool3) {
                     return false;
                 }
-                boolean bool4 = !groundSlideTimer.isFinished();
+                boolean bool4 = !player.groundSlideTimer.isFinished();
                 if (!bool4) {
                     return false;
                 }
                 if (!behaviorComponent.is(BehaviorType.GROUND_SLIDING)) {
-                    return Gdx.input.isKeyPressed(Keys.DOWN) && Gdx.input.isKeyJustPressed(Keys.W);
+                    return testController.isPressed(ControllerButton.DOWN) && testController.isJustPressed(ControllerButton.A);
                 } else {
-                    return Gdx.input.isKeyPressed(Keys.DOWN) && Gdx.input.isKeyPressed(Keys.W);
+                    return testController.isPressed(ControllerButton.DOWN) && testController.isPressed(ControllerButton.A);
                 }
             }
 
@@ -380,7 +480,7 @@ public class TestMegamanAnimations extends ScreenAdapter {
 
             @Override
             protected void act(float delta) {
-                groundSlideTimer.update(delta);
+                player.groundSlideTimer.update(delta);
                 if (bodyComponent.isColliding(Direction.LEFT) || bodyComponent.isColliding(Direction.RIGHT)) {
                     return;
                 }
@@ -393,7 +493,7 @@ public class TestMegamanAnimations extends ScreenAdapter {
 
             @Override
             protected void end() {
-                groundSlideTimer.reset();
+                player.groundSlideTimer.reset();
                 behaviorComponent.setIsNot(BehaviorType.GROUND_SLIDING);
                 if (player.isFacing(Facing.LEFT)) {
                     bodyComponent.applyImpulse(-5f * PPM, 0f);
@@ -406,7 +506,7 @@ public class TestMegamanAnimations extends ScreenAdapter {
         player.addComponent(behaviorComponent);
         // Debug component
         DebugComponent debugComponent = new DebugComponent();
-        debugComponent.getDebugHandles().add(new DebugHandle(bodyComponent::getCollisionBox,Color.BLUE));
+        debugComponent.getDebugHandles().add(new DebugHandle(bodyComponent::getCollisionBox, Color.BLUE));
         debugComponent.getDebugHandles().add(new DebugHandle(feet::getFixtureBox, Color.PINK));
         debugComponent.getDebugHandles().add(new DebugHandle(head::getFixtureBox, Color.ORANGE));
         player.addComponent(debugComponent);
@@ -439,21 +539,17 @@ public class TestMegamanAnimations extends ScreenAdapter {
                 key = "GroundSlide";
             } else if (behaviorComponent.is(WALL_SLIDING)) {
                 key = "WallSlide";
-            } else if (behaviorComponent.is(JUMPING) ||
-                    !bodyComponent.isColliding(Direction.DOWN)) {
+            } else if (behaviorComponent.is(JUMPING) || !bodyComponent.isColliding(Direction.DOWN)) {
                 key = "Jump";
-            } else if (bodyComponent.is(BodySense.FEET_ON_GROUND) &&
-                            (Gdx.input.isKeyPressed(Keys.LEFT) || Gdx.input.isKeyPressed(Keys.RIGHT))) {
+            } else if (bodyComponent.is(BodySense.FEET_ON_GROUND) && behaviorComponent.is(RUNNING)) {
                 key = "Run";
             } else if (behaviorComponent.is(CLIMBING)) {
                 key = "Climb";
-            } else if (bodyComponent.is(BodySense.FEET_ON_GROUND) &&
-                    Math.abs(bodyComponent.getVelocity().x) > 3f) {
+            } else if (bodyComponent.is(BodySense.FEET_ON_GROUND) && Math.abs(bodyComponent.getVelocity().x) > 3f) {
                 key = "SlipSlide";
             } else {
                 key = "Stand";
             }
-            message1.setText("Animation key: " + key);
             return key;
         };
         Map<String, TimedAnimation> animations = new HashMap<>();
@@ -484,41 +580,30 @@ public class TestMegamanAnimations extends ScreenAdapter {
         debugSystem.addEntity(player);
         spriteSystem.addEntity(player);
         animationSystem.addEntity(player);
+        controllerSystem.addEntity(player);
     }
 
     @Override
     public void render(float delta) {
-        if (wallJumpImpetusTimer.isFinished()) {
-            BehaviorComponent behaviorComponent = player.getComponent(BehaviorComponent.class);
-            if (Gdx.input.isKeyPressed(Keys.LEFT)) {
-                player.setFacing(behaviorComponent.is(BehaviorType.WALL_SLIDING) ? Facing.RIGHT : Facing.LEFT);
-            } else if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
-                player.setFacing(behaviorComponent.is(BehaviorType.WALL_SLIDING) ? Facing.LEFT : Facing.RIGHT);
-            }
-        } else {
-            wallJumpImpetusTimer.update(delta);
-        }
-        BodyComponent bodyComponent = player.getComponent(BodyComponent.class);
-        BehaviorComponent behaviorComponent = player.getComponent(BehaviorComponent.class);
-        if (bodyComponent.isColliding(Direction.DOWN) || behaviorComponent.is(BehaviorType.WALL_SLIDING)) {
-            w_button_task = W_BUTTON_TASK.JUMP;
-        }
-        runningRight = Gdx.input.isKeyPressed(Keys.RIGHT);
-        if (runningRight && bodyComponent.getVelocity().x < MegamanRun.RUN_SPEED * PPM) {
-            bodyComponent.applyImpulse(PPM * 50f * delta, 0f);
-        }
-        runningLeft = Gdx.input.isKeyPressed(Keys.LEFT);
-        if (runningLeft && bodyComponent.getVelocity().x > -MegamanRun.RUN_SPEED * PPM) {
-            bodyComponent.applyImpulse(-PPM * 50f * delta, 0f);
+        testController.updateController();
+        if (!player.wallJumpImpetusTimer.isFinished()) {
+            player.wallJumpImpetusTimer.update(delta);
         }
         worldSystem.update(delta);
         debugSystem.update(delta);
         behaviorSystem.update(delta);
+        controllerSystem.update(delta);
         animationSystem.update(delta);
         spriteSystem.update(delta);
+        BodyComponent bodyComponent = player.getComponent(BodyComponent.class);
         Vector2 priorCenter = UtilMethods.bottomCenterPoint(bodyComponent.getPriorCollisionBox());
         Vector2 currentCenter = UtilMethods.bottomCenterPoint(bodyComponent.getCollisionBox());
         Vector2 interpolatedCenter = UtilMethods.interpolate(priorCenter, currentCenter, delta);
+        message.setText("Player w button task: " + player.getW_button_task());
+        spriteBatch.setProjectionMatrix(uiViewport.getCamera().combined);
+        spriteBatch.begin();
+        message.draw(spriteBatch);
+        spriteBatch.end();
         playgroundViewport.getCamera().position.x = interpolatedCenter.x;
         playgroundViewport.getCamera().position.y = interpolatedCenter.y;
         playgroundViewport.apply();
