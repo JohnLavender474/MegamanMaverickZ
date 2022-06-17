@@ -6,13 +6,12 @@ package com.game.entities;
 public interface Damageable {
 
     /**
-     * Return true if can be damaged by the damager Entity.
+     * Return true if can be damaged by the damager.
      *
-     * @param <DE>          the type parameter
-     * @param damagerEntity the damager entity
+     * @param damager the damager
      * @return if can be damaged by the damager Entity
      */
-    <DE extends Entity & Damager> boolean canBeDamagedBy(DE damagerEntity);
+    boolean canBeDamagedBy(Damager damager);
 
     /**
      * Take damage from Damager.

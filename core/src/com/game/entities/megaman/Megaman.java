@@ -6,6 +6,8 @@ import com.game.ConstVals.TextureAssets;
 import com.game.GameContext2d;
 import com.game.animations.AnimationComponent;
 import com.game.animations.Animator;
+import com.game.entities.Damageable;
+import com.game.entities.Damager;
 import com.game.entities.Entity;
 import com.game.animations.TimedAnimation;
 import com.game.behaviors.BehaviorComponent;
@@ -31,7 +33,7 @@ import static com.game.behaviors.BehaviorType.*;
  */
 @Getter
 @Setter
-public class Megaman extends Entity implements Faceable, LevelCameraFocusable {
+public class Megaman extends Entity implements Damageable, Faceable, LevelCameraFocusable {
 
     public static final float MEGAMAN_GRAVITY = -7f;
 
@@ -59,6 +61,16 @@ public class Megaman extends Entity implements Faceable, LevelCameraFocusable {
         addComponent(defineBehaviorComponent(gameContext));
         addComponent(defineAnimationComponent(gameContext.loadAsset(TextureAssets.MEGAMAN_TEXTURE_ATLAS, TextureAtlas.class)));
         addComponent(defineSpriteComponent());
+    }
+
+    @Override
+    public boolean canBeDamagedBy(Damager damager) {
+        return false;
+    }
+
+    @Override
+    public void takeDamageFrom(Damager damager) {
+
     }
 
     @Override
@@ -111,22 +123,14 @@ public class Megaman extends Entity implements Faceable, LevelCameraFocusable {
         };
         // Define animations
         Map<String, TimedAnimation> animations = new HashMap<>();
-        animations.put("Climb", new TimedAnimation(
-                textureAtlas.findRegion("Climb"), 2, 0.125f));
-        animations.put("Stand", new TimedAnimation(
-                textureAtlas.findRegion("Stand"), new float[]{1.5f, 0.15f}));
-        animations.put("Damaged", new TimedAnimation(
-                textureAtlas.findRegion("Damaged"), 3, 0.05f));
-        animations.put("Run", new TimedAnimation(
-                textureAtlas.findRegion("Run"), 4, 0.125f));
-        animations.put("Jump", new TimedAnimation(
-                textureAtlas.findRegion("Run"), 4, 0.125f));
-        animations.put("WallSlide", new TimedAnimation(
-                textureAtlas.findRegion("WallSlide")));
-        animations.put("GroundSlide", new TimedAnimation(
-                textureAtlas.findRegion("GroundSlide")));
-        animations.put("AirDash", new TimedAnimation(
-                textureAtlas.findRegion("AirDash")));
+        animations.put("Climb", new TimedAnimation(textureAtlas.findRegion("Climb"), 2, 0.125f));
+        animations.put("Stand", new TimedAnimation(textureAtlas.findRegion("Stand"), new float[]{1.5f, 0.15f}));
+        animations.put("Damaged", new TimedAnimation(textureAtlas.findRegion("Damaged"), 3, 0.05f));
+        animations.put("Run", new TimedAnimation(textureAtlas.findRegion("Run"), 4, 0.125f));
+        animations.put("Jump", new TimedAnimation(textureAtlas.findRegion("Run"), 4, 0.125f));
+        animations.put("WallSlide", new TimedAnimation(textureAtlas.findRegion("WallSlide")));
+        animations.put("GroundSlide", new TimedAnimation(textureAtlas.findRegion("GroundSlide")));
+        animations.put("AirDash", new TimedAnimation(textureAtlas.findRegion("AirDash")));
         // Define animation component
         Animator animator = new Animator(keySupplier, animations);
         AnimationComponent animationComponent = new AnimationComponent(animator);

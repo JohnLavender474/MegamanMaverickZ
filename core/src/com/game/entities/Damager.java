@@ -6,12 +6,21 @@ package com.game.entities;
 public interface Damager {
 
     /**
-     * Returns true if the Entity can be damaged.
+     * Returns true if the {@link Damageable} can be damaged.
      *
-     * @param damageableEntity the damageable Entity
+     * @param damageable the damageable
      * @return if the Entity can be damaged
      */
-    <DE extends Entity & Damageable> boolean canDamage(DE damageableEntity);
+    boolean canDamage(Damageable damageable);
+
+    /**
+     * Called when {@link Damageable#takeDamageFrom(Damager)} has also been called. This method should not
+     * be used to inflict damage but rather to specify an action that is performed by the Damager when
+     * damage has been inflicted.
+     *
+     * @param damageable the damageable
+     */
+    void onDamageInflicted(Damageable damageable);
 
     /**
      * Get damage to inflict.

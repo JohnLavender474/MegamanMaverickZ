@@ -21,6 +21,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class Fixture {
 
+    private Object userData;
     private final Entity entity;
     private final FixtureType fixtureType;
     private final Vector2 offset = new Vector2();
@@ -75,6 +76,17 @@ public class Fixture {
      */
     public void setCenter(float x, float y) {
         fixtureBox.setCenter(x, y);
+    }
+
+    /**
+     * Get user data.
+     *
+     * @param <T>    the type parameter
+     * @param tClass the t class
+     * @return the user data
+     */
+    public <T> T getUserData(Class<T> tClass) {
+        return tClass.cast(userData);
     }
 
     @Override

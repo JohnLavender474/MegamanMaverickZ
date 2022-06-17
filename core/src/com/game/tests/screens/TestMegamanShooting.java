@@ -13,6 +13,8 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.game.ConstVals.TextureAssets;
 import com.game.ConstVals.WorldVals;
+import com.game.entities.Damageable;
+import com.game.entities.Damager;
 import com.game.entities.Entity;
 import com.game.animations.AnimationComponent;
 import com.game.animations.AnimationSystem;
@@ -73,8 +75,7 @@ public class TestMegamanShooting extends ScreenAdapter {
             } else if (contact.acceptMask(FixtureType.HEAD, FixtureType.BLOCK)) {
                 contact.maskFirstEntity().getComponent(BodyComponent.class).setIs(BodySense.HEAD_TOUCHING_BLOCK);
             } else if (contact.acceptMask(FixtureType.PROJECTILE)) {
-                Projectile projectile = (Projectile) contact.maskFirstEntity();
-                projectile.hit(contact.getMask().second());
+                ((Projectile) contact.maskFirstEntity()).hit(contact.getMask().second());
             }
         }
 
@@ -84,6 +85,8 @@ public class TestMegamanShooting extends ScreenAdapter {
                 contact.maskFirstEntity().getComponent(BodyComponent.class).setIs(BodySense.FEET_ON_GROUND);
             } else if (contact.acceptMask(FixtureType.HEAD, FixtureType.BLOCK)) {
                 contact.maskFirstEntity().getComponent(BodyComponent.class).setIs(BodySense.HEAD_TOUCHING_BLOCK);
+            } else if (contact.acceptMask(FixtureType.PROJECTILE)) {
+                ((Projectile) contact.maskFirstEntity()).hit(contact.getMask().second());
             }
         }
 

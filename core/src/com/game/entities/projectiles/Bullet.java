@@ -36,20 +36,32 @@ public class Bullet extends Entity implements Projectile, Damager, CullOnOutOfGa
     }
 
     @Override
-    public <DE extends Entity & Damageable> boolean canDamage(DE damageableEntity) {
-        return !owner.equals(damageableEntity);
+    public boolean canDamage(Damageable damageable) {
+        return !owner.equals(damageable);
+    }
+
+    @Override
+    public void onDamageInflicted(Damageable damageable) {
+
     }
 
     @Override
     public void hit(Fixture fixture) {
         switch (fixture.getFixtureType()) {
+            case HIT_BOX -> {
+                Damageable damageable = (Damageable) fixture.getEntity();
+                if (canDamage(damageable) && damageable.canBeDamagedBy(this)) {
+                    damageable.takeDamageFrom(this);
+                    onDamageInflicted(damageable);
+                }
+            }
             case BLOCK -> {
                 die();
                 // if block is instance of breakable, then break the block
             }
             case SHIELD -> {
                 trajectory.set(-trajectory.x, PPM / 2f);
-                // damage the shield?
+                // damage the shield
             }
         }
     }
