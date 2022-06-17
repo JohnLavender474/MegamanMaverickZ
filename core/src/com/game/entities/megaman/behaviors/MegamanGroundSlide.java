@@ -1,11 +1,11 @@
-package com.game.megaman.behaviors;
+package com.game.entities.megaman.behaviors;
 
 import com.game.GameContext2d;
 import com.game.behaviors.Behavior;
 import com.game.behaviors.BehaviorComponent;
 import com.game.behaviors.BehaviorType;
 import com.game.controllers.ControllerButton;
-import com.game.megaman.Megaman;
+import com.game.entities.megaman.Megaman;
 import com.game.utils.Direction;
 import com.game.utils.Facing;
 import com.game.utils.Timer;

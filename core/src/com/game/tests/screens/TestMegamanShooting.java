@@ -13,7 +13,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.game.ConstVals.TextureAssets;
 import com.game.ConstVals.WorldVals;
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.animations.AnimationComponent;
 import com.game.animations.AnimationSystem;
 import com.game.animations.Animator;
@@ -26,7 +26,8 @@ import com.game.controllers.*;
 import com.game.debugging.DebugComponent;
 import com.game.debugging.DebugHandle;
 import com.game.debugging.DebugSystem;
-import com.game.megaman.behaviors.MegamanRun;
+import com.game.entities.megaman.behaviors.MegamanRun;
+import com.game.entities.projectiles.Projectile;
 import com.game.sprites.SpriteComponent;
 import com.game.sprites.SpriteSystem;
 import com.game.utils.*;
@@ -64,35 +65,38 @@ public class TestMegamanShooting extends ScreenAdapter {
         @Override
         public void beginContact(Contact contact, float delta) {
             if (contact.acceptMask(FixtureType.FEET, FixtureType.BLOCK)) {
-                Entity entity = contact.getMaskFirstUserData(Entity.class);
+                Entity entity = contact.maskFirstEntity();
                 entity.getComponent(BodyComponent.class).setIs(BodySense.FEET_ON_GROUND);
                 if (entity instanceof TestPlayer testPlayer) {
                     testPlayer.setW_button_task(W_BUTTON_TASK.JUMP);
                 }
             } else if (contact.acceptMask(FixtureType.HEAD, FixtureType.BLOCK)) {
-                contact.getMaskFirstUserData(Entity.class).getComponent(BodyComponent.class).setIs(BodySense.HEAD_TOUCHING_BLOCK);
+                contact.maskFirstEntity().getComponent(BodyComponent.class).setIs(BodySense.HEAD_TOUCHING_BLOCK);
+            } else if (contact.acceptMask(FixtureType.PROJECTILE)) {
+                Projectile projectile = (Projectile) contact.maskFirstEntity();
+                projectile.hit(contact.getMask().second());
             }
         }
 
         @Override
         public void continueContact(Contact contact, float delta) {
             if (contact.acceptMask(FixtureType.FEET, FixtureType.BLOCK)) {
-                contact.getMaskFirstUserData(Entity.class).getComponent(BodyComponent.class).setIs(BodySense.FEET_ON_GROUND);
+                contact.maskFirstEntity().getComponent(BodyComponent.class).setIs(BodySense.FEET_ON_GROUND);
             } else if (contact.acceptMask(FixtureType.HEAD, FixtureType.BLOCK)) {
-                contact.getMaskFirstUserData(Entity.class).getComponent(BodyComponent.class).setIs(BodySense.HEAD_TOUCHING_BLOCK);
+                contact.maskFirstEntity().getComponent(BodyComponent.class).setIs(BodySense.HEAD_TOUCHING_BLOCK);
             }
         }
 
         @Override
         public void endContact(Contact contact, float delta) {
             if (contact.acceptMask(FixtureType.FEET, FixtureType.BLOCK)) {
-                Entity entity = contact.getMaskFirstUserData(Entity.class);
+                Entity entity = contact.maskFirstEntity();
                 entity.getComponent(BodyComponent.class).setIsNot(BodySense.FEET_ON_GROUND);
                 if (entity instanceof TestPlayer testPlayer) {
                     testPlayer.setW_button_task(W_BUTTON_TASK.AIR_DASH);
                 }
             } else if (contact.acceptMask(FixtureType.HEAD, FixtureType.BLOCK)) {
-                contact.getMaskFirstUserData(Entity.class).getComponent(BodyComponent.class).setIsNot(BodySense.HEAD_TOUCHING_BLOCK);
+                contact.maskFirstEntity().getComponent(BodyComponent.class).setIsNot(BodySense.HEAD_TOUCHING_BLOCK);
             }
         }
 
@@ -192,8 +196,7 @@ public class TestMegamanShooting extends ScreenAdapter {
         bodyComponent1.setGravityOn(false);
         bodyComponent1.set(0f, 0f, 20f * PPM, PPM);
         bodyComponent1.setFriction(.035f, .05f);
-        Fixture block1 = new Fixture(FixtureType.BLOCK);
-        block1.setUserData(entity1);
+        Fixture block1 = new Fixture(entity1, FixtureType.BLOCK);
         block1.set(0f, 0f, 20f * PPM, PPM);
         bodyComponent1.addFixture(block1);
         entity1.addComponent(bodyComponent1);
@@ -208,8 +211,7 @@ public class TestMegamanShooting extends ScreenAdapter {
         bodyComponent2.setGravityOn(false);
         bodyComponent2.setFriction(.035f, .05f);
         bodyComponent2.set(23f * PPM, 0f, 20f * PPM, PPM);
-        Fixture block2 = new Fixture(FixtureType.BLOCK);
-        block2.setUserData(entity2);
+        Fixture block2 = new Fixture(entity2, FixtureType.BLOCK);
         block2.set(23f * PPM, 0f, 20f * PPM, PPM);
         bodyComponent2.addFixture(block2);
         entity2.addComponent(bodyComponent2);
@@ -224,8 +226,7 @@ public class TestMegamanShooting extends ScreenAdapter {
         bodyComponent3.setGravityOn(false);
         bodyComponent3.setFriction(.05f, .75f);
         bodyComponent3.set(10f * PPM, 2f * PPM, PPM, 30f * PPM);
-        Fixture block3 = new Fixture(FixtureType.BLOCK);
-        block3.setUserData(entity3);
+        Fixture block3 = new Fixture(entity3, FixtureType.BLOCK);
         block3.set(10f * PPM, 2f * PPM, PPM, 30f * PPM);
         bodyComponent3.addFixture(block3);
         entity3.addComponent(bodyComponent3);
@@ -240,8 +241,7 @@ public class TestMegamanShooting extends ScreenAdapter {
         bodyComponent4.setGravityOn(false);
         bodyComponent4.setFriction(.05f, .75f);
         bodyComponent4.set(4f * PPM, 1.65f * PPM, 10f * PPM, PPM);
-        Fixture block4 = new Fixture(FixtureType.BLOCK);
-        block4.setUserData(entity4);
+        Fixture block4 = new Fixture(entity4, FixtureType.BLOCK);
         block4.set(4f * PPM, 1.5f * PPM, 10f * PPM, PPM);
         bodyComponent4.addFixture(block4);
         entity4.addComponent(bodyComponent4);
@@ -271,13 +271,11 @@ public class TestMegamanShooting extends ScreenAdapter {
                 bodyComponent.setGravity(-20f * PPM);
             }
         });
-        Fixture feet = new Fixture(FixtureType.FEET);
-        feet.setUserData(player);
+        Fixture feet = new Fixture(player, FixtureType.FEET);
         feet.setSize(9f, 3f);
         feet.setOffset(0f, -PPM / 2f);
         bodyComponent.addFixture(feet);
-        Fixture head = new Fixture(FixtureType.HEAD);
-        head.setUserData(player);
+        Fixture head = new Fixture(player, FixtureType.HEAD);
         head.setSize(7f, 5f);
         head.setOffset(0f, PPM / 2f);
         bodyComponent.addFixture(head);

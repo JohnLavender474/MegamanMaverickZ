@@ -11,7 +11,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.game.ConstVals.WorldVals;
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.screens.levels.LevelCameraFocusable;
 import com.game.screens.levels.LevelCameraManager;
 import com.game.utils.Direction;

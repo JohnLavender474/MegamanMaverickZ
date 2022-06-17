@@ -1,7 +1,7 @@
 package com.game.controllers;
 
 import com.game.Component;
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.System;
 import lombok.RequiredArgsConstructor;
 

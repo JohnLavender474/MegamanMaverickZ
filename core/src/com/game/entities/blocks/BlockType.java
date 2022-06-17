@@ -1,4 +1,4 @@
-package com.game.blocks;
+package com.game.entities.blocks;
 
 import lombok.AccessLevel;
 import lombok.Getter;

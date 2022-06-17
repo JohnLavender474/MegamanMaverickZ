@@ -12,14 +12,14 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.game.megaman.behaviors.MegamanRun;
+import com.game.entities.megaman.behaviors.MegamanRun;
 import lombok.RequiredArgsConstructor;
 
 import static com.game.ConstVals.ViewVals.*;
 
 /**
  * Simply tests that each grid rectangle is 32 x 32 pixels and moves in any direction at speed
- * {@link com.game.megaman.behaviors.MegamanRun#RUN_SPEED} world units per second.
+ * {@link com.game.entities.megaman.behaviors.MegamanRun#RUN_SPEED} world units per second.
  */
 @RequiredArgsConstructor
 public class TestPPMAndMovementSpeedsScreen extends ScreenAdapter {

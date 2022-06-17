@@ -1,4 +1,4 @@
-package com.game.megaman;
+package com.game.entities.megaman;
 
 /**
  * Megaman's various weapons.

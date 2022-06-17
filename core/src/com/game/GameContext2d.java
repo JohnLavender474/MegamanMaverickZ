@@ -6,11 +6,10 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.game.ConstVals.GameScreen;
 import com.game.ConstVals.RenderingGround;
-import com.game.controllers.ControllerButton;
 import com.game.controllers.IController;
+import com.game.entities.Entity;
 
 import java.util.Collection;
-import java.util.Map;
 
 /**
  * Represents the essentials for a 2D game, including game state management, entity and systems management, controller

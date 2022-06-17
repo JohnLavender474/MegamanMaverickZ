@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.game.Component;
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.System;
 import com.game.utils.Updatable;
 import lombok.RequiredArgsConstructor;

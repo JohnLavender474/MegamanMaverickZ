@@ -1,7 +1,7 @@
 package com.game.core;
 
 import com.game.Component;
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.utils.exceptions.ClashException;
 import org.junit.Before;
 import org.junit.Test;

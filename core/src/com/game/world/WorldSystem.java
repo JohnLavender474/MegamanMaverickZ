@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
 import com.game.System;
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.utils.Direction;
 import com.game.utils.Updatable;
 import lombok.RequiredArgsConstructor;

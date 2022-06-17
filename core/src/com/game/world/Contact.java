@@ -2,6 +2,7 @@ package com.game.world;
 
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
+import com.game.entities.Entity;
 import com.game.utils.Pair;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -45,25 +46,40 @@ public class Contact {
     }
 
     /**
-     * Get first user data.
+     * Checks if {@link Fixture#getFixtureType()} of either {@link #fixture1} or {@link #fixture2} matches the supplied
+     * {@link FixtureType} argument. If so, then the first object of {@link #mask} will be set to the matching fixture,
+     * and the other fixture will be set as the mask's second argument.
      *
-     * @param <T>    the type parameter
-     * @param tClass the t class
-     * @return the first user data
+     * @param fixtureType the fixture type
+     * @return if the mask is accepted
      */
-    public <T> T getMaskFirstUserData(Class<T> tClass) {
-        return mask.first().getUserData(tClass);
+    public boolean acceptMask(FixtureType fixtureType) {
+        if (fixture1.getFixtureType().equals(fixtureType)) {
+            mask = new Pair<>(fixture1, fixture2);
+            return true;
+        } else if (fixture2.getFixtureType().equals(fixtureType)) {
+            mask = new Pair<>(fixture2, fixture1);
+            return true;
+        }
+        return false;
     }
 
     /**
-     * Get second user data.
+     * Fetches the {@link Entity} of the first {@link Fixture} contained in {@link #getMask()}.
      *
-     * @param <T>    the type parameter
-     * @param tClass the t class
-     * @return the second user data
+     * @return the entity
      */
-    public <T> T getMaskSecondUserData(Class<T> tClass) {
-        return mask.second().getUserData(tClass);
+    public Entity maskFirstEntity() {
+        return mask.first().getEntity();
+    }
+
+    /**
+     * Fetches the {@link Entity} of the second {@link Fixture} contained in {@link #getMask()}.
+     *
+     * @return the entity
+     */
+    public Entity maskSecondEntity() {
+        return mask.second().getEntity();
     }
 
     @Override

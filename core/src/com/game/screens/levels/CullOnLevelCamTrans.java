@@ -1,6 +1,6 @@
 package com.game.screens.levels;
 
-import com.game.Entity;
+import com.game.entities.Entity;
 
 /**
  * Marker interface that marks {@link Entity} instance to be removed on initialization of

@@ -1,5 +1,6 @@
-package com.game;
+package com.game.entities;
 
+import com.game.Component;
 import com.game.utils.exceptions.ClashException;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,12 +10,19 @@ import java.util.*;
 import static com.game.utils.UtilMethods.objName;
 
 /**
- * Entity instances act simply as a conglomeration of {@link Component} instances.
+ * Entity instances act mostly as a conglomeration of {@link Component} instances.
  */
 public class Entity {
 
     private final Map<Class<? extends Component>, Component> components = new HashMap<>();
     @Getter @Setter private boolean markedForRemoval;
+
+    /**
+     * Die.
+     */
+    public void die() {
+        setMarkedForRemoval(true);
+    }
 
     /**
      * Fetches the {@link Component} instances mapped to the provided {@link Class<Component>} if it exists.
@@ -42,14 +50,12 @@ public class Entity {
      * Add a {@link Component} to this Entity.
      *
      * @param component the Component to be added
-     * @throws ClashException thrown if there is already a Component mapped to {@link Component#getClass()} of the
-     *                        provided Component.
+     * @throws ClashException thrown if there is already a Component mapped to {@link Component#getClass()} of the provided Component.
      */
     public void addComponent(Component component)
             throws ClashException {
         if (components.containsKey(component.getClass())) {
-            throw new ClashException("new component " + objName(component),
-                                     "existing component " + objName(component) + " in " + this);
+            throw new ClashException("new component " + objName(component), "existing component " + objName(component) + " in " + this);
         }
         components.put(component.getClass(), component);
     }

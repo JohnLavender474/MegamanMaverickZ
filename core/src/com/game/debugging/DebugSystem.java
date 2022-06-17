@@ -6,12 +6,10 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
 import com.game.Component;
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.System;
-import com.game.utils.KeyValuePair;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Queue;
 import java.util.Set;
 
 @RequiredArgsConstructor

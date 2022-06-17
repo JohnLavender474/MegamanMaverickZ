@@ -8,10 +8,7 @@ public enum FixtureType {
     BLOCK,
     LADDER,
     SHIELD,
+    HIT_BOX,
     PROJECTILE,
-    ENEMY_HIT_BOX,
-    GRAVITY_SHIFT,
-    PLAYER_HIT_BOX,
-    WALL_SLIDE_SENSOR,
-    PROJECTILE_SPAWN_POS
+    GRAVITY_SHIFT
 }

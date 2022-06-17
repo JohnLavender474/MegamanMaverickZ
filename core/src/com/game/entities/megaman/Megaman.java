@@ -1,4 +1,4 @@
-package com.game.megaman;
+package com.game.entities.megaman;
 
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Rectangle;
@@ -6,11 +6,11 @@ import com.game.ConstVals.TextureAssets;
 import com.game.GameContext2d;
 import com.game.animations.AnimationComponent;
 import com.game.animations.Animator;
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.animations.TimedAnimation;
 import com.game.behaviors.BehaviorComponent;
 import com.game.health.HealthComponent;
-import com.game.megaman.behaviors.MegamanRun;
+import com.game.entities.megaman.behaviors.MegamanRun;
 import com.game.screens.levels.LevelCameraFocusable;
 import com.game.sprites.SpriteComponent;
 import com.game.utils.*;
@@ -57,8 +57,7 @@ public class Megaman extends Entity implements Faceable, LevelCameraFocusable {
         addComponent(defineBodyComponent());
         addComponent(defineHealthComponent());
         addComponent(defineBehaviorComponent(gameContext));
-        addComponent(defineAnimationComponent(gameContext.loadAsset(
-                TextureAssets.MEGAMAN_TEXTURE_ATLAS, TextureAtlas.class)));
+        addComponent(defineAnimationComponent(gameContext.loadAsset(TextureAssets.MEGAMAN_TEXTURE_ATLAS, TextureAtlas.class)));
         addComponent(defineSpriteComponent());
     }
 
