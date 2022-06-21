@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 import com.game.ConstVals.TextureAssets;
-import com.game.GameContext2d;
+import com.game.core.GameContext2d;
 import com.game.screens.menu.MenuButton;
 import com.game.screens.menu.MenuScreen;
 import com.game.utils.Direction;
@@ -69,7 +69,7 @@ public class MainMenuScreen extends MenuScreen {
             row -= 0.75f;
         }
         setMenuButton(MainMenuButton.GAME_START.name());
-        TextureAtlas textureAtlas = gameContext.loadAsset(
+        TextureAtlas textureAtlas = gameContext.getAsset(
                 TextureAssets.DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class);
         arrow.setRegion(textureAtlas.findRegion("Arrow"));
         arrow.setSize(0.5f * PPM, 0.5f * PPM);

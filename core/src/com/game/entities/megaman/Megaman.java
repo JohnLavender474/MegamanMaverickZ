@@ -3,19 +3,18 @@ package com.game.entities.megaman;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Rectangle;
 import com.game.ConstVals.TextureAssets;
-import com.game.GameContext2d;
+import com.game.core.GameContext2d;
 import com.game.animations.AnimationComponent;
 import com.game.animations.Animator;
-import com.game.entities.Damageable;
-import com.game.entities.Damager;
 import com.game.entities.Entity;
 import com.game.animations.TimedAnimation;
 import com.game.behaviors.BehaviorComponent;
+import com.game.entities.contracts.Faceable;
+import com.game.entities.contracts.Facing;
 import com.game.health.HealthComponent;
 import com.game.entities.megaman.behaviors.MegamanRun;
 import com.game.screens.levels.LevelCameraFocusable;
 import com.game.sprites.SpriteComponent;
-import com.game.utils.*;
 import com.game.utils.Timer;
 import com.game.world.BodyComponent;
 import com.game.world.BodyType;
@@ -33,7 +32,7 @@ import static com.game.behaviors.BehaviorType.*;
  */
 @Getter
 @Setter
-public class Megaman extends Entity implements Damageable, Faceable, LevelCameraFocusable {
+public class Megaman extends Entity implements Faceable, LevelCameraFocusable {
 
     public static final float MEGAMAN_GRAVITY = -7f;
 
@@ -59,23 +58,18 @@ public class Megaman extends Entity implements Damageable, Faceable, LevelCamera
         addComponent(defineBodyComponent());
         addComponent(defineHealthComponent());
         addComponent(defineBehaviorComponent(gameContext));
-        addComponent(defineAnimationComponent(gameContext.loadAsset(TextureAssets.MEGAMAN_TEXTURE_ATLAS, TextureAtlas.class)));
+        addComponent(defineAnimationComponent(gameContext.getAsset(TextureAssets.MEGAMAN_TEXTURE_ATLAS, TextureAtlas.class)));
         addComponent(defineSpriteComponent());
     }
 
     @Override
-    public boolean canBeDamagedBy(Damager damager) {
-        return false;
-    }
-
-    @Override
-    public void takeDamageFrom(Damager damager) {
-
-    }
-
-    @Override
-    public Rectangle getBoundingBox() {
+    public Rectangle getCurrentBoundingBox() {
         return getComponent(BodyComponent.class).getCollisionBox();
+    }
+
+    @Override
+    public Rectangle getPriorBoundingBox() {
+        return getComponent(BodyComponent.class).getPriorCollisionBox();
     }
 
     private BodyComponent defineBodyComponent() {

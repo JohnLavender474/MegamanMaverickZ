@@ -3,13 +3,9 @@ package com.game.entities.blocks;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Vector2;
 import com.game.entities.Entity;
-import com.game.utils.Trajectory;
 import com.game.world.BodyComponent;
 import com.game.world.BodyType;
-import com.game.world.Fixture;
-import com.game.world.FixtureType;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,7 +44,7 @@ public class BlockFactory {
      */
     protected void define(Entity entity, RectangleMapObject rectangleMapObject) {
         BodyComponent bodyComponent = new BodyComponent(BodyType.STATIC);
-        defineBodyComponent(entity, bodyComponent, rectangleMapObject);
+        defineBodyComponent(bodyComponent, rectangleMapObject);
         entity.addComponent(bodyComponent);
     }
 
@@ -58,11 +54,10 @@ public class BlockFactory {
      * @param bodyComponent      the body component
      * @param rectangleMapObject the rectangle map object
      */
-    protected void defineBodyComponent(Entity entity, BodyComponent bodyComponent, RectangleMapObject rectangleMapObject) {
+    protected void defineBodyComponent(BodyComponent bodyComponent, RectangleMapObject rectangleMapObject) {
         bodyComponent.getCollisionBox().set(rectangleMapObject.getRectangle());
         bodyComponent.setGravity(gravity(rectangleMapObject));
         bodyComponent.setFriction(friction(rectangleMapObject));
-        defineWallSlideSensors(entity, bodyComponent, rectangleMapObject);
     }
 
     /**
@@ -91,29 +86,9 @@ public class BlockFactory {
         return friction;
     }
 
-    protected void defineWallSlideSensors(Entity entity, BodyComponent bodyComponent, RectangleMapObject rectangleMapObject) {
-        Boolean canWallSlideLeft = rectangleMapObject.getProperties().get(
-                "CanWallSlideLeft", Boolean.class);
-        if (canWallSlideLeft != null && canWallSlideLeft) {
-            Fixture wallSlideLeft = new Fixture(FixtureType.WALL_SLIDE_SENSOR);
-            wallSlideLeft.setUserData(entity);
-            wallSlideLeft.setSize(3f, bodyComponent.getSize().y - 10f);
-            wallSlideLeft.setOffset(-bodyComponent.getSize().x / 2f, 0f);
-            bodyComponent.getFixtures().add(wallSlideLeft);
-        }
-        Boolean canWallSlideRight = rectangleMapObject.getProperties().get(
-                "CanWallSlideRight", Boolean.class);
-        if (canWallSlideRight != null && canWallSlideRight) {
-            Fixture wallSlideRight = new Fixture(FixtureType.WALL_SLIDE_SENSOR);
-            wallSlideRight.setUserData(entity);
-            wallSlideRight.setSize(3f, bodyComponent.getSize().y - 10f);
-            wallSlideRight.setOffset(bodyComponent.getSize().x / 2f, 0f);
-            bodyComponent.getFixtures().add(wallSlideRight);
-        }
-    }
-
+    /*
     protected void defineMovement(BodyComponent bodyComponent, RectangleMapObject rectangleMapObject) {
-        String movements = rectangleMapObject.getProperties().get("Movements", String.class);
+        String movements = rectangleMapObject.getProperties().getAsWholeNumber("Movements", String.class);
         if (movements == null) {
             return;
         }
@@ -136,5 +111,6 @@ public class BlockFactory {
         }
         return trajectories;
     }
+     */
 
 }

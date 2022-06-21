@@ -32,7 +32,12 @@ public class LevelCameraManagerTest {
         }
 
         @Override
-        public Rectangle getBoundingBox() {
+        public Rectangle getCurrentBoundingBox() {
+            return this;
+        }
+
+        @Override
+        public Rectangle getPriorBoundingBox() {
             return this;
         }
 

@@ -4,7 +4,7 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.game.ConstVals.RenderingGround;
-import com.game.GameContext2d;
+import com.game.core.GameContext2d;
 import com.game.controllers.ControllerButton;
 import com.game.utils.Direction;
 import lombok.Getter;

@@ -1,6 +1,7 @@
 package com.game.utils;
 
 import com.badlogic.gdx.math.Vector2;
+import com.game.updatables.Updatable;
 import lombok.Getter;
 
 @Getter

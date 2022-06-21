@@ -12,7 +12,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.game.ConstVals.MegamanVals;
-import com.game.GameContext2d;
+import com.game.core.GameContext2d;
 import com.game.entities.megaman.Megaman;
 import com.game.entities.megaman.MegamanStats;
 import com.game.utils.Direction;
@@ -101,17 +101,17 @@ public class LevelScreen extends ScreenAdapter {
         /*
         // Load health bar UI
         TextureRegion containerRegion = gameContext
-                .loadAsset(TextureAssets.DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class)
+                .getAsset(TextureAssets.DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class)
                 .findRegion("Black");
         Rectangle containerBounds = new Rectangle(PPM, 9.875f * PPM, 0.5f * PPM, 2.625f * PPM);
         TextureRegion healthBitRegion = gameContext
-                .loadAsset(TextureAssets.HEALTH_WEAPON_STATS_TEXTURE_ATLAS, TextureAtlas.class)
+                .getAsset(TextureAssets.HEALTH_WEAPON_STATS_TEXTURE_ATLAS, TextureAtlas.class)
                 .findRegion("HealthbarFullBit");
         healthBarUi = new HealthBarUi(uiViewport.getCamera(),
                                       containerRegion, containerBounds,
                                       healthBitRegion, MegamanVals.MAX_HEALTH_BITS);
         TextureRegion blackBoxRegion = gameContext
-                .loadAsset(TextureAssets.DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class)
+                .getAsset(TextureAssets.DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class)
                 .findRegion("Black");
         // Load black box sprite for fading in/out
         blackBoxSprite.setRegion(blackBoxRegion);

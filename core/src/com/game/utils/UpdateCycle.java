@@ -1,5 +1,6 @@
 package com.game.utils;
 
+import com.game.updatables.Updatable;
 import com.game.utils.exceptions.InvalidArgumentException;
 
 import java.util.LinkedHashMap;

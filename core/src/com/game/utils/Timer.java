@@ -1,6 +1,7 @@
 package com.game.utils;
 
 import com.game.animations.TimeMarkedRunnable;
+import com.game.updatables.Updatable;
 import com.game.utils.exceptions.InvalidArgumentException;
 import com.game.utils.exceptions.InvalidFieldException;
 import lombok.Getter;
@@ -100,6 +101,16 @@ public class Timer implements Updatable, Resettable {
     }
 
     /**
+     * Is the provided time greater than or equal to this timer's time.
+     *
+     * @param time the time
+     * @return if the provided time is greater than or equal to this timer's time.
+     */
+    public boolean isTimeGreaterThanOrEqualTo(float time) {
+        return this.time <= time;
+    }
+
+    /**
      * Returns if {@link #time} is greater than or equal to {@link #duration} and was not previously.
      *
      * @return true is time just became greater than or equal to duration
@@ -108,6 +119,9 @@ public class Timer implements Updatable, Resettable {
         return justFinished;
     }
 
+    /**
+     * Sets to end.
+     */
     public void setToEnd() {
         time = duration;
     }

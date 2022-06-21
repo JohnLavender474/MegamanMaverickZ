@@ -4,11 +4,10 @@ public enum FixtureType {
     HEAD,
     FEET,
     ITEM,
-    DEATH,
     BLOCK,
     LADDER,
     SHIELD,
     HIT_BOX,
-    PROJECTILE,
+    DAMAGING_BOX,
     GRAVITY_SHIFT
 }

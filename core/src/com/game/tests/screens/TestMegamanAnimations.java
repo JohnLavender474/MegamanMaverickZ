@@ -26,6 +26,8 @@ import com.game.behaviors.BehaviorType;
 import com.game.debugging.DebugComponent;
 import com.game.debugging.DebugHandle;
 import com.game.debugging.DebugSystem;
+import com.game.entities.contracts.Faceable;
+import com.game.entities.contracts.Facing;
 import com.game.entities.megaman.behaviors.MegamanRun;
 import com.game.sprites.SpriteComponent;
 import com.game.sprites.SpriteSystem;

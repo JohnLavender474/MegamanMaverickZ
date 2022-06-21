@@ -1,8 +1,8 @@
 package com.game.trajectories;
 
-import com.game.Component;
+import com.game.core.Component;
 import com.game.entities.Entity;
-import com.game.System;
+import com.game.core.System;
 import com.game.utils.Trajectory;
 import com.game.world.BodyComponent;
 

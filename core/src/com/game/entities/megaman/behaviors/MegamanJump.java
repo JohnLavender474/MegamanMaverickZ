@@ -1,6 +1,6 @@
 package com.game.entities.megaman.behaviors;
 
-import com.game.GameContext2d;
+import com.game.core.GameContext2d;
 import com.game.behaviors.Behavior;
 import com.game.behaviors.BehaviorComponent;
 import com.game.behaviors.BehaviorType;

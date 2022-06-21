@@ -1,6 +1,6 @@
 package com.game.entities;
 
-import com.game.Component;
+import com.game.core.Component;
 import com.game.utils.exceptions.ClashException;
 import lombok.Getter;
 import lombok.Setter;

@@ -175,6 +175,7 @@
         <map type="IndividualSpriteSettingsMap">
             <key type="filename">../Frames/Megaman/AirDash.png</key>
             <key type="filename">../Frames/Megaman/Beam.png</key>
+            <key type="filename">../Frames/Megaman/ClimbShoot.png</key>
             <key type="filename">../Frames/Megaman/FinishClimb.png</key>
             <key type="filename">../Frames/Megaman/GroundSlide.png</key>
             <key type="filename">../Frames/Megaman/InitRun.png</key>
@@ -182,6 +183,7 @@
             <key type="filename">../Frames/Megaman/Jump.png</key>
             <key type="filename">../Frames/Megaman/JumpShoot.png</key>
             <key type="filename">../Frames/Megaman/SlipSlide.png</key>
+            <key type="filename">../Frames/Megaman/SlipSlideShoot.png</key>
             <key type="filename">../Frames/Megaman/StandShoot.png</key>
             <key type="filename">../Frames/Megaman/WallSlide.png</key>
             <key type="filename">../Frames/Megaman/WallSlideShoot.png</key>

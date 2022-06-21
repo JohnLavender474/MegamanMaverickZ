@@ -26,12 +26,21 @@ public class Percentage implements Comparable<Percentage> {
     }
 
     /**
-     * Get percentage.
+     * Get percentage as whole number between 0 and 100.
      *
      * @return the integer percentage
      */
-    public Integer get() {
+    public Integer getAsWholeNumber() {
         return percentage;
+    }
+
+    /**
+     * Get percentage as decimal between 0 and 1.
+     *
+     * @return the as decimal
+     */
+    public Float getAsDecimal() {
+        return percentage / 100f;
     }
 
     /**
@@ -76,7 +85,7 @@ public class Percentage implements Comparable<Percentage> {
 
     @Override
     public int compareTo(Percentage o) {
-        return percentage.compareTo(o.get());
+        return percentage.compareTo(o.getAsWholeNumber());
     }
 
 }

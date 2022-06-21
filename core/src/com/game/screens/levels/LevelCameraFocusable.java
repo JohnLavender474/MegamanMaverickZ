@@ -9,20 +9,38 @@ import com.badlogic.gdx.math.Vector2;
 public interface LevelCameraFocusable {
 
     /**
-     * Gets bounding box of object.
+     * Get bounding box of object.
      *
      * @return the bounding box
      */
-    Rectangle getBoundingBox();
+    Rectangle getCurrentBoundingBox();
 
     /**
-     * Gets focus point of object.
+     * Get prior bounding box.
+     *
+     * @return the prior bounding box
+     */
+    Rectangle getPriorBoundingBox();
+
+    /**
+     * Get focus point of object.
      *
      * @return the focus
      */
     default Vector2 getFocus() {
         Vector2 center = new Vector2();
-        getBoundingBox().getCenter(center);
+        getCurrentBoundingBox().getCenter(center);
+        return center;
+    }
+
+    /**
+     * Get prior focus.
+     *
+     * @return the prior focus
+     */
+    default Vector2 getPriorFocus() {
+        Vector2 center = new Vector2();
+        getPriorBoundingBox().getCenter(center);
         return center;
     }
 

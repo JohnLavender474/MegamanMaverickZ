@@ -4,7 +4,7 @@ package com.game.animations;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.game.utils.KeyValuePair;
 import com.game.utils.Resettable;
-import com.game.utils.Updatable;
+import com.game.updatables.Updatable;
 import lombok.Getter;
 import lombok.Setter;
 

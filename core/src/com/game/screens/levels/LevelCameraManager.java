@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.game.updatables.Updatable;
 import com.game.utils.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -74,7 +75,7 @@ public class LevelCameraManager implements Updatable {
      */
     public boolean isFocusableBoundingBoxInAnyGameRoom() {
         return gameRooms.keySet().stream().anyMatch(
-                gameRoom -> gameRoom.overlaps(levelCameraFocusable.getBoundingBox()));
+                gameRoom -> gameRoom.overlaps(levelCameraFocusable.getCurrentBoundingBox()));
     }
 
     private Rectangle nextGameRoom() {
@@ -100,8 +101,10 @@ public class LevelCameraManager implements Updatable {
                 currentGameRoom = nextGameRoom();
             } else if (currentGameRoom.contains(levelCameraFocusable.getFocus())) {
                 Vector2 focus = levelCameraFocusable.getFocus();
-                camera.position.x = focus.x;
-                camera.position.y = focus.y;
+                Vector2 priorFocus = levelCameraFocusable.getPriorFocus();
+                Vector2 interpolation = UtilMethods.interpolate(priorFocus, focus, delta);
+                camera.position.x = interpolation.x;
+                camera.position.y = interpolation.y;
                 if (camera.position.y > (currentGameRoom.y + currentGameRoom.height) - camera.viewportHeight / 2.0f) {
                     camera.position.y = (currentGameRoom.y + currentGameRoom.height) - camera.viewportHeight / 2.0f;
                 }
@@ -122,7 +125,7 @@ public class LevelCameraManager implements Updatable {
                 }
                 Rectangle overlap = new Rectangle();
                 transitionDirection = UtilMethods.getOverlapPushDirection(
-                        levelCameraFocusable.getBoundingBox(), currentGameRoom, overlap);
+                        levelCameraFocusable.getCurrentBoundingBox(), currentGameRoom, overlap);
                 // go ahead and set current game room to next room, which needs to be done even if
                 // transition direction is null
                 currentGameRoom = nextGameRoom;

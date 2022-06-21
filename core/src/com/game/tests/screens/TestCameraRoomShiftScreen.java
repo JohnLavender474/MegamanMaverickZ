@@ -34,10 +34,17 @@ import static com.game.screens.levels.LevelScreen.MEGAMAN_DELTA_ON_CAM_TRANS;
 public class TestCameraRoomShiftScreen extends ScreenAdapter {
 
     private static class TestEntity extends Entity implements LevelCameraFocusable {
+
         @Override
-        public Rectangle getBoundingBox() {
+        public Rectangle getCurrentBoundingBox() {
             return getComponent(BodyComponent.class).getCollisionBox();
         }
+
+        @Override
+        public Rectangle getPriorBoundingBox() {
+            return getComponent(BodyComponent.class).getPriorCollisionBox();
+        }
+
     }
 
     private TestEntity player;

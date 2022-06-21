@@ -1,4 +1,4 @@
-package com.game;
+package com.game.core;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
@@ -56,11 +56,10 @@ import static com.game.controllers.ControllerUtils.*;
 @Getter
 public class MegamanMaverick extends Game implements GameContext2d {
 
+    private final Map<ControllerButton, ControllerButtonStatus> controllerButtons = new EnumMap<>(ControllerButton.class);
     private final Map<RenderingGround, Viewport> viewports = new EnumMap<>(RenderingGround.class);
-    private final Queue<KeyValuePair<Rectangle, Color>> debugQueue = new ArrayDeque<>();
-    private final Map<ControllerButton, ControllerButtonStatus> controllerButtons =
-            new EnumMap<>(ControllerButton.class);
     private final Map<GameScreen, Screen> screens = new EnumMap<>(GameScreen.class);
+    private final Queue<KeyValuePair<Rectangle, Color>> debugQueue = new ArrayDeque<>();
     private final Map<Class<? extends System>, System> systems = new LinkedHashMap<>();
     private final List<Disposable> disposables = new ArrayList<>();
     private final Map<String, Object> blackBoard = new HashMap<>();
@@ -74,8 +73,7 @@ public class MegamanMaverick extends Game implements GameContext2d {
     public void create() {
         // viewports
         for (RenderingGround renderingGround : RenderingGround.values()) {
-            viewports.put(renderingGround, new FitViewport(
-                    VIEW_WIDTH * PPM, VIEW_HEIGHT * PPM));
+            viewports.put(renderingGround, new FitViewport(VIEW_WIDTH * PPM, VIEW_HEIGHT * PPM));
         }
         // controller buttons
         for (ControllerButton controllerButton : ControllerButton.values()) {
@@ -128,22 +126,18 @@ public class MegamanMaverick extends Game implements GameContext2d {
         // define systems, linked hash map retains insertion order so define iteration order here
         addSystem(new HealthSystem());
         addSystem(new ControllerSystem(this));
-        addSystem(new WorldSystem(
-                new WorldContactListenerImpl(),
+        addSystem(new WorldSystem(new WorldContactListenerImpl(),
                 WorldVals.AIR_RESISTANCE, WorldVals.FIXED_TIME_STEP));
         addSystem(new BehaviorSystem());
         addSystem(new AnimationSystem());
-        addSystem(new SpriteSystem(
-                (OrthographicCamera) viewports.get(PLAYGROUND).getCamera(), getSpriteBatch()));
-        addSystem(new DebugSystem(getShapeRenderer(),
-                                  (OrthographicCamera) viewports.get(PLAYGROUND).getCamera()));
+        addSystem(new SpriteSystem((OrthographicCamera) viewports.get(PLAYGROUND).getCamera(), getSpriteBatch()));
+        addSystem(new DebugSystem(getShapeRenderer(), (OrthographicCamera) viewports.get(PLAYGROUND).getCamera()));
         // other
         putBlackboardObject(MegamanVals.MEGAMAN_STATS, new MegamanStats());
         setGameState(GameState.IN_MENU);
         // set screen
         putScreen(GameScreen.MAIN_MENU, new MainMenuScreen(this));
-        putScreen(GameScreen.TEST_LEVEL_1,
-                  new LevelScreen(this, "tiledmaps/tmx/test1.tmx"));
+        putScreen(GameScreen.TEST_LEVEL_1, new LevelScreen(this, "tiledmaps/tmx/test1.tmx"));
         setScreen(GameScreen.TEST_LEVEL_1);
     }
 
@@ -186,6 +180,26 @@ public class MegamanMaverick extends Game implements GameContext2d {
 
     @Override
     public void updateSystems(float delta) {
+        Iterator<Entity> entityIterator = entities.iterator();
+        while (entityIterator.hasNext()) {
+            Entity entity = entityIterator.next();
+            if (entity.isMarkedForRemoval()) {
+                systems.values().forEach(system -> {
+                    if (system.entityIsMember(entity)) {
+                        system.removeEntity(entity);
+                    }
+                });
+                entityIterator.remove();
+            } else {
+                systems.values().forEach(system -> {
+                    if (!system.entityIsMember(entity) && system.qualifiesMembership(entity)) {
+                        system.addEntity(entity);
+                    } else if (system.entityIsMember(entity) && !system.qualifiesMembership(entity)) {
+                        system.removeEntity(entity);
+                    }
+                });
+            }
+        }
         systems.values().forEach(system -> system.update(delta));
     }
 
@@ -200,7 +214,7 @@ public class MegamanMaverick extends Game implements GameContext2d {
     }
 
     @Override
-    public <T> T loadAsset(String key, Class<T> tClass) {
+    public <T> T getAsset(String key, Class<T> tClass) {
         return assetManager.get(key, tClass);
     }
 
@@ -227,8 +241,7 @@ public class MegamanMaverick extends Game implements GameContext2d {
     @Override
     public boolean isPressed(ControllerButton controllerButton) {
         ControllerButtonStatus controllerButtonStatus = controllerButtons.get(controllerButton);
-        return controllerButtonStatus == ControllerButtonStatus.IS_JUST_PRESSED ||
-                controllerButtonStatus == ControllerButtonStatus.IS_PRESSED;
+        return controllerButtonStatus == ControllerButtonStatus.IS_JUST_PRESSED || controllerButtonStatus == ControllerButtonStatus.IS_PRESSED;
     }
     
     @Override
@@ -242,16 +255,6 @@ public class MegamanMaverick extends Game implements GameContext2d {
         Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             Gdx.app.exit();
-        }
-        Iterator<Entity> entityIterator = entities.iterator();
-        while (entityIterator.hasNext()) {
-            Entity entity = entityIterator.next();
-            if (entity.isMarkedForRemoval()) {
-                removeEntityFromSystems(entity);
-                entityIterator.remove();
-            } else {
-                filterEntityThroughSystems(entity);
-            }
         }
         updateController();
         super.render();
@@ -279,24 +282,6 @@ public class MegamanMaverick extends Game implements GameContext2d {
                 controllerButtons.replace(controllerButton, ControllerButtonStatus.IS_JUST_RELEASED);
             }
         }
-    }
-
-    private void removeEntityFromSystems(Entity entity) {
-        systems.values().forEach(system -> {
-            if (system.entityIsMember(entity)) {
-                system.removeEntity(entity);
-            }
-        });
-    }
-
-    private void filterEntityThroughSystems(Entity entity) {
-        systems.values().forEach(system -> {
-            if (!system.entityIsMember(entity) && system.qualifiesMembership(entity)) {
-                system.addEntity(entity);
-            } else if (system.entityIsMember(entity) && !system.qualifiesMembership(entity)) {
-                system.removeEntity(entity);
-            }
-        });
     }
 
     @Override

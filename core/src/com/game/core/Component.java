@@ -1,3 +1,3 @@
-package com.game;
+package com.game.core;
 
 public interface Component {}

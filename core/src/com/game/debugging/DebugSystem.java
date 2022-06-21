@@ -5,9 +5,9 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
-import com.game.Component;
+import com.game.core.Component;
 import com.game.entities.Entity;
-import com.game.System;
+import com.game.core.System;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Set;

@@ -1,12 +1,14 @@
 package com.game.sprites;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.game.Component;
+import com.game.core.Component;
 import com.game.entities.Entity;
-import com.game.System;
-import com.game.utils.Updatable;
+import com.game.core.System;
+import com.game.updatables.Updatable;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Set;
@@ -43,7 +45,11 @@ public class SpriteSystem extends System {
         if (spriteUpdater != null) {
             spriteUpdater.update(delta);
         }
-        sprite.draw(spriteBatch);
+        Texture texture = sprite.getTexture();
+        if (texture != null) {
+            texture.setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
+            sprite.draw(spriteBatch);
+        }
     }
 
     @Override

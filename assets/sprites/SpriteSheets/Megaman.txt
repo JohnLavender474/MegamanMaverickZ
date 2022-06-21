@@ -1,7 +1,7 @@
 Megaman.png
-size: 256, 448
+size: 256, 480
 format: RGBA8888
-filter: Nearest,Nearest
+filter: Linear,Linear
 repeat: none
 AirDash
   rotate: false
@@ -12,91 +12,98 @@ AirDash
   index: -1
 AirDashCharging
   rotate: false
-  xy: 128, 32
+  xy: 32, 0
   size: 64, 32
   orig: 64, 32
   offset: 0, 0
   index: -1
 Beam
   rotate: false
-  xy: 32, 0
+  xy: 96, 0
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 BeamLand
   rotate: false
-  xy: 192, 32
+  xy: 128, 0
   size: 64, 32
   orig: 64, 32
   offset: 0, 0
   index: -1
 Climb
   rotate: false
-  xy: 0, 64
+  xy: 192, 0
   size: 64, 32
   orig: 64, 32
   offset: 0, 0
   index: -1
 ClimbCharging
   rotate: false
-  xy: 64, 64
+  xy: 0, 32
   size: 64, 32
   orig: 64, 32
   offset: 0, 0
   index: -1
+ClimbShoot
+  rotate: false
+  xy: 64, 32
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
 Damaged
   rotate: false
-  xy: 0, 128
+  xy: 96, 32
   size: 96, 32
   orig: 96, 32
   offset: 0, 0
   index: -1
 FinishClimb
   rotate: false
-  xy: 64, 0
+  xy: 192, 32
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 FinishClimbCharging
   rotate: false
-  xy: 128, 64
+  xy: 0, 64
   size: 64, 32
   orig: 64, 32
   offset: 0, 0
   index: -1
 GroundSlide
   rotate: false
-  xy: 96, 0
+  xy: 64, 64
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 GroundSlideCharging
   rotate: false
-  xy: 192, 64
+  xy: 96, 64
   size: 64, 32
   orig: 64, 32
   offset: 0, 0
   index: -1
 InitRun
   rotate: false
-  xy: 128, 0
+  xy: 160, 64
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 InitRunCharging
   rotate: false
-  xy: 160, 0
+  xy: 192, 64
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 Jump
   rotate: false
-  xy: 192, 0
+  xy: 224, 64
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
@@ -110,84 +117,91 @@ JumpCharging
   index: -1
 JumpShoot
   rotate: false
-  xy: 224, 0
+  xy: 64, 96
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 Megaman
   rotate: false
-  xy: 0, 192
+  xy: 0, 128
   size: 256, 256
   orig: 256, 256
   offset: 0, 0
   index: -1
 Run
   rotate: false
-  xy: 96, 128
+  xy: 0, 384
   size: 128, 32
   orig: 128, 32
   offset: 0, 0
   index: -1
 RunCharging
   rotate: false
-  xy: 0, 160
+  xy: 128, 384
   size: 128, 32
   orig: 128, 32
   offset: 0, 0
   index: -1
 RunShoot
   rotate: false
-  xy: 128, 160
+  xy: 0, 416
   size: 128, 32
   orig: 128, 32
   offset: 0, 0
   index: -1
 SlipSlide
   rotate: false
-  xy: 0, 32
+  xy: 128, 416
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+SlipSlideShoot
+  rotate: false
+  xy: 160, 416
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 Stand
   rotate: false
-  xy: 64, 96
+  xy: 192, 416
   size: 64, 32
   orig: 64, 32
   offset: 0, 0
   index: -1
 StandCharging
   rotate: false
-  xy: 128, 96
+  xy: 0, 448
   size: 64, 32
   orig: 64, 32
   offset: 0, 0
   index: -1
 StandShoot
   rotate: false
-  xy: 32, 32
+  xy: 64, 448
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 WallSlide
   rotate: false
-  xy: 64, 32
+  xy: 96, 448
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 WallSlideCharging
   rotate: false
-  xy: 192, 96
+  xy: 128, 448
   size: 64, 32
   orig: 64, 32
   offset: 0, 0
   index: -1
 WallSlideShoot
   rotate: false
-  xy: 96, 32
+  xy: 192, 448
   size: 32, 32
   orig: 32, 32
   offset: 0, 0

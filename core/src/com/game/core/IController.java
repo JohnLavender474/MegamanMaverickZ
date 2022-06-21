@@ -1,5 +1,10 @@
-package com.game.controllers;
+package com.game.core;
 
+import com.game.controllers.ControllerButton;
+
+/**
+ * The interface Controller.
+ */
 public interface IController {
 
     /**
@@ -26,6 +31,9 @@ public interface IController {
      */
     boolean isJustReleased(ControllerButton controllerButton);
 
+    /**
+     * Update controller.
+     */
     void updateController();
 
 }

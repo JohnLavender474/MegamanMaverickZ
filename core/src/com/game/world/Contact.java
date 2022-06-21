@@ -46,25 +46,6 @@ public class Contact {
     }
 
     /**
-     * Checks if {@link Fixture#getFixtureType()} of either {@link #fixture1} or {@link #fixture2} matches the supplied
-     * {@link FixtureType} argument. If so, then the first object of {@link #mask} will be set to the matching fixture,
-     * and the other fixture will be set as the mask's second argument.
-     *
-     * @param fixtureType the fixture type
-     * @return if the mask is accepted
-     */
-    public boolean acceptMask(FixtureType fixtureType) {
-        if (fixture1.getFixtureType().equals(fixtureType)) {
-            mask = new Pair<>(fixture1, fixture2);
-            return true;
-        } else if (fixture2.getFixtureType().equals(fixtureType)) {
-            mask = new Pair<>(fixture2, fixture1);
-            return true;
-        }
-        return false;
-    }
-
-    /**
      * Fetches the {@link Entity} of the first {@link Fixture} contained in {@link #getMask()}.
      *
      * @return the entity

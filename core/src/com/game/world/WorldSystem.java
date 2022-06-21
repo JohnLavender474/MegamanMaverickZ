@@ -3,11 +3,11 @@ package com.game.world;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.Component;
-import com.game.System;
+import com.game.core.Component;
+import com.game.core.System;
 import com.game.entities.Entity;
 import com.game.utils.Direction;
-import com.game.utils.Updatable;
+import com.game.updatables.Updatable;
 import lombok.RequiredArgsConstructor;
 
 import java.util.*;
