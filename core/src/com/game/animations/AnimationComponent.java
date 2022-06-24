@@ -1,5 +1,5 @@
 package com.game.animations;
 
-import com.game.core.Component;
+import com.game.Component;
 
 public record AnimationComponent(Animator animator) implements Component {}

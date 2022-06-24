@@ -1,8 +1,8 @@
 package com.game.behaviors;
 
-import com.game.core.Component;
-import com.game.entities.Entity;
-import com.game.core.System;
+import com.game.Component;
+import com.game.Entity;
+import com.game.System;
 import com.game.updatables.Updatable;
 
 import java.util.Set;

@@ -2,15 +2,11 @@ package com.game.world;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.entities.Entity;
-import com.game.utils.ProcessState;
+import com.game.Entity;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-
-import java.util.EnumMap;
-import java.util.Map;
 
 /**
  * Defines a fixture fixed to a body. Offset is from the center of the body.

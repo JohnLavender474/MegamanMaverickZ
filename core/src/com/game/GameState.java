@@ -1,4 +1,4 @@
-package com.game.core;
+package com.game;
 
 public enum GameState {
     READY,

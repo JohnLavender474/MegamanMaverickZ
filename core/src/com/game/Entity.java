@@ -1,9 +1,7 @@
-package com.game.entities;
+package com.game;
 
-import com.game.core.Component;
 import com.game.utils.exceptions.ClashException;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.*;
 
@@ -15,13 +13,13 @@ import static com.game.utils.UtilMethods.objName;
 public class Entity {
 
     private final Map<Class<? extends Component>, Component> components = new HashMap<>();
-    @Getter @Setter private boolean markedForRemoval;
+    @Getter private boolean dead;
 
     /**
      * Die.
      */
     public void die() {
-        setMarkedForRemoval(true);
+        dead = true;
     }
 
     /**

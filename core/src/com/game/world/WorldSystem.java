@@ -3,9 +3,9 @@ package com.game.world;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.core.Component;
-import com.game.core.System;
-import com.game.entities.Entity;
+import com.game.Component;
+import com.game.System;
+import com.game.Entity;
 import com.game.utils.Direction;
 import com.game.updatables.Updatable;
 import lombok.RequiredArgsConstructor;
@@ -75,8 +75,10 @@ public class WorldSystem extends System {
                     bodyComponent.getVelocity().x = Math.min(0f, bodyComponent.getVelocity().x);
                 }
                 // Apply resistance
-                bodyComponent.getVelocity().x *= 1f / Math.max(1f, bodyComponent.getResistance().x);
-                bodyComponent.getVelocity().y *= 1f / Math.max(1f, bodyComponent.getResistance().y);
+                if (bodyComponent.isAffectedByResistance()) {
+                    bodyComponent.getVelocity().x *= 1f / Math.max(1f, bodyComponent.getResistance().x);
+                    bodyComponent.getVelocity().y *= 1f / Math.max(1f, bodyComponent.getResistance().y);
+                }
                 // Reset resistance
                 bodyComponent.setResistance(airResistance);
                 // If gravity on: if colliding down, minimum gravity is -0.5f, otherwise apply gravity
@@ -89,11 +91,9 @@ public class WorldSystem extends System {
                     }
                 }
                 // Round to 2 decimal places
-                bodyComponent.setVelocity(Math.round(bodyComponent.getVelocity().x * 100f) / 100f,
-                                          Math.round(bodyComponent.getVelocity().y * 100f) / 100f);
+                bodyComponent.setVelocity(Math.round(bodyComponent.getVelocity().x * 100f) / 100f, Math.round(bodyComponent.getVelocity().y * 100f) / 100f);
                 // Translate
-                bodyComponent.translate(bodyComponent.getVelocity().x * fixedTimeStep,
-                                        bodyComponent.getVelocity().y * fixedTimeStep);
+                bodyComponent.translate(bodyComponent.getVelocity().x * fixedTimeStep, bodyComponent.getVelocity().y * fixedTimeStep);
                 // Each Fixture is moved to conform to its position center from the center of the Body Component
                 bodyComponent.getFixtures().forEach(fixture -> {
                     Vector2 center = bodyComponent.getCenter();
@@ -121,8 +121,7 @@ public class WorldSystem extends System {
                     BodyComponent bc1 = bodies.get(i);
                     BodyComponent bc2 = bodies.get(j);
                     Rectangle overlap = new Rectangle();
-                    if (Intersector.intersectRectangles(
-                            bc1.getCollisionBox(), bc2.getCollisionBox(), overlap)) {
+                    if (Intersector.intersectRectangles(bc1.getCollisionBox(), bc2.getCollisionBox(), overlap)) {
                         handleCollision(bc1, bc2, overlap);
                     }
                 }

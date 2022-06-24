@@ -1,6 +1,6 @@
 package com.game.screens.menu.impl;
 
-import com.game.core.GameContext2d;
+import com.game.GameContext2d;
 import com.game.screens.menu.MenuButton;
 import com.game.screens.menu.MenuScreen;
 

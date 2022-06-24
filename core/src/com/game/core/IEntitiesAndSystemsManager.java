@@ -1,6 +1,7 @@
 package com.game.core;
 
-import com.game.entities.Entity;
+import com.game.System;
+import com.game.Entity;
 
 import java.util.Collection;
 
@@ -30,7 +31,7 @@ public interface IEntitiesAndSystemsManager {
     void updateSystems(float delta);
 
     /**
-     * Add {@link Entity}. To remove the entity, {@link Entity#isMarkedForRemoval()} should be set to true.
+     * Add {@link Entity}. To remove the entity, {@link Entity#isDead()} ishould be set to true.
      * The entity should be purged from all {@link System} instances on the following update cycle.
      *
      * @param entity the entity

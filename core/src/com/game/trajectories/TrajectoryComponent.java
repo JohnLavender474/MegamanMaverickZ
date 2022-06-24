@@ -1,6 +1,6 @@
 package com.game.trajectories;
 
-import com.game.core.Component;
+import com.game.Component;
 import com.game.utils.Trajectory;
 import lombok.Getter;
 

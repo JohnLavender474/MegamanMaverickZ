@@ -1,4 +1,4 @@
-package com.game.entities.contracts;
+package com.game.contracts;
 
 public enum Facing {
     LEFT,

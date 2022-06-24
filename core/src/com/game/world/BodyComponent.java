@@ -2,7 +2,7 @@ package com.game.world;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.core.Component;
+import com.game.Component;
 import com.game.utils.Direction;
 import com.game.updatables.Updatable;
 import lombok.*;
@@ -32,6 +32,7 @@ public class BodyComponent implements Component {
     @Setter private Updatable preProcess;
     @Setter private Updatable postProcess;
     @Setter private boolean gravityOn = true;
+    @Setter private boolean affectedByResistance = true;
 
     /**
      * Instantiates a new Body Component.

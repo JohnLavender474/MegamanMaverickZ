@@ -1,5 +1,7 @@
 package com.game.core;
 
+import com.game.GameState;
+
 public interface IGameStateManager {
 
     /**

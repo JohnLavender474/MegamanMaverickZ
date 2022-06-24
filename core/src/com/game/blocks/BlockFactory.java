@@ -1,8 +1,8 @@
-package com.game.entities.blocks;
+package com.game.blocks;
 
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Vector2;
-import com.game.entities.Entity;
+import com.game.Entity;
 import com.game.world.BodyComponent;
 import com.game.world.BodyType;
 

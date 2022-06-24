@@ -52,6 +52,13 @@ public class ConstVals {
         public static final float PPM = 16f;
     }
 
+    public static class VolumeVals {
+        public static final int FULL_VOLUME = 100;
+        public static final int HIGH_VOLUME = 85;
+        public static final int MEDIUM_VOLUME = 70;
+        public static final int LOW_VOLUME = 55;
+    }
+
     public static class TextureAssets {
         public static final String OBJECTS_TEXTURE_ATLAS = "sprites/SpriteSheets/Objects.txt";
         public static final String MET_TEXTURE_ATLAS = "sprites/SpriteSheets/Met.txt";

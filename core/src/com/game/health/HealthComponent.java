@@ -1,6 +1,6 @@
 package com.game.health;
 
-import com.game.core.Component;
+import com.game.Component;
 import com.game.utils.Percentage;
 import com.game.utils.Resettable;
 import com.game.updatables.Updatable;

@@ -1,6 +1,5 @@
-package com.game.core;
+package com.game;
 
-import com.game.entities.Entity;
 import com.game.updatables.Updatable;
 import com.game.utils.exceptions.InvalidActionException;
 import lombok.*;
@@ -70,7 +69,7 @@ public abstract class System implements Updatable {
         while (!entitiesToRemoveQueue.isEmpty()) {
             entities.remove(entitiesToRemoveQueue.poll());
         }
-        entities.removeIf(entity -> !qualifiesMembership(entity) || entity.isMarkedForRemoval());
+        entities.removeIf(entity -> !qualifiesMembership(entity) || entity.isDead());
         preProcess(delta);
         entities.forEach(entity -> processEntity(entity, delta));
         postProcess(delta);

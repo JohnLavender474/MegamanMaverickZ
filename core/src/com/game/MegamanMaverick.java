@@ -1,4 +1,4 @@
-package com.game.core;
+package com.game;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
@@ -27,9 +27,8 @@ import com.game.controllers.ControllerButton;
 import com.game.controllers.ControllerButtonStatus;
 import com.game.controllers.ControllerSystem;
 import com.game.debugging.DebugSystem;
-import com.game.entities.Entity;
 import com.game.health.HealthSystem;
-import com.game.entities.megaman.MegamanStats;
+import com.game.megaman.MegamanStats;
 import com.game.screens.levels.LevelScreen;
 import com.game.screens.menu.impl.MainMenuScreen;
 import com.game.sprites.SpriteSystem;
@@ -61,6 +60,8 @@ public class MegamanMaverick extends Game implements GameContext2d {
     private final Map<GameScreen, Screen> screens = new EnumMap<>(GameScreen.class);
     private final Queue<KeyValuePair<Rectangle, Color>> debugQueue = new ArrayDeque<>();
     private final Map<Class<? extends System>, System> systems = new LinkedHashMap<>();
+    private final Set<MessageListener> messageListeners = new HashSet<>();
+    private final Queue<Message> messageQueue = new ArrayDeque<>();
     private final List<Disposable> disposables = new ArrayList<>();
     private final Map<String, Object> blackBoard = new HashMap<>();
     private final Set<Entity> entities = new HashSet<>();
@@ -183,7 +184,7 @@ public class MegamanMaverick extends Game implements GameContext2d {
         Iterator<Entity> entityIterator = entities.iterator();
         while (entityIterator.hasNext()) {
             Entity entity = entityIterator.next();
-            if (entity.isMarkedForRemoval()) {
+            if (entity.isDead()) {
                 systems.values().forEach(system -> {
                     if (system.entityIsMember(entity)) {
                         system.removeEntity(entity);
@@ -250,18 +251,6 @@ public class MegamanMaverick extends Game implements GameContext2d {
     }
 
     @Override
-    public void render() {
-        Gdx.gl20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            Gdx.app.exit();
-        }
-        updateController();
-        super.render();
-        viewports.values().forEach(Viewport::apply);
-    }
-
-    @Override
     public void updateController() {
         for (ControllerButton controllerButton : ControllerButton.values()) {
             ControllerButtonStatus status = controllerButtons.get(controllerButton);
@@ -282,6 +271,45 @@ public class MegamanMaverick extends Game implements GameContext2d {
                 controllerButtons.replace(controllerButton, ControllerButtonStatus.IS_JUST_RELEASED);
             }
         }
+    }
+
+    @Override
+    public void addListener(MessageListener messageListener) {
+        messageListeners.add(messageListener);
+    }
+
+    @Override
+    public void removeListener(MessageListener messageListener) {
+        messageListeners.remove(messageListener);
+    }
+
+    @Override
+    public void addMessage(Message message) {
+        messageQueue.add(message);
+    }
+
+    @Override
+    public void updateMessageDispatcher(float delta) {
+        while (!messageQueue.isEmpty()) {
+            Message message = messageQueue.poll();
+            messageListeners.forEach(listener -> {
+                if (listener.isListeningForMessageFrom(message.getOwner())) {
+                    listener.listenToMessage(message.getOwner(), message.getContents(), delta);
+                }
+            });
+        }
+    }
+
+    @Override
+    public void render() {
+        Gdx.gl20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            Gdx.app.exit();
+        }
+        updateController();
+        super.render();
+        viewports.values().forEach(Viewport::apply);
     }
 
     @Override

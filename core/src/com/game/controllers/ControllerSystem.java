@@ -1,9 +1,9 @@
 package com.game.controllers;
 
-import com.game.core.Component;
+import com.game.Component;
 import com.game.core.IController;
-import com.game.entities.Entity;
-import com.game.core.System;
+import com.game.Entity;
+import com.game.System;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Set;

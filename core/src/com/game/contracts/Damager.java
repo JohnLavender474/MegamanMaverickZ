@@ -1,6 +1,6 @@
-package com.game.entities.contracts;
+package com.game.contracts;
 
-import com.game.entities.Entity;
+import com.game.Entity;
 
 import java.util.Set;
 

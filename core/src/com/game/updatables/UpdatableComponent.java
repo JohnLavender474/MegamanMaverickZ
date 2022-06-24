@@ -1,7 +1,9 @@
 package com.game.updatables;
 
-import com.game.core.Component;
+import com.game.Component;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -9,6 +11,8 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class UpdatableComponent implements Component {
     private Updatable updatable;
 }

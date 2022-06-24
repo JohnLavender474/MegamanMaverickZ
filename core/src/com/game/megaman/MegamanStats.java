@@ -1,4 +1,4 @@
-package com.game.entities.megaman;
+package com.game.megaman;
 
 import com.game.utils.MutableInt;
 import com.game.utils.Percentage;

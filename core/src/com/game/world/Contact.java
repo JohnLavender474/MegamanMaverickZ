@@ -2,7 +2,7 @@ package com.game.world;
 
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
-import com.game.entities.Entity;
+import com.game.Entity;
 import com.game.utils.Pair;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

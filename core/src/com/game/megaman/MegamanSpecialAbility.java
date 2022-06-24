@@ -1,4 +1,4 @@
-package com.game.entities.megaman;
+package com.game.megaman;
 
 /**
  * Megaman's various abilities.

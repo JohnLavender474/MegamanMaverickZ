@@ -1,7 +1,7 @@
 package com.game.debugging;
 
 import com.badlogic.gdx.math.Rectangle;
-import com.game.core.Component;
+import com.game.Component;
 import lombok.Getter;
 
 import java.util.ArrayList;

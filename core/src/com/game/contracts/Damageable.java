@@ -1,6 +1,6 @@
-package com.game.entities.contracts;
+package com.game.contracts;
 
-import com.game.entities.Entity;
+import com.game.Entity;
 
 import java.util.Set;
 
@@ -26,9 +26,16 @@ public interface Damageable {
     <T extends Damager> void takeDamageFrom(Class<T> damagerClass);
 
     /**
-     * Is invincible boolean.
+     * Is damaged.
      *
-     * @return the boolean
+     * @return is damaged
+     */
+    boolean isDamaged();
+
+    /**
+     * Is invincible.
+     *
+     * @return is invincible
      */
     boolean isInvincible();
 

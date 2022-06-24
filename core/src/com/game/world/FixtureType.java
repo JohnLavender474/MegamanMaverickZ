@@ -8,6 +8,7 @@ public enum FixtureType {
     LADDER,
     SHIELD,
     HIT_BOX,
-    DAMAGING_BOX,
+    DAMAGE_BOX,
+    PROJECTILE,
     GRAVITY_SHIFT
 }

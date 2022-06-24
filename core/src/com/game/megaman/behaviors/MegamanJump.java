@@ -1,16 +1,16 @@
-package com.game.entities.megaman.behaviors;
+package com.game.megaman.behaviors;
 
-import com.game.core.GameContext2d;
+import com.game.GameContext2d;
 import com.game.behaviors.Behavior;
 import com.game.behaviors.BehaviorComponent;
 import com.game.behaviors.BehaviorType;
-import com.game.entities.megaman.Megaman;
+import com.game.megaman.Megaman;
 import com.game.utils.Timer;
 import com.game.world.BodyComponent;
 import com.game.world.BodySense;
 
-import static com.game.entities.megaman.behaviors.MegamanJump.JumpType.GROUND_JUMP;
-import static com.game.entities.megaman.behaviors.MegamanJump.JumpType.WALL_JUMP;
+import static com.game.megaman.behaviors.MegamanJump.JumpType.GROUND_JUMP;
+import static com.game.megaman.behaviors.MegamanJump.JumpType.WALL_JUMP;
 
 public class MegamanJump extends Behavior {
 

@@ -1,18 +1,18 @@
-package com.game.entities.megaman;
+package com.game.megaman;
 
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Rectangle;
 import com.game.ConstVals.TextureAssets;
-import com.game.core.GameContext2d;
+import com.game.GameContext2d;
 import com.game.animations.AnimationComponent;
 import com.game.animations.Animator;
-import com.game.entities.Entity;
+import com.game.Entity;
 import com.game.animations.TimedAnimation;
 import com.game.behaviors.BehaviorComponent;
-import com.game.entities.contracts.Faceable;
-import com.game.entities.contracts.Facing;
+import com.game.contracts.Faceable;
+import com.game.contracts.Facing;
 import com.game.health.HealthComponent;
-import com.game.entities.megaman.behaviors.MegamanRun;
+import com.game.megaman.behaviors.MegamanRun;
 import com.game.screens.levels.LevelCameraFocusable;
 import com.game.sprites.SpriteComponent;
 import com.game.utils.Timer;

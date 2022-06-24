@@ -1,7 +1,7 @@
 package com.game.sprites;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.game.core.Component;
+import com.game.Component;
 import com.game.updatables.Updatable;
 import lombok.Getter;
 import lombok.Setter;

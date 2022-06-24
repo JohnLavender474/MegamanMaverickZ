@@ -1,7 +1,7 @@
 package com.game.screens.levels;
 
 import com.badlogic.gdx.math.Rectangle;
-import com.game.entities.Entity;
+import com.game.Entity;
 import com.game.utils.Timer;
 
 /**

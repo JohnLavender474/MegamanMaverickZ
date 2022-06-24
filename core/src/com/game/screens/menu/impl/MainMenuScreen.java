@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 import com.game.ConstVals.TextureAssets;
-import com.game.core.GameContext2d;
+import com.game.GameContext2d;
 import com.game.screens.menu.MenuButton;
 import com.game.screens.menu.MenuScreen;
 import com.game.utils.Direction;

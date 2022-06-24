@@ -1,6 +1,6 @@
 package com.game.controllers;
 
-import com.game.core.Component;
+import com.game.Component;
 import lombok.Getter;
 
 import java.util.EnumMap;
