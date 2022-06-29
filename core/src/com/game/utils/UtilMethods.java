@@ -12,6 +12,17 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 public class UtilMethods {
 
     /**
+     * Rounded float.
+     *
+     * @param num   the num
+     * @param scale the scale
+     * @return the float
+     */
+    public static float roundedFloat(float num, float scale) {
+        return Math.round(num * scale) / scale;
+    }
+
+    /**
      * Returns {@link BoundingBox} representation of {@link Rectangle}.
      *
      * @param rectangle the rectangle
@@ -21,6 +32,21 @@ public class UtilMethods {
         return new BoundingBox(new Vector3(rectangle.getX(), rectangle.getY(), 0.0f),
                                new Vector3(rectangle.getX() + rectangle.getWidth(),
                                            rectangle.getY() + rectangle.getHeight(), 0.0f));
+    }
+
+    /**
+     * Get scaled rect centered on provided rect.
+     *
+     * @param rect  the rect
+     * @param scale the scale
+     * @return the scaled rect
+     */
+    public static Rectangle getScaledRect(Rectangle rect, float scale) {
+        Rectangle scaledRect = new Rectangle(rect);
+        scaledRect.width *= scale;
+        scaledRect.height *= scale;
+        scaledRect.setCenter(centerPoint(rect));
+        return scaledRect;
     }
 
     /**

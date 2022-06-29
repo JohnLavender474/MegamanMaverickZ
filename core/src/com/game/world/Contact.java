@@ -55,12 +55,30 @@ public class Contact {
     }
 
     /**
+     * Mask first body.
+     *
+     * @return the body component
+     */
+    public BodyComponent maskFirstBody() {
+        return maskFirstEntity().getComponent(BodyComponent.class);
+    }
+
+    /**
      * Fetches the {@link Entity} of the second {@link Fixture} contained in {@link #getMask()}.
      *
      * @return the entity
      */
     public Entity maskSecondEntity() {
         return mask.second().getEntity();
+    }
+
+    /**
+     * Mask second body.
+     *
+     * @return the body component
+     */
+    public BodyComponent maskSecondBody() {
+        return maskSecondEntity().getComponent(BodyComponent.class);
     }
 
     @Override

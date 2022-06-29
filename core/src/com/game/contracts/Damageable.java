@@ -12,25 +12,16 @@ public interface Damageable {
     /**
      * Damager mask set.
      *
-     * @param <T> the type parameter
      * @return the set
      */
-    <T extends Damager> Set<Class<? extends T>> getDamagerMaskSet();
+    Set<Class<? extends Damager>> getDamagerMaskSet();
 
     /**
      * Take damage from.
      *
-     * @param <T>          the type parameter
      * @param damagerClass the damager class
      */
-    <T extends Damager> void takeDamageFrom(Class<T> damagerClass);
-
-    /**
-     * Is damaged.
-     *
-     * @return is damaged
-     */
-    boolean isDamaged();
+    void takeDamageFrom(Class<? extends Damager> damagerClass);
 
     /**
      * Is invincible.

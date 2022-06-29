@@ -26,6 +26,15 @@ public class Fixture {
     /**
      * Set.
      *
+     * @param bounds the bounds
+     */
+    public void set(Rectangle bounds) {
+        fixtureBox.set(bounds);
+    }
+
+    /**
+     * Set.
+     *
      * @param x      the x
      * @param y      the y
      * @param width  the width

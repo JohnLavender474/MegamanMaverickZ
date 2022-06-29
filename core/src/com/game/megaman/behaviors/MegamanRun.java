@@ -9,6 +9,7 @@ import com.game.megaman.Megaman;
 import com.game.utils.Direction;
 import com.game.contracts.Facing;
 import com.game.world.BodyComponent;
+import com.game.world.BodySense;
 
 import static com.game.ConstVals.ViewVals.PPM;
 
@@ -35,9 +36,9 @@ public class MegamanRun extends Behavior {
     @Override
     protected boolean evaluate(float delta) {
         if (gameContext.isPressed(ControllerButton.LEFT)) {
-            return !bodyComponent.isColliding(Direction.LEFT);
+            return !bodyComponent.is(BodySense.TOUCHING_BLOCK_LEFT);
         } else if (gameContext.isPressed(ControllerButton.RIGHT)) {
-            return !bodyComponent.isColliding(Direction.RIGHT);
+            return !bodyComponent.is(BodySense.TOUCHING_BLOCK_RIGHT);
         }
         return false;
     }

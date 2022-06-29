@@ -6,8 +6,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
 import com.game.System;
 import com.game.Entity;
-import com.game.utils.Direction;
 import com.game.updatables.Updatable;
+import com.game.utils.UtilMethods;
 import lombok.RequiredArgsConstructor;
 
 import java.util.*;
@@ -43,7 +43,6 @@ public class WorldSystem extends System {
     protected void processEntity(Entity entity, float delta) {
         BodyComponent bodyComponent = entity.getComponent(BodyComponent.class);
         bodyComponent.setPriorCollisionBoxToCurrent();
-        bodyComponent.clearCollisionFlags();
         bodies.add(bodyComponent);
         if (bodyComponent.getPreProcess() != null) {
             bodyComponent.getPreProcess().update(delta);
@@ -68,12 +67,14 @@ public class WorldSystem extends System {
                 if (Math.abs(bodyComponent.getVelocity().y) < 0.5f) {
                     bodyComponent.setVelocityY(0f);
                 }
+                /*
                 // Prevent clipping through obstacles left and right
-                if (bodyComponent.isColliding(Direction.LEFT)) {
-                    bodyComponent.getVelocity().x = Math.max(0f, bodyComponent.getVelocity().x);
-                } else if (bodyComponent.isColliding(Direction.RIGHT)) {
+                if (bodyComponent.is(BodySense.TOUCHING_BLOCK_RIGHT)) {
                     bodyComponent.getVelocity().x = Math.min(0f, bodyComponent.getVelocity().x);
+                } else if (bodyComponent.is(BodySense.TOUCHING_BLOCK_LEFT)) {
+                    bodyComponent.getVelocity().x = Math.max(0f, bodyComponent.getVelocity().x);
                 }
+                 */
                 // Apply resistance
                 if (bodyComponent.isAffectedByResistance()) {
                     bodyComponent.getVelocity().x *= 1f / Math.max(1f, bodyComponent.getResistance().x);
@@ -84,14 +85,13 @@ public class WorldSystem extends System {
                 // If gravity on: if colliding down, minimum gravity is -0.5f, otherwise apply gravity
                 // If gravity off: set to zero
                 if (bodyComponent.isGravityOn()) {
-                    if (bodyComponent.isColliding(Direction.DOWN)) {
-                        bodyComponent.setVelocityY(-0.5f);
-                    } else {
-                        bodyComponent.applyImpulse(0f, bodyComponent.getGravity() * fixedTimeStep);
+                    bodyComponent.applyImpulse(0f, bodyComponent.getGravity() * fixedTimeStep);
+                    if (bodyComponent.is(BodySense.FEET_ON_GROUND)) {
+                        bodyComponent.setVelocityY(Math.max(-5f, bodyComponent.getVelocity().y));
                     }
                 }
                 // Round to 2 decimal places
-                bodyComponent.setVelocity(Math.round(bodyComponent.getVelocity().x * 100f) / 100f, Math.round(bodyComponent.getVelocity().y * 100f) / 100f);
+                //bodyComponent.setVelocity(UtilMethods.roundedFloat(bodyComponent.getVelocity().x, 2), UtilMethods.roundedFloat(bodyComponent.getVelocity().y, 2));
                 // Translate
                 bodyComponent.translate(bodyComponent.getVelocity().x * fixedTimeStep, bodyComponent.getVelocity().y * fixedTimeStep);
                 // Each Fixture is moved to conform to its position center from the center of the Body Component
@@ -160,16 +160,12 @@ public class WorldSystem extends System {
     private void handleCollision(BodyComponent bc1, BodyComponent bc2, Rectangle overlap) {
         if (overlap.getWidth() > overlap.getHeight()) {
             if (bc1.getCollisionBox().getY() > bc2.getCollisionBox().getY()) {
-                // Apply resistance
-                if (bc1.getVelocity().y <= 0f) {
+                if (Math.ceil(bc1.getVelocity().y) < -1f) {
                     bc1.applyResistanceX(bc2.getFriction().x);
                 }
-                if (bc2.getVelocity().y >= 0f) {
+                if (Math.floor(bc2.getVelocity().y) > 1f) {
                     bc2.applyResistanceX(bc1.getFriction().x);
                 }
-                // Set collision flags
-                bc1.setColliding(Direction.DOWN);
-                bc2.setColliding(Direction.UP);
                 // If one is dynamic and the other static, handle collision
                 if (bc1.getBodyType() == BodyType.DYNAMIC && bc2.getBodyType() == BodyType.STATIC) {
                     bc1.getCollisionBox().y += overlap.getHeight();
@@ -177,16 +173,12 @@ public class WorldSystem extends System {
                     bc2.getCollisionBox().y -= overlap.getHeight();
                 }
             } else {
-                // Apply resistance
-                if (bc1.getVelocity().y > 0f) {
+                if (Math.floor(bc1.getVelocity().y) > 1f) {
                     bc1.applyResistanceX(bc2.getFriction().x);
                 }
-                if (bc2.getVelocity().y < 0f) {
+                if (Math.ceil(bc2.getVelocity().y) < -1f) {
                     bc2.applyResistanceX(bc1.getFriction().x);
                 }
-                // Set collision flags
-                bc1.setColliding(Direction.UP);
-                bc2.setColliding(Direction.DOWN);
                 // If one is dynamic and the other static, handle collision
                 if (bc1.getBodyType() == BodyType.DYNAMIC && bc2.getBodyType() == BodyType.STATIC) {
                     bc1.getCollisionBox().y -= overlap.getHeight();
@@ -196,16 +188,14 @@ public class WorldSystem extends System {
             }
         } else {
             if (bc1.getCollisionBox().getX() > bc2.getCollisionBox().getX()) {
-                // Apply resistance
-                if (bc1.getVelocity().x < 0f) {
+                /*
+                if (Math.ceil(bc1.getVelocity().x) < 0f) {
                     bc1.applyResistanceY(bc2.getFriction().y);
                 }
-                if (bc2.getVelocity().x > 0f) {
+                if (Math.floor(bc2.getVelocity().x) > 0f) {
                     bc2.applyResistanceY(bc1.getFriction().y);
                 }
-                // Set collision flags
-                bc1.setColliding(Direction.LEFT);
-                bc2.setColliding(Direction.RIGHT);
+                 */
                 // If one is dynamic and the other static, handle collision
                 if (bc1.getBodyType() == BodyType.DYNAMIC && bc2.getBodyType() == BodyType.STATIC) {
                     bc1.getCollisionBox().x += overlap.getWidth();
@@ -213,16 +203,14 @@ public class WorldSystem extends System {
                     bc2.getCollisionBox().x -= overlap.getWidth();
                 }
             } else {
-                // Apply resistance
-                if (bc1.getVelocity().x > 0f) {
-                    bc1.applyResistanceY(bc2.getFriction().y);
-                }
-                if (bc2.getVelocity().x < 0f) {
+                /*
+                if (Math.ceil(bc2.getVelocity().x) < 0f) {
                     bc2.applyResistanceY(bc1.getFriction().y);
                 }
-                // Set collision flags
-                bc1.setColliding(Direction.RIGHT);
-                bc2.setColliding(Direction.LEFT);
+                if (Math.floor(bc1.getVelocity().x) > 0f) {
+                    bc1.applyResistanceY(bc2.getFriction().y);
+                }
+                 */
                 // If one is dynamic and the other static, handle collision
                 if (bc1.getBodyType() == BodyType.DYNAMIC && bc2.getBodyType() == BodyType.STATIC) {
                     bc1.getCollisionBox().x -= overlap.getWidth();

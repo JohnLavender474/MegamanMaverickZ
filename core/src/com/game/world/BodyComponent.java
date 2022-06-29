@@ -44,6 +44,15 @@ public class BodyComponent implements Component {
     }
 
     /**
+     * Set.
+     *
+     * @param bounds the bounds
+     */
+    public void set(Rectangle bounds) {
+        collisionBox.set(bounds);
+    }
+
+    /**
      * Set bounds.
      *
      * @param x      the x
@@ -163,15 +172,6 @@ public class BodyComponent implements Component {
     public void translate(float x, float y) {
         collisionBox.x += x;
         collisionBox.y += y;
-    }
-
-    /**
-     * Apply impulse.
-     *
-     * @param impulse the impulse
-     */
-    public void applyImpulse(Vector2 impulse) {
-        applyImpulse(impulse.x, impulse.y);
     }
 
     /**
@@ -323,32 +323,6 @@ public class BodyComponent implements Component {
      */
     public void setIsNot(BodySense bodySense) {
         bodySenses.remove(bodySense);
-    }
-
-    /**
-     * Clear collision flags.
-     */
-    public void clearCollisionFlags() {
-        collisionFlags.replaceAll((direction, aBoolean) -> false);
-    }
-
-    /**
-     * Is colliding in the provided direction.
-     *
-     * @param direction the direction
-     * @return is colliding in the provided direction
-     */
-    public boolean isColliding(Direction direction) {
-        return collisionFlags.get(direction);
-    }
-
-    /**
-     * Set colliding.
-     *
-     * @param direction the direction
-     */
-    public void setColliding(Direction direction) {
-        collisionFlags.replace(direction, true);
     }
 
     /**

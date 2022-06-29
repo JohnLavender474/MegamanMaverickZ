@@ -38,11 +38,11 @@ public class MegamanGroundSlide extends Behavior {
     @Override
     protected boolean evaluate(float delta) {
         // If facing left and touching left wall, stop
-        if (megaman.isFacing(Facing.LEFT) && bodyComponent.isColliding(Direction.LEFT)) {
+        if (megaman.isFacing(Facing.LEFT) && bodyComponent.is(BodySense.TOUCHING_BLOCK_LEFT)) {
             return false;
         }
         // If facing right and touching right wall, stop
-        if (megaman.isFacing(Facing.RIGHT) && bodyComponent.isColliding(Direction.RIGHT)) {
+        if (megaman.isFacing(Facing.RIGHT) && bodyComponent.is(BodySense.TOUCHING_BLOCK_RIGHT)) {
             return false;
         }
         // If already ground sliding and head is touching block, then continue ground sliding even if

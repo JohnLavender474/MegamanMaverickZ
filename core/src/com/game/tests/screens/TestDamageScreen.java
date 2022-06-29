@@ -19,24 +19,29 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.game.ConstVals.TextureAssets;
 import com.game.ConstVals.VolumeVals;
 import com.game.ConstVals.WorldVals;
+import com.game.Entity;
 import com.game.Message;
 import com.game.MessageListener;
-import com.game.animations.*;
-import com.game.core.IAssetLoader;
-import com.game.core.IController;
-import com.game.core.IEntitiesAndSystemsManager;
 import com.game.System;
-import com.game.Entity;
+import com.game.animations.AnimationComponent;
+import com.game.animations.AnimationSystem;
+import com.game.animations.Animator;
+import com.game.animations.TimedAnimation;
 import com.game.behaviors.Behavior;
 import com.game.behaviors.BehaviorComponent;
 import com.game.behaviors.BehaviorSystem;
 import com.game.behaviors.BehaviorType;
+import com.game.contracts.Damageable;
+import com.game.contracts.Damager;
+import com.game.contracts.Faceable;
+import com.game.contracts.Facing;
 import com.game.controllers.*;
+import com.game.core.IAssetLoader;
+import com.game.core.IController;
+import com.game.core.IEntitiesAndSystemsManager;
 import com.game.core.IMessageDispatcher;
 import com.game.debugging.DebugComponent;
-import com.game.debugging.DebugHandle;
 import com.game.debugging.DebugSystem;
-import com.game.contracts.*;
 import com.game.megaman.behaviors.MegamanRun;
 import com.game.screens.levels.CullOnLevelCamTrans;
 import com.game.screens.levels.CullOnOutOfGameCamBounds;
@@ -46,7 +51,7 @@ import com.game.sound.SoundRequest;
 import com.game.sound.SoundSystem;
 import com.game.sprites.SpriteComponent;
 import com.game.sprites.SpriteSystem;
-import com.game.tests.screens.TestMegaBuster.TestPlayer.AButtonTask;
+import com.game.tests.screens.TestDamageScreen.TestPlayer.AButtonTask;
 import com.game.updatables.UpdatableComponent;
 import com.game.updatables.UpdatableSystem;
 import com.game.utils.*;
@@ -58,15 +63,19 @@ import lombok.Setter;
 import java.util.*;
 import java.util.function.Supplier;
 
-import static com.game.ConstVals.MusicAssets.*;
+import static com.game.ConstVals.MusicAssets.MMZ_NEO_ARCADIA_MUSIC;
 import static com.game.ConstVals.SoundAssets.*;
+import static com.game.ConstVals.SoundAssets.THUMP_SOUND;
 import static com.game.ConstVals.TextureAssets.*;
 import static com.game.ConstVals.ViewVals.*;
+import static com.game.ConstVals.ViewVals.PPM;
 import static com.game.behaviors.BehaviorType.*;
 import static com.game.controllers.ControllerButtonStatus.*;
+import static com.game.controllers.ControllerButtonStatus.IS_JUST_RELEASED;
 import static com.game.controllers.ControllerUtils.*;
 
-public class TestMegaBuster extends ScreenAdapter {
+public class TestDamageScreen extends ScreenAdapter {
+
 
     static class AssetLoader implements IAssetLoader, Disposable {
 
@@ -202,6 +211,54 @@ public class TestMegaBuster extends ScreenAdapter {
 
     @Getter
     @Setter
+    static class TestDamager extends Entity implements Damager {
+
+        private final Timer timer = new Timer(1f);
+
+        public TestDamager(Rectangle bounds) {
+            timer.setToEnd();
+            addComponent(defineBodyComponent(bounds));
+            addComponent(defineDebugComponent());
+            addComponent(defineUpdatableComponent());
+        }
+
+        @Override
+        public void onDamageInflictedTo(Class<? extends Damageable> damageableClass) {
+            timer.reset();
+        }
+
+        private BodyComponent defineBodyComponent(Rectangle bounds) {
+            BodyComponent bodyComponent = new BodyComponent(BodyType.ABSTRACT);
+            bodyComponent.set(bounds);
+            bodyComponent.setGravityOn(false);
+            bodyComponent.setFriction(0f, 0f);
+            bodyComponent.setAffectedByResistance(false);
+            Fixture damageBox = new Fixture(this, FixtureType.DAMAGE_BOX);
+            damageBox.set(UtilMethods.getScaledRect(bounds, 1.05f));
+            bodyComponent.addFixture(damageBox);
+            return bodyComponent;
+        }
+
+        private DebugComponent defineDebugComponent() {
+            DebugComponent debugComponent = new DebugComponent();
+            debugComponent.addDebugHandle(() -> getComponent(BodyComponent.class).getCollisionBox(), () -> timer.isFinished() ? Color.PURPLE : Color.RED);
+            return debugComponent;
+        }
+
+        private UpdatableComponent defineUpdatableComponent() {
+            UpdatableComponent updatableComponent = new UpdatableComponent();
+            updatableComponent.setUpdatable(delta -> {
+                if (!timer.isFinished()) {
+                    timer.update(delta);
+                }
+            });
+            return updatableComponent;
+        }
+
+    }
+
+    @Getter
+    @Setter
     static class TestPlayer extends Entity implements Damageable, Faceable, LevelCameraFocusable {
 
         enum AButtonTask {
@@ -211,19 +268,23 @@ public class TestMegaBuster extends ScreenAdapter {
 
         private final IController controller;
         private final IAssetLoader assetLoader;
-        private final Timer invincibilityTimer = new Timer(1f);
         private final IEntitiesAndSystemsManager entitiesAndSystemsManager;
-        private final Set<Class<? extends Damager>> damagerMaskSet = Set.of(TestBullet.class);
 
         private boolean isCharging;
         private Facing facing = Facing.RIGHT;
         private AButtonTask aButtonTask = AButtonTask.JUMP;
+        
         private final Timer airDashTimer = new Timer(0.25f);
         private final Timer groundSlideTimer = new Timer(0.35f);
         private final Timer wallJumpImpetusTimer = new Timer(0.2f);
         private final Timer megaBusterChargingTimer = new Timer(0.5f);
         private final Timer shootCoolDownTimer = new Timer(0.1f);
         private final Timer shootAnimationTimer = new Timer(0.5f);
+
+        private final Timer damageTimer = new Timer(0.75f);
+        private final Timer damageRecoveryTimer = new Timer(1.5f);
+        private final Timer damageRecoveryBlinkTimer = new Timer(0.05f);
+        private boolean recoveryBlink;
 
         public TestPlayer(IController controller, IAssetLoader assetLoader, IEntitiesAndSystemsManager entitiesAndSystemsManager) {
             this.controller = controller;
@@ -233,12 +294,35 @@ public class TestMegaBuster extends ScreenAdapter {
             addComponent(defineControllerComponent());
             addComponent(defineBehaviorComponent());
             addComponent(defineBodyComponent());
+            addComponent(defineDebugComponent());
             addComponent(defineSpriteComponent());
             addComponent(defineAnimationComponent(assetLoader.getAsset(TextureAssets.MEGAMAN_TEXTURE_ATLAS, TextureAtlas.class)));
-            this.shootCoolDownTimer.setToEnd();
-            this.invincibilityTimer.setToEnd();
-            this.shootAnimationTimer.setToEnd();
-            this.wallJumpImpetusTimer.setToEnd();
+            shootCoolDownTimer.setToEnd();
+            shootAnimationTimer.setToEnd();
+            wallJumpImpetusTimer.setToEnd();
+            damageTimer.setToEnd();
+            damageRecoveryTimer.setToEnd();
+        }
+
+        @Override
+        public Set<Class<? extends Damager>> getDamagerMaskSet() {
+            return Set.of(TestDamager.class);
+        }
+
+        @Override
+        public void takeDamageFrom(Class<? extends Damager> damagerClass) {
+            if (damagerClass.equals(TestDamager.class)) {
+                damageTimer.reset();
+            }
+        }
+
+        @Override
+        public boolean isInvincible() {
+            return !damageTimer.isFinished() || !damageRecoveryTimer.isFinished();
+        }
+
+        public boolean isDamaged() {
+            return !damageTimer.isFinished();
         }
 
         public boolean isShooting() {
@@ -246,31 +330,21 @@ public class TestMegaBuster extends ScreenAdapter {
         }
 
         public void shoot() {
+            if (isDamaged()) {
+                return;
+            }
             Vector2 trajectory = new Vector2(15f * (facing == Facing.LEFT ? -PPM : PPM), 0f);
-            Vector2 spawn = getComponent(BodyComponent.class).getCenter().add(facing == Facing.LEFT ? -10f : 10f, 1f);
+            Vector2 spawn = getComponent(BodyComponent.class).getCenter().add(facing == Facing.LEFT ? -15f : 15f, 1f);
             if (getComponent(BehaviorComponent.class).is(WALL_SLIDING)) {
                 spawn.y += 3.5f;
             } else if (!getComponent(BodyComponent.class).is(BodySense.FEET_ON_GROUND)) {
                 spawn.y += 4.5f;
             }
             TextureRegion yellowBullet = assetLoader.getAsset(TextureAssets.OBJECTS_TEXTURE_ATLAS, TextureAtlas.class).findRegion("YellowBullet");
-            TestBullet bullet = new TestBullet(this, trajectory, spawn,yellowBullet, assetLoader, entitiesAndSystemsManager);
+            TestBullet bullet = new TestBullet(this, trajectory, spawn, yellowBullet, assetLoader, entitiesAndSystemsManager);
             entitiesAndSystemsManager.addEntity(bullet);
             shootCoolDownTimer.reset();
             shootAnimationTimer.reset();
-        }
-
-        @Override
-        public <T extends Damager> void takeDamageFrom(Class<T> damagerClass) {}
-
-        @Override
-        public boolean isDamaged() {
-            return false;
-        }
-
-        @Override
-        public boolean isInvincible() {
-            return !invincibilityTimer.isFinished();
         }
 
         @Override
@@ -286,32 +360,33 @@ public class TestMegaBuster extends ScreenAdapter {
         private UpdatableComponent defineUpdatableComponent() {
             UpdatableComponent updatableComponent = new UpdatableComponent();
             updatableComponent.setUpdatable(delta -> {
-                if (!wallJumpImpetusTimer.isFinished()) {
-                    wallJumpImpetusTimer.update(delta);
+                damageTimer.update(delta);
+                if (damageTimer.isJustFinished()) {
+                    damageRecoveryTimer.reset();
                 }
-                if (!shootCoolDownTimer.isFinished()) {
-                    shootCoolDownTimer.update(delta);
-                }
-                if (!shootAnimationTimer.isFinished()) {
-                    shootAnimationTimer.update(delta);
-                }
+                wallJumpImpetusTimer.update(delta);
+                shootCoolDownTimer.update(delta);
+                shootAnimationTimer.update(delta);
                 setCharging(megaBusterChargingTimer.isFinished());
             });
             return updatableComponent;
         }
-        
+
         private ControllerComponent defineControllerComponent() {
             ControllerComponent controllerComponent = new ControllerComponent();
             controllerComponent.addControllerAdapter(ControllerButton.LEFT, new ControllerAdapter() {
 
                 @Override
                 public void onPressContinued(float delta) {
+                    if (isDamaged()) {
+                        return;
+                    }
                     BodyComponent bodyComponent = getComponent(BodyComponent.class);
                     BehaviorComponent behaviorComponent = getComponent(BehaviorComponent.class);
                     if (wallJumpImpetusTimer.isFinished()) {
                         setFacing(behaviorComponent.is(WALL_SLIDING) ? Facing.RIGHT : Facing.LEFT);
                     }
-                    behaviorComponent.setIs(RUNNING);
+                    behaviorComponent.set(RUNNING, !behaviorComponent.is(WALL_SLIDING));
                     if (bodyComponent.getVelocity().x > -MegamanRun.RUN_SPEED * PPM) {
                         bodyComponent.applyImpulse(-PPM * 50f * delta, 0f);
                     }
@@ -327,12 +402,15 @@ public class TestMegaBuster extends ScreenAdapter {
 
                 @Override
                 public void onPressContinued(float delta) {
+                    if (isDamaged()) {
+                        return;
+                    }
                     BodyComponent bodyComponent = getComponent(BodyComponent.class);
                     BehaviorComponent behaviorComponent = getComponent(BehaviorComponent.class);
                     if (wallJumpImpetusTimer.isFinished()) {
                         setFacing(behaviorComponent.is(WALL_SLIDING) ? Facing.LEFT : Facing.RIGHT);
                     }
-                    behaviorComponent.setIs(RUNNING);
+                    behaviorComponent.set(RUNNING, !behaviorComponent.is(WALL_SLIDING));
                     if (bodyComponent.getVelocity().x < MegamanRun.RUN_SPEED * PPM) {
                         bodyComponent.applyImpulse(PPM * 50f * delta, 0f);
                     }
@@ -348,13 +426,17 @@ public class TestMegaBuster extends ScreenAdapter {
 
                 @Override
                 public void onPressContinued(float delta) {
+                    if (isDamaged()) {
+                        megaBusterChargingTimer.reset();
+                        return;
+                    }
                     megaBusterChargingTimer.update(delta);
                 }
 
                 @Override
                 public void onJustReleased(float delta) {
                     BehaviorComponent behaviorComponent = getComponent(BehaviorComponent.class);
-                    if (shootCoolDownTimer.isFinished() && !isDamaged() && !behaviorComponent.is(GROUND_SLIDING) && !behaviorComponent.is(AIR_DASHING)) {
+                    if (shootCoolDownTimer.isFinished() && !behaviorComponent.is(GROUND_SLIDING) && !behaviorComponent.is(AIR_DASHING)) {
                         shoot();
                     }
                     megaBusterChargingTimer.reset();
@@ -363,41 +445,37 @@ public class TestMegaBuster extends ScreenAdapter {
             });
             return controllerComponent;
         }
-        
+
         private BehaviorComponent defineBehaviorComponent() {
             BehaviorComponent behaviorComponent = new BehaviorComponent();
             Behavior wallSlide = new Behavior() {
 
-                private Direction direction;
-
                 @Override
                 protected boolean evaluate(float delta) {
-                    BodyComponent bodyComponent = getComponent(BodyComponent.class);
-                    if (bodyComponent.isColliding(Direction.LEFT)) {
-                        direction = Direction.LEFT;
-                    } else if (bodyComponent.isColliding(Direction.RIGHT)) {
-                        direction = Direction.RIGHT;
-                    } else {
-                        direction = null;
+                    if (isDamaged()) {
+                        return false;
                     }
-                    return direction != null && wallJumpImpetusTimer.isFinished() && !bodyComponent.is(BodySense.FEET_ON_GROUND) &&
-                            ((direction == Direction.LEFT && controller.isPressed(ControllerButton.LEFT)) ||
-                                    (direction == Direction.RIGHT && controller.isPressed(ControllerButton.RIGHT)));
+                    BodyComponent bodyComponent = getComponent(BodyComponent.class);
+                    return wallJumpImpetusTimer.isFinished() && !bodyComponent.is(BodySense.FEET_ON_GROUND) &&
+                            ((bodyComponent.is(BodySense.TOUCHING_WALL_SLIDE_LEFT) && controller.isPressed(ControllerButton.LEFT)) ||
+                                    (bodyComponent.is(BodySense.TOUCHING_WALL_SLIDE_RIGHT) && controller.isPressed(ControllerButton.RIGHT)));
                 }
 
                 @Override
                 protected void init() {
                     behaviorComponent.setIs(WALL_SLIDING);
-                    setAButtonTask(AButtonTask.JUMP);
+                    setAButtonTask(TestPlayer.AButtonTask.JUMP);
                 }
 
                 @Override
-                protected void act(float delta) {}
+                protected void act(float delta) {
+                    getComponent(BodyComponent.class).applyResistanceY(1.25f);
+                }
 
                 @Override
                 protected void end() {
                     behaviorComponent.setIsNot(WALL_SLIDING);
-                    setAButtonTask(AButtonTask.AIR_DASH);
+                    setAButtonTask(TestPlayer.AButtonTask.AIR_DASH);
                 }
 
             };
@@ -408,19 +486,15 @@ public class TestMegaBuster extends ScreenAdapter {
                 @Override
                 protected boolean evaluate(float delta) {
                     BodyComponent bodyComponent = getComponent(BodyComponent.class);
-                    if (controller.isPressed(ControllerButton.DOWN)) {
-                        return false;
-                    }
-                    if (bodyComponent.is(BodySense.HEAD_TOUCHING_BLOCK)) {
+                    if (isDamaged() || controller.isPressed(ControllerButton.DOWN) || bodyComponent.is(BodySense.HEAD_TOUCHING_BLOCK)) {
                         return false;
                     }
                     return behaviorComponent.is(JUMPING) ?
                             // case 1
-                            bodyComponent.getVelocity().y >= 0f && controller.isPressed(ControllerButton.A) &&
-                                    !bodyComponent.isColliding(Direction.DOWN) :
+                            bodyComponent.getVelocity().y >= 0f && controller.isPressed(ControllerButton.A) :
                             // case 2
-                            aButtonTask == AButtonTask.JUMP && controller.isJustPressed(ControllerButton.A) &&
-                                    (bodyComponent.isColliding(Direction.DOWN) || behaviorComponent.is(WALL_SLIDING));
+                            aButtonTask == TestPlayer.AButtonTask.JUMP && controller.isJustPressed(ControllerButton.A) &&
+                                    (bodyComponent.is(BodySense.FEET_ON_GROUND) || behaviorComponent.is(WALL_SLIDING));
                 }
 
                 @Override
@@ -428,7 +502,7 @@ public class TestMegaBuster extends ScreenAdapter {
                     behaviorComponent.setIs(JUMPING);
                     BodyComponent bodyComponent = getComponent(BodyComponent.class);
                     if (behaviorComponent.is(WALL_SLIDING)) {
-                        bodyComponent.applyImpulse((isFacing(Facing.LEFT) ? -1f : 1f) * 9f * PPM, 16f * PPM);
+                        bodyComponent.applyImpulse((isFacing(Facing.LEFT) ? -1f : 1f) * 15f * PPM, 32f * PPM);
                         wallJumpImpetusTimer.reset();
                     } else {
                         bodyComponent.applyImpulse(0f, 18f * PPM);
@@ -451,20 +525,18 @@ public class TestMegaBuster extends ScreenAdapter {
 
                 @Override
                 protected boolean evaluate(float delta) {
-                    boolean stop = behaviorComponent.is(WALL_SLIDING) ||
-                            getComponent(BodyComponent.class).isColliding(Direction.DOWN) || airDashTimer.isFinished();
-                    if (stop) {
+                    if (isDamaged() || behaviorComponent.is(WALL_SLIDING) || getComponent(BodyComponent.class).is(BodySense.FEET_ON_GROUND) || airDashTimer.isFinished()) {
                         return false;
                     }
                     return behaviorComponent.is(AIR_DASHING) ? controller.isPressed(ControllerButton.A) :
-                            controller.isJustPressed(ControllerButton.A) && getAButtonTask() == AButtonTask.AIR_DASH;
+                            controller.isJustPressed(ControllerButton.A) && getAButtonTask() == TestPlayer.AButtonTask.AIR_DASH;
                 }
 
                 @Override
                 protected void init() {
                     getComponent(BodyComponent.class).setGravityOn(false);
                     behaviorComponent.setIs(BehaviorType.AIR_DASHING);
-                    setAButtonTask(AButtonTask.JUMP);
+                    setAButtonTask(TestPlayer.AButtonTask.JUMP);
                 }
 
                 @Override
@@ -472,7 +544,8 @@ public class TestMegaBuster extends ScreenAdapter {
                     BodyComponent bodyComponent = getComponent(BodyComponent.class);
                     airDashTimer.update(delta);
                     bodyComponent.setVelocityY(0f);
-                    if (bodyComponent.isColliding(Direction.LEFT) || bodyComponent.isColliding(Direction.RIGHT)) {
+                    if ((isFacing(Facing.LEFT) && bodyComponent.is(BodySense.TOUCHING_BLOCK_LEFT)) ||
+                            (isFacing(Facing.RIGHT) && bodyComponent.is(BodySense.TOUCHING_BLOCK_RIGHT))) {
                         return;
                     }
                     float x = 12f * PPM;
@@ -505,12 +578,7 @@ public class TestMegaBuster extends ScreenAdapter {
                     if (behaviorComponent.is(BehaviorType.GROUND_SLIDING) && bodyComponent.is(BodySense.HEAD_TOUCHING_BLOCK)) {
                         return true;
                     }
-                    boolean bool3 = bodyComponent.is(BodySense.FEET_ON_GROUND);
-                    if (!bool3) {
-                        return false;
-                    }
-                    boolean bool4 = !groundSlideTimer.isFinished();
-                    if (!bool4) {
+                    if (isDamaged() || !bodyComponent.is(BodySense.FEET_ON_GROUND) || groundSlideTimer.isFinished()) {
                         return false;
                     }
                     if (!behaviorComponent.is(BehaviorType.GROUND_SLIDING)) {
@@ -529,7 +597,9 @@ public class TestMegaBuster extends ScreenAdapter {
                 protected void act(float delta) {
                     BodyComponent bodyComponent = getComponent(BodyComponent.class);
                     groundSlideTimer.update(delta);
-                    if (bodyComponent.isColliding(Direction.LEFT) || bodyComponent.isColliding(Direction.RIGHT)) {
+                    if (isDamaged() ||
+                            (isFacing(Facing.LEFT) && bodyComponent.is(BodySense.TOUCHING_BLOCK_LEFT)) ||
+                            (isFacing(Facing.RIGHT) && bodyComponent.is(BodySense.TOUCHING_BLOCK_RIGHT))) {
                         return;
                     }
                     float x = 12f * PPM;
@@ -554,11 +624,11 @@ public class TestMegaBuster extends ScreenAdapter {
             behaviorComponent.addBehavior(groundSlide);
             return behaviorComponent;
         }
-        
+
         private BodyComponent defineBodyComponent() {
             BodyComponent bodyComponent = new BodyComponent(BodyType.DYNAMIC);
             bodyComponent.setPosition(3f * PPM, 3f * PPM);
-            bodyComponent.setWidth(0.75f * PPM);
+            bodyComponent.setWidth(0.8f * PPM);
             bodyComponent.setPreProcess(delta -> {
                 BehaviorComponent behaviorComponent = getComponent(BehaviorComponent.class);
                 if (behaviorComponent.is(GROUND_SLIDING)) {
@@ -566,21 +636,40 @@ public class TestMegaBuster extends ScreenAdapter {
                 } else {
                     bodyComponent.setHeight(0.95f * PPM);
                 }
-                if (bodyComponent.getVelocity().y < 0f && !bodyComponent.isColliding(Direction.DOWN)) {
+                if (bodyComponent.getVelocity().y < 0f && !bodyComponent.is(BodySense.FEET_ON_GROUND)) {
                     bodyComponent.setGravity(-60f * PPM);
                 } else {
                     bodyComponent.setGravity(-20f * PPM);
                 }
             });
             Fixture feet = new Fixture(this, FixtureType.FEET);
-            feet.setSize(9f, 3f);
+            feet.setSize(10f, 1f);
             feet.setOffset(0f, -PPM / 2f);
             bodyComponent.addFixture(feet);
             Fixture head = new Fixture(this, FixtureType.HEAD);
-            head.setSize(7f, 5f);
+            head.setSize(7f, 2f);
             head.setOffset(0f, PPM / 2f);
             bodyComponent.addFixture(head);
+            Fixture left = new Fixture(this, FixtureType.LEFT);
+            left.setSize(1f, 0.25f * PPM);
+            left.setOffset(-0.45f * PPM, 0f);
+            bodyComponent.addFixture(left);
+            Fixture right = new Fixture(this, FixtureType.RIGHT);
+            right.setSize(1f, 0.25f * PPM);
+            right.setOffset(0.45f * PPM, 0f);
+            bodyComponent.addFixture(right);
+            Fixture hitBox = new Fixture(this, FixtureType.HIT_BOX);
+            hitBox.setSize(0.8f * PPM, 0.5f * PPM);
+            bodyComponent.addFixture(hitBox);
             return bodyComponent;
+        }
+
+        private DebugComponent defineDebugComponent() {
+            BodyComponent bodyComponent = getComponent(BodyComponent.class);
+            DebugComponent debugComponent = new DebugComponent();
+            debugComponent.addDebugHandle(bodyComponent::getCollisionBox, () -> Color.GREEN);
+            bodyComponent.getFixtures().forEach(fixture -> debugComponent.addDebugHandle(fixture::getFixtureBox, () -> Color.GOLD));
+            return debugComponent;
         }
 
         private SpriteComponent defineSpriteComponent() {
@@ -590,6 +679,18 @@ public class TestMegaBuster extends ScreenAdapter {
                 BodyComponent bodyComponent = getComponent(BodyComponent.class);
                 BehaviorComponent behaviorComponent = getComponent(BehaviorComponent.class);
                 Sprite sprite = spriteComponent.getSprite();
+                if (damageTimer.isFinished() && !damageRecoveryTimer.isFinished()) {
+                    damageRecoveryTimer.update(delta);
+                    damageRecoveryBlinkTimer.update(delta);
+                    sprite.setAlpha(recoveryBlink ? 0f : 1f);
+                    if (damageRecoveryBlinkTimer.isFinished()) {
+                        recoveryBlink = !recoveryBlink;
+                        damageRecoveryBlinkTimer.reset();
+                    }
+                } 
+                if (damageRecoveryTimer.isJustFinished()) {
+                    sprite.setAlpha(1f);
+                }
                 if (behaviorComponent.is(WALL_SLIDING)) {
                     sprite.setFlip(isFacing(Facing.RIGHT), false);
                 } else {
@@ -604,32 +705,30 @@ public class TestMegaBuster extends ScreenAdapter {
             });
             return spriteComponent;
         }
-        
+
         private AnimationComponent defineAnimationComponent(TextureAtlas textureAtlas) {
             Supplier<String> keySupplier = () -> {
                 BodyComponent bodyComponent = getComponent(BodyComponent.class);
                 BehaviorComponent behaviorComponent = getComponent(BehaviorComponent.class);
-                String key;
-                if (behaviorComponent.is(DAMAGED)) {
-                    key = "Damaged";
+                if (isDamaged()) {
+                    return "Damaged";
                 } else if (behaviorComponent.is(AIR_DASHING)) {
-                    key = "AirDash";
+                    return "AirDash";
                 } else if (behaviorComponent.is(GROUND_SLIDING)) {
-                    key = "GroundSlide";
+                    return "GroundSlide";
                 } else if (behaviorComponent.is(WALL_SLIDING)) {
-                    key = isShooting() ? "WallSlideShoot" : "WallSlide";
-                } else if (behaviorComponent.is(JUMPING) || !bodyComponent.isColliding(Direction.DOWN)) {
-                    key = isShooting() ? "JumpShoot" : "Jump";
+                    return isShooting() ? "WallSlideShoot" : "WallSlide";
+                } else if (behaviorComponent.is(JUMPING) || !bodyComponent.is(BodySense.FEET_ON_GROUND)) {
+                    return isShooting() ? "JumpShoot" : "Jump";
                 } else if (bodyComponent.is(BodySense.FEET_ON_GROUND) && behaviorComponent.is(RUNNING)) {
-                    key = isShooting() ? "RunShoot" : "Run";
+                    return isShooting() ? "RunShoot" : "Run";
                 } else if (behaviorComponent.is(CLIMBING)) {
-                    key = isShooting() ? "ClimbShoot" : "Climb";
+                    return isShooting() ? "ClimbShoot" : "Climb";
                 } else if (bodyComponent.is(BodySense.FEET_ON_GROUND) && Math.abs(bodyComponent.getVelocity().x) > 3f) {
-                    key = isShooting() ? "SlipSlideShoot" : "SlipSlide";
+                    return isShooting() ? "SlipSlideShoot" : "SlipSlide";
                 } else {
-                    key = isShooting() ? "StandShoot" : "Stand";
+                    return isShooting() ? "StandShoot" : "Stand";
                 }
-                return key;
             };
             Map<String, TimedAnimation> animations = new HashMap<>();
             animations.put("Climb", new TimedAnimation(textureAtlas.findRegion("Climb"), 2, 0.125f));
@@ -656,7 +755,7 @@ public class TestMegaBuster extends ScreenAdapter {
 
     @Getter
     @Setter
-    static class TestBullet extends Entity implements Damager, CullOnOutOfGameCamBounds, CullOnLevelCamTrans {
+    static class TestBullet extends Entity implements CullOnOutOfGameCamBounds, CullOnLevelCamTrans {
 
         private int damage;
         private Entity owner;
@@ -665,7 +764,6 @@ public class TestMegaBuster extends ScreenAdapter {
 
         private final IAssetLoader assetLoader;
         private final IEntitiesAndSystemsManager entitiesAndSystemsManager;
-        private final Set<Class<? extends Damageable>> damageableMaskSet = Set.of(TestPlayer.class);
 
         public TestBullet(Entity owner, Vector2 trajectory, Vector2 spawn, TextureRegion textureRegion,
                           IAssetLoader assetLoader, IEntitiesAndSystemsManager entitiesAndSystemsManager) {
@@ -684,11 +782,6 @@ public class TestMegaBuster extends ScreenAdapter {
         }
 
         @Override
-        public <T extends Damageable> void onDamageInflictedTo(Class<T> damageableClass) {
-            die();
-        }
-
-        @Override
         public void die() {
             super.die();
             SoundComponent soundComponent = getComponent(SoundComponent.class);
@@ -701,7 +794,7 @@ public class TestMegaBuster extends ScreenAdapter {
             SpriteComponent spriteComponent = new SpriteComponent();
             Sprite sprite = spriteComponent.getSprite();
             sprite.setRegion(textureRegion);
-            sprite.setSize(PPM, PPM);
+            sprite.setSize(PPM * 1.25f, PPM * 1.25f);
             spriteComponent.setSpriteUpdater(delta -> {
                 BodyComponent bodyComponent = getComponent(BodyComponent.class);
                 sprite.setCenter(bodyComponent.getCenter().x, bodyComponent.getCenter().y);
@@ -778,17 +871,26 @@ public class TestMegaBuster extends ScreenAdapter {
 
         @Override
         public void beginContact(Contact contact, float delta) {
-            if (contact.acceptMask(FixtureType.FEET, FixtureType.BLOCK)) {
+            if (contact.acceptMask(FixtureType.LEFT, FixtureType.BLOCK)) {
+                contact.maskFirstBody().setIs(BodySense.TOUCHING_BLOCK_LEFT);
+            } else if (contact.acceptMask(FixtureType.RIGHT, FixtureType.BLOCK)) {
+                contact.maskFirstBody().setIs(BodySense.TOUCHING_BLOCK_RIGHT);
+            } else if (contact.acceptMask(FixtureType.LEFT, FixtureType.WALL_SLIDE_SENSOR)) {
+                contact.maskFirstBody().setIs(BodySense.TOUCHING_WALL_SLIDE_LEFT);
+            } else if (contact.acceptMask(FixtureType.RIGHT, FixtureType.WALL_SLIDE_SENSOR)) {
+                contact.maskFirstBody().setIs(BodySense.TOUCHING_WALL_SLIDE_RIGHT);
+            } else if (contact.acceptMask(FixtureType.FEET, FixtureType.BLOCK)) {
                 Entity entity = contact.maskFirstEntity();
                 entity.getComponent(BodyComponent.class).setIs(BodySense.FEET_ON_GROUND);
                 if (entity instanceof TestPlayer testPlayer) {
                     testPlayer.setAButtonTask(AButtonTask.JUMP);
                 }
             } else if (contact.acceptMask(FixtureType.HEAD, FixtureType.BLOCK)) {
-                contact.maskFirstEntity().getComponent(BodyComponent.class).setIs(BodySense.HEAD_TOUCHING_BLOCK);
+                contact.maskFirstBody().setIs(BodySense.HEAD_TOUCHING_BLOCK);
             } else if (contact.acceptMask(FixtureType.DAMAGE_BOX, FixtureType.HIT_BOX) &&
-                    contact.maskFirstEntity() instanceof Damager damager && contact.maskSecondEntity() instanceof Damageable damageable &&
-                    damager.isAbleToDamage(damageable) && damageable.canBeDamagedBy(damager)) {
+                    contact.maskFirstEntity() instanceof Damager damager &&
+                    contact.maskSecondEntity() instanceof Damageable damageable &&
+                    damageable.canBeDamagedBy(damager)) {
                 damageable.takeDamageFrom(damager.getClass());
                 damager.onDamageInflictedTo(damageable.getClass());
             } else if (contact.acceptMask(FixtureType.PROJECTILE, FixtureType.BLOCK) &&
@@ -799,7 +901,15 @@ public class TestMegaBuster extends ScreenAdapter {
 
         @Override
         public void continueContact(Contact contact, float delta) {
-            if (contact.acceptMask(FixtureType.FEET, FixtureType.BLOCK)) {
+            if (contact.acceptMask(FixtureType.LEFT, FixtureType.BLOCK)) {
+                contact.maskFirstBody().setIs(BodySense.TOUCHING_BLOCK_LEFT);
+            } else if (contact.acceptMask(FixtureType.RIGHT, FixtureType.BLOCK)) {
+                contact.maskFirstBody().setIs(BodySense.TOUCHING_BLOCK_RIGHT);
+            } else if (contact.acceptMask(FixtureType.LEFT, FixtureType.WALL_SLIDE_SENSOR)) {
+                contact.maskFirstBody().setIs(BodySense.TOUCHING_WALL_SLIDE_LEFT);
+            } else if (contact.acceptMask(FixtureType.RIGHT, FixtureType.WALL_SLIDE_SENSOR)) {
+                contact.maskFirstBody().setIs(BodySense.TOUCHING_WALL_SLIDE_RIGHT);
+            } else if (contact.acceptMask(FixtureType.FEET, FixtureType.BLOCK)) {
                 Entity entity = contact.maskFirstEntity();
                 entity.getComponent(BodyComponent.class).setIs(BodySense.FEET_ON_GROUND);
                 if (entity instanceof TestPlayer testPlayer) {
@@ -808,23 +918,31 @@ public class TestMegaBuster extends ScreenAdapter {
             } else if (contact.acceptMask(FixtureType.HEAD, FixtureType.BLOCK)) {
                 contact.maskFirstEntity().getComponent(BodyComponent.class).setIs(BodySense.HEAD_TOUCHING_BLOCK);
             } else if (contact.acceptMask(FixtureType.DAMAGE_BOX, FixtureType.HIT_BOX) &&
-                    contact.maskFirstEntity() instanceof Damager damager && contact.maskSecondEntity() instanceof Damageable damageable &&
-                    damager.isAbleToDamage(damageable) && damageable.canBeDamagedBy(damager)) {
+                    contact.maskFirstEntity() instanceof Damager damager &&
+                    contact.maskSecondEntity() instanceof Damageable damageable &&
+                    damageable.canBeDamagedBy(damager)) {
                 damageable.takeDamageFrom(damager.getClass());
                 damager.onDamageInflictedTo(damageable.getClass());
-            } 
+            }
         }
 
         @Override
         public void endContact(Contact contact, float delta) {
-            if (contact.acceptMask(FixtureType.FEET, FixtureType.BLOCK)) {
-                Entity entity = contact.maskFirstEntity();
-                entity.getComponent(BodyComponent.class).setIsNot(BodySense.FEET_ON_GROUND);
-                if (entity instanceof TestPlayer testPlayer) {
+            if (contact.acceptMask(FixtureType.LEFT, FixtureType.BLOCK)) {
+                contact.maskFirstBody().setIsNot(BodySense.TOUCHING_BLOCK_LEFT);
+            } else if (contact.acceptMask(FixtureType.RIGHT, FixtureType.BLOCK)) {
+                contact.maskFirstBody().setIsNot(BodySense.TOUCHING_BLOCK_RIGHT);
+            } else if (contact.acceptMask(FixtureType.LEFT, FixtureType.WALL_SLIDE_SENSOR)) {
+                contact.maskFirstBody().setIsNot(BodySense.TOUCHING_WALL_SLIDE_LEFT);
+            } else if (contact.acceptMask(FixtureType.RIGHT, FixtureType.WALL_SLIDE_SENSOR)) {
+                contact.maskFirstBody().setIsNot(BodySense.TOUCHING_WALL_SLIDE_RIGHT);
+            } else if (contact.acceptMask(FixtureType.FEET, FixtureType.BLOCK)) {
+                contact.maskFirstBody().setIsNot(BodySense.FEET_ON_GROUND);
+                if (contact.maskFirstEntity() instanceof TestPlayer testPlayer) {
                     testPlayer.setAButtonTask(AButtonTask.AIR_DASH);
                 }
             } else if (contact.acceptMask(FixtureType.HEAD, FixtureType.BLOCK)) {
-                contact.maskFirstEntity().getComponent(BodyComponent.class).setIsNot(BodySense.HEAD_TOUCHING_BLOCK);
+                contact.maskFirstBody().setIsNot(BodySense.HEAD_TOUCHING_BLOCK);
             }
         }
 
@@ -877,6 +995,8 @@ public class TestMegaBuster extends ScreenAdapter {
     }
 
     private TestPlayer player;
+    private TestDamager testDamager;
+
     private AssetLoader assetLoader;
     private TestController testController;
     private MessageDispatcher messageDispatcher;
@@ -904,8 +1024,7 @@ public class TestMegaBuster extends ScreenAdapter {
         uiViewport.getCamera().position.y = 0f;
         playgroundViewport = new FitViewport(VIEW_WIDTH * PPM, VIEW_HEIGHT * PPM);
         assetLoader = new AssetLoader();
-        entitiesAndSystemsManager.addSystem(new WorldSystem(new TestWorldContactListener(),
-                                                            WorldVals.AIR_RESISTANCE, WorldVals.FIXED_TIME_STEP));
+        entitiesAndSystemsManager.addSystem(new WorldSystem(new TestWorldContactListener(), WorldVals.AIR_RESISTANCE, WorldVals.FIXED_TIME_STEP));
         entitiesAndSystemsManager.addSystem(new UpdatableSystem());
         entitiesAndSystemsManager.addSystem(new ControllerSystem(testController));
         entitiesAndSystemsManager.addSystem(new BehaviorSystem());
@@ -915,6 +1034,8 @@ public class TestMegaBuster extends ScreenAdapter {
         entitiesAndSystemsManager.addSystem(new DebugSystem(shapeRenderer, (OrthographicCamera) playgroundViewport.getCamera()));
         player = new TestPlayer(testController, assetLoader, entitiesAndSystemsManager);
         entitiesAndSystemsManager.addEntity(player);
+        testDamager = new TestDamager(new Rectangle(3f * PPM, 3f * PPM, 3f * PPM, PPM));
+        entitiesAndSystemsManager.addEntity(testDamager);
         defineBlocks();
     }
 
@@ -924,55 +1045,85 @@ public class TestMegaBuster extends ScreenAdapter {
         BodyComponent bodyComponent1 = new BodyComponent(BodyType.STATIC);
         bodyComponent1.setGravityOn(false);
         bodyComponent1.set(0f, 0f, 20f * PPM, PPM);
-        bodyComponent1.setFriction(.035f, .05f);
+        bodyComponent1.setFriction(.035f, .0f);
         Fixture block1 = new Fixture(entity1, FixtureType.BLOCK);
         block1.set(0f, 0f, 20f * PPM, PPM);
         bodyComponent1.addFixture(block1);
         entity1.addComponent(bodyComponent1);
+        Fixture wallSlideLeft1 = new Fixture(entity1, FixtureType.WALL_SLIDE_SENSOR);
+        wallSlideLeft1.setSize(1f, 0.8f * PPM);
+        wallSlideLeft1.setOffset(-10f * PPM, 0f);
+        bodyComponent1.addFixture(wallSlideLeft1);
+        Fixture wallSlideRight1 = new Fixture(entity1, FixtureType.WALL_SLIDE_SENSOR);
+        wallSlideRight1.setSize(1f, 0.8f * PPM);
+        wallSlideRight1.setOffset(10f * PPM, 0f);
+        bodyComponent1.addFixture(wallSlideRight1);
         DebugComponent debugComponent1 = new DebugComponent();
-        debugComponent1.addDebugHandle(new DebugHandle(block1::getFixtureBox, Color.GREEN));
+        debugComponent1.addDebugHandle(block1::getFixtureBox, () -> Color.GREEN);
+        debugComponent1.addDebugHandle(wallSlideLeft1::getFixtureBox, () -> Color.GOLD);
+        debugComponent1.addDebugHandle(wallSlideRight1::getFixtureBox, () -> Color.GOLD);
         entity1.addComponent(debugComponent1);
         entitiesAndSystemsManager.addEntity(entity1);
         // second
         Entity entity2 = new Entity();
         BodyComponent bodyComponent2 = new BodyComponent(BodyType.STATIC);
         bodyComponent2.setGravityOn(false);
-        bodyComponent2.setFriction(.035f, .05f);
+        bodyComponent2.setFriction(.035f, 0f);
         bodyComponent2.set(23f * PPM, 0f, 20f * PPM, PPM);
         Fixture block2 = new Fixture(entity2, FixtureType.BLOCK);
         block2.set(23f * PPM, 0f, 20f * PPM, PPM);
         bodyComponent2.addFixture(block2);
         entity2.addComponent(bodyComponent2);
+        Fixture wallSlideLeft2 = new Fixture(entity2, FixtureType.WALL_SLIDE_SENSOR);
+        wallSlideLeft2.setSize(1f, 0.8f * PPM);
+        wallSlideLeft2.setOffset(-10f * PPM, 0f);
+        bodyComponent2.addFixture(wallSlideLeft2);
+        Fixture wallSlideRight2 = new Fixture(entity2, FixtureType.WALL_SLIDE_SENSOR);
+        wallSlideRight2.setSize(1f, 0.8f * PPM);
+        wallSlideRight2.setOffset(10f * PPM, 0f);
+        bodyComponent2.addFixture(wallSlideRight2);
         DebugComponent debugComponent2 = new DebugComponent();
-        debugComponent2.addDebugHandle(new DebugHandle(block2::getFixtureBox, Color.YELLOW));
+        debugComponent2.addDebugHandle(block2::getFixtureBox, () -> Color.YELLOW);
+        debugComponent2.addDebugHandle(wallSlideLeft2::getFixtureBox, () -> Color.GOLD);
+        debugComponent2.addDebugHandle(wallSlideRight2::getFixtureBox, () -> Color.GOLD);
         entity2.addComponent(debugComponent2);
         entitiesAndSystemsManager.addEntity(entity2);
         // third
         Entity entity3 = new Entity();
         BodyComponent bodyComponent3 = new BodyComponent(BodyType.STATIC);
         bodyComponent3.setGravityOn(false);
-        bodyComponent3.setFriction(.05f, .75f);
+        bodyComponent3.setFriction(.05f, .015f);
         bodyComponent3.set(10f * PPM, 2f * PPM, PPM, 30f * PPM);
         Fixture block3 = new Fixture(entity3, FixtureType.BLOCK);
         block3.set(10f * PPM, 2f * PPM, PPM, 30f * PPM);
         bodyComponent3.addFixture(block3);
         entity3.addComponent(bodyComponent3);
+        Fixture wallSlideLeft3 = new Fixture(entity3, FixtureType.WALL_SLIDE_SENSOR);
+        wallSlideLeft3.setSize(3f, 30f * PPM * .9f);
+        wallSlideLeft3.setOffset((-.5f * PPM) + 1.5f, 0f);
+        bodyComponent3.addFixture(wallSlideLeft3);
+        Fixture wallSlideRight3 = new Fixture(entity3, FixtureType.WALL_SLIDE_SENSOR);
+        wallSlideRight3.setSize(3f, 30f * PPM * .9f);
+        wallSlideRight3.setOffset((.5f * PPM) - 1.5f, 0f);
+        bodyComponent3.addFixture(wallSlideRight3);
         DebugComponent debugComponent3 = new DebugComponent();
-        debugComponent3.addDebugHandle(new DebugHandle(block3::getFixtureBox, Color.RED));
+        debugComponent3.addDebugHandle(block3::getFixtureBox, () -> Color.RED);
+        debugComponent3.addDebugHandle(wallSlideLeft3::getFixtureBox, () -> Color.GOLD);
+        debugComponent3.addDebugHandle(wallSlideRight3::getFixtureBox, () -> Color.GOLD);
         entity3.addComponent(debugComponent3);
         entitiesAndSystemsManager.addEntity(entity3);
         // fourth
         Entity entity4 = new Entity();
         BodyComponent bodyComponent4 = new BodyComponent(BodyType.STATIC);
         bodyComponent4.setGravityOn(false);
-        bodyComponent4.setFriction(.05f, .75f);
+        bodyComponent4.setFriction(.05f, 0f);
         bodyComponent4.set(4f * PPM, 1.65f * PPM, 10f * PPM, PPM);
         Fixture block4 = new Fixture(entity4, FixtureType.BLOCK);
         block4.set(4f * PPM, 1.5f * PPM, 10f * PPM, PPM);
         bodyComponent4.addFixture(block4);
         entity4.addComponent(bodyComponent4);
         DebugComponent debugComponent4 = new DebugComponent();
-        debugComponent4.addDebugHandle(new DebugHandle(block4::getFixtureBox, Color.RED));
+        debugComponent4.addDebugHandle(block4::getFixtureBox, () -> Color.RED);
         entity4.addComponent(debugComponent4);
         entitiesAndSystemsManager.addEntity(entity4);
     }
@@ -989,7 +1140,7 @@ public class TestMegaBuster extends ScreenAdapter {
         playgroundViewport.getCamera().position.x = interpolatedCenter.x;
         playgroundViewport.getCamera().position.y = interpolatedCenter.y;
         playgroundViewport.apply();
-        message.setText("W button task: " + player.getAButtonTask());
+        message.setText("Behaviors: " + player.getComponent(BehaviorComponent.class).getActiveBehaviors());
         spriteBatch.setProjectionMatrix(uiViewport.getCamera().combined);
         spriteBatch.begin();
         message.draw(spriteBatch);
@@ -1002,5 +1153,5 @@ public class TestMegaBuster extends ScreenAdapter {
         uiViewport.update(width, height);
         playgroundViewport.update(width, height);
     }
-
+    
 }

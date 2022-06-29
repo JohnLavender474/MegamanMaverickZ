@@ -37,8 +37,8 @@ public class DebugSystem extends System {
     protected void processEntity(Entity entity, float delta) {
         DebugComponent debugComponent = entity.getComponent(DebugComponent.class);
         debugComponent.getDebugHandles().forEach(debugHandle -> {
-            Rectangle rectangle = debugHandle.rectangleSupplier().get();
-            Color color = debugHandle.color();
+            Rectangle rectangle = debugHandle.key().get();
+            Color color = debugHandle.value().get();
             shapeRenderer.setColor(color);
             shapeRenderer.rect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
         });
