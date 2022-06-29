@@ -40,7 +40,6 @@ import com.game.core.IEntitiesAndSystemsManager;
 import com.game.core.IMessageDispatcher;
 import com.game.debugging.DebugComponent;
 import com.game.debugging.DebugSystem;
-import com.game.entities.megaman.behaviors.MegamanRun;
 import com.game.screens.levels.CullOnLevelCamTrans;
 import com.game.screens.levels.CullOnOutOfGameCamBounds;
 import com.game.screens.levels.LevelCameraFocusable;
@@ -73,7 +72,6 @@ import static com.game.controllers.ControllerButtonStatus.IS_JUST_RELEASED;
 import static com.game.controllers.ControllerUtils.*;
 
 public class TestDamageScreen extends ScreenAdapter {
-
 
     static class AssetLoader implements IAssetLoader, Disposable {
 
@@ -254,7 +252,8 @@ public class TestDamageScreen extends ScreenAdapter {
 
         private DebugComponent defineDebugComponent() {
             DebugComponent debugComponent = new DebugComponent();
-            debugComponent.addDebugHandle(() -> getComponent(BodyComponent.class).getCollisionBox(), () -> timer.isFinished() ? Color.PURPLE : Color.RED);
+            debugComponent.addDebugHandle(() -> getComponent(BodyComponent.class).getCollisionBox(),
+                                          () -> timer.isFinished() ? Color.PURPLE : Color.RED);
             return debugComponent;
         }
 
@@ -375,7 +374,8 @@ public class TestDamageScreen extends ScreenAdapter {
             UpdatableComponent updatableComponent = new UpdatableComponent();
             updatableComponent.setUpdatable(delta -> {
                 priorFocusBox.set(currentFocusBox);
-                UtilMethods.setBottomCenterToPoint(currentFocusBox, UtilMethods.bottomCenterPoint(getComponent(BodyComponent.class).getCollisionBox()));
+                UtilMethods.setBottomCenterToPoint(
+                        currentFocusBox, UtilMethods.bottomCenterPoint(getComponent(BodyComponent.class).getCollisionBox()));
                 damageTimer.update(delta);
                 if (damageTimer.isJustFinished()) {
                     damageRecoveryTimer.reset();
@@ -403,7 +403,7 @@ public class TestDamageScreen extends ScreenAdapter {
                         setFacing(behaviorComponent.is(WALL_SLIDING) ? Facing.RIGHT : Facing.LEFT);
                     }
                     behaviorComponent.set(RUNNING, !behaviorComponent.is(WALL_SLIDING));
-                    if (bodyComponent.getVelocity().x > -MegamanRun.RUN_SPEED * PPM) {
+                    if (bodyComponent.getVelocity().x > -4f * PPM) {
                         bodyComponent.applyImpulse(-PPM * 50f * delta, 0f);
                     }
                 }
@@ -427,7 +427,7 @@ public class TestDamageScreen extends ScreenAdapter {
                         setFacing(behaviorComponent.is(WALL_SLIDING) ? Facing.LEFT : Facing.RIGHT);
                     }
                     behaviorComponent.set(RUNNING, !behaviorComponent.is(WALL_SLIDING));
-                    if (bodyComponent.getVelocity().x < MegamanRun.RUN_SPEED * PPM) {
+                    if (bodyComponent.getVelocity().x < -4f * PPM) {
                         bodyComponent.applyImpulse(PPM * 50f * delta, 0f);
                     }
                 }
@@ -855,11 +855,6 @@ public class TestDamageScreen extends ScreenAdapter {
             addComponent(defineAnimationComponent(assetLoader));
             addComponent(defineSpriteComponent(center));
             addComponent(defineUpdatableComponent());
-        }
-
-        @Override
-        public void onDeath() {
-
         }
 
         private BodyComponent defineBodyComponent(Vector2 center) {

@@ -5,10 +5,10 @@ import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
 import com.game.ConstVals.TextureAssets;
 import com.game.Entity;
+import com.game.GameContext2d;
 import com.game.animations.AnimationComponent;
 import com.game.animations.Animator;
 import com.game.animations.TimedAnimation;
-import com.game.core.IAssetLoader;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
 import com.game.utils.Timer;
@@ -33,11 +33,12 @@ public class Disintegration implements Entity {
 
     private final Timer timer = new Timer(DISINTEGRATION_DURATION);
 
-    public Disintegration(IAssetLoader assetLoader, Vector2 center) {
+    public Disintegration(GameContext2d gameContext, Vector2 center) {
         addComponent(new SpriteComponent());
         addComponent(defineUpdatableComponent());
         addComponent(defineBodyComponent(center));
-        addComponent(defineAnimationComponent(assetLoader));
+        addComponent(defineSpriteComponent(center));
+        addComponent(defineAnimationComponent(gameContext));
     }
 
     private BodyComponent defineBodyComponent(Vector2 center) {
@@ -49,9 +50,16 @@ public class Disintegration implements Entity {
         return bodyComponent;
     }
 
-    private AnimationComponent defineAnimationComponent(IAssetLoader assetLoader) {
+    private SpriteComponent defineSpriteComponent(Vector2 center) {
+        SpriteComponent spriteComponent = new SpriteComponent();
+        spriteComponent.getSprite().setSize(PPM, PPM);
+        spriteComponent.getSprite().setCenter(center.x, center.y);
+        return spriteComponent;
+    }
+
+    private AnimationComponent defineAnimationComponent(GameContext2d gameContext) {
         Map<String, TimedAnimation> animations = Map.of("Disintegration", new TimedAnimation(
-                assetLoader.getAsset(TextureAssets.DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class).findRegion("Disintegration"), 3, 0.1f));
+                gameContext.getAsset(TextureAssets.DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class).findRegion("Disintegration"), 3, 0.1f));
         Animator animator = new Animator(() -> "Disintegration", animations);
         return new AnimationComponent(animator);
     }
