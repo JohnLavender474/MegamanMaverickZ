@@ -75,12 +75,12 @@ public class LevelCameraManager implements Updatable {
      */
     public boolean isFocusableBoundingBoxInAnyGameRoom() {
         return gameRooms.keySet().stream().anyMatch(
-                gameRoom -> gameRoom.overlaps(levelCameraFocusable.getCurrentBoundingBox()));
+                gameRoom -> gameRoom.overlaps(levelCameraFocusable.getCurrentFocusBox()));
     }
 
     private Rectangle nextGameRoom() {
         return gameRooms.keySet().stream().filter(
-                gameRoom -> gameRoom.contains(levelCameraFocusable.getFocus())).findFirst().orElse(null);
+                gameRoom -> gameRoom.contains(levelCameraFocusable.getCurrentFocus())).findFirst().orElse(null);
     }
 
     @Override
@@ -90,7 +90,7 @@ public class LevelCameraManager implements Updatable {
              case 1: if current game room is null, try to find next game room and assign it to current game room,
              wait until next update cycle to attempt another action
 
-             case 2: if current game room contains levelCameraFocusable, then set camera position to getFocus and
+             case 2: if current game room contains levelCameraFocusable, then set camera position to getCurrentFocus and
              correct bounds if applicable
 
              case 3: if current game room is not null and doesn't contain levelCameraFocusable, then set next game room,
@@ -99,8 +99,8 @@ public class LevelCameraManager implements Updatable {
              */
             if (currentGameRoom == null) {
                 currentGameRoom = nextGameRoom();
-            } else if (currentGameRoom.contains(levelCameraFocusable.getFocus())) {
-                Vector2 focus = levelCameraFocusable.getFocus();
+            } else if (currentGameRoom.contains(levelCameraFocusable.getCurrentFocus())) {
+                Vector2 focus = levelCameraFocusable.getCurrentFocus();
                 Vector2 priorFocus = levelCameraFocusable.getPriorFocus();
                 Vector2 interpolation = UtilMethods.interpolate(priorFocus, focus, delta);
                 camera.position.x = interpolation.x;
@@ -125,7 +125,7 @@ public class LevelCameraManager implements Updatable {
                 }
                 Rectangle overlap = new Rectangle();
                 transitionDirection = UtilMethods.getOverlapPushDirection(
-                        levelCameraFocusable.getCurrentBoundingBox(), currentGameRoom, overlap);
+                        levelCameraFocusable.getCurrentFocusBox(), currentGameRoom, overlap);
                 // go ahead and set current game room to next room, which needs to be done even if
                 // transition direction is null
                 currentGameRoom = nextGameRoom;

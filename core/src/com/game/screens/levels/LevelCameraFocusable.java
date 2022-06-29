@@ -13,23 +13,23 @@ public interface LevelCameraFocusable {
      *
      * @return the bounding box
      */
-    Rectangle getCurrentBoundingBox();
+    Rectangle getCurrentFocusBox();
 
     /**
      * Get prior bounding box.
      *
      * @return the prior bounding box
      */
-    Rectangle getPriorBoundingBox();
+    Rectangle getPriorFocusBox();
 
     /**
      * Get focus point of object.
      *
      * @return the focus
      */
-    default Vector2 getFocus() {
+    default Vector2 getCurrentFocus() {
         Vector2 center = new Vector2();
-        getCurrentBoundingBox().getCenter(center);
+        getCurrentFocusBox().getCenter(center);
         return center;
     }
 
@@ -40,7 +40,7 @@ public interface LevelCameraFocusable {
      */
     default Vector2 getPriorFocus() {
         Vector2 center = new Vector2();
-        getPriorBoundingBox().getCenter(center);
+        getPriorFocusBox().getCenter(center);
         return center;
     }
 

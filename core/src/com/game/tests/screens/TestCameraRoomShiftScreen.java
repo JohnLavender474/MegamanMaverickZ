@@ -44,12 +44,12 @@ public class TestCameraRoomShiftScreen extends ScreenAdapter {
         private boolean dead;
 
         @Override
-        public Rectangle getCurrentBoundingBox() {
+        public Rectangle getCurrentFocusBox() {
             return getComponent(BodyComponent.class).getCollisionBox();
         }
 
         @Override
-        public Rectangle getPriorBoundingBox() {
+        public Rectangle getPriorFocusBox() {
             return getComponent(BodyComponent.class).getPriorCollisionBox();
         }
 

@@ -153,10 +153,16 @@ public class TestDamageScreen extends ScreenAdapter {
 
         private final Set<Entity> entities = new HashSet<>();
         private final Map<Class<? extends System>, System> systems = new LinkedHashMap<>();
+        private final Queue<Entity> queuedEntities = new ArrayDeque<>();
+        private boolean updating;
 
         @Override
         public void addEntity(Entity entity) {
-            entities.add(entity);
+            if (updating) {
+                queuedEntities.add(entity);
+            } else {
+                entities.add(entity);
+            }
         }
 
         @Override
@@ -182,6 +188,10 @@ public class TestDamageScreen extends ScreenAdapter {
 
         @Override
         public void updateSystems(float delta) {
+            updating = true;
+            while (!queuedEntities.isEmpty()) {
+                entities.add(queuedEntities.poll());
+            }
             Iterator<Entity> entityIterator = entities.iterator();
             while (entityIterator.hasNext()) {
                 Entity entity = entityIterator.next();
@@ -204,6 +214,7 @@ public class TestDamageScreen extends ScreenAdapter {
                 }
             }
             systems.values().forEach(system -> system.update(delta));
+            updating = false;
         }
 
     }
@@ -222,11 +233,6 @@ public class TestDamageScreen extends ScreenAdapter {
             addComponent(defineBodyComponent(bounds));
             addComponent(defineDebugComponent());
             addComponent(defineUpdatableComponent());
-        }
-
-        @Override
-        public void onDeath() {
-
         }
 
         @Override
@@ -283,17 +289,20 @@ public class TestDamageScreen extends ScreenAdapter {
         private boolean isCharging;
         private Facing facing = Facing.RIGHT;
         private AButtonTask aButtonTask = AButtonTask.JUMP;
-        
-        private final Timer airDashTimer = new Timer(0.25f);
-        private final Timer groundSlideTimer = new Timer(0.35f);
-        private final Timer wallJumpImpetusTimer = new Timer(0.2f);
-        private final Timer megaBusterChargingTimer = new Timer(0.5f);
-        private final Timer shootCoolDownTimer = new Timer(0.1f);
-        private final Timer shootAnimationTimer = new Timer(0.5f);
 
-        private final Timer damageTimer = new Timer(0.75f);
+        private final Rectangle priorFocusBox = new Rectangle(0f, 0f, .8f * PPM, .95f * PPM);
+        private final Rectangle currentFocusBox = new Rectangle(0f, 0f, .8f * PPM, .95f * PPM);
+        
+        private final Timer airDashTimer = new Timer(.25f);
+        private final Timer groundSlideTimer = new Timer(.35f);
+        private final Timer wallJumpImpetusTimer = new Timer(.2f);
+        private final Timer megaBusterChargingTimer = new Timer(.5f);
+        private final Timer shootCoolDownTimer = new Timer(.1f);
+        private final Timer shootAnimationTimer = new Timer(.5f);
+
+        private final Timer damageTimer = new Timer(.75f);
         private final Timer damageRecoveryTimer = new Timer(1.5f);
-        private final Timer damageRecoveryBlinkTimer = new Timer(0.05f);
+        private final Timer damageRecoveryBlinkTimer = new Timer(.05f);
         private boolean recoveryBlink;
 
         public TestPlayer(IController controller, IAssetLoader assetLoader, IEntitiesAndSystemsManager entitiesAndSystemsManager) {
@@ -362,19 +371,11 @@ public class TestDamageScreen extends ScreenAdapter {
             shootAnimationTimer.reset();
         }
 
-        @Override
-        public Rectangle getCurrentBoundingBox() {
-            return getComponent(BodyComponent.class).getCollisionBox();
-        }
-
-        @Override
-        public Rectangle getPriorBoundingBox() {
-            return getComponent(BodyComponent.class).getPriorCollisionBox();
-        }
-
         private UpdatableComponent defineUpdatableComponent() {
             UpdatableComponent updatableComponent = new UpdatableComponent();
             updatableComponent.setUpdatable(delta -> {
+                priorFocusBox.set(currentFocusBox);
+                UtilMethods.setBottomCenterToPoint(currentFocusBox, UtilMethods.bottomCenterPoint(getComponent(BodyComponent.class).getCollisionBox()));
                 damageTimer.update(delta);
                 if (damageTimer.isJustFinished()) {
                     damageRecoveryTimer.reset();
@@ -643,13 +644,13 @@ public class TestDamageScreen extends ScreenAdapter {
         private BodyComponent defineBodyComponent() {
             BodyComponent bodyComponent = new BodyComponent(BodyType.DYNAMIC);
             bodyComponent.setPosition(3f * PPM, 3f * PPM);
-            bodyComponent.setWidth(0.8f * PPM);
+            bodyComponent.setWidth(.8f * PPM);
             bodyComponent.setPreProcess(delta -> {
                 BehaviorComponent behaviorComponent = getComponent(BehaviorComponent.class);
                 if (behaviorComponent.is(GROUND_SLIDING)) {
-                    bodyComponent.setHeight(0.45f * PPM);
+                    bodyComponent.setHeight(.45f * PPM);
                 } else {
-                    bodyComponent.setHeight(0.95f * PPM);
+                    bodyComponent.setHeight(.95f * PPM);
                 }
                 if (bodyComponent.getVelocity().y < 0f && !bodyComponent.is(BodySense.FEET_ON_GROUND)) {
                     bodyComponent.setGravity(-60f * PPM);
@@ -666,15 +667,15 @@ public class TestDamageScreen extends ScreenAdapter {
             head.setOffset(0f, PPM / 2f);
             bodyComponent.addFixture(head);
             Fixture left = new Fixture(this, FixtureType.LEFT);
-            left.setSize(1f, 0.25f * PPM);
-            left.setOffset(-0.45f * PPM, 0f);
+            left.setSize(1f, .25f * PPM);
+            left.setOffset(-.45f * PPM, 0f);
             bodyComponent.addFixture(left);
             Fixture right = new Fixture(this, FixtureType.RIGHT);
-            right.setSize(1f, 0.25f * PPM);
-            right.setOffset(0.45f * PPM, 0f);
+            right.setSize(1f, .25f * PPM);
+            right.setOffset(.45f * PPM, 0f);
             bodyComponent.addFixture(right);
             Fixture hitBox = new Fixture(this, FixtureType.HIT_BOX);
-            hitBox.setSize(0.8f * PPM, 0.5f * PPM);
+            hitBox.setSize(.8f * PPM, .5f * PPM);
             bodyComponent.addFixture(hitBox);
             return bodyComponent;
         }
@@ -726,7 +727,7 @@ public class TestDamageScreen extends ScreenAdapter {
                 BodyComponent bodyComponent = getComponent(BodyComponent.class);
                 BehaviorComponent behaviorComponent = getComponent(BehaviorComponent.class);
                 if (isDamaged()) {
-                    return "Damaged";
+                    return behaviorComponent.is(GROUND_SLIDING) ? "LayDownDamaged" : "Damaged";
                 } else if (behaviorComponent.is(AIR_DASHING)) {
                     return "AirDash";
                 } else if (behaviorComponent.is(GROUND_SLIDING)) {
@@ -746,13 +747,14 @@ public class TestDamageScreen extends ScreenAdapter {
                 }
             };
             Map<String, TimedAnimation> animations = new HashMap<>();
-            animations.put("Climb", new TimedAnimation(textureAtlas.findRegion("Climb"), 2, 0.125f));
+            animations.put("Climb", new TimedAnimation(textureAtlas.findRegion("Climb"), 2, .125f));
             animations.put("ClimbShoot", new TimedAnimation(textureAtlas.findRegion("ClimbShoot")));
-            animations.put("Stand", new TimedAnimation(textureAtlas.findRegion("Stand"), new float[]{1.5f, 0.15f}));
+            animations.put("Stand", new TimedAnimation(textureAtlas.findRegion("Stand"), new float[]{1.5f, .15f}));
             animations.put("StandShoot", new TimedAnimation(textureAtlas.findRegion("StandShoot")));
-            animations.put("Damaged", new TimedAnimation(textureAtlas.findRegion("Damaged"), 3, 0.05f));
-            animations.put("Run", new TimedAnimation(textureAtlas.findRegion("Run"), 4, 0.125f));
-            animations.put("RunShoot", new TimedAnimation(textureAtlas.findRegion("RunShoot"), 4, 0.125f));
+            animations.put("Damaged", new TimedAnimation(textureAtlas.findRegion("Damaged"), 3, .05f));
+            animations.put("LayDownDamaged", new TimedAnimation(textureAtlas.findRegion("LayDownDamaged"), 3, .05f));
+            animations.put("Run", new TimedAnimation(textureAtlas.findRegion("Run"), 4, .125f));
+            animations.put("RunShoot", new TimedAnimation(textureAtlas.findRegion("RunShoot"), 4, .125f));
             animations.put("Jump", new TimedAnimation(textureAtlas.findRegion("Jump")));
             animations.put("JumpShoot", new TimedAnimation(textureAtlas.findRegion("JumpShoot")));
             animations.put("WallSlide", new TimedAnimation(textureAtlas.findRegion("WallSlide")));
@@ -778,7 +780,7 @@ public class TestDamageScreen extends ScreenAdapter {
         private int damage;
         private Entity owner;
         private final Vector2 trajectory = new Vector2();
-        private final Timer cullTimer = new Timer(0.15f);
+        private final Timer cullTimer = new Timer(.15f);
 
         private final IAssetLoader assetLoader;
         private final IEntitiesAndSystemsManager entitiesAndSystemsManager;
@@ -822,14 +824,14 @@ public class TestDamageScreen extends ScreenAdapter {
         private BodyComponent defineBodyComponent(Vector2 spawn) {
             BodyComponent bodyComponent = new BodyComponent(BodyType.DYNAMIC);
             bodyComponent.setPreProcess(delta -> bodyComponent.setVelocity(trajectory));
-            bodyComponent.setSize(0.1f * PPM, 0.1f * PPM);
+            bodyComponent.setSize(.1f * PPM, .1f * PPM);
             bodyComponent.setCenter(spawn.x, spawn.y);
             Fixture projectile = new Fixture(this, FixtureType.PROJECTILE);
-            projectile.setSize(0.1f * PPM, 0.1f * PPM);
+            projectile.setSize(.1f * PPM, .1f * PPM);
             projectile.setCenter(spawn.x, spawn.y);
             bodyComponent.addFixture(projectile);
             Fixture damageBox = new Fixture(this, FixtureType.DAMAGE_BOX);
-            damageBox.setSize(0.1f * PPM, 0.1f * PPM);
+            damageBox.setSize(.1f * PPM, .1f * PPM);
             damageBox.setCenter(spawn.x, spawn.y);
             bodyComponent.addFixture(damageBox);
             return bodyComponent;
@@ -841,7 +843,7 @@ public class TestDamageScreen extends ScreenAdapter {
     @Setter
     static class TestDisintegration implements Entity {
 
-        public static final float DISINTEGRATION_DURATION = 0.15f;
+        public static final float DISINTEGRATION_DURATION = .15f;
 
         private final Map<Class<? extends Component>, Component> components = new HashMap<>();
         private boolean dead;
@@ -878,7 +880,7 @@ public class TestDamageScreen extends ScreenAdapter {
 
         private AnimationComponent defineAnimationComponent(IAssetLoader assetLoader) {
             Map<String, TimedAnimation> animations = Map.of("Disintegration", new TimedAnimation(
-                    assetLoader.getAsset(TextureAssets.DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class).findRegion("Disintegration"), 3, 0.1f));
+                    assetLoader.getAsset(TextureAssets.DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class).findRegion("Disintegration"), 3, .1f));
             Animator animator = new Animator(() -> "Disintegration", animations);
             return new AnimationComponent(animator);
         }
@@ -1063,9 +1065,6 @@ public class TestDamageScreen extends ScreenAdapter {
 
     }
 
-    private TestPlayer player;
-    private TestDamager testDamager;
-
     private AssetLoader assetLoader;
     private TestController testController;
     private MessageDispatcher messageDispatcher;
@@ -1073,6 +1072,8 @@ public class TestDamageScreen extends ScreenAdapter {
 
     private Viewport uiViewport;
     private Viewport playgroundViewport;
+    private LevelCameraFocusable focusable;
+
     private ShapeRenderer shapeRenderer;
     private SpriteBatch spriteBatch;
     private FontHandle message;
@@ -1101,10 +1102,13 @@ public class TestDamageScreen extends ScreenAdapter {
         entitiesAndSystemsManager.addSystem(new AnimationSystem());
         entitiesAndSystemsManager.addSystem(new SoundSystem(assetLoader));
         entitiesAndSystemsManager.addSystem(new DebugSystem(shapeRenderer, (OrthographicCamera) playgroundViewport.getCamera()));
-        player = new TestPlayer(testController, assetLoader, entitiesAndSystemsManager);
+        TestPlayer player = new TestPlayer(testController, assetLoader, entitiesAndSystemsManager);
+        focusable = player;
         entitiesAndSystemsManager.addEntity(player);
-        testDamager = new TestDamager(new Rectangle(3f * PPM, 3f * PPM, 3f * PPM, PPM));
-        entitiesAndSystemsManager.addEntity(testDamager);
+        TestDamager damager1 = new TestDamager(new Rectangle(3f * PPM, 3f * PPM, 3f * PPM, PPM));
+        entitiesAndSystemsManager.addEntity(damager1);
+        TestDamager damager2 = new TestDamager(new Rectangle(5f * PPM, 0f, PPM, 5f * PPM));
+        entitiesAndSystemsManager.addEntity(damager2);
         TestBlock testBlock1 = new TestBlock(new Rectangle(0f, 0f, 20f * PPM, PPM), false, false, new Vector2(.035f, 0f));
         entitiesAndSystemsManager.addEntity(testBlock1);
         TestBlock testBlock2 = new TestBlock(new Rectangle(23f * PPM, 0f, 20f * PPM, PPM), false, false, new Vector2(.035f, 0f));
@@ -1120,18 +1124,10 @@ public class TestDamageScreen extends ScreenAdapter {
         testController.updateController();
         entitiesAndSystemsManager.updateSystems(delta);
         messageDispatcher.updateMessageDispatcher(delta);
-        BodyComponent bodyComponent = player.getComponent(BodyComponent.class);
-        Vector2 priorCenter = UtilMethods.bottomCenterPoint(bodyComponent.getPriorCollisionBox());
-        Vector2 currentCenter = UtilMethods.bottomCenterPoint(bodyComponent.getCollisionBox());
-        Vector2 interpolatedCenter = UtilMethods.interpolate(priorCenter, currentCenter, delta);
+        Vector2 interpolatedCenter = UtilMethods.interpolate(focusable.getPriorFocus(), focusable.getCurrentFocus(), delta);
         playgroundViewport.getCamera().position.x = interpolatedCenter.x;
         playgroundViewport.getCamera().position.y = interpolatedCenter.y;
         playgroundViewport.apply();
-        message.setText("Behaviors: " + player.getComponent(BehaviorComponent.class).getActiveBehaviors());
-        spriteBatch.setProjectionMatrix(uiViewport.getCamera().combined);
-        spriteBatch.begin();
-        message.draw(spriteBatch);
-        spriteBatch.end();
         uiViewport.apply();
     }
 
