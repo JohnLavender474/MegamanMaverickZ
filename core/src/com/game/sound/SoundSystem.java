@@ -2,9 +2,9 @@ package com.game.sound;
 
 import com.badlogic.gdx.audio.Sound;
 import com.game.Component;
+import com.game.Entity;
 import com.game.core.IAssetLoader;
 import com.game.System;
-import com.game.Entity;
 import lombok.RequiredArgsConstructor;
 
 import java.util.*;

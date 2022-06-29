@@ -13,8 +13,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.game.ConstVals.MegamanVals;
 import com.game.GameContext2d;
-import com.game.megaman.Megaman;
-import com.game.megaman.MegamanStats;
+import com.game.entities.megaman.Megaman;
+import com.game.entities.megaman.MegamanStats;
 import com.game.utils.Direction;
 import com.game.utils.FontHandle;
 import com.game.utils.Timer;
@@ -128,7 +128,7 @@ public class LevelScreen extends ScreenAdapter {
                         .frustum.boundsInFrustum(cullBBox)) {
                     cullable.getCullTimer().update(delta);
                     if (cullable.getCullTimer().isFinished()) {
-                        entity.die();
+                        entity.setDead(true);
                     }
                 } else {
                     cullable.getCullTimer().reset();
@@ -143,7 +143,7 @@ public class LevelScreen extends ScreenAdapter {
                     // TODO: turn off other relevant systems
                     gameContext.viewOfEntities().forEach(entity -> {
                         if (entity instanceof CullOnLevelCamTrans) {
-                            entity.die();
+                            entity.setDead(true);
                         }
                     });
                 }

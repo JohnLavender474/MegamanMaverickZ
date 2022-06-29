@@ -16,12 +16,10 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.game.*;
 import com.game.ConstVals.TextureAssets;
 import com.game.ConstVals.VolumeVals;
 import com.game.ConstVals.WorldVals;
-import com.game.Entity;
-import com.game.Message;
-import com.game.MessageListener;
 import com.game.System;
 import com.game.animations.AnimationComponent;
 import com.game.animations.AnimationSystem;
@@ -42,7 +40,7 @@ import com.game.core.IEntitiesAndSystemsManager;
 import com.game.core.IMessageDispatcher;
 import com.game.debugging.DebugComponent;
 import com.game.debugging.DebugSystem;
-import com.game.megaman.behaviors.MegamanRun;
+import com.game.entities.megaman.behaviors.MegamanRun;
 import com.game.screens.levels.CullOnLevelCamTrans;
 import com.game.screens.levels.CullOnOutOfGameCamBounds;
 import com.game.screens.levels.LevelCameraFocusable;
@@ -193,6 +191,7 @@ public class TestDamageScreen extends ScreenAdapter {
                             system.removeEntity(entity);
                         }
                     });
+                    entity.onDeath();
                     entityIterator.remove();
                 } else {
                     systems.values().forEach(system -> {
@@ -211,7 +210,10 @@ public class TestDamageScreen extends ScreenAdapter {
 
     @Getter
     @Setter
-    static class TestDamager extends Entity implements Damager {
+    static class TestDamager implements Entity, Damager {
+
+        private final Map<Class<? extends Component>, Component> components = new HashMap<>();
+        private boolean dead;
 
         private final Timer timer = new Timer(1f);
 
@@ -220,6 +222,11 @@ public class TestDamageScreen extends ScreenAdapter {
             addComponent(defineBodyComponent(bounds));
             addComponent(defineDebugComponent());
             addComponent(defineUpdatableComponent());
+        }
+
+        @Override
+        public void onDeath() {
+
         }
 
         @Override
@@ -259,12 +266,15 @@ public class TestDamageScreen extends ScreenAdapter {
 
     @Getter
     @Setter
-    static class TestPlayer extends Entity implements Damageable, Faceable, LevelCameraFocusable {
+    static class TestPlayer implements Entity, Damageable, Faceable, LevelCameraFocusable {
 
         enum AButtonTask {
             JUMP,
             AIR_DASH
         }
+
+        private final Map<Class<? extends Component>, Component> components = new HashMap<>();
+        private boolean dead;
 
         private final IController controller;
         private final IAssetLoader assetLoader;
@@ -302,6 +312,11 @@ public class TestDamageScreen extends ScreenAdapter {
             wallJumpImpetusTimer.setToEnd();
             damageTimer.setToEnd();
             damageRecoveryTimer.setToEnd();
+        }
+
+        @Override
+        public void onDeath() {
+
         }
 
         @Override
@@ -755,7 +770,10 @@ public class TestDamageScreen extends ScreenAdapter {
 
     @Getter
     @Setter
-    static class TestBullet extends Entity implements CullOnOutOfGameCamBounds, CullOnLevelCamTrans {
+    static class TestBullet implements Entity, CullOnOutOfGameCamBounds, CullOnLevelCamTrans {
+
+        private final Map<Class<? extends Component>, Component> components = new HashMap<>();
+        private boolean dead;
 
         private int damage;
         private Entity owner;
@@ -782,8 +800,7 @@ public class TestDamageScreen extends ScreenAdapter {
         }
 
         @Override
-        public void die() {
-            super.die();
+        public void onDeath() {
             SoundComponent soundComponent = getComponent(SoundComponent.class);
             soundComponent.request(new SoundRequest(THUMP_SOUND, false, Percentage.of(VolumeVals.HIGH_VOLUME)));
             TestDisintegration disintegration = new TestDisintegration(assetLoader, getComponent(BodyComponent.class).getCenter());
@@ -820,9 +837,14 @@ public class TestDamageScreen extends ScreenAdapter {
 
     }
 
-    static class TestDisintegration extends Entity {
+    @Getter
+    @Setter
+    static class TestDisintegration implements Entity {
 
         public static final float DISINTEGRATION_DURATION = 0.15f;
+
+        private final Map<Class<? extends Component>, Component> components = new HashMap<>();
+        private boolean dead;
 
         private final Timer timer = new Timer(DISINTEGRATION_DURATION);
 
@@ -831,6 +853,11 @@ public class TestDamageScreen extends ScreenAdapter {
             addComponent(defineAnimationComponent(assetLoader));
             addComponent(defineSpriteComponent(center));
             addComponent(defineUpdatableComponent());
+        }
+
+        @Override
+        public void onDeath() {
+
         }
 
         private BodyComponent defineBodyComponent(Vector2 center) {
@@ -860,9 +887,51 @@ public class TestDamageScreen extends ScreenAdapter {
             return new UpdatableComponent(delta -> {
                 timer.update(delta);
                 if (timer.isFinished()) {
-                    die();
+                    setDead(true);
                 }
             });
+        }
+
+    }
+
+    @Getter
+    @Setter
+    static class TestBlock implements Entity {
+
+        private final Map<Class<? extends Component>, Component> components = new HashMap<>();
+        private boolean dead;
+
+        public TestBlock(Rectangle bounds, boolean affectedByResistance, boolean gravityOn, Vector2 friction) {
+            addComponent(defineBodyComponent(bounds, affectedByResistance, gravityOn, friction));
+            addComponent(defineDebugComponent());
+        }
+
+        private BodyComponent defineBodyComponent(Rectangle bounds, boolean affectedByResistance, boolean gravityOn, Vector2 friction) {
+            BodyComponent bodyComponent = new BodyComponent(BodyType.STATIC);
+            bodyComponent.set(bounds);
+            bodyComponent.setFriction(friction);
+            bodyComponent.setGravityOn(gravityOn);
+            bodyComponent.setAffectedByResistance(affectedByResistance);
+            Fixture block = new Fixture(this, FixtureType.BLOCK);
+            block.set(bodyComponent.getCollisionBox());
+            bodyComponent.addFixture(block);
+            Fixture wallSlideLeft = new Fixture(this, FixtureType.WALL_SLIDE_SENSOR);
+            wallSlideLeft.setSize(3f, bounds.height - PPM / 3f);
+            wallSlideLeft.setOffset(-bounds.width / 2f, 0f);
+            bodyComponent.addFixture(wallSlideLeft);
+            Fixture wallSlideRight = new Fixture(this,FixtureType.WALL_SLIDE_SENSOR);
+            wallSlideRight.setSize(3f, bounds.height - PPM / 3f);
+            wallSlideRight.setOffset(bounds.width / 2f, 0f);
+            bodyComponent.addFixture(wallSlideRight);
+            return bodyComponent;
+        }
+
+        private DebugComponent defineDebugComponent() {
+            DebugComponent debugComponent = new DebugComponent();
+            BodyComponent bodyComponent = getComponent(BodyComponent.class);
+            debugComponent.addDebugHandle(bodyComponent::getCollisionBox, () -> Color.BLUE);
+            bodyComponent.getFixtures().forEach(fixture -> debugComponent.addDebugHandle(fixture::getFixtureBox, () -> Color.GOLD));
+            return debugComponent;
         }
 
     }
@@ -895,7 +964,7 @@ public class TestDamageScreen extends ScreenAdapter {
                 damager.onDamageInflictedTo(damageable.getClass());
             } else if (contact.acceptMask(FixtureType.PROJECTILE, FixtureType.BLOCK) &&
                     contact.maskFirstEntity() instanceof TestBullet testBullet) {
-                testBullet.die();
+                testBullet.setDead(true);
             }
         }
 
@@ -1036,96 +1105,14 @@ public class TestDamageScreen extends ScreenAdapter {
         entitiesAndSystemsManager.addEntity(player);
         testDamager = new TestDamager(new Rectangle(3f * PPM, 3f * PPM, 3f * PPM, PPM));
         entitiesAndSystemsManager.addEntity(testDamager);
-        defineBlocks();
-    }
-
-    private void defineBlocks() {
-        // first
-        Entity entity1 = new Entity();
-        BodyComponent bodyComponent1 = new BodyComponent(BodyType.STATIC);
-        bodyComponent1.setGravityOn(false);
-        bodyComponent1.set(0f, 0f, 20f * PPM, PPM);
-        bodyComponent1.setFriction(.035f, .0f);
-        Fixture block1 = new Fixture(entity1, FixtureType.BLOCK);
-        block1.set(0f, 0f, 20f * PPM, PPM);
-        bodyComponent1.addFixture(block1);
-        entity1.addComponent(bodyComponent1);
-        Fixture wallSlideLeft1 = new Fixture(entity1, FixtureType.WALL_SLIDE_SENSOR);
-        wallSlideLeft1.setSize(1f, 0.8f * PPM);
-        wallSlideLeft1.setOffset(-10f * PPM, 0f);
-        bodyComponent1.addFixture(wallSlideLeft1);
-        Fixture wallSlideRight1 = new Fixture(entity1, FixtureType.WALL_SLIDE_SENSOR);
-        wallSlideRight1.setSize(1f, 0.8f * PPM);
-        wallSlideRight1.setOffset(10f * PPM, 0f);
-        bodyComponent1.addFixture(wallSlideRight1);
-        DebugComponent debugComponent1 = new DebugComponent();
-        debugComponent1.addDebugHandle(block1::getFixtureBox, () -> Color.GREEN);
-        debugComponent1.addDebugHandle(wallSlideLeft1::getFixtureBox, () -> Color.GOLD);
-        debugComponent1.addDebugHandle(wallSlideRight1::getFixtureBox, () -> Color.GOLD);
-        entity1.addComponent(debugComponent1);
-        entitiesAndSystemsManager.addEntity(entity1);
-        // second
-        Entity entity2 = new Entity();
-        BodyComponent bodyComponent2 = new BodyComponent(BodyType.STATIC);
-        bodyComponent2.setGravityOn(false);
-        bodyComponent2.setFriction(.035f, 0f);
-        bodyComponent2.set(23f * PPM, 0f, 20f * PPM, PPM);
-        Fixture block2 = new Fixture(entity2, FixtureType.BLOCK);
-        block2.set(23f * PPM, 0f, 20f * PPM, PPM);
-        bodyComponent2.addFixture(block2);
-        entity2.addComponent(bodyComponent2);
-        Fixture wallSlideLeft2 = new Fixture(entity2, FixtureType.WALL_SLIDE_SENSOR);
-        wallSlideLeft2.setSize(1f, 0.8f * PPM);
-        wallSlideLeft2.setOffset(-10f * PPM, 0f);
-        bodyComponent2.addFixture(wallSlideLeft2);
-        Fixture wallSlideRight2 = new Fixture(entity2, FixtureType.WALL_SLIDE_SENSOR);
-        wallSlideRight2.setSize(1f, 0.8f * PPM);
-        wallSlideRight2.setOffset(10f * PPM, 0f);
-        bodyComponent2.addFixture(wallSlideRight2);
-        DebugComponent debugComponent2 = new DebugComponent();
-        debugComponent2.addDebugHandle(block2::getFixtureBox, () -> Color.YELLOW);
-        debugComponent2.addDebugHandle(wallSlideLeft2::getFixtureBox, () -> Color.GOLD);
-        debugComponent2.addDebugHandle(wallSlideRight2::getFixtureBox, () -> Color.GOLD);
-        entity2.addComponent(debugComponent2);
-        entitiesAndSystemsManager.addEntity(entity2);
-        // third
-        Entity entity3 = new Entity();
-        BodyComponent bodyComponent3 = new BodyComponent(BodyType.STATIC);
-        bodyComponent3.setGravityOn(false);
-        bodyComponent3.setFriction(.05f, .015f);
-        bodyComponent3.set(10f * PPM, 2f * PPM, PPM, 30f * PPM);
-        Fixture block3 = new Fixture(entity3, FixtureType.BLOCK);
-        block3.set(10f * PPM, 2f * PPM, PPM, 30f * PPM);
-        bodyComponent3.addFixture(block3);
-        entity3.addComponent(bodyComponent3);
-        Fixture wallSlideLeft3 = new Fixture(entity3, FixtureType.WALL_SLIDE_SENSOR);
-        wallSlideLeft3.setSize(3f, 30f * PPM * .9f);
-        wallSlideLeft3.setOffset((-.5f * PPM) + 1.5f, 0f);
-        bodyComponent3.addFixture(wallSlideLeft3);
-        Fixture wallSlideRight3 = new Fixture(entity3, FixtureType.WALL_SLIDE_SENSOR);
-        wallSlideRight3.setSize(3f, 30f * PPM * .9f);
-        wallSlideRight3.setOffset((.5f * PPM) - 1.5f, 0f);
-        bodyComponent3.addFixture(wallSlideRight3);
-        DebugComponent debugComponent3 = new DebugComponent();
-        debugComponent3.addDebugHandle(block3::getFixtureBox, () -> Color.RED);
-        debugComponent3.addDebugHandle(wallSlideLeft3::getFixtureBox, () -> Color.GOLD);
-        debugComponent3.addDebugHandle(wallSlideRight3::getFixtureBox, () -> Color.GOLD);
-        entity3.addComponent(debugComponent3);
-        entitiesAndSystemsManager.addEntity(entity3);
-        // fourth
-        Entity entity4 = new Entity();
-        BodyComponent bodyComponent4 = new BodyComponent(BodyType.STATIC);
-        bodyComponent4.setGravityOn(false);
-        bodyComponent4.setFriction(.05f, 0f);
-        bodyComponent4.set(4f * PPM, 1.65f * PPM, 10f * PPM, PPM);
-        Fixture block4 = new Fixture(entity4, FixtureType.BLOCK);
-        block4.set(4f * PPM, 1.5f * PPM, 10f * PPM, PPM);
-        bodyComponent4.addFixture(block4);
-        entity4.addComponent(bodyComponent4);
-        DebugComponent debugComponent4 = new DebugComponent();
-        debugComponent4.addDebugHandle(block4::getFixtureBox, () -> Color.RED);
-        entity4.addComponent(debugComponent4);
-        entitiesAndSystemsManager.addEntity(entity4);
+        TestBlock testBlock1 = new TestBlock(new Rectangle(0f, 0f, 20f * PPM, PPM), false, false, new Vector2(.035f, 0f));
+        entitiesAndSystemsManager.addEntity(testBlock1);
+        TestBlock testBlock2 = new TestBlock(new Rectangle(23f * PPM, 0f, 20f * PPM, PPM), false, false, new Vector2(.035f, 0f));
+        entitiesAndSystemsManager.addEntity(testBlock2);
+        TestBlock testBlock3 = new TestBlock(new Rectangle(10f * PPM, 2f * PPM, PPM, 30f * PPM), false, false, new Vector2(.035f, 0f));
+        entitiesAndSystemsManager.addEntity(testBlock3);
+        TestBlock testBlock4 = new TestBlock(new Rectangle(4f * PPM, 1.65f * PPM, 10f * PPM, PPM), false, false, new Vector2(.035f, 0f));
+        entitiesAndSystemsManager.addEntity(testBlock4);
     }
 
     @Override

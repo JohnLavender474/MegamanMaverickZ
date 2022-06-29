@@ -1,8 +1,8 @@
 package com.game.updatables;
 
 import com.game.Component;
-import com.game.System;
 import com.game.Entity;
+import com.game.System;
 
 import java.util.Set;
 

@@ -1,9 +1,5 @@
 package com.game.contracts;
 
-import com.game.Entity;
-
-import java.util.Set;
-
 /**
  * Interface for {@link Entity} instances that are able to inflict damage.
  */

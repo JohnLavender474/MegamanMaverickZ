@@ -1,7 +1,8 @@
-package com.game.decoration;
+package com.game.entities.decorations;
 
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
+import com.game.Component;
 import com.game.ConstVals.TextureAssets;
 import com.game.Entity;
 import com.game.animations.AnimationComponent;
@@ -13,14 +14,22 @@ import com.game.updatables.UpdatableComponent;
 import com.game.utils.Timer;
 import com.game.world.BodyComponent;
 import com.game.world.BodyType;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static com.game.ConstVals.ViewVals.PPM;
 
-public class Disintegration extends Entity {
+@Getter
+@Setter
+public class Disintegration implements Entity {
 
     public static final float DISINTEGRATION_DURATION = 1f;
+
+    private final Map<Class<? extends Component>, Component> components = new HashMap<>();
+    private boolean dead;
 
     private final Timer timer = new Timer(DISINTEGRATION_DURATION);
 
@@ -51,7 +60,7 @@ public class Disintegration extends Entity {
         return new UpdatableComponent(delta -> {
             timer.update(delta);
             if (timer.isFinished()) {
-                die();
+                setDead(true);
             }
         });
     }

@@ -1,18 +1,19 @@
-package com.game.megaman;
+package com.game.entities.megaman;
 
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Rectangle;
+import com.game.Component;
 import com.game.ConstVals.TextureAssets;
+import com.game.Entity;
 import com.game.GameContext2d;
 import com.game.animations.AnimationComponent;
 import com.game.animations.Animator;
-import com.game.Entity;
 import com.game.animations.TimedAnimation;
 import com.game.behaviors.BehaviorComponent;
 import com.game.contracts.Faceable;
 import com.game.contracts.Facing;
 import com.game.health.HealthComponent;
-import com.game.megaman.behaviors.MegamanRun;
+import com.game.entities.megaman.behaviors.MegamanRun;
 import com.game.screens.levels.LevelCameraFocusable;
 import com.game.sprites.SpriteComponent;
 import com.game.utils.Timer;
@@ -32,7 +33,7 @@ import static com.game.behaviors.BehaviorType.*;
  */
 @Getter
 @Setter
-public class Megaman extends Entity implements Faceable, LevelCameraFocusable {
+public class Megaman implements Entity, Faceable, LevelCameraFocusable {
 
     public static final float MEGAMAN_GRAVITY = -7f;
 
@@ -41,8 +42,10 @@ public class Megaman extends Entity implements Faceable, LevelCameraFocusable {
         AIR_DASH
     }
 
-    private final Timer gravityTimer = new Timer(0.5f);
+    private final Map<Class<? extends Component>, Component> components = new HashMap<>();
+    private boolean dead;
 
+    private final Timer gravityTimer = new Timer(0.5f);
     private final Map<String, Rectangle> spawns;
     private final MegamanStats megamanStats;
     private A_ButtonAction aButtonAction;

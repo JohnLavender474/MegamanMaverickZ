@@ -4,10 +4,9 @@ import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
-import com.game.System;
 import com.game.Entity;
+import com.game.System;
 import com.game.updatables.Updatable;
-import com.game.utils.UtilMethods;
 import lombok.RequiredArgsConstructor;
 
 import java.util.*;

@@ -83,17 +83,6 @@ public class Fixture {
         fixtureBox.setCenter(x, y);
     }
 
-    /**
-     * Get user data.
-     *
-     * @param <T>    the type parameter
-     * @param tClass the t class
-     * @return the user data
-     */
-    public <T> T getUserData(Class<T> tClass) {
-        return tClass.cast(userData);
-    }
-
     @Override
     public boolean equals(Object o) {
         return o instanceof Fixture fixture && fixture.getFixtureType().equals(fixtureType);

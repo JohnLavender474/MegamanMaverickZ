@@ -28,7 +28,7 @@ import com.game.controllers.ControllerButtonStatus;
 import com.game.controllers.ControllerSystem;
 import com.game.debugging.DebugSystem;
 import com.game.health.HealthSystem;
-import com.game.megaman.MegamanStats;
+import com.game.entities.megaman.MegamanStats;
 import com.game.screens.levels.LevelScreen;
 import com.game.screens.menu.impl.MainMenuScreen;
 import com.game.sprites.SpriteSystem;

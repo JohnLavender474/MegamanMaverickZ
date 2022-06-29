@@ -1,7 +1,7 @@
 package com.game.core;
 
-import com.game.System;
 import com.game.Entity;
+import com.game.System;
 
 import java.util.Collection;
 

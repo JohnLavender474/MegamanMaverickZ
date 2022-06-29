@@ -1,11 +1,11 @@
-package com.game.megaman;
+package com.game.entities.megaman;
 
 import com.badlogic.gdx.math.Rectangle;
 import org.junit.Before;
 import org.junit.Test;
 
 import static com.game.ConstVals.ViewVals.PPM;
-import static com.game.megaman.behaviors.MegamanRun.RUN_SPEED;
+import static com.game.entities.megaman.behaviors.MegamanRun.RUN_SPEED;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 

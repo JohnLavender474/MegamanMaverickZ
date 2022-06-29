@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.game.Component;
 import com.game.ConstVals.WorldVals;
 import com.game.Entity;
 import com.game.screens.levels.LevelCameraFocusable;
@@ -21,6 +22,8 @@ import com.game.world.BodyComponent;
 import com.game.world.BodyType;
 import com.game.world.WorldContactListenerImpl;
 import com.game.world.WorldSystem;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,7 +36,12 @@ import static com.game.screens.levels.LevelScreen.MEGAMAN_DELTA_ON_CAM_TRANS;
 
 public class TestCameraRoomShiftScreen extends ScreenAdapter {
 
-    private static class TestEntity extends Entity implements LevelCameraFocusable {
+    @Getter
+    @Setter
+    private static class TestEntity implements Entity, LevelCameraFocusable {
+
+        private final Map<Class<? extends Component>, Component> components = new HashMap<>();
+        private boolean dead;
 
         @Override
         public Rectangle getCurrentBoundingBox() {
