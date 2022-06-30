@@ -73,10 +73,7 @@ public class LevelScreen extends ScreenAdapter {
         Map<String, Rectangle> megamanSpawns = levelTiledMap.getObjectsOfLayer(PLAYER_SPAWNS.getLayerName())
                 .stream().collect(Collectors.toMap(
                         MapObject::getName, RectangleMapObject::getRectangle));
-        MegamanStats megamanStats = gameContext.getBlackboardObject(
-                MegamanVals.MEGAMAN_STATS, MegamanStats.class);
-        megaman = new Megaman(gameContext, megamanSpawns, megamanStats);
-        megaman.setCurrentSpawn("Start");
+        MegamanStats megamanStats = gameContext.getBlackboardObject(MegamanVals.MEGAMAN_STATS, MegamanStats.class);
         // ------------------------------------------------------------------------------
         // TODO: Replace with proper entrance
         Vector2 testSpawnPos = new Vector2();
@@ -85,8 +82,7 @@ public class LevelScreen extends ScreenAdapter {
         // ------------------------------------------------------------------------------
         gameContext.addEntity(megaman);
         // Static blocks
-        List<RectangleMapObject> blockRectangleMapObjs = levelTiledMap
-                .getObjectsOfLayer(STATIC_BLOCKS.getLayerName());
+        List<RectangleMapObject> blockRectangleMapObjs = levelTiledMap.getObjectsOfLayer(STATIC_BLOCKS.getLayerName());
         // Blocks
 
         // Get game rooms layer

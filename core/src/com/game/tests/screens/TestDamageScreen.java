@@ -427,7 +427,7 @@ public class TestDamageScreen extends ScreenAdapter {
                         setFacing(behaviorComponent.is(WALL_SLIDING) ? Facing.LEFT : Facing.RIGHT);
                     }
                     behaviorComponent.set(RUNNING, !behaviorComponent.is(WALL_SLIDING));
-                    if (bodyComponent.getVelocity().x < -4f * PPM) {
+                    if (bodyComponent.getVelocity().x < 4f * PPM) {
                         bodyComponent.applyImpulse(PPM * 50f * delta, 0f);
                     }
                 }
