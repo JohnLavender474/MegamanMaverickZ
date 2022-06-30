@@ -33,7 +33,7 @@ public class HealthBarUi implements Drawable {
         this.camera = camera;
         containerSprite.setRegion(containerRegion);
         containerSprite.setBounds(containerBounds.x, containerBounds.y,
-                                  containerBounds.width, containerBounds.height);
+                containerBounds.width, containerBounds.height);
         healthBitSprite.setRegion(healthBitRegion);
         healthBitSprite.setX(containerBounds.x);
         healthBitSprite.setSize(containerBounds.width, containerBounds.height / (float) maxHealthBits);

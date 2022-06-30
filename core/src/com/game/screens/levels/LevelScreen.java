@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 
 import static com.game.ConstVals.LevelTiledMapLayer.*;
 import static com.game.ConstVals.RenderingGround.PLAYGROUND;
-import static com.game.ConstVals.ViewVals.*;
+import static com.game.ConstVals.ViewVals.PPM;
 
 // TODO: Dispose of assets in level screen when leaving level
 

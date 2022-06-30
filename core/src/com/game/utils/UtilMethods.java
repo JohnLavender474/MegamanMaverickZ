@@ -30,8 +30,8 @@ public class UtilMethods {
      */
     public static BoundingBox rectToBBox(Rectangle rectangle) {
         return new BoundingBox(new Vector3(rectangle.getX(), rectangle.getY(), 0.0f),
-                               new Vector3(rectangle.getX() + rectangle.getWidth(),
-                                           rectangle.getY() + rectangle.getHeight(), 0.0f));
+                new Vector3(rectangle.getX() + rectangle.getWidth(),
+                        rectangle.getY() + rectangle.getHeight(), 0.0f));
     }
 
     /**
@@ -142,24 +142,15 @@ public class UtilMethods {
      */
     public static void positionRectOntoOther(Rectangle toBeMoved, Rectangle staticRect, Position position) {
         switch (position) {
-            case TOP_LEFT ->
-                    setTopLeftToPoint(toBeMoved, topLeftPoint(staticRect));
-            case TOP_CENTER ->
-                    setTopCenterToPoint(toBeMoved, topCenterPoint(staticRect));
-            case TOP_RIGHT ->
-                    setTopRightToPoint(toBeMoved, topRightPoint(staticRect));
-            case CENTER_LEFT ->
-                    setCenterLeftToPoint(toBeMoved, centerLeftPoint(staticRect));
-            case CENTER ->
-                    toBeMoved.setCenter(centerPoint(staticRect));
-            case CENTER_RIGHT ->
-                    setCenterRightToPoint(toBeMoved, centerRightPoint(staticRect));
-            case BOTTOM_LEFT ->
-                    toBeMoved.setPosition(staticRect.x, staticRect.y);
-            case BOTTOM_CENTER ->
-                    setBottomCenterToPoint(toBeMoved, bottomCenterPoint(staticRect));
-            case BOTTOM_RIGHT ->
-                    setBottomRightToPoint(toBeMoved, bottomRightPoint(staticRect));
+            case TOP_LEFT -> setTopLeftToPoint(toBeMoved, topLeftPoint(staticRect));
+            case TOP_CENTER -> setTopCenterToPoint(toBeMoved, topCenterPoint(staticRect));
+            case TOP_RIGHT -> setTopRightToPoint(toBeMoved, topRightPoint(staticRect));
+            case CENTER_LEFT -> setCenterLeftToPoint(toBeMoved, centerLeftPoint(staticRect));
+            case CENTER -> toBeMoved.setCenter(centerPoint(staticRect));
+            case CENTER_RIGHT -> setCenterRightToPoint(toBeMoved, centerRightPoint(staticRect));
+            case BOTTOM_LEFT -> toBeMoved.setPosition(staticRect.x, staticRect.y);
+            case BOTTOM_CENTER -> setBottomCenterToPoint(toBeMoved, bottomCenterPoint(staticRect));
+            case BOTTOM_RIGHT -> setBottomRightToPoint(toBeMoved, bottomRightPoint(staticRect));
         }
     }
 

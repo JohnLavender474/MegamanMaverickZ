@@ -12,15 +12,15 @@ import java.util.function.Supplier;
 @RequiredArgsConstructor
 public class Animator {
 
-    private String currentAnimationKey;
     private final Supplier<String> animationKeySupplier;
     private final Map<String, TimedAnimation> animations;
+    private String currentAnimationKey;
 
     /**
      * Animates the supplied {@link Sprite}.
      *
      * @param sprite the sprite
-     * @param delta the delta time
+     * @param delta  the delta time
      */
     public void animate(Sprite sprite, float delta) {
         String priorAnimationKey = currentAnimationKey;

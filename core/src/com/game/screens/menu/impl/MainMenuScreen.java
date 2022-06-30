@@ -25,18 +25,6 @@ import static com.game.ConstVals.ViewVals.PPM;
  */
 public class MainMenuScreen extends MenuScreen {
 
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private enum MainMenuButton {
-
-        GAME_START("GAME START"),
-        PASS_WORD("PASS WORD"),
-        SETTINGS("SETTINGS"),
-        EXIT("EXIT");
-
-        private final String prompt;
-
-    }
-
     private final Sprite title = new Sprite();
     private final Sprite arrow = new Sprite();
     private final Sprite helmet = new Sprite();
@@ -45,7 +33,6 @@ public class MainMenuScreen extends MenuScreen {
     private final Map<MainMenuButton, FontHandle> fonts = new EnumMap<>(MainMenuButton.class);
     private final Map<MainMenuButton, Vector2> arrowCenters = new EnumMap<>(MainMenuButton.class);
     private boolean arrowIsVisible;
-
     /**
      * Instantiates a new Main Menu Screen.
      *
@@ -107,81 +94,97 @@ public class MainMenuScreen extends MenuScreen {
     @Override
     protected Map<String, MenuButton> defineMenuButtons() {
         return new HashMap<>() {{
-           put(MainMenuButton.GAME_START.name(), new MenuButton() {
-               @Override
-               public void onSelect(float delta) {
-                   // TODO: Set to boss menu screen
-                   // gameContext.setScreen("");
-               }
-               @Override
-               public void onNavigate(Direction direction, float delta) {
-                   if (direction == Direction.DOWN) {
-                       setMenuButton(MainMenuButton.PASS_WORD.name());
-                       Vector2 center = arrowCenters.get(MainMenuButton.PASS_WORD);
-                       arrow.setCenter(center.x, center.y);
-                   }
-               }
-           });
-           put(MainMenuButton.PASS_WORD.name(), new MenuButton() {
-               @Override
-               public void onSelect(float delta) {
-                   // TODO: Set to password screen
-                   // gameContext.setScreen("");
-               }
-               @Override
-               public void onNavigate(Direction direction, float delta) {
-                   switch (direction) {
-                       case UP -> {
-                           setMenuButton(MainMenuButton.GAME_START.name());
-                           Vector2 center = arrowCenters.get(MainMenuButton.GAME_START);
-                           arrow.setCenter(center.x, center.y);
-                       }
-                       case DOWN -> {
-                           setMenuButton(MainMenuButton.SETTINGS.name());
-                           Vector2 center = arrowCenters.get(MainMenuButton.SETTINGS);
-                           arrow.setCenter(center.x, center.y);
-                       }
-                   }
-               }
-           });
-           put(MainMenuButton.SETTINGS.name(), new MenuButton() {
-               @Override
-               public void onSelect(float delta) {
-                   // TODO: Set to settings screen
-                   // gameContext.setScreen("");
-               }
-               @Override
-               public void onNavigate(Direction direction, float delta) {
-                   switch (direction) {
-                       case UP -> {
-                           setMenuButton(MainMenuButton.PASS_WORD.name());
-                           Vector2 center = arrowCenters.get(MainMenuButton.PASS_WORD);
-                           arrow.setCenter(center.x, center.y);
-                       }
-                       case DOWN -> {
-                           setMenuButton(MainMenuButton.EXIT.name());
-                           Vector2 center = arrowCenters.get(MainMenuButton.EXIT);
-                           arrow.setCenter(center.x, center.y);
-                       }
-                   }
-               }
-           });
-           put(MainMenuButton.EXIT.name(), new MenuButton() {
-               @Override
-               public void onSelect(float delta) {
-                   // TODO: Set to exit screen
-                   // gameContext.setScreen("");
-               }
-               @Override
-               public void onNavigate(Direction direction, float delta) {
-                   if (direction == Direction.UP) {
-                       setMenuButton(MainMenuButton.SETTINGS.name());
-                       Vector2 center = arrowCenters.get(MainMenuButton.SETTINGS);
-                       arrow.setCenter(center.x, center.y);
-                   }
-               }
-           });
+            put(MainMenuButton.GAME_START.name(), new MenuButton() {
+                @Override
+                public void onSelect(float delta) {
+                    // TODO: Set to boss menu screen
+                    // gameContext.setScreen("");
+                }
+
+                @Override
+                public void onNavigate(Direction direction, float delta) {
+                    if (direction == Direction.DOWN) {
+                        setMenuButton(MainMenuButton.PASS_WORD.name());
+                        Vector2 center = arrowCenters.get(MainMenuButton.PASS_WORD);
+                        arrow.setCenter(center.x, center.y);
+                    }
+                }
+            });
+            put(MainMenuButton.PASS_WORD.name(), new MenuButton() {
+                @Override
+                public void onSelect(float delta) {
+                    // TODO: Set to password screen
+                    // gameContext.setScreen("");
+                }
+
+                @Override
+                public void onNavigate(Direction direction, float delta) {
+                    switch (direction) {
+                        case UP -> {
+                            setMenuButton(MainMenuButton.GAME_START.name());
+                            Vector2 center = arrowCenters.get(MainMenuButton.GAME_START);
+                            arrow.setCenter(center.x, center.y);
+                        }
+                        case DOWN -> {
+                            setMenuButton(MainMenuButton.SETTINGS.name());
+                            Vector2 center = arrowCenters.get(MainMenuButton.SETTINGS);
+                            arrow.setCenter(center.x, center.y);
+                        }
+                    }
+                }
+            });
+            put(MainMenuButton.SETTINGS.name(), new MenuButton() {
+                @Override
+                public void onSelect(float delta) {
+                    // TODO: Set to settings screen
+                    // gameContext.setScreen("");
+                }
+
+                @Override
+                public void onNavigate(Direction direction, float delta) {
+                    switch (direction) {
+                        case UP -> {
+                            setMenuButton(MainMenuButton.PASS_WORD.name());
+                            Vector2 center = arrowCenters.get(MainMenuButton.PASS_WORD);
+                            arrow.setCenter(center.x, center.y);
+                        }
+                        case DOWN -> {
+                            setMenuButton(MainMenuButton.EXIT.name());
+                            Vector2 center = arrowCenters.get(MainMenuButton.EXIT);
+                            arrow.setCenter(center.x, center.y);
+                        }
+                    }
+                }
+            });
+            put(MainMenuButton.EXIT.name(), new MenuButton() {
+                @Override
+                public void onSelect(float delta) {
+                    // TODO: Set to exit screen
+                    // gameContext.setScreen("");
+                }
+
+                @Override
+                public void onNavigate(Direction direction, float delta) {
+                    if (direction == Direction.UP) {
+                        setMenuButton(MainMenuButton.SETTINGS.name());
+                        Vector2 center = arrowCenters.get(MainMenuButton.SETTINGS);
+                        arrow.setCenter(center.x, center.y);
+                    }
+                }
+            });
         }};
+    }
+
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private enum MainMenuButton {
+
+        GAME_START("GAME START"),
+        PASS_WORD("PASS WORD"),
+        SETTINGS("SETTINGS"),
+        EXIT("EXIT");
+
+        private final String prompt;
+
     }
 
 }

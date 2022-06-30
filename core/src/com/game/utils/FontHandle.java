@@ -1,6 +1,7 @@
 package com.game.utils;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
@@ -13,8 +14,10 @@ import lombok.Setter;
 public class FontHandle implements Drawable {
 
     private final BitmapFont font;
-    @Getter private final Vector2 position = new Vector2();
-    @Setter private String text = "";
+    @Getter
+    private final Vector2 position = new Vector2();
+    @Setter
+    private String text = "";
 
     public FontHandle(String ttfSrc, int fontSize) {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal(ttfSrc));
@@ -22,6 +25,18 @@ public class FontHandle implements Drawable {
         parameter.size = fontSize;
         font = generator.generateFont(parameter);
         generator.dispose();
+    }
+
+    public void setColor(Color color) {
+        font.setColor(color);
+    }
+
+    public void setPosition(Vector2 position) {
+        this.position.set(position);
+    }
+
+    public void setPosition(float x, float y) {
+        position.set(x, y);
     }
 
     @Override

@@ -11,6 +11,7 @@ import lombok.Setter;
  */
 @Getter
 public class SpriteComponent implements Component {
-    @Setter private Updatable spriteUpdater;
     private final Sprite sprite = new Sprite();
+    @Setter
+    private Updatable spriteUpdater;
 }

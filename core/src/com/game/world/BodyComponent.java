@@ -3,9 +3,10 @@ package com.game.world;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
-import com.game.utils.Direction;
 import com.game.updatables.Updatable;
-import lombok.*;
+import com.game.utils.Direction;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.*;
 
@@ -27,12 +28,18 @@ public class BodyComponent implements Component {
             put(direction, false);
         }
     }};
-    @Setter private float gravity;
-    @Setter private BodyType bodyType;
-    @Setter private Updatable preProcess;
-    @Setter private Updatable postProcess;
-    @Setter private boolean gravityOn = true;
-    @Setter private boolean affectedByResistance = true;
+    @Setter
+    private float gravity;
+    @Setter
+    private BodyType bodyType;
+    @Setter
+    private Updatable preProcess;
+    @Setter
+    private Updatable postProcess;
+    @Setter
+    private boolean gravityOn = true;
+    @Setter
+    private boolean affectedByResistance = true;
 
     /**
      * Instantiates a new Body Component.
@@ -104,15 +111,6 @@ public class BodyComponent implements Component {
     }
 
     /**
-     * Sets position.
-     *
-     * @param position the position
-     */
-    public void setPosition(Vector2 position) {
-        setPosition(position.x, position.y);
-    }
-
-    /**
      * Set position.
      *
      * @param x the x
@@ -134,12 +132,12 @@ public class BodyComponent implements Component {
     }
 
     /**
-     * Sets center.
+     * Sets position.
      *
-     * @param center the center
+     * @param position the position
      */
-    public void setCenter(Vector2 center) {
-        setCenter(center.x, center.y);
+    public void setPosition(Vector2 position) {
+        setPosition(position.x, position.y);
     }
 
     /**
@@ -161,6 +159,15 @@ public class BodyComponent implements Component {
         Vector2 center = new Vector2();
         collisionBox.getCenter(center);
         return center;
+    }
+
+    /**
+     * Sets center.
+     *
+     * @param center the center
+     */
+    public void setCenter(Vector2 center) {
+        setCenter(center.x, center.y);
     }
 
     /**

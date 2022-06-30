@@ -2,7 +2,8 @@ package com.game.controllers;
 
 import com.badlogic.gdx.Input.Keys;
 
-import static com.game.controllers.ControllerUtils.*;
+import static com.game.controllers.ControllerUtils.getController;
+import static com.game.controllers.ControllerUtils.isControllerConnected;
 
 /**
  * The accepted buttons on a controller.

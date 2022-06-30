@@ -7,14 +7,14 @@ public interface Entity {
 
     Map<Class<? extends Component>, Component> getComponents();
 
-    void setDead(boolean dead);
-
     boolean isDead();
+
+    void setDead(boolean dead);
 
     default void onDeath() {}
 
     default <C> C getComponent(Class<C> componentClass) {
-       return componentClass.cast(getComponents().get(componentClass));
+        return componentClass.cast(getComponents().get(componentClass));
     }
 
     default boolean hasAllComponents(Collection<Class<? extends Component>> clazzes) {

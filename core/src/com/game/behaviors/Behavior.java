@@ -15,9 +15,9 @@ import java.util.function.Supplier;
 @RequiredArgsConstructor
 public abstract class Behavior implements Updatable {
 
+    private final List<Supplier<Boolean>> overrides = new ArrayList<>();
     private boolean runningNow = false;
     private boolean runningPrior = false;
-    private final List<Supplier<Boolean>> overrides = new ArrayList<>();
 
     /**
      * Returns if the behavior is accepted to run

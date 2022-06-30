@@ -3,11 +3,14 @@ package com.game.sound;
 import com.badlogic.gdx.audio.Sound;
 import com.game.Component;
 import com.game.Entity;
-import com.game.core.IAssetLoader;
 import com.game.System;
+import com.game.core.IAssetLoader;
 import lombok.RequiredArgsConstructor;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
 
 @RequiredArgsConstructor
 public class SoundSystem extends System {

@@ -5,7 +5,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
-import com.game.tests.screens.*;
+import com.game.tests.screens.TestCameraRoomShiftScreen;
+import com.game.tests.screens.TestDamageScreen;
+import com.game.tests.screens.TestDeathScreen;
 import lombok.RequiredArgsConstructor;
 
 import java.util.HashMap;
@@ -14,23 +16,11 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class GameTestRunner extends Game {
 
-    public enum TestScreen {
-        TEST_PPM_AND_MOVEMENT_SPEEDS,
-        TEST_GROUND_DASH_AND_FRICTION,
-        TEST_MEGAMAN_ANIMATIONS,
-        TEST_CAMERA_ROOM_SHIFT,
-        TEST_SPECIAL_MOVEMENTS,
-        TEST_WORLD_SYSTEM,
-        TEST_MEGABUSTER,
-        TEST_DAMAGER,
-    }
-
     private final TestScreen testKey;
-
     private final Map<TestScreen, Screen> testScreens = new HashMap<>() {{
         put(TestScreen.TEST_CAMERA_ROOM_SHIFT, new TestCameraRoomShiftScreen());
         put(TestScreen.TEST_DAMAGER, new TestDamageScreen());
-
+        put(TestScreen.TEST_DEATH, new TestDeathScreen());
     }};
 
     @Override
@@ -52,6 +42,12 @@ public class GameTestRunner extends Game {
     public void dispose() {
         super.dispose();
         screen.dispose();
+    }
+
+    public enum TestScreen {
+        TEST_CAMERA_ROOM_SHIFT,
+        TEST_DAMAGER,
+        TEST_DEATH
     }
 
 }

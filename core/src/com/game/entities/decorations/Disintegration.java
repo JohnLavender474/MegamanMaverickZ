@@ -29,9 +29,8 @@ public class Disintegration implements Entity {
     public static final float DISINTEGRATION_DURATION = 1f;
 
     private final Map<Class<? extends Component>, Component> components = new HashMap<>();
-    private boolean dead;
-
     private final Timer timer = new Timer(DISINTEGRATION_DURATION);
+    private boolean dead;
 
     public Disintegration(GameContext2d gameContext, Vector2 center) {
         addComponent(new SpriteComponent());
@@ -59,7 +58,8 @@ public class Disintegration implements Entity {
 
     private AnimationComponent defineAnimationComponent(GameContext2d gameContext) {
         Map<String, TimedAnimation> animations = Map.of("Disintegration", new TimedAnimation(
-                gameContext.getAsset(TextureAssets.DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class).findRegion("Disintegration"), 3, 0.1f));
+                gameContext.getAsset(TextureAssets.DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class).findRegion(
+                        "Disintegration"), 3, 0.1f));
         Animator animator = new Animator(() -> "Disintegration", animations);
         return new AnimationComponent(animator);
     }

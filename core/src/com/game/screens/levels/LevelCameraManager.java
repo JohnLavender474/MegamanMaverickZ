@@ -5,7 +5,10 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.updatables.Updatable;
-import com.game.utils.*;
+import com.game.utils.Direction;
+import com.game.utils.ProcessState;
+import com.game.utils.Timer;
+import com.game.utils.UtilMethods;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

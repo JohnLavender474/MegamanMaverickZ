@@ -24,6 +24,11 @@ public class HealthSystem extends System {
         if (healthUpdater != null) {
             healthUpdater.update(delta);
         }
+        if (healthComponent.isHealthJustDepleted()) {
+            entity.setDead(true);
+            entity.onDeath();
+        }
+        healthComponent.setPriorHealth(healthComponent.getCurrentHealth());
     }
 
 }

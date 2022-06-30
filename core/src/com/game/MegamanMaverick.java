@@ -27,8 +27,8 @@ import com.game.controllers.ControllerButton;
 import com.game.controllers.ControllerButtonStatus;
 import com.game.controllers.ControllerSystem;
 import com.game.debugging.DebugSystem;
-import com.game.health.HealthSystem;
 import com.game.entities.megaman.MegamanStats;
+import com.game.health.HealthSystem;
 import com.game.screens.levels.LevelScreen;
 import com.game.screens.menu.impl.MainMenuScreen;
 import com.game.sprites.SpriteSystem;
@@ -55,7 +55,8 @@ import static com.game.controllers.ControllerUtils.*;
 @Getter
 public class MegamanMaverick extends Game implements GameContext2d {
 
-    private final Map<ControllerButton, ControllerButtonStatus> controllerButtons = new EnumMap<>(ControllerButton.class);
+    private final Map<ControllerButton, ControllerButtonStatus> controllerButtons =
+            new EnumMap<>(ControllerButton.class);
     private final Map<RenderingGround, Viewport> viewports = new EnumMap<>(RenderingGround.class);
     private final Map<GameScreen, Screen> screens = new EnumMap<>(GameScreen.class);
     private final Queue<KeyValuePair<Rectangle, Color>> debugQueue = new ArrayDeque<>();
@@ -65,9 +66,13 @@ public class MegamanMaverick extends Game implements GameContext2d {
     private final List<Disposable> disposables = new ArrayList<>();
     private final Map<String, Object> blackBoard = new HashMap<>();
     private final Set<Entity> entities = new HashSet<>();
-    @Getter @Setter private GameState gameState;
-    @Getter private ShapeRenderer shapeRenderer;
-    @Getter private SpriteBatch spriteBatch;
+    @Getter
+    @Setter
+    private GameState gameState;
+    @Getter
+    private ShapeRenderer shapeRenderer;
+    @Getter
+    private SpriteBatch spriteBatch;
     private AssetManager assetManager;
 
     @Override
@@ -88,41 +93,41 @@ public class MegamanMaverick extends Game implements GameContext2d {
         spriteBatch = new SpriteBatch();
         disposables.addAll(List.of(assetManager, spriteBatch, shapeRenderer));
         loadAssets(Music.class,
-                   MMX3_INTRO_STAGE_MUSIC,
-                   MMZ_NEO_ARCADIA_MUSIC,
-                   XENOBLADE_GAUR_PLAINS_MUSIC,
-                   MMX_LEVEL_SELECT_SCREEN_MUSIC,
-                   STAGE_SELECT_MM3_MUSIC);
+                MMX3_INTRO_STAGE_MUSIC,
+                MMZ_NEO_ARCADIA_MUSIC,
+                XENOBLADE_GAUR_PLAINS_MUSIC,
+                MMX_LEVEL_SELECT_SCREEN_MUSIC,
+                STAGE_SELECT_MM3_MUSIC);
         loadAssets(Sound.class,
-                   SELECT_PING_SOUND,
-                   MARIO_JUMP_SOUND,
-                   CURSOR_MOVE_BLOOP_SOUND,
-                   DINK_SOUND,
-                   ENEMY_BULLET_SOUND,
-                   ENEMY_DAMAGE_SOUND,
-                   MEGA_BUSTER_BULLET_SHOT_SOUND,
-                   MEGA_BUSTER_CHARGED_SHOT_SOUND,
-                   ENERGY_FILL_SOUND,
-                   MEGA_BUSTER_CHARGING_SOUND,
-                   MEGAMAN_DAMAGE_SOUND,
-                   MEGAMAN_LAND_SOUND,
-                   MEGAMAN_DEFEAT_SOUND,
-                   WHOOSH_SOUND,
-                   THUMP_SOUND,
-                   EXPLOSION_SOUND,
-                   PAUSE_SOUND);
+                SELECT_PING_SOUND,
+                MARIO_JUMP_SOUND,
+                CURSOR_MOVE_BLOOP_SOUND,
+                DINK_SOUND,
+                ENEMY_BULLET_SOUND,
+                ENEMY_DAMAGE_SOUND,
+                MEGA_BUSTER_BULLET_SHOT_SOUND,
+                MEGA_BUSTER_CHARGED_SHOT_SOUND,
+                ENERGY_FILL_SOUND,
+                MEGA_BUSTER_CHARGING_SOUND,
+                MEGAMAN_DAMAGE_SOUND,
+                MEGAMAN_LAND_SOUND,
+                MEGAMAN_DEFEAT_SOUND,
+                WHOOSH_SOUND,
+                THUMP_SOUND,
+                EXPLOSION_SOUND,
+                PAUSE_SOUND);
         loadAssets(TextureAtlas.class,
-                   CHARGE_ORBS_TEXTURE_ATLAS,
-                   OBJECTS_TEXTURE_ATLAS,
-                   MET_TEXTURE_ATLAS,
-                   ENEMIES_TEXTURE_ATLAS,
-                   ITEMS_TEXTURE_ATLAS,
-                   BACKGROUNDS_1_TEXTURE_ATLAS,
-                   MEGAMAN_TEXTURE_ATLAS,
-                   MEGAMAN_CHARGED_SHOT_TEXTURE_ATLAS,
-                   ELECTRIC_BALL_TEXTURE_ATLAS,
-                   DECORATIONS_TEXTURE_ATLAS,
-                   HEALTH_WEAPON_STATS_TEXTURE_ATLAS);
+                CHARGE_ORBS_TEXTURE_ATLAS,
+                OBJECTS_TEXTURE_ATLAS,
+                MET_TEXTURE_ATLAS,
+                ENEMIES_TEXTURE_ATLAS,
+                ITEMS_TEXTURE_ATLAS,
+                BACKGROUNDS_1_TEXTURE_ATLAS,
+                MEGAMAN_TEXTURE_ATLAS,
+                MEGAMAN_CHARGED_SHOT_TEXTURE_ATLAS,
+                ELECTRIC_BALL_TEXTURE_ATLAS,
+                DECORATIONS_TEXTURE_ATLAS,
+                HEALTH_WEAPON_STATS_TEXTURE_ATLAS);
         assetManager.finishLoading();
         // define systems, linked hash map retains insertion order so define iteration order here
         addSystem(new HealthSystem());
@@ -147,7 +152,7 @@ public class MegamanMaverick extends Game implements GameContext2d {
             assetManager.load(source, sClass);
         }
     }
-    
+
     @Override
     public Viewport getViewport(RenderingGround renderingGround) {
         return viewports.get(renderingGround);
@@ -168,7 +173,7 @@ public class MegamanMaverick extends Game implements GameContext2d {
         systems.values().forEach(System::purgeAllEntities);
         entities.clear();
     }
-    
+
     @Override
     public void addSystem(System system) {
         systems.put(system.getClass(), system);
@@ -238,13 +243,13 @@ public class MegamanMaverick extends Game implements GameContext2d {
     public boolean isJustPressed(ControllerButton controllerButton) {
         return controllerButtons.get(controllerButton) == ControllerButtonStatus.IS_JUST_PRESSED;
     }
-    
+
     @Override
     public boolean isPressed(ControllerButton controllerButton) {
         ControllerButtonStatus controllerButtonStatus = controllerButtons.get(controllerButton);
         return controllerButtonStatus == ControllerButtonStatus.IS_JUST_PRESSED || controllerButtonStatus == ControllerButtonStatus.IS_PRESSED;
     }
-    
+
     @Override
     public boolean isJustReleased(ControllerButton controllerButton) {
         return controllerButtons.get(controllerButton) == ControllerButtonStatus.IS_JUST_RELEASED;
@@ -318,7 +323,7 @@ public class MegamanMaverick extends Game implements GameContext2d {
         screen.dispose();
         disposables.forEach(Disposable::dispose);
     }
-    
+
     @Override
     public void resize(int width, int height) {
         super.resize(width, height);

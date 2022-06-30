@@ -1,68 +1,43 @@
 package com.game.health;
 
 import com.game.Component;
-import com.game.utils.Percentage;
-import com.game.utils.Resettable;
 import com.game.updatables.Updatable;
+import com.game.utils.Resettable;
 import lombok.Getter;
 import lombok.Setter;
 
 /**
- * {@link Component} implementation for health. Health consumer consumes {@link #getHealth()}.
+ * {@link Component} implementation for health.
+ *
  */
+@Getter
+@Setter
 public class HealthComponent implements Component, Resettable {
 
-    private final Percentage percentage = Percentage.of(100);
-    @Setter @Getter private Updatable healthUpdater;
+    private Updatable healthUpdater;
+    private int currentHealth;
+    private int priorHealth;
 
-    /**
-     * Get health.
-     *
-     * @return the health
-     */
-    public Integer getHealth() {
-        return percentage.getAsWholeNumber();
+    public HealthComponent() {
+        reset();
     }
 
-    /**
-     * Set health.
-     *
-     * @param health the health
-     */
-    public void setHealth(int health) {
-        percentage.setPercentage(health);
-    }
-
-    /**
-     * Translate health.
-     *
-     * @param delta the delta
-     */
     public void translateHealth(int delta) {
-        percentage.translate(delta);
+        setHealth(currentHealth + delta);
     }
 
-    /**
-     * Return if health is zero.
-     *
-     * @return if health is zero
-     */
-    public boolean isDead() {
-        return percentage.isZero();
+    public void setHealth(int health) {
+        currentHealth = Math.max(0, Math.min(100, health));
     }
 
-    /**
-     * Return if health is max.
-     *
-     * @return if health is max
-     */
-    public boolean isMaxHealth() {
-        return percentage.isFull();
+    public boolean isHealthJustDepleted() {
+        return currentHealth <= 0 && priorHealth > 0;
     }
 
     @Override
     public void reset() {
-        setHealth(100);
+        currentHealth = 100;
+        priorHealth = 100;
     }
 
 }

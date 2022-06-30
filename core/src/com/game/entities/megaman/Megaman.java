@@ -33,7 +33,9 @@ import com.game.world.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import static com.game.ConstVals.ViewVals.PPM;
@@ -47,35 +49,24 @@ import static com.game.behaviors.BehaviorType.*;
 public class Megaman implements Entity, Damageable, Faceable, LevelCameraFocusable {
 
     private static final float RUN_SPEED = 4f;
-    
-    public enum AButtonTask {
-        JUMP,
-        AIR_DASH
-    }
-    
     private final GameContext2d gameContext;
     private final Map<Class<? extends Component>, Component> components = new HashMap<>();
-    private boolean dead;
-    
-    private boolean isCharging;
-    private Facing facing = Facing.RIGHT;
-    private AButtonTask aButtonTask = AButtonTask.JUMP;
-
     private final Rectangle priorFocusBox = new Rectangle(0f, 0f, .8f * PPM, .95f * PPM);
     private final Rectangle currentFocusBox = new Rectangle(0f, 0f, .8f * PPM, .95f * PPM);
-
     private final Timer airDashTimer = new Timer(.25f);
     private final Timer groundSlideTimer = new Timer(.35f);
     private final Timer wallJumpImpetusTimer = new Timer(.2f);
     private final Timer megaBusterChargingTimer = new Timer(.5f);
     private final Timer shootCoolDownTimer = new Timer(.1f);
     private final Timer shootAnimationTimer = new Timer(.5f);
-
     private final Timer damageTimer = new Timer(.75f);
     private final Timer damageRecoveryTimer = new Timer(1.5f);
     private final Timer damageRecoveryBlinkTimer = new Timer(.05f);
+    private boolean dead;
+    private boolean isCharging;
+    private Facing facing = Facing.RIGHT;
+    private AButtonTask aButtonTask = AButtonTask.JUMP;
     private boolean recoveryBlink;
-    
     public Megaman(GameContext2d gameContext) {
         this.gameContext = gameContext;
         addComponent(defineUpdatableComponent());
@@ -84,7 +75,8 @@ public class Megaman implements Entity, Damageable, Faceable, LevelCameraFocusab
         addComponent(defineBodyComponent());
         addComponent(defineDebugComponent());
         addComponent(defineSpriteComponent());
-        addComponent(defineAnimationComponent(gameContext.getAsset(TextureAssets.MEGAMAN_TEXTURE_ATLAS, TextureAtlas.class)));
+        addComponent(defineAnimationComponent(gameContext.getAsset(TextureAssets.MEGAMAN_TEXTURE_ATLAS,
+                TextureAtlas.class)));
         shootCoolDownTimer.setToEnd();
         shootAnimationTimer.setToEnd();
         wallJumpImpetusTimer.setToEnd();
@@ -141,7 +133,8 @@ public class Megaman implements Entity, Damageable, Faceable, LevelCameraFocusab
         UpdatableComponent updatableComponent = new UpdatableComponent();
         updatableComponent.setUpdatable(delta -> {
             priorFocusBox.set(currentFocusBox);
-            UtilMethods.setBottomCenterToPoint(currentFocusBox, UtilMethods.bottomCenterPoint(getComponent(BodyComponent.class).getCollisionBox()));
+            UtilMethods.setBottomCenterToPoint(currentFocusBox,
+                    UtilMethods.bottomCenterPoint(getComponent(BodyComponent.class).getCollisionBox()));
             damageTimer.update(delta);
             if (damageTimer.isJustFinished()) {
                 damageRecoveryTimer.reset();
@@ -292,7 +285,8 @@ public class Megaman implements Entity, Damageable, Faceable, LevelCameraFocusab
             }
 
             @Override
-            protected void act(float delta) {}
+            protected void act(float delta) {
+            }
 
             @Override
             protected void end() {
@@ -450,7 +444,8 @@ public class Megaman implements Entity, Damageable, Faceable, LevelCameraFocusab
         BodyComponent bodyComponent = getComponent(BodyComponent.class);
         DebugComponent debugComponent = new DebugComponent();
         debugComponent.addDebugHandle(bodyComponent::getCollisionBox, () -> Color.GREEN);
-        bodyComponent.getFixtures().forEach(fixture -> debugComponent.addDebugHandle(fixture::getFixtureBox, () -> Color.GOLD));
+        bodyComponent.getFixtures().forEach(fixture -> debugComponent.addDebugHandle(fixture::getFixtureBox,
+                () -> Color.GOLD));
         return debugComponent;
     }
 
@@ -532,6 +527,11 @@ public class Megaman implements Entity, Damageable, Faceable, LevelCameraFocusab
         Animator animator = new Animator(keySupplier, animations);
         AnimationComponent animationComponent = new AnimationComponent(animator);
         return animationComponent;
+    }
+
+    public enum AButtonTask {
+        JUMP,
+        AIR_DASH
     }
 
 

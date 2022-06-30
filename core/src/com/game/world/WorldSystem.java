@@ -9,7 +9,10 @@ import com.game.System;
 import com.game.updatables.Updatable;
 import lombok.RequiredArgsConstructor;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * {@link System} implementation that handles the logic of the "game world physics", i.e. gravity, collision handling,
@@ -90,9 +93,11 @@ public class WorldSystem extends System {
                     }
                 }
                 // Round to 2 decimal places
-                //bodyComponent.setVelocity(UtilMethods.roundedFloat(bodyComponent.getVelocity().x, 2), UtilMethods.roundedFloat(bodyComponent.getVelocity().y, 2));
+                //bodyComponent.setVelocity(UtilMethods.roundedFloat(bodyComponent.getVelocity().x, 2), UtilMethods
+                // .roundedFloat(bodyComponent.getVelocity().y, 2));
                 // Translate
-                bodyComponent.translate(bodyComponent.getVelocity().x * fixedTimeStep, bodyComponent.getVelocity().y * fixedTimeStep);
+                bodyComponent.translate(bodyComponent.getVelocity().x * fixedTimeStep,
+                        bodyComponent.getVelocity().y * fixedTimeStep);
                 // Each Fixture is moved to conform to its position center from the center of the Body Component
                 bodyComponent.getFixtures().forEach(fixture -> {
                     Vector2 center = bodyComponent.getCenter();
@@ -152,8 +157,8 @@ public class WorldSystem extends System {
      * where parameter bc1 should be dynamic and bc2 static. Dynamic body is adjusted out of collision and has static
      * body's friction applied.
      *
-     * @param bc1 the first body
-     * @param bc2 the second body
+     * @param bc1     the first body
+     * @param bc2     the second body
      * @param overlap the overlap between both bodies
      */
     private void handleCollision(BodyComponent bc1, BodyComponent bc2, Rectangle overlap) {

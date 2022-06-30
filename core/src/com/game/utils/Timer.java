@@ -14,11 +14,11 @@ import java.util.*;
 @Getter
 public class Timer implements Updatable, Resettable {
 
+    private final Set<TimeMarkedRunnable> timeMarkedRunnables = new TreeSet<>();
+    private final Queue<TimeMarkedRunnable> timeMarkedRunnableQueue = new PriorityQueue<>();
     private float time;
     private float duration;
     private boolean justFinished;
-    private final Set<TimeMarkedRunnable> timeMarkedRunnables = new TreeSet<>();
-    private final Queue<TimeMarkedRunnable> timeMarkedRunnableQueue = new PriorityQueue<>();
 
     /**
      * Instantiates a new Time ticker.
@@ -53,7 +53,7 @@ public class Timer implements Updatable, Resettable {
         timeMarkedRunnables.forEach(timeMarkedRunnable -> {
             if (timeMarkedRunnable.time() < 0f || timeMarkedRunnable.time() > duration) {
                 throw new InvalidFieldException(String.valueOf(timeMarkedRunnable.time()),
-                                                "time marked runnable: time", "time marked runnable");
+                        "time marked runnable: time", "time marked runnable");
             }
         });
         this.timeMarkedRunnables.addAll(timeMarkedRunnables);
@@ -66,7 +66,7 @@ public class Timer implements Updatable, Resettable {
      * @throws InvalidArgumentException thrown if duration is less than zero
      */
     public void setDuration(float duration)
-        throws InvalidArgumentException {
+            throws InvalidArgumentException {
         if (duration < 0f) {
             throw new InvalidArgumentException(String.valueOf(duration), "duration");
         }

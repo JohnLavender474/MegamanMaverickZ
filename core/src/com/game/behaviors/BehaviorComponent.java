@@ -5,7 +5,10 @@ import com.game.updatables.Updatable;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * {@link Component} implementation for handling behaviors. Set of active behaviors is initialized as empty set.
@@ -14,10 +17,10 @@ import java.util.*;
 @Setter
 public class BehaviorComponent implements Component {
 
-    private Updatable preProcess;
-    private Updatable postProcess;
     private final List<Behavior> behaviors = new ArrayList<>();
     private final Set<BehaviorType> activeBehaviors = EnumSet.noneOf(BehaviorType.class);
+    private Updatable preProcess;
+    private Updatable postProcess;
 
     /**
      * Add behavior.

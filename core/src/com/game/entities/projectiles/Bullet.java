@@ -39,12 +39,11 @@ public class Bullet implements Entity, Damager, CullOnOutOfGameCamBounds, CullOn
     private final GameContext2d gameContext;
 
     private final Map<Class<? extends Component>, Component> components = new HashMap<>();
-    private boolean dead;
-
-    private int damage;
-    private Entity owner;
     private final Vector2 trajectory = new Vector2();
     private final Timer cullTimer = new Timer(.15f);
+    private boolean dead;
+    private int damage;
+    private Entity owner;
 
     public Bullet(GameContext2d gameContext, Entity owner, Vector2 trajectory, Vector2 spawn) {
         this.gameContext = gameContext;

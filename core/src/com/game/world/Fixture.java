@@ -17,11 +17,11 @@ import lombok.ToString;
 @RequiredArgsConstructor
 public class Fixture {
 
-    private Object userData;
     private final Entity entity;
     private final FixtureType fixtureType;
     private final Vector2 offset = new Vector2();
     private final Rectangle fixtureBox = new Rectangle();
+    private Object userData;
 
     /**
      * Set.

@@ -20,8 +20,9 @@ public abstract class MenuScreen extends ScreenAdapter {
 
     protected final Viewport uiViewport;
     protected final GameContext2d gameContext;
-    @Getter private String currentMenuButtonKey;
     private final Map<String, MenuButton> menuButtons;
+    @Getter
+    private String currentMenuButtonKey;
 
     /**
      * Instantiates a new Menu Screen.

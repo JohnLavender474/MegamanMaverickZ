@@ -41,8 +41,10 @@ public class LevelTiledMap implements Disposable, Drawable {
             protected void beginRender() {
                 AnimatedTiledMapTile.updateAnimationBaseTime();
             }
+
             @Override
-            protected void endRender() {}
+            protected void endRender() {
+            }
         };
         for (MapLayer mapLayer : tiledMap.getLayers()) {
             List<RectangleMapObject> mapLayerObjects = new ArrayList<>();

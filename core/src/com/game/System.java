@@ -2,7 +2,8 @@ package com.game;
 
 import com.game.updatables.Updatable;
 import com.game.utils.exceptions.InvalidActionException;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.*;
 
@@ -16,10 +17,12 @@ import static com.game.utils.UtilMethods.objName;
  */
 public abstract class System implements Updatable {
 
-    @Setter @Getter private boolean isOn = true;
     private final Set<Entity> entities = new HashSet<>();
     private final Queue<Entity> entitiesToAddQueue = new LinkedList<>();
     private final Queue<Entity> entitiesToRemoveQueue = new LinkedList<>();
+    @Setter
+    @Getter
+    private boolean isOn = true;
 
     /**
      * Defines the set of {@link Component} instances that designates the component mask of this System.
@@ -42,18 +45,20 @@ public abstract class System implements Updatable {
      *
      * @param delta the delta time
      */
-    protected void preProcess(float delta) {}
+    protected void preProcess(float delta) {
+    }
 
     /**
      * Optional method. Called once after {@link #entities} is filtered through {@link #processEntity(Entity, float)}.
      *
      * @param delta the delta time
      */
-    protected void postProcess(float delta) {}
+    protected void postProcess(float delta) {
+    }
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * If {@link #isOn()}, then update the system. Otherwise, do nothing and return.
      *
      * @param delta the delta time

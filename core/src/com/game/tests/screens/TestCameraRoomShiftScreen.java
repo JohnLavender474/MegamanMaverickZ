@@ -36,38 +36,17 @@ import static com.game.screens.levels.LevelScreen.MEGAMAN_DELTA_ON_CAM_TRANS;
 
 public class TestCameraRoomShiftScreen extends ScreenAdapter {
 
-    @Getter
-    @Setter
-    private static class TestEntity implements Entity, LevelCameraFocusable {
-
-        private final Map<Class<? extends Component>, Component> components = new HashMap<>();
-        private boolean dead;
-
-        @Override
-        public Rectangle getCurrentFocusBox() {
-            return getComponent(BodyComponent.class).getCollisionBox();
-        }
-
-        @Override
-        public Rectangle getPriorFocusBox() {
-            return getComponent(BodyComponent.class).getPriorCollisionBox();
-        }
-
-    }
-
     private TestEntity player;
     private WorldSystem worldSystem;
     private BodyComponent bodyComponent;
     private LevelCameraManager levelCameraManager;
     private List<Rectangle> grid;
     private Map<Rectangle, String> gameRooms;
-
     private Viewport uiViewport;
     private Viewport playgroundViewport;
     private FontHandle fontHandle;
     private SpriteBatch spriteBatch;
     private ShapeRenderer shapeRenderer;
-
     private Direction direction;
 
     @Override
@@ -129,7 +108,7 @@ public class TestCameraRoomShiftScreen extends ScreenAdapter {
         shapeRenderer.begin(ShapeType.Line);
         shapeRenderer.setColor(Color.RED);
         gameRooms.keySet().forEach(rectangle ->
-            shapeRenderer.rect(rectangle.x, rectangle.y, rectangle.width, rectangle.height));
+                shapeRenderer.rect(rectangle.x, rectangle.y, rectangle.width, rectangle.height));
         shapeRenderer.setColor(Color.GREEN);
         grid.forEach(rectangle ->
                 shapeRenderer.rect(rectangle.x, rectangle.y, rectangle.width, rectangle.height));
@@ -140,7 +119,7 @@ public class TestCameraRoomShiftScreen extends ScreenAdapter {
         spriteBatch.setProjectionMatrix(uiViewport.getCamera().combined);
         spriteBatch.begin();
         fontHandle.setText("Trans: " + levelCameraManager.getTransitionState() +
-                                   ", Player Bounds: " + bodyComponent.getCollisionBox());
+                ", Player Bounds: " + bodyComponent.getCollisionBox());
         fontHandle.draw(spriteBatch);
         spriteBatch.end();
         uiViewport.apply();
@@ -194,6 +173,25 @@ public class TestCameraRoomShiftScreen extends ScreenAdapter {
     public void resize(int width, int height) {
         uiViewport.update(width, height);
         playgroundViewport.update(width, height);
+    }
+
+    @Getter
+    @Setter
+    private static class TestEntity implements Entity, LevelCameraFocusable {
+
+        private final Map<Class<? extends Component>, Component> components = new HashMap<>();
+        private boolean dead;
+
+        @Override
+        public Rectangle getCurrentFocusBox() {
+            return getComponent(BodyComponent.class).getCollisionBox();
+        }
+
+        @Override
+        public Rectangle getPriorFocusBox() {
+            return getComponent(BodyComponent.class).getPriorCollisionBox();
+        }
+
     }
 
 }

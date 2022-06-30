@@ -13,6 +13,7 @@ public interface Damager {
      *
      * @param damageableClass the damageable class
      */
-    default void onDamageInflictedTo(Class<? extends Damageable> damageableClass) {}
+    default void onDamageInflictedTo(Class<? extends Damageable> damageableClass) {
+    }
 
 }

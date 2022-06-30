@@ -10,20 +10,23 @@ public interface ControllerAdapter {
      *
      * @param delta the delta time
      */
-    default void onJustPressed(float delta) {}
+    default void onJustPressed(float delta) {
+    }
 
     /**
      * On press continued.
      *
      * @param delta the delta time
      */
-    default void onPressContinued(float delta) {}
+    default void onPressContinued(float delta) {
+    }
 
     /**
      * On just released.
      *
      * @param delta the delta time
      */
-    default void onJustReleased(float delta) {}
+    default void onJustReleased(float delta) {
+    }
 
 }

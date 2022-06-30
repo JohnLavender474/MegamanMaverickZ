@@ -2,9 +2,9 @@ package com.game.animations;
 
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.game.updatables.Updatable;
 import com.game.utils.KeyValuePair;
 import com.game.utils.Resettable;
-import com.game.updatables.Updatable;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -70,6 +70,25 @@ public class TimedAnimation implements Updatable, Resettable {
         instantiate(frameTimeKeyValuePairs);
     }
 
+    /**
+     * Of timed animation.
+     *
+     * @param textureRegion the texture region
+     * @param durations     the durations
+     * @return the timed animation
+     */
+    public static TimedAnimation of(TextureRegion textureRegion, List<Float> durations) {
+        int width = textureRegion.getRegionWidth() / durations.size();
+        int height = textureRegion.getRegionHeight();
+        List<KeyValuePair<Float, TextureRegion>> keyValuePairs = new ArrayList<>();
+        for (int i = 0; i < durations.size(); i++) {
+            keyValuePairs.add(new KeyValuePair<>(
+                    durations.get(i), new TextureRegion(textureRegion, width * i, 0,
+                    width, height)));
+        }
+        return new TimedAnimation(keyValuePairs);
+    }
+
     private void instantiate(TextureRegion textureRegion, float[] durations) {
         int width = textureRegion.getRegionWidth() / durations.length;
         int height = textureRegion.getRegionHeight();
@@ -119,25 +138,6 @@ public class TimedAnimation implements Updatable, Resettable {
     @Override
     public void reset() {
         timeElapsed = 0.0f;
-    }
-
-    /**
-     * Of timed animation.
-     *
-     * @param textureRegion the texture region
-     * @param durations     the durations
-     * @return the timed animation
-     */
-    public static TimedAnimation of(TextureRegion textureRegion, List<Float> durations) {
-        int width = textureRegion.getRegionWidth() / durations.size();
-        int height = textureRegion.getRegionHeight();
-        List<KeyValuePair<Float, TextureRegion>> keyValuePairs = new ArrayList<>();
-        for (int i = 0; i < durations.size(); i++) {
-            keyValuePairs.add(new KeyValuePair<>(
-                    durations.get(i), new TextureRegion(textureRegion, width * i, 0,
-                                                        width, height)));
-        }
-        return new TimedAnimation(keyValuePairs);
     }
 
 }
