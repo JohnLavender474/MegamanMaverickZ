@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
 import com.game.ConstVals.TextureAssets;
-import com.game.Entity;
+import com.game.core.IEntity;
 import com.game.GameContext2d;
 import com.game.animations.AnimationComponent;
 import com.game.animations.Animator;
@@ -24,7 +24,7 @@ import static com.game.ConstVals.ViewVals.PPM;
 
 @Getter
 @Setter
-public class Disintegration implements Entity {
+public class Disintegration implements IEntity {
 
     public static final float DISINTEGRATION_DURATION = 1f;
 

@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
 import com.game.Component;
-import com.game.Entity;
+import com.game.core.IEntity;
 import com.game.System;
 import lombok.RequiredArgsConstructor;
 
@@ -34,7 +34,7 @@ public class DebugSystem extends System {
     }
 
     @Override
-    protected void processEntity(Entity entity, float delta) {
+    protected void processEntity(IEntity entity, float delta) {
         DebugComponent debugComponent = entity.getComponent(DebugComponent.class);
         debugComponent.getDebugHandles().forEach(debugHandle -> {
             Rectangle rectangle = debugHandle.key().get();

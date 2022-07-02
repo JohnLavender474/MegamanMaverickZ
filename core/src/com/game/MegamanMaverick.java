@@ -26,6 +26,7 @@ import com.game.behaviors.BehaviorSystem;
 import com.game.controllers.ControllerButton;
 import com.game.controllers.ControllerButtonStatus;
 import com.game.controllers.ControllerSystem;
+import com.game.core.IEntity;
 import com.game.debugging.DebugSystem;
 import com.game.entities.megaman.MegamanStats;
 import com.game.health.HealthSystem;
@@ -65,7 +66,7 @@ public class MegamanMaverick extends Game implements GameContext2d {
     private final Queue<Message> messageQueue = new ArrayDeque<>();
     private final List<Disposable> disposables = new ArrayList<>();
     private final Map<String, Object> blackBoard = new HashMap<>();
-    private final Set<Entity> entities = new HashSet<>();
+    private final Set<IEntity> entities = new HashSet<>();
     @Getter
     @Setter
     private GameState gameState;
@@ -159,12 +160,12 @@ public class MegamanMaverick extends Game implements GameContext2d {
     }
 
     @Override
-    public void addEntity(Entity entity) {
+    public void addEntity(IEntity entity) {
         entities.add(entity);
     }
 
     @Override
-    public Collection<Entity> viewOfEntities() {
+    public Collection<IEntity> getEntities() {
         return Collections.unmodifiableCollection(entities);
     }
 
@@ -186,9 +187,9 @@ public class MegamanMaverick extends Game implements GameContext2d {
 
     @Override
     public void updateSystems(float delta) {
-        Iterator<Entity> entityIterator = entities.iterator();
+        Iterator<IEntity> entityIterator = entities.iterator();
         while (entityIterator.hasNext()) {
-            Entity entity = entityIterator.next();
+            IEntity entity = entityIterator.next();
             if (entity.isDead()) {
                 systems.values().forEach(system -> {
                     if (system.entityIsMember(entity)) {

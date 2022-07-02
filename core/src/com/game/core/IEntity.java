@@ -1,9 +1,11 @@
-package com.game;
+package com.game.core;
+
+import com.game.Component;
 
 import java.util.Collection;
 import java.util.Map;
 
-public interface Entity {
+public interface IEntity {
 
     Map<Class<? extends Component>, Component> getComponents();
 

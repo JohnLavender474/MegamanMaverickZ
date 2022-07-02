@@ -2,7 +2,7 @@ package com.game.sound;
 
 import com.badlogic.gdx.audio.Sound;
 import com.game.Component;
-import com.game.Entity;
+import com.game.core.IEntity;
 import com.game.System;
 import com.game.core.IAssetLoader;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class SoundSystem extends System {
     }
 
     @Override
-    protected void processEntity(Entity entity, float delta) {
+    protected void processEntity(IEntity entity, float delta) {
         SoundComponent soundComponent = entity.getComponent(SoundComponent.class);
         // Handle requests to play sounds
         Queue<SoundRequest> soundRequests = soundComponent.getSoundRequests();

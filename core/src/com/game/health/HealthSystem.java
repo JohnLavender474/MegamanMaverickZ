@@ -1,7 +1,7 @@
 package com.game.health;
 
 import com.game.Component;
-import com.game.Entity;
+import com.game.core.IEntity;
 import com.game.System;
 import com.game.updatables.Updatable;
 
@@ -18,7 +18,7 @@ public class HealthSystem extends System {
     }
 
     @Override
-    protected void processEntity(Entity entity, float delta) {
+    protected void processEntity(IEntity entity, float delta) {
         HealthComponent healthComponent = entity.getComponent(HealthComponent.class);
         Updatable healthUpdater = healthComponent.getHealthUpdater();
         if (healthUpdater != null) {

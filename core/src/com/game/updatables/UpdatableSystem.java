@@ -1,7 +1,7 @@
 package com.game.updatables;
 
 import com.game.Component;
-import com.game.Entity;
+import com.game.core.IEntity;
 import com.game.System;
 
 import java.util.Set;
@@ -17,7 +17,7 @@ public class UpdatableSystem extends System {
     }
 
     @Override
-    protected void processEntity(Entity entity, float delta) {
+    protected void processEntity(IEntity entity, float delta) {
         UpdatableComponent updatableComponent = entity.getComponent(UpdatableComponent.class);
         updatableComponent.getUpdatable().update(delta);
     }

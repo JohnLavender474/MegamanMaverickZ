@@ -66,9 +66,10 @@ public class LevelScreen extends ScreenAdapter {
     @Override
     public void show() {
         // Level tiled map
+        // TODO: add sprite batch
         levelTiledMap = new LevelTiledMap(
                 (OrthographicCamera) gameContext.getViewport(
-                        PLAYGROUND).getCamera(), tmxFile);
+                        PLAYGROUND).getCamera(), null, tmxFile);
         // Megaman
         Map<String, Rectangle> megamanSpawns = levelTiledMap.getObjectsOfLayer(PLAYER_SPAWNS.getLayerName())
                 .stream().collect(Collectors.toMap(
@@ -117,7 +118,7 @@ public class LevelScreen extends ScreenAdapter {
     @Override
     public void render(float delta) {
         super.render(delta);
-        gameContext.viewOfEntities().forEach(entity -> {
+        gameContext.getEntities().forEach(entity -> {
             if (entity instanceof CullOnOutOfGameCamBounds cullable) {
                 BoundingBox cullBBox = UtilMethods.rectToBBox(cullable.getBoundingBox());
                 if (!gameContext.getViewport(PLAYGROUND).getCamera()
@@ -137,7 +138,7 @@ public class LevelScreen extends ScreenAdapter {
                 case BEGIN -> {
                     gameContext.getSystem(WorldSystem.class).setOn(false);
                     // TODO: turn off other relevant systems
-                    gameContext.viewOfEntities().forEach(entity -> {
+                    gameContext.getEntities().forEach(entity -> {
                         if (entity instanceof CullOnLevelCamTrans) {
                             entity.setDead(true);
                         }

@@ -1,5 +1,6 @@
 package com.game;
 
+import com.game.core.IEntity;
 import com.game.updatables.Updatable;
 import com.game.utils.exceptions.InvalidActionException;
 import lombok.Getter;
@@ -10,38 +11,38 @@ import java.util.*;
 import static com.game.utils.UtilMethods.objName;
 
 /**
- * The base class of game systems. Instances of this class perform game logic on a set of {@link Entity} instances.
- * Entities are eligible to be added to a System only if {@link Entity#hasAllComponents(Collection)} contains all the
+ * The base class of game systems. Instances of this class perform game logic on a set of {@link IEntity} instances.
+ * Entities are eligible to be added to a System only if {@link IEntity#hasAllComponents(Collection)} contains all the
  * elements of {@link #getComponentMask}. Because the behavior of systems is independent of game state, systems should
  * only be initialized once.
  */
 public abstract class System implements Updatable {
 
-    private final Set<Entity> entities = new HashSet<>();
-    private final Queue<Entity> entitiesToAddQueue = new LinkedList<>();
-    private final Queue<Entity> entitiesToRemoveQueue = new LinkedList<>();
+    private final Set<IEntity> entities = new HashSet<>();
+    private final Queue<IEntity> entitiesToAddQueue = new LinkedList<>();
+    private final Queue<IEntity> entitiesToRemoveQueue = new LinkedList<>();
     @Setter
     @Getter
     private boolean isOn = true;
 
     /**
      * Defines the set of {@link Component} instances that designates the component mask of this System.
-     * See {@link #qualifiesMembership(Entity)}.
+     * See {@link #qualifiesMembership(IEntity)}.
      *
      * @return the set of component class instances for masking
      */
     public abstract Set<Class<? extends Component>> getComponentMask();
 
     /**
-     * Process each {@link Entity} during the update cycle.
+     * Process each {@link IEntity} during the update cycle.
      *
      * @param entity the entity
      * @param delta  the delta time
      */
-    protected abstract void processEntity(Entity entity, float delta);
+    protected abstract void processEntity(IEntity entity, float delta);
 
     /**
-     * Optional method. Called once before {@link #entities} is filtered through {@link #processEntity(Entity, float)}.
+     * Optional method. Called once before {@link #entities} is filtered through {@link #processEntity(IEntity, float)}.
      *
      * @param delta the delta time
      */
@@ -49,7 +50,7 @@ public abstract class System implements Updatable {
     }
 
     /**
-     * Optional method. Called once after {@link #entities} is filtered through {@link #processEntity(Entity, float)}.
+     * Optional method. Called once after {@link #entities} is filtered through {@link #processEntity(IEntity, float)}.
      *
      * @param delta the delta time
      */
@@ -81,24 +82,24 @@ public abstract class System implements Updatable {
     }
 
     /**
-     * Returns if the {@link Entity} can be accepted as a member of this System by comparing {@link #getComponentMask()}
-     * to {@link Entity#hasAllComponents(Collection)}. If the Entity's set of component keys contains all the component
+     * Returns if the {@link IEntity} can be accepted as a member of this System by comparing {@link #getComponentMask()}
+     * to {@link IEntity#hasAllComponents(Collection)}. If the Entity's set of component keys contains all the component
      * classes contained in this System's component mask, then the Entity is accepted, otherwise the Entity is rejected.
      *
      * @param entity the entity
      * @return true if the Entity can be added, else false
      */
-    public boolean qualifiesMembership(Entity entity) {
+    public boolean qualifiesMembership(IEntity entity) {
         return entity.hasAllComponents(getComponentMask());
     }
 
     /**
-     * Attempts to add the {@link Entity} as a member, returns true if the attempt is successful, else false.
+     * Attempts to add the {@link IEntity} as a member, returns true if the attempt is successful, else false.
      *
      * @param entity the entity
      * @throws InvalidActionException the invalid action exception
      */
-    public void addEntity(Entity entity)
+    public void addEntity(IEntity entity)
             throws InvalidActionException {
         if (!qualifiesMembership(entity)) {
             throw new InvalidActionException("Cannot add " + objName(entity) + " as member of " + this);
@@ -107,43 +108,43 @@ public abstract class System implements Updatable {
     }
 
     /**
-     * Attempts to remove the {@link Entity} from membership to this System. If this System is currently in an
+     * Attempts to remove the {@link IEntity} from membership to this System. If this System is currently in an
      * update cycle, then the Entity is queued to be removed on the next update cycle, else it is removed immediately.
      *
      * @param entity the entity
      */
-    public void removeEntity(Entity entity) {
+    public void removeEntity(IEntity entity) {
         entitiesToRemoveQueue.add(entity);
     }
 
     /**
-     * Returns if the {@link Entity} is a member of {@link #entities}. Returns false if the entity is queued
+     * Returns if the {@link IEntity} is a member of {@link #entities}. Returns false if the entity is queued
      * for membership.
      *
      * @param entity the entity
      * @return true if the entity is a member
      */
-    public boolean entityIsMember(Entity entity) {
+    public boolean entityIsMember(IEntity entity) {
         return entities.contains(entity);
     }
 
     /**
-     * Returns if the {@link Entity} is queued for membership but not yet a member.
+     * Returns if the {@link IEntity} is queued for membership but not yet a member.
      *
      * @param entity the entity
      * @return true if the entity is queued for membership
      */
-    public boolean entityIsQueuedForMembership(Entity entity) {
+    public boolean entityIsQueuedForMembership(IEntity entity) {
         return entitiesToAddQueue.contains(entity);
     }
 
     /**
-     * Returns if the {@link Entity} is queued for removal.
+     * Returns if the {@link IEntity} is queued for removal.
      *
      * @param entity the entity
      * @return true if the entity is queued for removal
      */
-    public boolean entityIsQueuedForRemoval(Entity entity) {
+    public boolean entityIsQueuedForRemoval(IEntity entity) {
         return entitiesToRemoveQueue.contains(entity);
     }
 

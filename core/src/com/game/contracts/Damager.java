@@ -1,9 +1,9 @@
 package com.game.contracts;
 
-import com.game.Entity;
+import com.game.core.IEntity;
 
 /**
- * Interface for {@link Entity} instances that are able to inflict damage.
+ * Interface for {@link IEntity} instances that are able to inflict damage.
  */
 public interface Damager {
 

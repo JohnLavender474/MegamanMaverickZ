@@ -1,7 +1,7 @@
 package com.game.controllers;
 
 import com.game.Component;
-import com.game.Entity;
+import com.game.core.IEntity;
 import com.game.System;
 import com.game.core.IController;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ public class ControllerSystem extends System {
     }
 
     @Override
-    protected void processEntity(Entity entity, float delta) {
+    protected void processEntity(IEntity entity, float delta) {
         ControllerComponent controllerComponent = entity.getComponent(ControllerComponent.class);
         for (ControllerButton controllerButton : ControllerButton.values()) {
             ControllerAdapter controllerAdapter = controllerComponent.getControllerAdapters().get(controllerButton);
@@ -30,11 +30,11 @@ public class ControllerSystem extends System {
                 continue;
             }
             if (iController.isJustPressed(controllerButton)) {
-                controllerAdapter.onJustPressed(delta);
+                controllerAdapter.onJustPressed();
             } else if (iController.isPressed(controllerButton)) {
                 controllerAdapter.onPressContinued(delta);
             } else if (iController.isJustReleased(controllerButton)) {
-                controllerAdapter.onJustReleased(delta);
+                controllerAdapter.onJustReleased();
             }
         }
     }

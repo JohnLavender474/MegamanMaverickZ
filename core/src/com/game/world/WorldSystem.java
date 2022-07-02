@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
-import com.game.Entity;
+import com.game.core.IEntity;
 import com.game.System;
 import com.game.updatables.Updatable;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +42,7 @@ public class WorldSystem extends System {
     }
 
     @Override
-    protected void processEntity(Entity entity, float delta) {
+    protected void processEntity(IEntity entity, float delta) {
         BodyComponent bodyComponent = entity.getComponent(BodyComponent.class);
         bodyComponent.setPriorCollisionBoxToCurrent();
         bodies.add(bodyComponent);

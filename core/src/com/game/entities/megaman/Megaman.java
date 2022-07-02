@@ -7,7 +7,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
 import com.game.ConstVals.TextureAssets;
-import com.game.Entity;
+import com.game.core.IEntity;
 import com.game.GameContext2d;
 import com.game.animations.AnimationComponent;
 import com.game.animations.Animator;
@@ -42,11 +42,11 @@ import static com.game.ConstVals.ViewVals.PPM;
 import static com.game.behaviors.BehaviorType.*;
 
 /**
- * Megaman implementation of {@link Entity}.
+ * Megaman implementation of {@link IEntity}.
  */
 @Getter
 @Setter
-public class Megaman implements Entity, Damageable, Faceable, LevelCameraFocusable {
+public class Megaman implements IEntity, Damageable, Faceable, LevelCameraFocusable {
 
     private static final float RUN_SPEED = 4f;
     private final GameContext2d gameContext;
@@ -168,7 +168,7 @@ public class Megaman implements Entity, Damageable, Faceable, LevelCameraFocusab
             }
 
             @Override
-            public void onJustReleased(float delta) {
+            public void onJustReleased() {
                 getComponent(BehaviorComponent.class).setIsNot(RUNNING);
             }
 
@@ -192,7 +192,7 @@ public class Megaman implements Entity, Damageable, Faceable, LevelCameraFocusab
             }
 
             @Override
-            public void onJustReleased(float delta) {
+            public void onJustReleased() {
                 getComponent(BehaviorComponent.class).setIsNot(RUNNING);
             }
 
@@ -209,7 +209,7 @@ public class Megaman implements Entity, Damageable, Faceable, LevelCameraFocusab
             }
 
             @Override
-            public void onJustReleased(float delta) {
+            public void onJustReleased() {
                 BehaviorComponent behaviorComponent = getComponent(BehaviorComponent.class);
                 if (shootCoolDownTimer.isFinished() && !behaviorComponent.is(GROUND_SLIDING) && !behaviorComponent.is(AIR_DASHING)) {
                     shoot();
@@ -524,9 +524,7 @@ public class Megaman implements Entity, Damageable, Faceable, LevelCameraFocusab
         animations.put("AirDash", new TimedAnimation(textureAtlas.findRegion("AirDash")));
         animations.put("SlipSlide", new TimedAnimation(textureAtlas.findRegion("SlipSlide")));
         animations.put("SlipSlideShoot", new TimedAnimation(textureAtlas.findRegion("SlipSlideShoot")));
-        Animator animator = new Animator(keySupplier, animations);
-        AnimationComponent animationComponent = new AnimationComponent(animator);
-        return animationComponent;
+        return new AnimationComponent(new Animator(keySupplier, animations));
     }
 
     public enum AButtonTask {

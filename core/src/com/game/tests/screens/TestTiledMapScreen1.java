@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
@@ -37,21 +38,19 @@ import com.game.controllers.*;
 import com.game.core.*;
 import com.game.debugging.DebugComponent;
 import com.game.debugging.DebugSystem;
-import com.game.screens.levels.CullOnLevelCamTrans;
-import com.game.screens.levels.CullOnOutOfGameCamBounds;
-import com.game.screens.levels.LevelCameraFocusable;
+import com.game.entities.projectiles.IProjectile;
+import com.game.health.HealthComponent;
+import com.game.health.HealthSystem;
+import com.game.screens.levels.*;
 import com.game.sound.SoundComponent;
 import com.game.sound.SoundRequest;
 import com.game.sound.SoundSystem;
 import com.game.sprites.SpriteComponent;
 import com.game.sprites.SpriteSystem;
-import com.game.tests.screens.TestDamageScreen.TestPlayer.AButtonTask;
 import com.game.updatables.UpdatableComponent;
 import com.game.updatables.UpdatableSystem;
-import com.game.utils.FontHandle;
-import com.game.utils.Percentage;
+import com.game.utils.*;
 import com.game.utils.Timer;
-import com.game.utils.UtilMethods;
 import com.game.world.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -66,73 +65,164 @@ import static com.game.ConstVals.ViewVals.*;
 import static com.game.behaviors.BehaviorType.*;
 import static com.game.controllers.ControllerButtonStatus.*;
 import static com.game.controllers.ControllerUtils.*;
+import static com.game.screens.levels.LevelScreen.LEVEL_CAM_TRANS_DURATION;
+import static com.game.screens.levels.LevelScreen.MEGAMAN_DELTA_ON_CAM_TRANS;
 
-public class TestDamageScreen extends ScreenAdapter {
+/**
+ * When the player dies, there should be 8 explosion orbs and about 3 seconds of delay before switching back to the last spawn point.
+ * Process:
+ *     1. Player dies, explosion orb decorations are spawned with trajectories, and timer is reset
+ *     2. When timer reaches zero, player is respawned with health at 100%
+ */
+public class TestTiledMapScreen1 extends ScreenAdapter {
+
+    private static final String GAME_ROOMS = "GameRooms";
+    private static final String PLAYER_SPAWNS = "PlayerSpawns";
+    private static final String DEATH_SENSORS = "DeathSensors";
+    private static final String WALL_SLIDE_SENSORS = "WallSlideSensors";
+    private static final String STATIC_BLOCKS = "StaticBlocks";
+
+    private LevelTiledMap levelTiledMap;
+    private LevelCameraManager levelCameraManager;
 
     private TestController testController;
     private MessageDispatcher messageDispatcher;
     private EntitiesAndSystemsManager entitiesAndSystemsManager;
+    private SpriteBatch spriteBatch;
     private Viewport uiViewport;
     private Viewport playgroundViewport;
-    private LevelCameraFocusable focusable;
+
+    private TestPlayer player;
+    private final Vector2 spawn = new Vector2();
+    private final Timer deathTimer = new Timer(4f);
+
+    private final List<FontHandle> messages = new ArrayList<>();
 
     @Override
     public void show() {
+        for (int i = 0; i < 3; i++) {
+            FontHandle message = new FontHandle("Megaman10Font.ttf", 6);
+            message.setColor(Color.WHITE);
+            message.setPosition(-VIEW_WIDTH * PPM / 3f, (-VIEW_HEIGHT * PPM / 4f) + (i * PPM));
+            messages.add(message);
+        }
+        deathTimer.setToEnd();
         testController = new TestController();
         messageDispatcher = new MessageDispatcher();
         entitiesAndSystemsManager = new EntitiesAndSystemsManager();
-        SpriteBatch spriteBatch = new SpriteBatch();
-        FontHandle message = new FontHandle("Megaman10Font.ttf", 6);
-        message.getFont().setColor(Color.WHITE);
-        message.setText("NULL");
-        message.getPosition().set(-VIEW_WIDTH * PPM / 3f, -VIEW_HEIGHT * PPM / 4f);
+        spriteBatch = new SpriteBatch();
         ShapeRenderer shapeRenderer = new ShapeRenderer();
         uiViewport = new FitViewport(VIEW_WIDTH * PPM, VIEW_HEIGHT * PPM);
         uiViewport.getCamera().position.x = 0f;
         uiViewport.getCamera().position.y = 0f;
         playgroundViewport = new FitViewport(VIEW_WIDTH * PPM, VIEW_HEIGHT * PPM);
         AssetLoader assetLoader = new AssetLoader();
-        entitiesAndSystemsManager.addSystem(new WorldSystem(new TestWorldContactListener(), WorldVals.AIR_RESISTANCE,
-                WorldVals.FIXED_TIME_STEP));
+        entitiesAndSystemsManager.addSystem(new WorldSystem(new TestWorldContactListener(), WorldVals.AIR_RESISTANCE, WorldVals.FIXED_TIME_STEP));
         entitiesAndSystemsManager.addSystem(new UpdatableSystem());
         entitiesAndSystemsManager.addSystem(new ControllerSystem(testController));
+        entitiesAndSystemsManager.addSystem(new HealthSystem());
         entitiesAndSystemsManager.addSystem(new BehaviorSystem());
-        entitiesAndSystemsManager.addSystem(new SpriteSystem((OrthographicCamera) playgroundViewport.getCamera(),
-                spriteBatch));
+        entitiesAndSystemsManager.addSystem(new SpriteSystem((OrthographicCamera) playgroundViewport.getCamera(), spriteBatch));
         entitiesAndSystemsManager.addSystem(new AnimationSystem());
         entitiesAndSystemsManager.addSystem(new SoundSystem(assetLoader));
-        entitiesAndSystemsManager.addSystem(new DebugSystem(shapeRenderer,
-                (OrthographicCamera) playgroundViewport.getCamera()));
-        TestPlayer player = new TestPlayer(testController, assetLoader, entitiesAndSystemsManager);
-        focusable = player;
+        entitiesAndSystemsManager.addSystem(new DebugSystem(shapeRenderer, (OrthographicCamera) playgroundViewport.getCamera()));
+        levelTiledMap = new LevelTiledMap((OrthographicCamera) playgroundViewport.getCamera(), spriteBatch, "tiledmaps/tmx/test1.tmx");
+        // define player
+        List<RectangleMapObject> playerSpawnObjs = levelTiledMap.getObjectsOfLayer(PLAYER_SPAWNS);
+        playerSpawnObjs.get(0).getRectangle().getCenter(spawn);
+        player = new TestPlayer(spawn, deathTimer, testController, assetLoader, entitiesAndSystemsManager);
         entitiesAndSystemsManager.addEntity(player);
-        TestDamager damager1 = new TestDamager(new Rectangle(3f * PPM, 3f * PPM, 3f * PPM, PPM));
-        entitiesAndSystemsManager.addEntity(damager1);
-        TestDamager damager2 = new TestDamager(new Rectangle(5f * PPM, 0f, PPM, 5f * PPM));
-        entitiesAndSystemsManager.addEntity(damager2);
-        TestBlock testBlock1 = new TestBlock(new Rectangle(0f, 0f, 20f * PPM, PPM), false, false, new Vector2(.035f,
-                0f));
-        entitiesAndSystemsManager.addEntity(testBlock1);
-        TestBlock testBlock2 = new TestBlock(new Rectangle(23f * PPM, 0f, 20f * PPM, PPM), false, false,
-                new Vector2(.035f, 0f));
-        entitiesAndSystemsManager.addEntity(testBlock2);
-        TestBlock testBlock3 = new TestBlock(new Rectangle(10f * PPM, 2f * PPM, PPM, 30f * PPM), false, false,
-                new Vector2(.035f, 0f));
-        entitiesAndSystemsManager.addEntity(testBlock3);
-        TestBlock testBlock4 = new TestBlock(new Rectangle(4f * PPM, 1.65f * PPM, 10f * PPM, PPM), false, false,
-                new Vector2(.035f, 0f));
-        entitiesAndSystemsManager.addEntity(testBlock4);
+        // define static blocks
+        levelTiledMap.getObjectsOfLayer(STATIC_BLOCKS).forEach(staticBlockObj ->
+                entitiesAndSystemsManager.addEntity(new TestBlock(staticBlockObj.getRectangle(), false, false, new Vector2(.035f, 0f))));
+        // define wall slide sensors
+        levelTiledMap.getObjectsOfLayer(WALL_SLIDE_SENSORS).forEach(wallSlideSensorObj ->
+            entitiesAndSystemsManager.addEntity(new TestWallSlideSensor(wallSlideSensorObj.getRectangle())));
+        // define death sensors
+        levelTiledMap.getObjectsOfLayer(DEATH_SENSORS).forEach(deathSensorObj ->
+            entitiesAndSystemsManager.addEntity(new TestDeathSensor(deathSensorObj.getRectangle())));
+        // define game rooms
+        Map<Rectangle, String> gameRooms = new HashMap<>();
+        levelTiledMap.getObjectsOfLayer(GAME_ROOMS).forEach(rectangleMapObject ->
+                gameRooms.put(rectangleMapObject.getRectangle(), rectangleMapObject.getName()));
+        // level camera manager
+        Timer transitionTimer = new Timer(1f);
+        levelCameraManager = new LevelCameraManager(playgroundViewport.getCamera(), transitionTimer, gameRooms, player);
     }
 
     @Override
     public void render(float delta) {
         testController.updateController();
+        levelTiledMap.draw();
+        levelCameraManager.update(delta);
         entitiesAndSystemsManager.updateSystems(delta);
         messageDispatcher.updateMessageDispatcher(delta);
-        Vector2 interpolatedCenter = UtilMethods.interpolate(focusable.getPriorFocus(), focusable.getCurrentFocus(),
-                delta);
-        playgroundViewport.getCamera().position.x = interpolatedCenter.x;
-        playgroundViewport.getCamera().position.y = interpolatedCenter.y;
+        deathTimer.update(delta);
+        entitiesAndSystemsManager.entities.forEach(entity -> {
+            if (entity instanceof CullOnOutOfGameCamBounds cull &&
+                    !playgroundViewport.getCamera().frustum.boundsInFrustum(UtilMethods.rectToBBox(cull.getBoundingBox()))) {
+                entity.setDead(true);
+            }
+        });
+        if (deathTimer.isJustFinished()) {
+            player.setDead(false);
+            player.getComponent(HealthComponent.class).reset();
+            player.getComponent(BodyComponent.class).setPosition(spawn);
+            entitiesAndSystemsManager.addEntity(player);
+        }
+        for (int i = 0; i < 3; i++) {
+            FontHandle fontHandle = messages.get(i);
+            switch (i) {
+                case 0 -> fontHandle.setText("Health: " + player.getComponent(HealthComponent.class).getCurrentHealth());
+                case 1 -> fontHandle.setText("Death timer: " + deathTimer.getTime());
+                case 2 -> fontHandle.setText("Entities alive: " + entitiesAndSystemsManager.entities.size());
+            }
+        }
+        if (levelCameraManager.getTransitionState() != null) {
+            BodyComponent bodyComponent = player.getComponent(BodyComponent.class);
+            switch (levelCameraManager.getTransitionState()) {
+                case BEGIN -> {
+                    bodyComponent.getVelocity().setZero();
+                    // entitiesAndSystemsManager.getSystem(ControllerSystem.class).setOn(false);
+                    entitiesAndSystemsManager.getSystem(BehaviorSystem.class).setOn(false);
+                    entitiesAndSystemsManager.getSystem(WorldSystem.class).setOn(false);
+                    entitiesAndSystemsManager.getSystem(UpdatableSystem.class).setOn(false);
+                    entitiesAndSystemsManager.getEntities().forEach(entity -> {
+                        if (entity instanceof CullOnLevelCamTrans) {
+                            entity.setDead(true);
+                        }
+                    });
+                }
+                case CONTINUE -> {
+                    entitiesAndSystemsManager.getEntities().forEach(entity -> {
+                        if (entity instanceof CullOnLevelCamTrans) {
+                            entity.setDead(true);
+                        }
+                    });
+                    Direction direction = levelCameraManager.getTransitionDirection();
+                    switch (direction) {
+                        case UP -> bodyComponent.getCollisionBox().y +=
+                                (MEGAMAN_DELTA_ON_CAM_TRANS * PPM * delta) / LEVEL_CAM_TRANS_DURATION;
+                        case DOWN -> bodyComponent.getCollisionBox().y -=
+                                (MEGAMAN_DELTA_ON_CAM_TRANS * PPM * delta) / LEVEL_CAM_TRANS_DURATION;
+                        case LEFT -> bodyComponent.getCollisionBox().x -=
+                                (MEGAMAN_DELTA_ON_CAM_TRANS * PPM * delta) / LEVEL_CAM_TRANS_DURATION;
+                        case RIGHT -> bodyComponent.getCollisionBox().x +=
+                                (MEGAMAN_DELTA_ON_CAM_TRANS * PPM * delta) / LEVEL_CAM_TRANS_DURATION;
+                    }
+                }
+                case END -> {
+                    // entitiesAndSystemsManager.getSystem(ControllerSystem.class).setOn(true);
+                    entitiesAndSystemsManager.getSystem(BehaviorSystem.class).setOn(true);
+                    entitiesAndSystemsManager.getSystem(WorldSystem.class).setOn(true);
+                    entitiesAndSystemsManager.getSystem(UpdatableSystem.class).setOn(true);
+                }
+            }
+        }
+        spriteBatch.setProjectionMatrix(uiViewport.getCamera().combined);
+        spriteBatch.begin();
+        messages.forEach(message -> message.draw(spriteBatch));
+        spriteBatch.end();
         playgroundViewport.apply();
         uiViewport.apply();
     }
@@ -219,7 +309,7 @@ public class TestDamageScreen extends ScreenAdapter {
 
     static class EntitiesAndSystemsManager implements IEntitiesAndSystemsManager {
 
-        private final Set<IEntity> entities = new HashSet<>();
+        @Getter private final Set<IEntity> entities = new HashSet<>();
         private final Map<Class<? extends System>, System> systems = new LinkedHashMap<>();
         private final Queue<IEntity> queuedEntities = new ArrayDeque<>();
         private boolean updating;
@@ -231,11 +321,6 @@ public class TestDamageScreen extends ScreenAdapter {
             } else {
                 entities.add(entity);
             }
-        }
-
-        @Override
-        public Collection<IEntity> getEntities() {
-            return entities;
         }
 
         @Override
@@ -269,7 +354,6 @@ public class TestDamageScreen extends ScreenAdapter {
                             system.removeEntity(entity);
                         }
                     });
-                    entity.onDeath();
                     entityIterator.remove();
                 } else {
                     systems.values().forEach(system -> {
@@ -342,6 +426,8 @@ public class TestDamageScreen extends ScreenAdapter {
     @Setter
     static class TestPlayer implements IEntity, Damageable, Faceable, LevelCameraFocusable {
 
+        private static final float EXPLOSION_ORB_SPEED = 3.5f;
+
         private final Map<Class<? extends Component>, Component> components = new HashMap<>();
         private final IController controller;
         private final IAssetLoader assetLoader;
@@ -362,15 +448,20 @@ public class TestDamageScreen extends ScreenAdapter {
         private Facing facing = Facing.RIGHT;
         private AButtonTask aButtonTask = AButtonTask.JUMP;
         private boolean recoveryBlink;
-        public TestPlayer(IController controller, IAssetLoader assetLoader,
+
+        private final Timer deathTimer;
+
+        public TestPlayer(Vector2 spawn, Timer deathTimer, IController controller, IAssetLoader assetLoader,
                           IEntitiesAndSystemsManager entitiesAndSystemsManager) {
+            this.deathTimer = deathTimer;
             this.controller = controller;
             this.assetLoader = assetLoader;
             this.entitiesAndSystemsManager = entitiesAndSystemsManager;
+            addComponent(new HealthComponent());
             addComponent(defineUpdatableComponent());
             addComponent(defineControllerComponent());
             addComponent(defineBehaviorComponent());
-            addComponent(defineBodyComponent());
+            addComponent(defineBodyComponent(spawn));
             addComponent(defineDebugComponent());
             addComponent(defineSpriteComponent());
             addComponent(defineAnimationComponent(assetLoader.getAsset(TextureAssets.MEGAMAN_TEXTURE_ATLAS, TextureAtlas.class)));
@@ -383,7 +474,19 @@ public class TestDamageScreen extends ScreenAdapter {
 
         @Override
         public void onDeath() {
-
+            deathTimer.reset();
+            List<Vector2> trajectories = new ArrayList<>() {{
+                add(new Vector2(-EXPLOSION_ORB_SPEED * PPM, 0f));
+                add(new Vector2(-EXPLOSION_ORB_SPEED * PPM, EXPLOSION_ORB_SPEED * PPM));
+                add(new Vector2(0f, EXPLOSION_ORB_SPEED * PPM));
+                add(new Vector2(EXPLOSION_ORB_SPEED * PPM, EXPLOSION_ORB_SPEED * PPM));
+                add(new Vector2(EXPLOSION_ORB_SPEED * PPM, 0f));
+                add(new Vector2(EXPLOSION_ORB_SPEED * PPM, -EXPLOSION_ORB_SPEED * PPM));
+                add(new Vector2(0f, -EXPLOSION_ORB_SPEED * PPM));
+                add(new Vector2(-EXPLOSION_ORB_SPEED * PPM, -EXPLOSION_ORB_SPEED * PPM));
+            }};
+            trajectories.forEach(trajectory -> entitiesAndSystemsManager.addEntity(new TestExplosionOrb(
+                    assetLoader, getComponent(BodyComponent.class).getCenter(), trajectory)));
         }
 
         @Override
@@ -395,6 +498,7 @@ public class TestDamageScreen extends ScreenAdapter {
         public void takeDamageFrom(Class<? extends Damager> damagerClass) {
             if (damagerClass.equals(TestDamager.class)) {
                 damageTimer.reset();
+                getComponent(HealthComponent.class).translateHealth(-50);
             }
         }
 
@@ -424,7 +528,8 @@ public class TestDamageScreen extends ScreenAdapter {
             }
             TextureRegion yellowBullet = assetLoader.getAsset(TextureAssets.OBJECTS_TEXTURE_ATLAS,
                     TextureAtlas.class).findRegion("YellowBullet");
-            TestBullet bullet = new TestBullet(this, trajectory, spawn, yellowBullet, assetLoader, entitiesAndSystemsManager);
+            TestBullet bullet = new TestBullet(this, trajectory, spawn, yellowBullet, assetLoader,
+                    entitiesAndSystemsManager);
             entitiesAndSystemsManager.addEntity(bullet);
             shootCoolDownTimer.reset();
             shootAnimationTimer.reset();
@@ -435,8 +540,7 @@ public class TestDamageScreen extends ScreenAdapter {
             updatableComponent.setUpdatable(delta -> {
                 priorFocusBox.set(currentFocusBox);
                 UtilMethods.setBottomCenterToPoint(
-                        currentFocusBox,
-                        UtilMethods.bottomCenterPoint(getComponent(BodyComponent.class).getCollisionBox()));
+                        currentFocusBox, UtilMethods.bottomCenterPoint(getComponent(BodyComponent.class).getCollisionBox()));
                 damageTimer.update(delta);
                 if (damageTimer.isJustFinished()) {
                     damageRecoveryTimer.reset();
@@ -498,6 +602,7 @@ public class TestDamageScreen extends ScreenAdapter {
                     getComponent(BehaviorComponent.class).setIsNot(RUNNING);
                 }
 
+
             });
             controllerComponent.addControllerAdapter(ControllerButton.X, new ControllerAdapter() {
 
@@ -541,7 +646,7 @@ public class TestDamageScreen extends ScreenAdapter {
                 @Override
                 protected void init() {
                     behaviorComponent.setIs(WALL_SLIDING);
-                    setAButtonTask(TestPlayer.AButtonTask.JUMP);
+                    setAButtonTask(AButtonTask.JUMP);
                 }
 
                 @Override
@@ -552,7 +657,7 @@ public class TestDamageScreen extends ScreenAdapter {
                 @Override
                 protected void end() {
                     behaviorComponent.setIsNot(WALL_SLIDING);
-                    setAButtonTask(TestPlayer.AButtonTask.AIR_DASH);
+                    setAButtonTask(AButtonTask.AIR_DASH);
                 }
 
             };
@@ -570,7 +675,7 @@ public class TestDamageScreen extends ScreenAdapter {
                             // case 1
                             bodyComponent.getVelocity().y >= 0f && controller.isPressed(ControllerButton.A) :
                             // case 2
-                            aButtonTask == TestPlayer.AButtonTask.JUMP && controller.isJustPressed(ControllerButton.A) &&
+                            aButtonTask == AButtonTask.JUMP && controller.isJustPressed(ControllerButton.A) &&
                                     (bodyComponent.is(BodySense.FEET_ON_GROUND) || behaviorComponent.is(WALL_SLIDING));
                 }
 
@@ -603,18 +708,19 @@ public class TestDamageScreen extends ScreenAdapter {
 
                 @Override
                 protected boolean evaluate(float delta) {
-                    if (isDamaged() || behaviorComponent.is(WALL_SLIDING) || getComponent(BodyComponent.class).is(BodySense.FEET_ON_GROUND) || airDashTimer.isFinished()) {
+                    if (isDamaged() || behaviorComponent.is(WALL_SLIDING) ||
+                            getComponent(BodyComponent.class).is(BodySense.FEET_ON_GROUND) || airDashTimer.isFinished()) {
                         return false;
                     }
                     return behaviorComponent.is(AIR_DASHING) ? controller.isPressed(ControllerButton.A) :
-                            controller.isJustPressed(ControllerButton.A) && getAButtonTask() == TestPlayer.AButtonTask.AIR_DASH;
+                            controller.isJustPressed(ControllerButton.A) && getAButtonTask() == AButtonTask.AIR_DASH;
                 }
 
                 @Override
                 protected void init() {
                     getComponent(BodyComponent.class).setGravityOn(false);
                     behaviorComponent.setIs(BehaviorType.AIR_DASHING);
-                    setAButtonTask(TestPlayer.AButtonTask.JUMP);
+                    setAButtonTask(AButtonTask.JUMP);
                 }
 
                 @Override
@@ -703,9 +809,9 @@ public class TestDamageScreen extends ScreenAdapter {
             return behaviorComponent;
         }
 
-        private BodyComponent defineBodyComponent() {
+        private BodyComponent defineBodyComponent(Vector2 spawn) {
             BodyComponent bodyComponent = new BodyComponent(BodyType.DYNAMIC);
-            bodyComponent.setPosition(3f * PPM, 3f * PPM);
+            bodyComponent.setPosition(spawn);
             bodyComponent.setWidth(.8f * PPM);
             bodyComponent.setPreProcess(delta -> {
                 BehaviorComponent behaviorComponent = getComponent(BehaviorComponent.class);
@@ -839,15 +945,63 @@ public class TestDamageScreen extends ScreenAdapter {
 
     @Getter
     @Setter
-    static class TestBullet implements IEntity, CullOnOutOfGameCamBounds, CullOnLevelCamTrans {
+    static class TestExplosionOrb implements IEntity, CullOnOutOfGameCamBounds {
+
+        private final Map<Class<? extends Component>, Component> components = new HashMap<>();
+        private final Timer cullTimer = new Timer(0.5f);
+        private boolean dead;
+
+        public TestExplosionOrb(IAssetLoader assetLoader, Vector2 spawn, Vector2 trajectory) {
+            addComponent(defineBodyComponent(spawn, trajectory));
+            addComponent(defineAnimationComponent(assetLoader));
+            addComponent(defineSpriteComponent());
+        }
+
+        private BodyComponent defineBodyComponent(Vector2 spawn, Vector2 trajectory) {
+            BodyComponent bodyComponent = new BodyComponent(BodyType.ABSTRACT);
+            bodyComponent.setSize(PPM, PPM);
+            bodyComponent.setCenter(spawn);
+            bodyComponent.setGravityOn(false);
+            bodyComponent.setAffectedByResistance(false);
+            bodyComponent.setVelocity(trajectory);
+            return bodyComponent;
+        }
+
+        private SpriteComponent defineSpriteComponent() {
+            SpriteComponent spriteComponent = new SpriteComponent();
+            Sprite sprite = spriteComponent.getSprite();
+            sprite.setSize(3f * PPM, 3f * PPM);
+            spriteComponent.setSpriteUpdater(delta -> {
+                Vector2 center = getComponent(BodyComponent.class).getCenter();
+                sprite.setCenter(center.x, center.y);
+            });
+            return spriteComponent;
+        }
+
+        private AnimationComponent defineAnimationComponent(IAssetLoader assetLoader) {
+            TextureRegion explosionOrb = assetLoader.getAsset(DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class).findRegion("PlayerExplosionOrbs");
+            Animator animator = new Animator(() -> "ExplosionOrb", Map.of("ExplosionOrb", new TimedAnimation(explosionOrb, 2, .075f)));
+            return new AnimationComponent(animator);
+        }
+
+        @Override
+        public Rectangle getBoundingBox() {
+            return getComponent(BodyComponent.class).getCollisionBox();
+        }
+
+    }
+
+    @Getter
+    @Setter
+    static class TestBullet implements IEntity, IProjectile, CullOnOutOfGameCamBounds, CullOnLevelCamTrans {
 
         private final Map<Class<? extends Component>, Component> components = new HashMap<>();
         private final Vector2 trajectory = new Vector2();
         private final Timer cullTimer = new Timer(.15f);
         private final IAssetLoader assetLoader;
         private final IEntitiesAndSystemsManager entitiesAndSystemsManager;
-        private boolean dead;
         private int damage;
+        private boolean dead;
         private IEntity owner;
 
         public TestBullet(IEntity owner, Vector2 trajectory, Vector2 spawn, TextureRegion textureRegion,
@@ -870,8 +1024,7 @@ public class TestDamageScreen extends ScreenAdapter {
         public void onDeath() {
             SoundComponent soundComponent = getComponent(SoundComponent.class);
             soundComponent.request(new SoundRequest(THUMP_SOUND, false, Percentage.of(VolumeVals.HIGH_VOLUME)));
-            TestDisintegration disintegration = new TestDisintegration(assetLoader,
-                    getComponent(BodyComponent.class).getCenter());
+            TestDisintegration disintegration = new TestDisintegration(assetLoader, getComponent(BodyComponent.class).getCenter());
             entitiesAndSystemsManager.addEntity(disintegration);
         }
 
@@ -901,6 +1054,14 @@ public class TestDamageScreen extends ScreenAdapter {
             damageBox.setCenter(spawn.x, spawn.y);
             bodyComponent.addFixture(damageBox);
             return bodyComponent;
+        }
+
+        @Override
+        public void hit(Fixture fixture) {
+            if (fixture.getFixtureType() == FixtureType.BLOCK) {
+                onDeath();
+                setDead(true);
+            }
         }
 
     }
@@ -979,6 +1140,9 @@ public class TestDamageScreen extends ScreenAdapter {
             Fixture block = new Fixture(this, FixtureType.BLOCK);
             block.set(bodyComponent.getCollisionBox());
             bodyComponent.addFixture(block);
+            /*
+            // Not needed in this test, adding wall slide sensor entity
+            // Moving blocks can optionally have wall slide sensor fixtures
             Fixture wallSlideLeft = new Fixture(this, FixtureType.WALL_SLIDE_SENSOR);
             wallSlideLeft.setSize(3f, bounds.height - PPM / 3f);
             wallSlideLeft.setOffset(-bounds.width / 2f, 0f);
@@ -987,6 +1151,7 @@ public class TestDamageScreen extends ScreenAdapter {
             wallSlideRight.setSize(3f, bounds.height - PPM / 3f);
             wallSlideRight.setOffset(bounds.width / 2f, 0f);
             bodyComponent.addFixture(wallSlideRight);
+             */
             return bodyComponent;
         }
 
@@ -994,9 +1159,55 @@ public class TestDamageScreen extends ScreenAdapter {
             DebugComponent debugComponent = new DebugComponent();
             BodyComponent bodyComponent = getComponent(BodyComponent.class);
             debugComponent.addDebugHandle(bodyComponent::getCollisionBox, () -> Color.BLUE);
-            bodyComponent.getFixtures().forEach(fixture -> debugComponent.addDebugHandle(fixture::getFixtureBox,
-                    () -> Color.GOLD));
             return debugComponent;
+        }
+
+    }
+
+    @Getter
+    @Setter
+    static class TestWallSlideSensor implements IEntity {
+
+        private final Map<Class<? extends Component>, Component> components = new HashMap<>();
+        private boolean dead;
+
+        public TestWallSlideSensor(Rectangle bounds) {
+            addComponent(defineBodyComponent(bounds));
+        }
+
+        private BodyComponent defineBodyComponent(Rectangle bounds) {
+            BodyComponent bodyComponent = new BodyComponent(BodyType.ABSTRACT);
+            bodyComponent.setAffectedByResistance(false);
+            bodyComponent.setGravityOn(false);
+            bodyComponent.set(bounds);
+            Fixture wallSlideSensor = new Fixture(this, FixtureType.WALL_SLIDE_SENSOR);
+            wallSlideSensor.set(bounds);
+            bodyComponent.addFixture(wallSlideSensor);
+            return bodyComponent;
+        }
+
+    }
+
+    @Getter
+    @Setter
+    static class TestDeathSensor implements IEntity {
+
+        private final Map<Class<? extends Component>, Component> components = new HashMap<>();
+        private boolean dead;
+
+        public TestDeathSensor(Rectangle bounds) {
+            addComponent(defineBodyComponent(bounds));
+        }
+
+        private BodyComponent defineBodyComponent(Rectangle bounds) {
+            BodyComponent bodyComponent = new BodyComponent(BodyType.ABSTRACT);
+            bodyComponent.setGravityOn(false);
+            bodyComponent.setAffectedByResistance(false);
+            bodyComponent.set(bounds);
+            Fixture death = new Fixture(this, FixtureType.DEATH);
+            death.set(bounds);
+            bodyComponent.addFixture(death);
+            return bodyComponent;
         }
 
     }
@@ -1005,7 +1216,9 @@ public class TestDamageScreen extends ScreenAdapter {
 
         @Override
         public void beginContact(Contact contact, float delta) {
-            if (contact.acceptMask(FixtureType.LEFT, FixtureType.BLOCK)) {
+            if (contact.acceptMask(FixtureType.HIT_BOX, FixtureType.DEATH)) {
+                contact.maskFirstEntity().getComponent(HealthComponent.class).setHealth(0);
+            } else if (contact.acceptMask(FixtureType.LEFT, FixtureType.BLOCK)) {
                 contact.maskFirstBody().setIs(BodySense.TOUCHING_BLOCK_LEFT);
             } else if (contact.acceptMask(FixtureType.RIGHT, FixtureType.BLOCK)) {
                 contact.maskFirstBody().setIs(BodySense.TOUCHING_BLOCK_RIGHT);
@@ -1017,7 +1230,7 @@ public class TestDamageScreen extends ScreenAdapter {
                 IEntity entity = contact.maskFirstEntity();
                 entity.getComponent(BodyComponent.class).setIs(BodySense.FEET_ON_GROUND);
                 if (entity instanceof TestPlayer testPlayer) {
-                    testPlayer.setAButtonTask(AButtonTask.JUMP);
+                    testPlayer.setAButtonTask(TestPlayer.AButtonTask.JUMP);
                 }
             } else if (contact.acceptMask(FixtureType.HEAD, FixtureType.BLOCK)) {
                 contact.maskFirstBody().setIs(BodySense.HEAD_TOUCHING_BLOCK);
@@ -1027,9 +1240,8 @@ public class TestDamageScreen extends ScreenAdapter {
                     damageable.canBeDamagedBy(damager)) {
                 damageable.takeDamageFrom(damager.getClass());
                 damager.onDamageInflictedTo(damageable.getClass());
-            } else if (contact.acceptMask(FixtureType.PROJECTILE, FixtureType.BLOCK) &&
-                    contact.maskFirstEntity() instanceof TestBullet testBullet) {
-                testBullet.setDead(true);
+            } else if (contact.acceptMask(FixtureType.PROJECTILE)) {
+                ((IProjectile) contact.maskFirstEntity()).hit(contact.getMask().second());
             }
         }
 
@@ -1047,7 +1259,7 @@ public class TestDamageScreen extends ScreenAdapter {
                 IEntity entity = contact.maskFirstEntity();
                 entity.getComponent(BodyComponent.class).setIs(BodySense.FEET_ON_GROUND);
                 if (entity instanceof TestPlayer testPlayer) {
-                    testPlayer.setAButtonTask(AButtonTask.JUMP);
+                    testPlayer.setAButtonTask(TestPlayer.AButtonTask.JUMP);
                 }
             } else if (contact.acceptMask(FixtureType.HEAD, FixtureType.BLOCK)) {
                 contact.maskFirstEntity().getComponent(BodyComponent.class).setIs(BodySense.HEAD_TOUCHING_BLOCK);
@@ -1073,7 +1285,7 @@ public class TestDamageScreen extends ScreenAdapter {
             } else if (contact.acceptMask(FixtureType.FEET, FixtureType.BLOCK)) {
                 contact.maskFirstBody().setIsNot(BodySense.FEET_ON_GROUND);
                 if (contact.maskFirstEntity() instanceof TestPlayer testPlayer) {
-                    testPlayer.setAButtonTask(AButtonTask.AIR_DASH);
+                    testPlayer.setAButtonTask(TestPlayer.AButtonTask.AIR_DASH);
                 }
             } else if (contact.acceptMask(FixtureType.HEAD, FixtureType.BLOCK)) {
                 contact.maskFirstBody().setIsNot(BodySense.HEAD_TOUCHING_BLOCK);
@@ -1097,7 +1309,8 @@ public class TestDamageScreen extends ScreenAdapter {
 
         @Override
         public boolean isPressed(ControllerButton controllerButton) {
-            return controllerButtons.get(controllerButton) == IS_JUST_PRESSED || controllerButtons.get(controllerButton) == IS_PRESSED;
+            return controllerButtons.get(controllerButton) == IS_JUST_PRESSED ||
+                    controllerButtons.get(controllerButton) == IS_PRESSED;
         }
 
         @Override

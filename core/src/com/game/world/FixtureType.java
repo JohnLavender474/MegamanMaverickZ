@@ -1,6 +1,7 @@
 package com.game.world;
 
 public enum FixtureType {
+    DEATH,
     ITEM,
     HEAD,
     FEET,

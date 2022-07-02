@@ -20,7 +20,7 @@ public class MegamanMaverickRunner {
 		config.setForegroundFPS(60);
 		config.setTitle("Megaman Maverick");
 		config.setWindowedMode(1920, 1080);
-		test(TestScreen.TEST_DEATH, config);
+		test(TestScreen.TEST_TILED_MAP_1, config);
 		// new Lwjgl3Application(new MegamanMaverick(), config);
 	}
 

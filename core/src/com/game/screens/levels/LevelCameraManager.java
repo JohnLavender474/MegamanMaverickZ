@@ -103,11 +103,8 @@ public class LevelCameraManager implements Updatable {
             if (currentGameRoom == null) {
                 currentGameRoom = nextGameRoom();
             } else if (currentGameRoom.contains(levelCameraFocusable.getCurrentFocus())) {
-                Vector2 focus = levelCameraFocusable.getCurrentFocus();
-                Vector2 priorFocus = levelCameraFocusable.getPriorFocus();
-                Vector2 interpolation = UtilMethods.interpolate(priorFocus, focus, delta);
-                camera.position.x = interpolation.x;
-                camera.position.y = interpolation.y;
+                camera.position.x = levelCameraFocusable.getCurrentFocus().x;
+                camera.position.y = levelCameraFocusable.getCurrentFocus().y;
                 if (camera.position.y > (currentGameRoom.y + currentGameRoom.height) - camera.viewportHeight / 2.0f) {
                     camera.position.y = (currentGameRoom.y + currentGameRoom.height) - camera.viewportHeight / 2.0f;
                 }

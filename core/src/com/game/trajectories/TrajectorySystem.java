@@ -1,7 +1,7 @@
 package com.game.trajectories;
 
 import com.game.Component;
-import com.game.Entity;
+import com.game.core.IEntity;
 import com.game.System;
 import com.game.utils.Trajectory;
 import com.game.world.BodyComponent;
@@ -16,7 +16,7 @@ public class TrajectorySystem extends System {
     }
 
     @Override
-    protected void processEntity(Entity entity, float delta) {
+    protected void processEntity(IEntity entity, float delta) {
         TrajectoryComponent trajectoryComponent = entity.getComponent(TrajectoryComponent.class);
         BodyComponent bodyComponent = entity.getComponent(BodyComponent.class);
         Trajectory trajectory = trajectoryComponent.getCurrentTrajectory();

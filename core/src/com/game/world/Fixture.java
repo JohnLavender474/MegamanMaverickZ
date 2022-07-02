@@ -2,7 +2,7 @@ package com.game.world;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.Entity;
+import com.game.core.IEntity;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -17,7 +17,7 @@ import lombok.ToString;
 @RequiredArgsConstructor
 public class Fixture {
 
-    private final Entity entity;
+    private final IEntity entity;
     private final FixtureType fixtureType;
     private final Vector2 offset = new Vector2();
     private final Rectangle fixtureBox = new Rectangle();

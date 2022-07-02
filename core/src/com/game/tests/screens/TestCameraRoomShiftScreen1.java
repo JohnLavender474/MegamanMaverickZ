@@ -12,7 +12,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.game.Component;
 import com.game.ConstVals.WorldVals;
-import com.game.Entity;
+import com.game.core.IEntity;
 import com.game.screens.levels.LevelCameraFocusable;
 import com.game.screens.levels.LevelCameraManager;
 import com.game.utils.Direction;
@@ -34,9 +34,9 @@ import static com.game.ConstVals.ViewVals.*;
 import static com.game.screens.levels.LevelScreen.LEVEL_CAM_TRANS_DURATION;
 import static com.game.screens.levels.LevelScreen.MEGAMAN_DELTA_ON_CAM_TRANS;
 
-public class TestCameraRoomShiftScreen extends ScreenAdapter {
+public class TestCameraRoomShiftScreen1 extends ScreenAdapter {
 
-    private TestEntity player;
+    private TestIEntity player;
     private WorldSystem worldSystem;
     private BodyComponent bodyComponent;
     private LevelCameraManager levelCameraManager;
@@ -79,7 +79,7 @@ public class TestCameraRoomShiftScreen extends ScreenAdapter {
     }
 
     private void definePlayer() {
-        player = new TestEntity();
+        player = new TestIEntity();
         bodyComponent = new BodyComponent(BodyType.DYNAMIC);
         bodyComponent.set(15f * PPM, 15f * PPM, PPM, PPM);
         player.addComponent(bodyComponent);
@@ -177,7 +177,7 @@ public class TestCameraRoomShiftScreen extends ScreenAdapter {
 
     @Getter
     @Setter
-    private static class TestEntity implements Entity, LevelCameraFocusable {
+    private static class TestIEntity implements IEntity, LevelCameraFocusable {
 
         private final Map<Class<? extends Component>, Component> components = new HashMap<>();
         private boolean dead;

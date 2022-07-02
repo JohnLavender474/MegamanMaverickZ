@@ -1,7 +1,7 @@
 package com.game.behaviors;
 
 import com.game.Component;
-import com.game.Entity;
+import com.game.core.IEntity;
 import com.game.System;
 import com.game.updatables.Updatable;
 
@@ -18,7 +18,7 @@ public class BehaviorSystem extends System {
     }
 
     @Override
-    protected void processEntity(Entity entity, float delta) {
+    protected void processEntity(IEntity entity, float delta) {
         BehaviorComponent behaviorComponent = entity.getComponent(BehaviorComponent.class);
         Updatable preProcess = behaviorComponent.getPreProcess();
         if (preProcess != null) {

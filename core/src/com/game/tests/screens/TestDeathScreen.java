@@ -34,10 +34,7 @@ import com.game.contracts.Damager;
 import com.game.contracts.Faceable;
 import com.game.contracts.Facing;
 import com.game.controllers.*;
-import com.game.core.IAssetLoader;
-import com.game.core.IController;
-import com.game.core.IEntitiesAndSystemsManager;
-import com.game.core.IMessageDispatcher;
+import com.game.core.*;
 import com.game.debugging.DebugComponent;
 import com.game.debugging.DebugSystem;
 import com.game.health.HealthComponent;
@@ -257,13 +254,13 @@ public class TestDeathScreen extends ScreenAdapter {
 
     static class EntitiesAndSystemsManager implements IEntitiesAndSystemsManager {
 
-        private final Set<Entity> entities = new HashSet<>();
+        private final Set<IEntity> entities = new HashSet<>();
         private final Map<Class<? extends System>, System> systems = new LinkedHashMap<>();
-        private final Queue<Entity> queuedEntities = new ArrayDeque<>();
+        private final Queue<IEntity> queuedEntities = new ArrayDeque<>();
         private boolean updating;
 
         @Override
-        public void addEntity(Entity entity) {
+        public void addEntity(IEntity entity) {
             if (updating) {
                 queuedEntities.add(entity);
             } else {
@@ -272,7 +269,7 @@ public class TestDeathScreen extends ScreenAdapter {
         }
 
         @Override
-        public Collection<Entity> viewOfEntities() {
+        public Collection<IEntity> getEntities() {
             return entities;
         }
 
@@ -298,9 +295,9 @@ public class TestDeathScreen extends ScreenAdapter {
             while (!queuedEntities.isEmpty()) {
                 entities.add(queuedEntities.poll());
             }
-            Iterator<Entity> entityIterator = entities.iterator();
+            Iterator<IEntity> entityIterator = entities.iterator();
             while (entityIterator.hasNext()) {
-                Entity entity = entityIterator.next();
+                IEntity entity = entityIterator.next();
                 if (entity.isDead()) {
                     systems.values().forEach(system -> {
                         if (system.entityIsMember(entity)) {
@@ -326,7 +323,7 @@ public class TestDeathScreen extends ScreenAdapter {
 
     @Getter
     @Setter
-    static class TestDamager implements Entity, Damager {
+    static class TestDamager implements IEntity, Damager {
 
         private final Map<Class<? extends Component>, Component> components = new HashMap<>();
         private final Timer timer = new Timer(1f);
@@ -377,7 +374,7 @@ public class TestDeathScreen extends ScreenAdapter {
 
     @Getter
     @Setter
-    static class TestPlayer implements Entity, Damageable, Faceable, LevelCameraFocusable {
+    static class TestPlayer implements IEntity, Damageable, Faceable, LevelCameraFocusable {
 
         private static final float EXPLOSION_ORB_SPEED = 3.5f;
 
@@ -527,7 +524,7 @@ public class TestDeathScreen extends ScreenAdapter {
                 }
 
                 @Override
-                public void onJustReleased(float delta) {
+                public void onJustReleased() {
                     getComponent(BehaviorComponent.class).setIsNot(RUNNING);
                 }
 
@@ -551,7 +548,7 @@ public class TestDeathScreen extends ScreenAdapter {
                 }
 
                 @Override
-                public void onJustReleased(float delta) {
+                public void onJustReleased() {
                     getComponent(BehaviorComponent.class).setIsNot(RUNNING);
                 }
 
@@ -568,7 +565,7 @@ public class TestDeathScreen extends ScreenAdapter {
                 }
 
                 @Override
-                public void onJustReleased(float delta) {
+                public void onJustReleased() {
                     BehaviorComponent behaviorComponent = getComponent(BehaviorComponent.class);
                     if (shootCoolDownTimer.isFinished() && !behaviorComponent.is(GROUND_SLIDING) && !behaviorComponent.is(AIR_DASHING)) {
                         shoot();
@@ -897,7 +894,7 @@ public class TestDeathScreen extends ScreenAdapter {
 
     @Getter
     @Setter
-    static class TestExplosionOrb implements Entity, CullOnOutOfGameCamBounds {
+    static class TestExplosionOrb implements IEntity, CullOnOutOfGameCamBounds {
 
         private final Map<Class<? extends Component>, Component> components = new HashMap<>();
         private final Timer cullTimer = new Timer(0.5f);
@@ -945,7 +942,7 @@ public class TestDeathScreen extends ScreenAdapter {
 
     @Getter
     @Setter
-    static class TestBullet implements Entity, CullOnOutOfGameCamBounds, CullOnLevelCamTrans {
+    static class TestBullet implements IEntity, CullOnOutOfGameCamBounds, CullOnLevelCamTrans {
 
         private final Map<Class<? extends Component>, Component> components = new HashMap<>();
         private final Vector2 trajectory = new Vector2();
@@ -954,9 +951,9 @@ public class TestDeathScreen extends ScreenAdapter {
         private final IEntitiesAndSystemsManager entitiesAndSystemsManager;
         private int damage;
         private boolean dead;
-        private Entity owner;
+        private IEntity owner;
 
-        public TestBullet(Entity owner, Vector2 trajectory, Vector2 spawn, TextureRegion textureRegion,
+        public TestBullet(IEntity owner, Vector2 trajectory, Vector2 spawn, TextureRegion textureRegion,
                           IAssetLoader assetLoader, IEntitiesAndSystemsManager entitiesAndSystemsManager) {
             this.owner = owner;
             this.trajectory.set(trajectory);
@@ -1013,7 +1010,7 @@ public class TestDeathScreen extends ScreenAdapter {
 
     @Getter
     @Setter
-    static class TestDisintegration implements Entity {
+    static class TestDisintegration implements IEntity {
 
         public static final float DISINTEGRATION_DURATION = .15f;
 
@@ -1065,7 +1062,7 @@ public class TestDeathScreen extends ScreenAdapter {
 
     @Getter
     @Setter
-    static class TestBlock implements Entity {
+    static class TestBlock implements IEntity {
 
         private final Map<Class<? extends Component>, Component> components = new HashMap<>();
         private boolean dead;
@@ -1120,7 +1117,7 @@ public class TestDeathScreen extends ScreenAdapter {
             } else if (contact.acceptMask(FixtureType.RIGHT, FixtureType.WALL_SLIDE_SENSOR)) {
                 contact.maskFirstBody().setIs(BodySense.TOUCHING_WALL_SLIDE_RIGHT);
             } else if (contact.acceptMask(FixtureType.FEET, FixtureType.BLOCK)) {
-                Entity entity = contact.maskFirstEntity();
+                IEntity entity = contact.maskFirstEntity();
                 entity.getComponent(BodyComponent.class).setIs(BodySense.FEET_ON_GROUND);
                 if (entity instanceof TestPlayer testPlayer) {
                     testPlayer.setAButtonTask(TestPlayer.AButtonTask.JUMP);
@@ -1150,7 +1147,7 @@ public class TestDeathScreen extends ScreenAdapter {
             } else if (contact.acceptMask(FixtureType.RIGHT, FixtureType.WALL_SLIDE_SENSOR)) {
                 contact.maskFirstBody().setIs(BodySense.TOUCHING_WALL_SLIDE_RIGHT);
             } else if (contact.acceptMask(FixtureType.FEET, FixtureType.BLOCK)) {
-                Entity entity = contact.maskFirstEntity();
+                IEntity entity = contact.maskFirstEntity();
                 entity.getComponent(BodyComponent.class).setIs(BodySense.FEET_ON_GROUND);
                 if (entity instanceof TestPlayer testPlayer) {
                     testPlayer.setAButtonTask(TestPlayer.AButtonTask.JUMP);

@@ -2,7 +2,7 @@ package com.game.world;
 
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
-import com.game.Entity;
+import com.game.core.IEntity;
 import com.game.utils.Pair;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -46,11 +46,29 @@ public class Contact {
     }
 
     /**
-     * Fetches the {@link Entity} of the first {@link Fixture} contained in {@link #getMask()}.
+     * Checks if {@link Fixture#getFixtureType()} of {@link #fixture1} or {@link #fixture2} matches the supplied
+     * {@link FixtureType} argument. If so, then set the first element of {@link #getMask()} to the matching fixture.
+     *
+     * @param fixtureType the fixture type
+     * @return if the mask is accepted
+     */
+    public boolean acceptMask(FixtureType fixtureType) {
+        if (fixture1.getFixtureType().equals(fixtureType)) {
+            mask = new Pair<>(fixture1, fixture2);
+            return true;
+        } else if (fixture2.getFixtureType().equals(fixtureType)) {
+            mask = new Pair<>(fixture2, fixture1);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Fetches the {@link IEntity} of the first {@link Fixture} contained in {@link #getMask()}.
      *
      * @return the entity
      */
-    public Entity maskFirstEntity() {
+    public IEntity maskFirstEntity() {
         return mask.first().getEntity();
     }
 
@@ -64,11 +82,11 @@ public class Contact {
     }
 
     /**
-     * Fetches the {@link Entity} of the second {@link Fixture} contained in {@link #getMask()}.
+     * Fetches the {@link IEntity} of the second {@link Fixture} contained in {@link #getMask()}.
      *
      * @return the entity
      */
-    public Entity maskSecondEntity() {
+    public IEntity maskSecondEntity() {
         return mask.second().getEntity();
     }
 

@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.game.Component;
-import com.game.Entity;
+import com.game.core.IEntity;
 import com.game.System;
 import com.game.updatables.Updatable;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +38,7 @@ public class SpriteSystem extends System {
     }
 
     @Override
-    protected void processEntity(Entity entity, float delta) {
+    protected void processEntity(IEntity entity, float delta) {
         SpriteComponent spriteComponent = entity.getComponent(SpriteComponent.class);
         Sprite sprite = spriteComponent.getSprite();
         Updatable spriteUpdater = spriteComponent.getSpriteUpdater();

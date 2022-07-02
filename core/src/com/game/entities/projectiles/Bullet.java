@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
 import com.game.ConstVals.TextureAssets;
 import com.game.ConstVals.VolumeVals;
-import com.game.Entity;
+import com.game.core.IEntity;
 import com.game.GameContext2d;
 import com.game.contracts.Damager;
 import com.game.entities.decorations.Disintegration;
@@ -34,7 +34,7 @@ import static com.game.ConstVals.ViewVals.PPM;
 
 @Getter
 @Setter
-public class Bullet implements Entity, Damager, CullOnOutOfGameCamBounds, CullOnLevelCamTrans {
+public class Bullet implements IEntity, Damager, CullOnOutOfGameCamBounds, CullOnLevelCamTrans {
 
     private final GameContext2d gameContext;
 
@@ -43,9 +43,9 @@ public class Bullet implements Entity, Damager, CullOnOutOfGameCamBounds, CullOn
     private final Timer cullTimer = new Timer(.15f);
     private boolean dead;
     private int damage;
-    private Entity owner;
+    private IEntity owner;
 
-    public Bullet(GameContext2d gameContext, Entity owner, Vector2 trajectory, Vector2 spawn) {
+    public Bullet(GameContext2d gameContext, IEntity owner, Vector2 trajectory, Vector2 spawn) {
         this.gameContext = gameContext;
         this.owner = owner;
         this.trajectory.set(trajectory);
