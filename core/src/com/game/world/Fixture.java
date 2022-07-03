@@ -65,6 +65,24 @@ public class Fixture {
     }
 
     /**
+     * Set width.
+     *
+     * @param x the width
+     */
+    public void setWidth(float x) {
+        fixtureBox.setWidth(x);
+    }
+
+    /**
+     * Set height.
+     *
+     * @param y the height
+     */
+    public void setHeight(float y) {
+        fixtureBox.setHeight(y);
+    }
+
+    /**
      * Set center.
      *
      * @param center the center

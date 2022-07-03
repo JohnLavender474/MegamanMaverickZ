@@ -179,11 +179,11 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
             testMovingBlock.addComponent(trajectoryComponent);
             BodyComponent bodyComponent = testMovingBlock.getComponent(BodyComponent.class);
             Fixture leftWallSlide = new Fixture(testMovingBlock, WALL_SLIDE_SENSOR);
-            leftWallSlide.setSize(PPM / 2f, bodyComponent.getCollisionBox().height - PPM / 2f);
+            leftWallSlide.setSize(PPM / 2f, bodyComponent.getCollisionBox().height - PPM / 3f);
             leftWallSlide.setOffset(-bodyComponent.getCollisionBox().width / 2f, 0f);
             bodyComponent.addFixture(leftWallSlide);
             Fixture rightWallSlide = new Fixture(testMovingBlock, WALL_SLIDE_SENSOR);
-            rightWallSlide.setSize(PPM / 2f, bodyComponent.getCollisionBox().height - PPM / 2f);
+            rightWallSlide.setSize(PPM / 2f, bodyComponent.getCollisionBox().height - PPM / 3f);
             rightWallSlide.setOffset(bodyComponent.getCollisionBox().width / 2f, 0f);
             bodyComponent.addFixture(rightWallSlide);
             Fixture feetSticker = new Fixture(testMovingBlock, FEET_STICKER);
@@ -217,7 +217,9 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
 
     @Override
     public void render(float delta) {
-        testController.updateController();
+        if (levelCameraManager.getTransitionState() == null) {
+            testController.updateController();
+        }
         levelTiledMap.draw();
         levelCameraManager.update(delta);
         entitiesAndSystemsManager.updateSystems(delta);
@@ -251,7 +253,7 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
             switch (levelCameraManager.getTransitionState()) {
                 case BEGIN -> {
                     bodyComponent.getVelocity().setZero();
-                    // entitiesAndSystemsManager.getSystem(ControllerSystem.class).setOn(false);
+                    entitiesAndSystemsManager.getSystem(ControllerSystem.class).setOn(false);
                     entitiesAndSystemsManager.getSystem(BehaviorSystem.class).setOn(false);
                     entitiesAndSystemsManager.getSystem(WorldSystem.class).setOn(false);
                     entitiesAndSystemsManager.getSystem(UpdatableSystem.class).setOn(false);
@@ -280,7 +282,7 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
                     }
                 }
                 case END -> {
-                    // entitiesAndSystemsManager.getSystem(ControllerSystem.class).setOn(true);
+                    entitiesAndSystemsManager.getSystem(ControllerSystem.class).setOn(true);
                     entitiesAndSystemsManager.getSystem(BehaviorSystem.class).setOn(true);
                     entitiesAndSystemsManager.getSystem(WorldSystem.class).setOn(true);
                     entitiesAndSystemsManager.getSystem(UpdatableSystem.class).setOn(true);
@@ -889,12 +891,36 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
             BodyComponent bodyComponent = new BodyComponent(BodyType.DYNAMIC);
             bodyComponent.setPosition(spawn);
             bodyComponent.setWidth(.8f * PPM);
+            Fixture feet = new Fixture(this, FEET);
+            feet.setSize(10f, .75f);
+            bodyComponent.addFixture(feet);
+            Fixture head = new Fixture(this, HEAD);
+            head.setSize(7f, 2f);
+            head.setOffset(0f, PPM / 2f);
+            bodyComponent.addFixture(head);
+            Fixture left = new Fixture(this, LEFT);
+            left.setWidth(1f);
+            left.setOffset(-.45f * PPM, 0f);
+            bodyComponent.addFixture(left);
+            Fixture right = new Fixture(this, RIGHT);
+            right.setWidth(1f);
+            right.setOffset(.45f * PPM, 0f);
+            bodyComponent.addFixture(right);
+            Fixture hitBox = new Fixture(this, HIT_BOX);
+            hitBox.setSize(.8f * PPM, .5f * PPM);
+            bodyComponent.addFixture(hitBox);
             bodyComponent.setPreProcess(delta -> {
                 BehaviorComponent behaviorComponent = getComponent(BehaviorComponent.class);
                 if (behaviorComponent.is(GROUND_SLIDING)) {
                     bodyComponent.setHeight(.45f * PPM);
+                    feet.setOffset(0f, -PPM / 4f);
+                    left.setHeight(PPM / 4f);
+                    right.setHeight(PPM / 4f);
                 } else {
                     bodyComponent.setHeight(.95f * PPM);
+                    feet.setOffset(0f, -PPM / 2f);
+                    left.setHeight(PPM * .75f);
+                    right.setHeight(PPM * .75f);
                 }
                 if (bodyComponent.getVelocity().y < 0f && !bodyComponent.is(BodySense.FEET_ON_GROUND)) {
                     bodyComponent.setGravity(-60f * PPM);
@@ -902,25 +928,6 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
                     bodyComponent.setGravity(-20f * PPM);
                 }
             });
-            Fixture feet = new Fixture(this, FEET);
-            feet.setSize(10f, 1f);
-            feet.setOffset(0f, -PPM / 2f);
-            bodyComponent.addFixture(feet);
-            Fixture head = new Fixture(this, HEAD);
-            head.setSize(7f, 2f);
-            head.setOffset(0f, PPM / 2f);
-            bodyComponent.addFixture(head);
-            Fixture left = new Fixture(this, LEFT);
-            left.setSize(1f, .25f * PPM);
-            left.setOffset(-.45f * PPM, 0f);
-            bodyComponent.addFixture(left);
-            Fixture right = new Fixture(this, RIGHT);
-            right.setSize(1f, .25f * PPM);
-            right.setOffset(.45f * PPM, 0f);
-            bodyComponent.addFixture(right);
-            Fixture hitBox = new Fixture(this, HIT_BOX);
-            hitBox.setSize(.8f * PPM, .5f * PPM);
-            bodyComponent.addFixture(hitBox);
             return bodyComponent;
         }
 
@@ -992,8 +999,7 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
                 }
             };
             Map<String, TimedAnimation> animations = new HashMap<>();
-            animations.put("Climb", new TimedAnimation(textureAtlas.findRegion("Climb"),
-                    2, .125f));
+            animations.put("Climb", new TimedAnimation(textureAtlas.findRegion("Climb"), 2, .125f));
             animations.put("ClimbShoot", new TimedAnimation(textureAtlas.findRegion("ClimbShoot")));
             animations.put("Stand", new TimedAnimation(textureAtlas.findRegion("Stand"), new float[]{1.5f, .15f}));
             animations.put("StandShoot", new TimedAnimation(textureAtlas.findRegion("StandShoot")));
