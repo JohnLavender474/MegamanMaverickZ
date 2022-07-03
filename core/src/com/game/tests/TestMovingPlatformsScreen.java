@@ -1,4 +1,4 @@
-package com.game.tests.screens;
+package com.game.tests;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
@@ -18,11 +18,13 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.game.*;
+import com.game.Component;
 import com.game.ConstVals.TextureAssets;
 import com.game.ConstVals.VolumeVals;
-import com.game.System;
 import com.game.ConstVals.WorldVals;
+import com.game.Message;
+import com.game.MessageListener;
+import com.game.System;
 import com.game.animations.AnimationComponent;
 import com.game.animations.AnimationSystem;
 import com.game.animations.Animator;
@@ -48,15 +50,18 @@ import com.game.sound.SoundRequest;
 import com.game.sound.SoundSystem;
 import com.game.sprites.SpriteComponent;
 import com.game.sprites.SpriteSystem;
+import com.game.trajectories.TrajectoryComponent;
+import com.game.trajectories.TrajectorySystem;
 import com.game.updatables.UpdatableComponent;
 import com.game.updatables.UpdatableSystem;
-import com.game.utils.*;
 import com.game.utils.Timer;
+import com.game.utils.*;
 import com.game.world.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.*;
+import java.util.List;
 import java.util.function.Supplier;
 
 import static com.game.ConstVals.MusicAssets.MMZ_NEO_ARCADIA_MUSIC;
@@ -68,6 +73,7 @@ import static com.game.controllers.ControllerButtonStatus.*;
 import static com.game.controllers.ControllerUtils.*;
 import static com.game.screens.levels.LevelScreen.LEVEL_CAM_TRANS_DURATION;
 import static com.game.screens.levels.LevelScreen.MEGAMAN_DELTA_ON_CAM_TRANS;
+import static com.game.world.FixtureType.*;
 
 /**
  * When the player dies, there should be 8 explosion orbs and about 3 seconds of delay before switching back to
@@ -77,13 +83,14 @@ import static com.game.screens.levels.LevelScreen.MEGAMAN_DELTA_ON_CAM_TRANS;
  *     1. Player dies, explosion orb decorations are spawned with trajectories, and timer is reset
  *     2. When timer reaches zero, player is respawned with health at 100%
  */
-public class TestTiledMapScreen1 extends ScreenAdapter {
+public class TestMovingPlatformsScreen extends ScreenAdapter {
 
     private static final String GAME_ROOMS = "GameRooms";
     private static final String PLAYER_SPAWNS = "PlayerSpawns";
     private static final String DEATH_SENSORS = "DeathSensors";
     private static final String WALL_SLIDE_SENSORS = "WallSlideSensors";
     private static final String STATIC_BLOCKS = "StaticBlocks";
+    private static final String MOVING_BLOCKS = "MovingBlocks";
 
     private LevelTiledMap levelTiledMap;
     private LevelCameraManager levelCameraManager;
@@ -99,11 +106,21 @@ public class TestTiledMapScreen1 extends ScreenAdapter {
     private final Vector2 spawn = new Vector2();
     private final Timer deathTimer = new Timer(4f);
 
+    private TestBlock testMovingBlock;
+
     private Music music;
+    private FontHandle message1;
+    private FontHandle message2;
     private final List<FontHandle> messages = new ArrayList<>();
 
     @Override
     public void show() {
+        message1 = new FontHandle("Megaman10Font.ttf", 6);
+        message1.setText("Not touching");
+        message1.setPosition(-PPM, 0f);
+        message2 = new FontHandle("Megaman10Font.ttf", 6);
+        message2.setPosition(message1.getPosition().x, message1.getPosition().y + PPM);
+        message2.setText("NULL");
         music = Gdx.audio.newMusic(Gdx.files.internal("music/MMX5_VoltKraken.mp3"));
         music.play();
         for (int i = 0; i < 3; i++) {
@@ -123,12 +140,13 @@ public class TestTiledMapScreen1 extends ScreenAdapter {
         uiViewport.getCamera().position.y = 0f;
         playgroundViewport = new FitViewport(VIEW_WIDTH * PPM, VIEW_HEIGHT * PPM);
         AssetLoader assetLoader = new AssetLoader();
-        entitiesAndSystemsManager.addSystem(new WorldSystem(new TestWorldContactListener(), WorldVals.AIR_RESISTANCE,
-                WorldVals.FIXED_TIME_STEP));
+        entitiesAndSystemsManager.addSystem(new WorldSystem(new TestWorldContactListener(),
+                WorldVals.AIR_RESISTANCE, WorldVals.FIXED_TIME_STEP));
         entitiesAndSystemsManager.addSystem(new UpdatableSystem());
         entitiesAndSystemsManager.addSystem(new ControllerSystem(testController));
         entitiesAndSystemsManager.addSystem(new HealthSystem());
         entitiesAndSystemsManager.addSystem(new BehaviorSystem());
+        entitiesAndSystemsManager.addSystem(new TrajectorySystem());
         entitiesAndSystemsManager.addSystem(new SpriteSystem(
                 (OrthographicCamera) playgroundViewport.getCamera(), spriteBatch));
         entitiesAndSystemsManager.addSystem(new AnimationSystem());
@@ -146,6 +164,42 @@ public class TestTiledMapScreen1 extends ScreenAdapter {
         levelTiledMap.getObjectsOfLayer(STATIC_BLOCKS).forEach(staticBlockObj ->
                 entitiesAndSystemsManager.addEntity(new TestBlock(staticBlockObj.getRectangle(),
                         false, false, new Vector2(.035f, 0f))));
+        // define moving blocks
+        levelTiledMap.getObjectsOfLayer(MOVING_BLOCKS).forEach(movingBlockObj -> {
+            testMovingBlock = new TestBlock(movingBlockObj.getRectangle(), false, false, new Vector2(.035f, 0f));
+            TrajectoryComponent trajectoryComponent = new TrajectoryComponent();
+            String[] trajectories = movingBlockObj.getProperties().get("Trajectory", String.class).split(";");
+            for (String trajectory : trajectories) {
+                String[] params = trajectory.split(",");
+                float x = Float.parseFloat(params[0]);
+                float y = Float.parseFloat(params[1]);
+                float time = Float.parseFloat(params[2]);
+                trajectoryComponent.addTrajectory(new Vector2(x * PPM, y * PPM), time);
+            }
+            testMovingBlock.addComponent(trajectoryComponent);
+            BodyComponent bodyComponent = testMovingBlock.getComponent(BodyComponent.class);
+            Fixture leftWallSlide = new Fixture(testMovingBlock, WALL_SLIDE_SENSOR);
+            leftWallSlide.setSize(PPM / 2f, bodyComponent.getCollisionBox().height - PPM / 2f);
+            leftWallSlide.setOffset(-bodyComponent.getCollisionBox().width / 2f, 0f);
+            bodyComponent.addFixture(leftWallSlide);
+            Fixture rightWallSlide = new Fixture(testMovingBlock, WALL_SLIDE_SENSOR);
+            rightWallSlide.setSize(PPM / 2f, bodyComponent.getCollisionBox().height - PPM / 2f);
+            rightWallSlide.setOffset(bodyComponent.getCollisionBox().width / 2f, 0f);
+            bodyComponent.addFixture(rightWallSlide);
+            Fixture feetSticker = new Fixture(testMovingBlock, FEET_STICKER);
+            feetSticker.setSize(bodyComponent.getCollisionBox().width, PPM / 3f);
+            feetSticker.setOffset(0f, (bodyComponent.getCollisionBox().height / 2f) - 2f);
+            bodyComponent.addFixture(feetSticker);
+            DebugComponent debugComponent = new DebugComponent();
+            debugComponent.addDebugHandle(bodyComponent::getCollisionBox, () -> Color.BLUE);
+            bodyComponent.getFixtures().forEach(fixture -> {
+                    if (fixture.getFixtureType() != BLOCK) {
+                        debugComponent.addDebugHandle(fixture::getFixtureBox, () -> Color.GREEN);
+                    }
+            });
+            testMovingBlock.addComponent(debugComponent);
+            entitiesAndSystemsManager.addEntity(testMovingBlock);
+        });
         // define wall slide sensors
         levelTiledMap.getObjectsOfLayer(WALL_SLIDE_SENSORS).forEach(wallSlideSensorObj ->
             entitiesAndSystemsManager.addEntity(new TestWallSlideSensor(wallSlideSensorObj.getRectangle())));
@@ -233,9 +287,12 @@ public class TestTiledMapScreen1 extends ScreenAdapter {
                 }
             }
         }
+        message2.setText("Pos delta: " + testMovingBlock.getComponent(BodyComponent.class).getPosDelta());
         spriteBatch.setProjectionMatrix(uiViewport.getCamera().combined);
         spriteBatch.begin();
         messages.forEach(message -> message.draw(spriteBatch));
+        message1.draw(spriteBatch);
+        message2.draw(spriteBatch);
         spriteBatch.end();
         playgroundViewport.apply();
         uiViewport.apply();
@@ -411,7 +468,7 @@ public class TestTiledMapScreen1 extends ScreenAdapter {
             bodyComponent.setGravityOn(false);
             bodyComponent.setFriction(0f, 0f);
             bodyComponent.setAffectedByResistance(false);
-            Fixture damageBox = new Fixture(this, FixtureType.DAMAGE_BOX);
+            Fixture damageBox = new Fixture(this, DAMAGE_BOX);
             damageBox.set(UtilMethods.getScaledRect(bounds, 1.05f));
             bodyComponent.addFixture(damageBox);
             return bodyComponent;
@@ -845,23 +902,23 @@ public class TestTiledMapScreen1 extends ScreenAdapter {
                     bodyComponent.setGravity(-20f * PPM);
                 }
             });
-            Fixture feet = new Fixture(this, FixtureType.FEET);
+            Fixture feet = new Fixture(this, FEET);
             feet.setSize(10f, 1f);
             feet.setOffset(0f, -PPM / 2f);
             bodyComponent.addFixture(feet);
-            Fixture head = new Fixture(this, FixtureType.HEAD);
+            Fixture head = new Fixture(this, HEAD);
             head.setSize(7f, 2f);
             head.setOffset(0f, PPM / 2f);
             bodyComponent.addFixture(head);
-            Fixture left = new Fixture(this, FixtureType.LEFT);
+            Fixture left = new Fixture(this, LEFT);
             left.setSize(1f, .25f * PPM);
             left.setOffset(-.45f * PPM, 0f);
             bodyComponent.addFixture(left);
-            Fixture right = new Fixture(this, FixtureType.RIGHT);
+            Fixture right = new Fixture(this, RIGHT);
             right.setSize(1f, .25f * PPM);
             right.setOffset(.45f * PPM, 0f);
             bodyComponent.addFixture(right);
-            Fixture hitBox = new Fixture(this, FixtureType.HIT_BOX);
+            Fixture hitBox = new Fixture(this, HIT_BOX);
             hitBox.setSize(.8f * PPM, .5f * PPM);
             bodyComponent.addFixture(hitBox);
             return bodyComponent;
@@ -1065,11 +1122,11 @@ public class TestTiledMapScreen1 extends ScreenAdapter {
             bodyComponent.setPreProcess(delta -> bodyComponent.setVelocity(trajectory));
             bodyComponent.setSize(.1f * PPM, .1f * PPM);
             bodyComponent.setCenter(spawn.x, spawn.y);
-            Fixture projectile = new Fixture(this, FixtureType.PROJECTILE);
+            Fixture projectile = new Fixture(this, PROJECTILE);
             projectile.setSize(.1f * PPM, .1f * PPM);
             projectile.setCenter(spawn.x, spawn.y);
             bodyComponent.addFixture(projectile);
-            Fixture damageBox = new Fixture(this, FixtureType.DAMAGE_BOX);
+            Fixture damageBox = new Fixture(this, DAMAGE_BOX);
             damageBox.setSize(.1f * PPM, .1f * PPM);
             damageBox.setCenter(spawn.x, spawn.y);
             bodyComponent.addFixture(damageBox);
@@ -1078,7 +1135,7 @@ public class TestTiledMapScreen1 extends ScreenAdapter {
 
         @Override
         public void hit(Fixture fixture) {
-            if (fixture.getFixtureType() == FixtureType.BLOCK) {
+            if (fixture.getFixtureType() == BLOCK) {
                 onDeath();
                 setDead(true);
             }
@@ -1148,7 +1205,6 @@ public class TestTiledMapScreen1 extends ScreenAdapter {
 
         public TestBlock(Rectangle bounds, boolean affectedByResistance, boolean gravityOn, Vector2 friction) {
             addComponent(defineBodyComponent(bounds, affectedByResistance, gravityOn, friction));
-            addComponent(defineDebugComponent());
         }
 
         private BodyComponent defineBodyComponent(Rectangle bounds, boolean affectedByResistance, boolean gravityOn,
@@ -1158,17 +1214,10 @@ public class TestTiledMapScreen1 extends ScreenAdapter {
             bodyComponent.setFriction(friction);
             bodyComponent.setGravityOn(gravityOn);
             bodyComponent.setAffectedByResistance(affectedByResistance);
-            Fixture block = new Fixture(this, FixtureType.BLOCK);
+            Fixture block = new Fixture(this, BLOCK);
             block.set(bodyComponent.getCollisionBox());
             bodyComponent.addFixture(block);
             return bodyComponent;
-        }
-
-        private DebugComponent defineDebugComponent() {
-            DebugComponent debugComponent = new DebugComponent();
-            BodyComponent bodyComponent = getComponent(BodyComponent.class);
-            debugComponent.addDebugHandle(bodyComponent::getCollisionBox, () -> Color.BLUE);
-            return debugComponent;
         }
 
     }
@@ -1189,7 +1238,7 @@ public class TestTiledMapScreen1 extends ScreenAdapter {
             bodyComponent.setAffectedByResistance(false);
             bodyComponent.setGravityOn(false);
             bodyComponent.set(bounds);
-            Fixture wallSlideSensor = new Fixture(this, FixtureType.WALL_SLIDE_SENSOR);
+            Fixture wallSlideSensor = new Fixture(this, WALL_SLIDE_SENSOR);
             wallSlideSensor.set(bounds);
             bodyComponent.addFixture(wallSlideSensor);
             return bodyComponent;
@@ -1213,7 +1262,7 @@ public class TestTiledMapScreen1 extends ScreenAdapter {
             bodyComponent.setGravityOn(false);
             bodyComponent.setAffectedByResistance(false);
             bodyComponent.set(bounds);
-            Fixture death = new Fixture(this, FixtureType.DEATH);
+            Fixture death = new Fixture(this, DEATH);
             death.set(bounds);
             bodyComponent.addFixture(death);
             return bodyComponent;
@@ -1221,59 +1270,66 @@ public class TestTiledMapScreen1 extends ScreenAdapter {
 
     }
 
-    static class TestWorldContactListener implements WorldContactListener {
+    class TestWorldContactListener implements WorldContactListener {
 
         @Override
         public void beginContact(Contact contact, float delta) {
-            if (contact.acceptMask(FixtureType.HIT_BOX, FixtureType.DEATH)) {
+            if (contact.acceptMask(HIT_BOX, DEATH)) {
                 contact.maskFirstEntity().getComponent(HealthComponent.class).setHealth(0);
-            } else if (contact.acceptMask(FixtureType.LEFT, FixtureType.BLOCK)) {
+            } else if (contact.acceptMask(LEFT, BLOCK)) {
                 contact.maskFirstBody().setIs(BodySense.TOUCHING_BLOCK_LEFT);
-            } else if (contact.acceptMask(FixtureType.RIGHT, FixtureType.BLOCK)) {
+            } else if (contact.acceptMask(RIGHT, BLOCK)) {
                 contact.maskFirstBody().setIs(BodySense.TOUCHING_BLOCK_RIGHT);
-            } else if (contact.acceptMask(FixtureType.LEFT, FixtureType.WALL_SLIDE_SENSOR)) {
+            } else if (contact.acceptMask(LEFT, WALL_SLIDE_SENSOR)) {
                 contact.maskFirstBody().setIs(BodySense.TOUCHING_WALL_SLIDE_LEFT);
-            } else if (contact.acceptMask(FixtureType.RIGHT, FixtureType.WALL_SLIDE_SENSOR)) {
+            } else if (contact.acceptMask(RIGHT, WALL_SLIDE_SENSOR)) {
                 contact.maskFirstBody().setIs(BodySense.TOUCHING_WALL_SLIDE_RIGHT);
-            } else if (contact.acceptMask(FixtureType.FEET, FixtureType.BLOCK)) {
+            } else if (contact.acceptMask(FEET, BLOCK)) {
                 IEntity entity = contact.maskFirstEntity();
                 entity.getComponent(BodyComponent.class).setIs(BodySense.FEET_ON_GROUND);
                 if (entity instanceof TestPlayer testPlayer) {
                     testPlayer.setAButtonTask(TestPlayer.AButtonTask.JUMP);
                     Gdx.audio.newSound(Gdx.files.internal("sounds/MegamanLand.mp3")).play();
                 }
-            } else if (contact.acceptMask(FixtureType.HEAD, FixtureType.BLOCK)) {
+            } else if (contact.acceptMask(HEAD, BLOCK)) {
                 contact.maskFirstBody().setIs(BodySense.HEAD_TOUCHING_BLOCK);
-            } else if (contact.acceptMask(FixtureType.DAMAGE_BOX, FixtureType.HIT_BOX) &&
+            } else if (contact.acceptMask(DAMAGE_BOX, HIT_BOX) &&
                     contact.maskFirstEntity() instanceof Damager damager &&
                     contact.maskSecondEntity() instanceof Damageable damageable &&
                     damageable.canBeDamagedBy(damager)) {
                 damageable.takeDamageFrom(damager.getClass());
                 damager.onDamageInflictedTo(damageable.getClass());
-            } else if (contact.acceptMask(FixtureType.PROJECTILE)) {
+            } else if (contact.acceptMask(PROJECTILE)) {
                 ((IProjectile) contact.maskFirstEntity()).hit(contact.getMask().second());
             }
         }
 
         @Override
         public void continueContact(Contact contact, float delta) {
-            if (contact.acceptMask(FixtureType.LEFT, FixtureType.BLOCK)) {
+            if (contact.acceptMask(LEFT, BLOCK)) {
                 contact.maskFirstBody().setIs(BodySense.TOUCHING_BLOCK_LEFT);
-            } else if (contact.acceptMask(FixtureType.RIGHT, FixtureType.BLOCK)) {
+            } else if (contact.acceptMask(RIGHT, BLOCK)) {
                 contact.maskFirstBody().setIs(BodySense.TOUCHING_BLOCK_RIGHT);
-            } else if (contact.acceptMask(FixtureType.LEFT, FixtureType.WALL_SLIDE_SENSOR)) {
+            } else if (contact.acceptMask(LEFT, WALL_SLIDE_SENSOR)) {
                 contact.maskFirstBody().setIs(BodySense.TOUCHING_WALL_SLIDE_LEFT);
-            } else if (contact.acceptMask(FixtureType.RIGHT, FixtureType.WALL_SLIDE_SENSOR)) {
+            } else if (contact.acceptMask(RIGHT, WALL_SLIDE_SENSOR)) {
                 contact.maskFirstBody().setIs(BodySense.TOUCHING_WALL_SLIDE_RIGHT);
-            } else if (contact.acceptMask(FixtureType.FEET, FixtureType.BLOCK)) {
+            } else if (contact.acceptMask(FEET, BLOCK)) {
                 IEntity entity = contact.maskFirstEntity();
                 entity.getComponent(BodyComponent.class).setIs(BodySense.FEET_ON_GROUND);
                 if (entity instanceof TestPlayer testPlayer) {
                     testPlayer.setAButtonTask(TestPlayer.AButtonTask.JUMP);
                 }
-            } else if (contact.acceptMask(FixtureType.HEAD, FixtureType.BLOCK)) {
+            } else if (contact.acceptMask(FEET, FEET_STICKER) && contact.maskFirstEntity() instanceof TestPlayer &&
+                    contact.maskSecondEntity() instanceof TestBlock) {
+                message1.setText("Touching");
+                java.lang.System.out.println("Pos delta: " + contact.maskSecondBody().getPosDelta());
+                java.lang.System.out.println("Before: " + contact.maskFirstBody().getPosition());
+                contact.maskFirstBody().translate(contact.maskSecondBody().getPosDelta());
+                java.lang.System.out.println("After: " + contact.maskFirstBody().getPosition());
+            } else if (contact.acceptMask(HEAD, BLOCK)) {
                 contact.maskFirstEntity().getComponent(BodyComponent.class).setIs(BodySense.HEAD_TOUCHING_BLOCK);
-            } else if (contact.acceptMask(FixtureType.DAMAGE_BOX, FixtureType.HIT_BOX) &&
+            } else if (contact.acceptMask(DAMAGE_BOX, HIT_BOX) &&
                     contact.maskFirstEntity() instanceof Damager damager &&
                     contact.maskSecondEntity() instanceof Damageable damageable &&
                     damageable.canBeDamagedBy(damager)) {
@@ -1284,20 +1340,22 @@ public class TestTiledMapScreen1 extends ScreenAdapter {
 
         @Override
         public void endContact(Contact contact, float delta) {
-            if (contact.acceptMask(FixtureType.LEFT, FixtureType.BLOCK)) {
+            if (contact.acceptMask(LEFT, BLOCK)) {
                 contact.maskFirstBody().setIsNot(BodySense.TOUCHING_BLOCK_LEFT);
-            } else if (contact.acceptMask(FixtureType.RIGHT, FixtureType.BLOCK)) {
+            } else if (contact.acceptMask(RIGHT, BLOCK)) {
                 contact.maskFirstBody().setIsNot(BodySense.TOUCHING_BLOCK_RIGHT);
-            } else if (contact.acceptMask(FixtureType.LEFT, FixtureType.WALL_SLIDE_SENSOR)) {
+            } else if (contact.acceptMask(LEFT, WALL_SLIDE_SENSOR)) {
                 contact.maskFirstBody().setIsNot(BodySense.TOUCHING_WALL_SLIDE_LEFT);
-            } else if (contact.acceptMask(FixtureType.RIGHT, FixtureType.WALL_SLIDE_SENSOR)) {
+            } else if (contact.acceptMask(RIGHT, WALL_SLIDE_SENSOR)) {
                 contact.maskFirstBody().setIsNot(BodySense.TOUCHING_WALL_SLIDE_RIGHT);
-            } else if (contact.acceptMask(FixtureType.FEET, FixtureType.BLOCK)) {
+            } else if (contact.acceptMask(FEET, BLOCK)) {
                 contact.maskFirstBody().setIsNot(BodySense.FEET_ON_GROUND);
                 if (contact.maskFirstEntity() instanceof TestPlayer testPlayer) {
                     testPlayer.setAButtonTask(TestPlayer.AButtonTask.AIR_DASH);
                 }
-            } else if (contact.acceptMask(FixtureType.HEAD, FixtureType.BLOCK)) {
+            } else if (contact.acceptMask(FEET, FEET_STICKER)) {
+                message1.setText("Not touching");
+            } else if (contact.acceptMask(HEAD, BLOCK)) {
                 contact.maskFirstBody().setIsNot(BodySense.HEAD_TOUCHING_BLOCK);
             }
         }

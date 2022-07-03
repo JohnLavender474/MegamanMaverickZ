@@ -1,6 +1,7 @@
 package com.game.tests.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
@@ -18,11 +19,13 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.game.*;
+import com.game.Component;
 import com.game.ConstVals.TextureAssets;
 import com.game.ConstVals.VolumeVals;
-import com.game.System;
 import com.game.ConstVals.WorldVals;
+import com.game.Message;
+import com.game.MessageListener;
+import com.game.System;
 import com.game.animations.AnimationComponent;
 import com.game.animations.AnimationSystem;
 import com.game.animations.Animator;
@@ -50,8 +53,8 @@ import com.game.sprites.SpriteComponent;
 import com.game.sprites.SpriteSystem;
 import com.game.updatables.UpdatableComponent;
 import com.game.updatables.UpdatableSystem;
-import com.game.utils.*;
 import com.game.utils.Timer;
+import com.game.utils.*;
 import com.game.world.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -77,7 +80,7 @@ import static com.game.screens.levels.LevelScreen.MEGAMAN_DELTA_ON_CAM_TRANS;
  *     1. Player dies, explosion orb decorations are spawned with trajectories, and timer is reset
  *     2. When timer reaches zero, player is respawned with health at 100%
  */
-public class TestTiledMapScreen1 extends ScreenAdapter {
+public class TestPauseScreen extends ScreenAdapter {
 
     private static final String GAME_ROOMS = "GameRooms";
     private static final String PLAYER_SPAWNS = "PlayerSpawns";
@@ -100,10 +103,14 @@ public class TestTiledMapScreen1 extends ScreenAdapter {
     private final Timer deathTimer = new Timer(4f);
 
     private Music music;
+    private boolean isPaused;
+    private FontHandle pauseMsg;
     private final List<FontHandle> messages = new ArrayList<>();
 
     @Override
     public void show() {
+        pauseMsg = new FontHandle("Megaman10Font.ttf", 6);
+        pauseMsg.setPosition(VIEW_WIDTH * PPM / 3f, VIEW_HEIGHT * PPM / 3f);
         music = Gdx.audio.newMusic(Gdx.files.internal("music/MMX5_VoltKraken.mp3"));
         music.play();
         for (int i = 0; i < 3; i++) {
@@ -163,7 +170,17 @@ public class TestTiledMapScreen1 extends ScreenAdapter {
 
     @Override
     public void render(float delta) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
+            isPaused = !isPaused;
+        }
         testController.updateController();
+        if (isPaused) {
+            spriteBatch.setProjectionMatrix(uiViewport.getCamera().combined);
+            spriteBatch.begin();
+            pauseMsg.draw(spriteBatch);
+            spriteBatch.end();
+            return;
+        }
         levelTiledMap.draw();
         levelCameraManager.update(delta);
         entitiesAndSystemsManager.updateSystems(delta);
@@ -595,6 +612,13 @@ public class TestTiledMapScreen1 extends ScreenAdapter {
                     getComponent(BehaviorComponent.class).setIsNot(RUNNING);
                 }
 
+                @Override
+                public void onReleaseContinued() {
+                    if (!controller.isPressed(ControllerButton.RIGHT)) {
+                        getComponent(BehaviorComponent.class).setIsNot(RUNNING);
+                    }
+                }
+
             });
             controllerComponent.addControllerAdapter(ControllerButton.RIGHT, new ControllerAdapter() {
 
@@ -619,6 +643,12 @@ public class TestTiledMapScreen1 extends ScreenAdapter {
                     getComponent(BehaviorComponent.class).setIsNot(RUNNING);
                 }
 
+                @Override
+                public void onReleaseContinued() {
+                    if (!controller.isPressed(ControllerButton.LEFT)) {
+                        getComponent(BehaviorComponent.class).setIsNot(RUNNING);
+                    }
+                }
 
             });
             controllerComponent.addControllerAdapter(ControllerButton.X, new ControllerAdapter() {

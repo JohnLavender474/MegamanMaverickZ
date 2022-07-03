@@ -25,4 +25,10 @@ public interface ControllerAdapter {
     default void onJustReleased() {
     }
 
+    /**
+     * On release continued.
+     */
+    default void onReleaseContinued() {
+    }
+
 }

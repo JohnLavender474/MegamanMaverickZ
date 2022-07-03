@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
 import com.game.updatables.Updatable;
 import com.game.utils.Direction;
+import com.game.utils.UtilMethods;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,31 +15,27 @@ import java.util.*;
  * {@link Component} implementation for world bodies.
  */
 @Getter
+@Setter
 public class BodyComponent implements Component {
 
     private final Vector2 friction = new Vector2();
     private final Vector2 velocity = new Vector2();
-    private final Rectangle collisionBox = new Rectangle();
-    private final List<Fixture> fixtures = new ArrayList<>();
-    private final Rectangle priorCollisionBox = new Rectangle();
     private final Vector2 resistance = new Vector2(1f, 1f);
+    private final List<Fixture> fixtures = new ArrayList<>();
+    private final Rectangle collisionBox = new Rectangle();
+    private final Rectangle priorCollisionBox = new Rectangle();
     private final Set<BodySense> bodySenses = EnumSet.noneOf(BodySense.class);
     private final Map<Direction, Boolean> collisionFlags = new EnumMap<>(Direction.class) {{
         for (Direction direction : Direction.values()) {
             put(direction, false);
         }
     }};
-    @Setter
+
     private float gravity;
-    @Setter
     private BodyType bodyType;
-    @Setter
     private Updatable preProcess;
-    @Setter
     private Updatable postProcess;
-    @Setter
     private boolean gravityOn = true;
-    @Setter
     private boolean affectedByResistance = true;
 
     /**
@@ -173,12 +170,32 @@ public class BodyComponent implements Component {
     /**
      * Translate.
      *
+     * @param delta the x and y
+     */
+    public void translate(Vector2 delta) {
+        translate(delta.x, delta.y);
+    }
+
+    /**
+     * Translate.
+     *
      * @param x the x
      * @param y the y
      */
     public void translate(float x, float y) {
         collisionBox.x += x;
         collisionBox.y += y;
+    }
+
+    /**
+     * Returns the pos delta between this frame and the prior frame.
+     *
+     * @return the pos delta
+     */
+    public Vector2 getPosDelta() {
+        Vector2 priorPos = UtilMethods.centerPoint(priorCollisionBox);
+        Vector2 currentPos = UtilMethods.centerPoint(collisionBox);
+        return currentPos.sub(priorPos);
     }
 
     /**

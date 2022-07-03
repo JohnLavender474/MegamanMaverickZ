@@ -35,6 +35,8 @@ public class ControllerSystem extends System {
                 controllerAdapter.onPressContinued(delta);
             } else if (iController.isJustReleased(controllerButton)) {
                 controllerAdapter.onJustReleased();
+            } else {
+                controllerAdapter.onReleaseContinued();
             }
         }
     }

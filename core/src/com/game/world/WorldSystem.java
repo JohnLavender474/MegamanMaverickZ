@@ -62,21 +62,13 @@ public class WorldSystem extends System {
             accumulator -= fixedTimeStep;
             // Apply forces
             bodies.forEach(bodyComponent -> {
-                // If below 0.5 speed, then set to 0
-                if (Math.abs(bodyComponent.getVelocity().x) < 0.5f) {
+                // If below .25 speed, then set to 0
+                if (Math.abs(bodyComponent.getVelocity().x) < .25f) {
                     bodyComponent.setVelocityX(0f);
                 }
-                if (Math.abs(bodyComponent.getVelocity().y) < 0.5f) {
+                if (Math.abs(bodyComponent.getVelocity().y) < .25f) {
                     bodyComponent.setVelocityY(0f);
                 }
-                /*
-                // Prevent clipping through obstacles left and right
-                if (bodyComponent.is(BodySense.TOUCHING_BLOCK_RIGHT)) {
-                    bodyComponent.getVelocity().x = Math.min(0f, bodyComponent.getVelocity().x);
-                } else if (bodyComponent.is(BodySense.TOUCHING_BLOCK_LEFT)) {
-                    bodyComponent.getVelocity().x = Math.max(0f, bodyComponent.getVelocity().x);
-                }
-                 */
                 // Apply resistance
                 if (bodyComponent.isAffectedByResistance()) {
                     bodyComponent.getVelocity().x *= 1f / Math.max(1f, bodyComponent.getResistance().x);
@@ -84,7 +76,7 @@ public class WorldSystem extends System {
                 }
                 // Reset resistance
                 bodyComponent.setResistance(airResistance);
-                // If gravity on: if colliding down, minimum gravity is -0.5f, otherwise apply gravity
+                // If gravity on: if colliding down, minimum gravity is -5f, otherwise apply gravity
                 // If gravity off: set to zero
                 if (bodyComponent.isGravityOn()) {
                     bodyComponent.applyImpulse(0f, bodyComponent.getGravity() * fixedTimeStep);
@@ -92,9 +84,6 @@ public class WorldSystem extends System {
                         bodyComponent.setVelocityY(Math.max(-5f, bodyComponent.getVelocity().y));
                     }
                 }
-                // Round to 2 decimal places
-                //bodyComponent.setVelocity(UtilMethods.roundedFloat(bodyComponent.getVelocity().x, 2), UtilMethods
-                // .roundedFloat(bodyComponent.getVelocity().y, 2));
                 // Translate
                 bodyComponent.translate(bodyComponent.getVelocity().x * fixedTimeStep,
                         bodyComponent.getVelocity().y * fixedTimeStep);

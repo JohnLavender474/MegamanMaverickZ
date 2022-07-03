@@ -13,6 +13,7 @@ public enum FixtureType {
     HIT_BOX,
     DAMAGE_BOX,
     PROJECTILE,
+    FEET_STICKER,
     GRAVITY_SHIFT,
     WALL_SLIDE_SENSOR
 }
