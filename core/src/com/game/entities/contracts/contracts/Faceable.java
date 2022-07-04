@@ -1,4 +1,4 @@
-package com.game.contracts;
+package com.game.entities.contracts.contracts;
 
 /**
  * Interface that requires the implementor to either be "facing left" or "facing right" but never both at the same time.

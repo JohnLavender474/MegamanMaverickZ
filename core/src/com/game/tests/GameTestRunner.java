@@ -16,12 +16,7 @@ public class GameTestRunner extends Game {
 
     private final TestScreen testKey;
     private final Map<TestScreen, Screen> testScreens = new HashMap<>() {{
-        put(TestScreen.TEST_CAMERA_ROOM_SHIFT, new TestCameraRoomShiftScreen1());
         put(TestScreen.TEST_MOVING_PLATFORMS, new TestMovingPlatformsScreen());
-        put(TestScreen.TEST_DAMAGER, new TestDamageScreen());
-        put(TestScreen.TEST_DEATH, new TestDeathScreen());
-        put(TestScreen.TEST_PAUSE, new TestPauseScreen());
-        put(TestScreen.TEST_TILED_MAP_1, new TestTiledMapScreen1());
         put(TestScreen.TEST_TRAJECTORIES, new TestTrajectoriesScreen());
     }};
 
@@ -48,12 +43,7 @@ public class GameTestRunner extends Game {
 
     public enum TestScreen {
         TEST_TRAJECTORIES,
-        TEST_CAMERA_ROOM_SHIFT,
         TEST_MOVING_PLATFORMS,
-        TEST_DAMAGER,
-        TEST_DEATH,
-        TEST_TILED_MAP_1,
-        TEST_PAUSE
     }
 
 }

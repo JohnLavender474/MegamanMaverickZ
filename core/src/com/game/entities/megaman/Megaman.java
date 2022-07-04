@@ -15,10 +15,10 @@ import com.game.animations.TimedAnimation;
 import com.game.behaviors.Behavior;
 import com.game.behaviors.BehaviorComponent;
 import com.game.behaviors.BehaviorType;
-import com.game.contracts.Damageable;
-import com.game.contracts.Damager;
-import com.game.contracts.Faceable;
-import com.game.contracts.Facing;
+import com.game.entities.contracts.contracts.Damageable;
+import com.game.entities.contracts.contracts.Damager;
+import com.game.entities.contracts.contracts.Faceable;
+import com.game.entities.contracts.contracts.Facing;
 import com.game.controllers.ControllerAdapter;
 import com.game.controllers.ControllerButton;
 import com.game.controllers.ControllerComponent;
@@ -450,6 +450,7 @@ public class Megaman implements IEntity, Damageable, Faceable, LevelCameraFocusa
     }
 
     private SpriteComponent defineSpriteComponent() {
+        /*
         SpriteComponent spriteComponent = new SpriteComponent();
         spriteComponent.getSprite().setSize(1.65f * PPM, 1.35f * PPM);
         spriteComponent.setSpriteUpdater(delta -> {
@@ -481,6 +482,8 @@ public class Megaman implements IEntity, Damageable, Faceable, LevelCameraFocusa
             }
         });
         return spriteComponent;
+         */
+        return null;
     }
 
     private AnimationComponent defineAnimationComponent(TextureAtlas textureAtlas) {

@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * {@link Component} implementation for world bodies.
@@ -356,6 +357,28 @@ public class BodyComponent implements Component {
      */
     public void addFixture(Fixture fixture) {
         fixtures.add(fixture);
+    }
+
+    /**
+     * Returns list of all fixtures with matching fixture type.
+     *
+     * @param fixtureType the fixture type
+     * @return the list of fixtures
+     */
+    public List<Fixture> getFixtures(FixtureType fixtureType) {
+        return fixtures.stream().filter(fixture ->
+                fixture.getFixtureType().equals(fixtureType)).collect(Collectors.toList());
+    }
+
+    /**
+     * Returns first fixture that has matching fixture type.
+     *
+     * @param fixtureType the fixture type
+     * @return the optional fixture
+     */
+    public Optional<Fixture> getFirstMatchingFixture(FixtureType fixtureType) {
+        return fixtures.stream().filter(fixture ->
+                fixture.getFixtureType().equals(fixtureType)).findFirst();
     }
 
     /**

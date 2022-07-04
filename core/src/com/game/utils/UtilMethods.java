@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import org.w3c.dom.css.Rect;
 
 /**
  * Global utility methods.
@@ -140,7 +141,7 @@ public class UtilMethods {
      * @param staticRect the Rectangle that is not moved and acts as a reference for the first Rectangle
      * @param position   the Position on which to place the first Rectangle
      */
-    public static void positionRectOntoOther(Rectangle toBeMoved, Rectangle staticRect, Position position) {
+    public static void positionRectOnOther(Rectangle toBeMoved, Rectangle staticRect, Position position) {
         switch (position) {
             case TOP_LEFT -> setTopLeftToPoint(toBeMoved, topLeftPoint(staticRect));
             case TOP_CENTER -> setTopCenterToPoint(toBeMoved, topCenterPoint(staticRect));
@@ -175,6 +176,73 @@ public class UtilMethods {
     }
 
     /**
+     * Gets the point corresponding to the position on the supplied rectangle.
+     *
+     * @param rectangle the rectangle
+     * @param position the position
+     * @return the point
+     */
+    public static Vector2 getPoint(Rectangle rectangle, Position position) {
+        switch (position) {
+            case BOTTOM_LEFT:
+                Vector2 point = new Vector2();
+                rectangle.getPosition(point);
+                return point;
+            case BOTTOM_CENTER:
+                return bottomCenterPoint(rectangle);
+            case BOTTOM_RIGHT:
+                return bottomRightPoint(rectangle);
+            case CENTER_LEFT:
+                return centerLeftPoint(rectangle);
+            case CENTER:
+                return centerPoint(rectangle);
+            case CENTER_RIGHT:
+                return centerRightPoint(rectangle);
+            case TOP_LEFT:
+                return topLeftPoint(rectangle);
+            case TOP_CENTER:
+                return topCenterPoint(rectangle);
+            case TOP_RIGHT:
+                return topRightPoint(rectangle);
+            default:
+                throw new IllegalStateException("Position value is not valid");
+        }
+    }
+
+    /**
+     * See {@link #setToPoint(Rectangle, Vector2, Position, Positional)}.
+     *
+     * @param rectangle the rectangle
+     * @param point the point
+     * @param position the position
+     */
+    public static void setToPoint(Rectangle rectangle, Vector2 point, Position position) {
+        setToPoint(rectangle, point, position, rectangle::setPosition);
+    }
+
+    /**
+     * Sets the {@link Positional} to the point based on the supplied position value.
+     *
+     * @param rectangle the rectangle
+     * @param point the point
+     * @param position the position
+     */
+    public static void setToPoint(Rectangle rectangle, Vector2 point, Position position, Positional positional) {
+        switch (position) {
+            case BOTTOM_LEFT -> positional.setPosition(point);
+            case BOTTOM_CENTER -> setBottomCenterToPoint(rectangle, point, positional);
+            case BOTTOM_RIGHT -> setBottomRightToPoint(rectangle, point, positional);
+            case CENTER_LEFT -> setCenterLeftToPoint(rectangle, point, positional);
+            case CENTER -> positional.setPosition(point.x - rectangle.width / 2f, point.y -rectangle.height / 2f);
+            case CENTER_RIGHT -> setCenterRightToPoint(rectangle, point, positional);
+            case TOP_LEFT -> setTopLeftToPoint(rectangle, point, positional);
+            case TOP_CENTER -> setTopCenterToPoint(rectangle, point, positional);
+            case TOP_RIGHT -> setTopRightToPoint(rectangle, point, positional);
+            default -> throw new IllegalStateException("Position value is not valid");
+        }
+    }
+
+    /**
      * Returns the bottom-right point of the {@link Rectangle} as a {@link Vector2}.
      *
      * @param rectangle the rectangle
@@ -185,13 +253,23 @@ public class UtilMethods {
     }
 
     /**
-     * Sets the {@link Rectangle} such that its bottom-right point rests directly on the {@link Vector2}.
+     * See {@link #setBottomRightToPoint(Rectangle, Vector2, Positional)}.
+     *
+     * @param rectangle the rectangle
+     * @param bottomRightPoint the bottom-right point
+     */
+    public static void setBottomRightToPoint(Rectangle rectangle, Vector2 bottomRightPoint) {
+        setBottomRightToPoint(rectangle, bottomRightPoint, rectangle::setPosition);
+    }
+
+    /**
+     * Sets the {@link Positional} such that its bottom-right point rests directly on the {@link Vector2}.
      *
      * @param rectangle        the rectangle
      * @param bottomRightPoint the bottom-right point
      */
-    public static void setBottomRightToPoint(Rectangle rectangle, Vector2 bottomRightPoint) {
-        rectangle.setPosition(bottomRightPoint.x - rectangle.width, bottomRightPoint.y);
+    public static void setBottomRightToPoint(Rectangle rectangle, Vector2 bottomRightPoint, Positional positional) {
+        positional.setPosition(bottomRightPoint.x - rectangle.width, bottomRightPoint.y);
     }
 
     /**
@@ -201,17 +279,27 @@ public class UtilMethods {
      * @return the bottom-center point
      */
     public static Vector2 bottomCenterPoint(Rectangle rectangle) {
-        return new Vector2(rectangle.x + (rectangle.width / 2f), rectangle.y);
+        return new Vector2(rectangle.x + rectangle.width / 2f, rectangle.y);
     }
 
     /**
-     * Sets the {@link Rectangle} such that its bottom-center point rests directly on the {@link Vector2}.
+     * See {@link #setBottomCenterToPoint(Rectangle, Vector2, Positional)}.
+     *
+     * @param rectangle the rectangle
+     * @param bottomCenterPoint the bottom-center point
+     */
+    public static void setBottomCenterToPoint(Rectangle rectangle, Vector2 bottomCenterPoint) {
+        setBottomCenterToPoint(rectangle, bottomCenterPoint, rectangle::setPosition);
+    }
+
+    /**
+     * Sets the {@link Positional} such that its bottom-center point rests directly on the {@link Vector2}.
      *
      * @param rectangle         the rectangle
      * @param bottomCenterPoint the bottom-center point
      */
-    public static void setBottomCenterToPoint(Rectangle rectangle, Vector2 bottomCenterPoint) {
-        rectangle.setPosition(bottomCenterPoint.x - (rectangle.width / 2f), bottomCenterPoint.y);
+    public static void setBottomCenterToPoint(Rectangle rectangle, Vector2 bottomCenterPoint, Positional positional) {
+        positional.setPosition(bottomCenterPoint.x - rectangle.width / 2f, bottomCenterPoint.y);
     }
 
     /**
@@ -225,13 +313,23 @@ public class UtilMethods {
     }
 
     /**
-     * Sets the {@link Rectangle} such that its center-right point resets directly on the {@link Vector2}.
+     * See {@link #setCenterRightToPoint(Rectangle, Vector2, Positional)}.
+     *
+     * @param rectangle the rectangle
+     * @param centerRightPoint the center-right point
+     */
+    public static void setCenterRightToPoint(Rectangle rectangle, Vector2 centerRightPoint) {
+        setCenterRightToPoint(rectangle, centerRightPoint, rectangle::setPosition);
+    }
+
+    /**
+     * Sets the {@link Positional} such that its center-right point resets directly on the {@link Vector2}.
      *
      * @param rectangle        the rectangle
      * @param centerRightPoint the center-right point
      */
-    public static void setCenterRightToPoint(Rectangle rectangle, Vector2 centerRightPoint) {
-        rectangle.setPosition(centerRightPoint.x - rectangle.width, centerRightPoint.y - (rectangle.height / 2f));
+    public static void setCenterRightToPoint(Rectangle rectangle, Vector2 centerRightPoint, Positional positional) {
+        positional.setPosition(centerRightPoint.x - rectangle.width, centerRightPoint.y - (rectangle.height / 2f));
     }
 
     /**
@@ -257,13 +355,23 @@ public class UtilMethods {
     }
 
     /**
-     * Sets the {@link Rectangle} such that its center-left point rests directly on the {@link Vector2}.
+     * See {@link #setCenterLeftToPoint(Rectangle, Vector2, Positional)}.
+     *
+     * @param rectangle the rectangle
+     * @param centerLeftPoint the center-left point
+     */
+    public static void setCenterLeftToPoint(Rectangle rectangle, Vector2 centerLeftPoint) {
+        setCenterLeftToPoint(rectangle, centerLeftPoint, rectangle::setPosition);
+    }
+
+    /**
+     * Sets the {@link Positional} such that its center-left point rests directly on the {@link Vector2}.
      *
      * @param rectangle       the rectangle
      * @param centerLeftPoint the center-left point
      */
-    public static void setCenterLeftToPoint(Rectangle rectangle, Vector2 centerLeftPoint) {
-        rectangle.setPosition(centerLeftPoint.x, centerLeftPoint.y - (rectangle.height / 2f));
+    public static void setCenterLeftToPoint(Rectangle rectangle, Vector2 centerLeftPoint, Positional positional) {
+        positional.setPosition(centerLeftPoint.x, centerLeftPoint.y - (rectangle.height / 2f));
     }
 
     /**
@@ -277,13 +385,23 @@ public class UtilMethods {
     }
 
     /**
-     * Sets the {@link Rectangle} such that its top-right point rests directly on the {@link Vector2}.
+     * See {@link #setTopRightToPoint(Rectangle, Vector2, Positional)}.
+     *
+     * @param rectangle the rectangle
+     * @param topRightPoint the top-right point
+     */
+    public static void setTopRightToPoint(Rectangle rectangle, Vector2 topRightPoint) {
+        setTopRightToPoint(rectangle, topRightPoint, rectangle::setPosition);
+    }
+
+    /**
+     * Sets the {@link Positional} such that its top-right point rests directly on the {@link Vector2}.
      *
      * @param rectangle     the rectangle
      * @param topRightPoint the top-right point
      */
-    public static void setTopRightToPoint(Rectangle rectangle, Vector2 topRightPoint) {
-        rectangle.setPosition(topRightPoint.x - rectangle.width, topRightPoint.y - rectangle.height);
+    public static void setTopRightToPoint(Rectangle rectangle, Vector2 topRightPoint, Positional positional) {
+        positional.setPosition(topRightPoint.x - rectangle.width, topRightPoint.y - rectangle.height);
     }
 
     /**
@@ -297,13 +415,23 @@ public class UtilMethods {
     }
 
     /**
-     * Sets the {@link Rectangle} such that its top-center point rests directly on the {@link Vector2}.
+     * See {@link #setTopCenterToPoint(Rectangle, Vector2, Positional)}.
+     *
+     * @param rectangle the rectangle
+     * @param topCenterPoint the top-center point
+     */
+    public static void setTopCenterToPoint(Rectangle rectangle, Vector2 topCenterPoint) {
+        setTopCenterToPoint(rectangle, topCenterPoint, rectangle::setPosition);
+    }
+
+    /**
+     * Sets the {@link Positional} such that its top-center point rests directly on the {@link Vector2}.
      *
      * @param rectangle      the rectangle
      * @param topCenterPoint the top-center point
      */
-    public static void setTopCenterToPoint(Rectangle rectangle, Vector2 topCenterPoint) {
-        rectangle.setPosition(topCenterPoint.x - (rectangle.width / 2f), topCenterPoint.y - rectangle.height);
+    public static void setTopCenterToPoint(Rectangle rectangle, Vector2 topCenterPoint, Positional positional) {
+        positional.setPosition(topCenterPoint.x - (rectangle.width / 2f), topCenterPoint.y - rectangle.height);
     }
 
     /**
@@ -317,13 +445,23 @@ public class UtilMethods {
     }
 
     /**
-     * Sets the {@link Rectangle} such that its top-left point rests directly on the {@link Vector2}.
+     * See {@link #setTopLeftToPoint(Rectangle, Vector2, Positional)}.
+     *
+     * @param rectangle the rectangle
+     * @param topLeftPoint the top-left point
+     */
+    public static void setTopLeftToPoint(Rectangle rectangle, Vector2 topLeftPoint) {
+        setTopLeftToPoint(rectangle, topLeftPoint, rectangle::setPosition);
+    }
+
+    /**
+     * Sets the {@link Positional} such that its top-left point rests directly on the {@link Vector2}.
      *
      * @param rectangle    the rectangle
      * @param topLeftPoint the top-left point
      */
-    public static void setTopLeftToPoint(Rectangle rectangle, Vector2 topLeftPoint) {
-        rectangle.setPosition(topLeftPoint.x, topLeftPoint.y - rectangle.height);
+    public static void setTopLeftToPoint(Rectangle rectangle, Vector2 topLeftPoint, Positional positional) {
+        positional.setPosition(topLeftPoint.x, topLeftPoint.y - rectangle.height);
     }
 
 }

@@ -1,4 +1,4 @@
-package com.game.contracts;
+package com.game.entities.contracts.contracts;
 
 import com.game.core.IEntity;
 

@@ -83,11 +83,11 @@ public abstract class System implements Updatable {
 
     /**
      * Returns if the {@link IEntity} can be accepted as a member of this System by comparing {@link #getComponentMask()}
-     * to {@link IEntity#hasAllComponents(Collection)}. If the Entity's set of component keys contains all the component
-     * classes contained in this System's component mask, then the Entity is accepted, otherwise the Entity is rejected.
+     * to {@link IEntity#hasAllComponents(Collection)}. If the com.game.Entity's set of component keys contains all the component
+     * classes contained in this System's component mask, then the com.game.Entity is accepted, otherwise the com.game.Entity is rejected.
      *
      * @param entity the entity
-     * @return true if the Entity can be added, else false
+     * @return true if the com.game.Entity can be added, else false
      */
     public boolean qualifiesMembership(IEntity entity) {
         return entity.hasAllComponents(getComponentMask());
@@ -109,7 +109,7 @@ public abstract class System implements Updatable {
 
     /**
      * Attempts to remove the {@link IEntity} from membership to this System. If this System is currently in an
-     * update cycle, then the Entity is queued to be removed on the next update cycle, else it is removed immediately.
+     * update cycle, then the com.game.Entity is queued to be removed on the next update cycle, else it is removed immediately.
      *
      * @param entity the entity
      */

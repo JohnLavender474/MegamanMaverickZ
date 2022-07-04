@@ -1,6 +1,7 @@
-package com.game.tests;
+package com.game.tests.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
@@ -33,10 +34,10 @@ import com.game.behaviors.Behavior;
 import com.game.behaviors.BehaviorComponent;
 import com.game.behaviors.BehaviorSystem;
 import com.game.behaviors.BehaviorType;
-import com.game.contracts.Damageable;
-import com.game.contracts.Damager;
-import com.game.contracts.Faceable;
-import com.game.contracts.Facing;
+import com.game.entities.contracts.contracts.Damageable;
+import com.game.entities.contracts.contracts.Damager;
+import com.game.entities.contracts.contracts.Faceable;
+import com.game.entities.contracts.contracts.Facing;
 import com.game.controllers.*;
 import com.game.core.*;
 import com.game.debugging.DebugComponent;
@@ -48,6 +49,7 @@ import com.game.screens.levels.*;
 import com.game.sound.SoundComponent;
 import com.game.sound.SoundRequest;
 import com.game.sound.SoundSystem;
+import com.game.sprites.SpriteAdapter;
 import com.game.sprites.SpriteComponent;
 import com.game.sprites.SpriteSystem;
 import com.game.trajectories.TrajectoryComponent;
@@ -86,11 +88,12 @@ import static com.game.world.FixtureType.*;
 public class TestMovingPlatformsScreen extends ScreenAdapter {
 
     private static final String GAME_ROOMS = "GameRooms";
+    private static final String ENEMY_SPAWNS = "EnemySpawns";
     private static final String PLAYER_SPAWNS = "PlayerSpawns";
     private static final String DEATH_SENSORS = "DeathSensors";
-    private static final String WALL_SLIDE_SENSORS = "WallSlideSensors";
     private static final String STATIC_BLOCKS = "StaticBlocks";
     private static final String MOVING_BLOCKS = "MovingBlocks";
+    private static final String WALL_SLIDE_SENSORS = "WallSlideSensors";
 
     private LevelTiledMap levelTiledMap;
     private LevelCameraManager levelCameraManager;
@@ -99,6 +102,8 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
     private MessageDispatcher messageDispatcher;
     private EntitiesAndSystemsManager entitiesAndSystemsManager;
     private SpriteBatch spriteBatch;
+    private AssetLoader assetLoader;
+
     private Viewport uiViewport;
     private Viewport playgroundViewport;
 
@@ -112,6 +117,8 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
     private FontHandle message1;
     private FontHandle message2;
     private final List<FontHandle> messages = new ArrayList<>();
+
+    private boolean isPaused;
 
     @Override
     public void show() {
@@ -139,7 +146,7 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
         uiViewport.getCamera().position.x = 0f;
         uiViewport.getCamera().position.y = 0f;
         playgroundViewport = new FitViewport(VIEW_WIDTH * PPM, VIEW_HEIGHT * PPM);
-        AssetLoader assetLoader = new AssetLoader();
+        assetLoader = new AssetLoader();
         entitiesAndSystemsManager.addSystem(new WorldSystem(new TestWorldContactListener(),
                 WorldVals.AIR_RESISTANCE, WorldVals.FIXED_TIME_STEP));
         entitiesAndSystemsManager.addSystem(new UpdatableSystem());
@@ -203,6 +210,9 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
         // define wall slide sensors
         levelTiledMap.getObjectsOfLayer(WALL_SLIDE_SENSORS).forEach(wallSlideSensorObj ->
             entitiesAndSystemsManager.addEntity(new TestWallSlideSensor(wallSlideSensorObj.getRectangle())));
+        // define test damagers
+        levelTiledMap.getObjectsOfLayer(ENEMY_SPAWNS).forEach(enemySpawnObj ->
+            entitiesAndSystemsManager.addEntity(new TestDamager(enemySpawnObj.getRectangle())));
         // define death sensors
         levelTiledMap.getObjectsOfLayer(DEATH_SENSORS).forEach(deathSensorObj ->
             entitiesAndSystemsManager.addEntity(new TestDeathSensor(deathSensorObj.getRectangle())));
@@ -217,6 +227,12 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
 
     @Override
     public void render(float delta) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
+            isPaused = !isPaused;
+        }
+        if (isPaused) {
+            return;
+        }
         if (levelCameraManager.getTransitionState() == null) {
             testController.updateController();
         }
@@ -233,11 +249,10 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
             }
         });
         if (deathTimer.isJustFinished()) {
-            player.setDead(false);
-            player.getComponent(HealthComponent.class).reset();
-            player.getComponent(BodyComponent.class).setPosition(spawn);
-            entitiesAndSystemsManager.addEntity(player);
             music.play();
+            player = new TestPlayer(spawn, deathTimer, testController, assetLoader, entitiesAndSystemsManager);
+            levelCameraManager.setFocusable(player);
+            entitiesAndSystemsManager.addEntity(player);
         }
         for (int i = 0; i < 3; i++) {
             FontHandle fontHandle = messages.get(i);
@@ -537,7 +552,8 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
             addComponent(defineBodyComponent(spawn));
             addComponent(defineDebugComponent());
             addComponent(defineSpriteComponent());
-            addComponent(defineAnimationComponent(assetLoader.getAsset(TextureAssets.MEGAMAN_TEXTURE_ATLAS, TextureAtlas.class)));
+            addComponent(defineAnimationComponent(assetLoader.getAsset(
+                    TextureAssets.MEGAMAN_TEXTURE_ATLAS, TextureAtlas.class)));
             shootCoolDownTimer.setToEnd();
             shootAnimationTimer.setToEnd();
             wallJumpImpetusTimer.setToEnd();
@@ -549,14 +565,14 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
         public void onDeath() {
             deathTimer.reset();
             List<Vector2> trajectories = new ArrayList<>() {{
-                add(new Vector2(-EXPLOSION_ORB_SPEED * PPM, 0f));
-                add(new Vector2(-EXPLOSION_ORB_SPEED * PPM, EXPLOSION_ORB_SPEED * PPM));
-                add(new Vector2(0f, EXPLOSION_ORB_SPEED * PPM));
-                add(new Vector2(EXPLOSION_ORB_SPEED * PPM, EXPLOSION_ORB_SPEED * PPM));
-                add(new Vector2(EXPLOSION_ORB_SPEED * PPM, 0f));
-                add(new Vector2(EXPLOSION_ORB_SPEED * PPM, -EXPLOSION_ORB_SPEED * PPM));
-                add(new Vector2(0f, -EXPLOSION_ORB_SPEED * PPM));
-                add(new Vector2(-EXPLOSION_ORB_SPEED * PPM, -EXPLOSION_ORB_SPEED * PPM));
+                add(new Vector2(-EXPLOSION_ORB_SPEED, 0f));
+                add(new Vector2(-EXPLOSION_ORB_SPEED, EXPLOSION_ORB_SPEED));
+                add(new Vector2(0f, EXPLOSION_ORB_SPEED));
+                add(new Vector2(EXPLOSION_ORB_SPEED, EXPLOSION_ORB_SPEED));
+                add(new Vector2(EXPLOSION_ORB_SPEED, 0f));
+                add(new Vector2(EXPLOSION_ORB_SPEED, -EXPLOSION_ORB_SPEED));
+                add(new Vector2(0f, -EXPLOSION_ORB_SPEED));
+                add(new Vector2(-EXPLOSION_ORB_SPEED , -EXPLOSION_ORB_SPEED));
             }};
             trajectories.forEach(trajectory -> entitiesAndSystemsManager.addEntity(new TestExplosionOrb(
                     assetLoader, getComponent(BodyComponent.class).getCenter(), trajectory)));
@@ -574,6 +590,7 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
             if (damagerClass.equals(TestDamager.class)) {
                 damageTimer.reset();
                 getComponent(HealthComponent.class).translateHealth(-50);
+                Gdx.audio.newSound(Gdx.files.internal("sounds/MegamanDamage.mp3")).play();
             }
         }
 
@@ -595,7 +612,8 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
                 return;
             }
             Vector2 trajectory = new Vector2(15f * (facing == Facing.LEFT ? -PPM : PPM), 0f);
-            Vector2 spawn = getComponent(BodyComponent.class).getCenter().add(facing == Facing.LEFT ? -12.5f : 12.5f, 1f);
+            Vector2 spawn = getComponent(BodyComponent.class).getCenter().add(
+                    facing == Facing.LEFT ? -12.5f : 12.5f, 1f);
             if (getComponent(BehaviorComponent.class).is(WALL_SLIDING)) {
                 spawn.y += 3.5f;
             } else if (!getComponent(BodyComponent.class).is(BodySense.FEET_ON_GROUND)) {
@@ -603,8 +621,8 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
             }
             TextureRegion yellowBullet = assetLoader.getAsset(TextureAssets.OBJECTS_TEXTURE_ATLAS,
                     TextureAtlas.class).findRegion("YellowBullet");
-            TestBullet bullet = new TestBullet(this, trajectory, spawn, yellowBullet, assetLoader,
-                    entitiesAndSystemsManager);
+            TestBullet bullet = new TestBullet(this, trajectory, spawn, yellowBullet,
+                    assetLoader, entitiesAndSystemsManager);
             entitiesAndSystemsManager.addEntity(bullet);
             shootCoolDownTimer.reset();
             shootAnimationTimer.reset();
@@ -615,11 +633,22 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
             UpdatableComponent updatableComponent = new UpdatableComponent();
             updatableComponent.setUpdatable(delta -> {
                 priorFocusBox.set(currentFocusBox);
-                UtilMethods.setBottomCenterToPoint(
-                        currentFocusBox, UtilMethods.bottomCenterPoint(getComponent(BodyComponent.class).getCollisionBox()));
+                UtilMethods.setBottomCenterToPoint(currentFocusBox,
+                        UtilMethods.bottomCenterPoint(getComponent(BodyComponent.class).getCollisionBox()));
                 damageTimer.update(delta);
                 if (damageTimer.isJustFinished()) {
                     damageRecoveryTimer.reset();
+                }
+                if (damageTimer.isFinished() && !damageRecoveryTimer.isFinished()) {
+                    damageRecoveryTimer.update(delta);
+                    damageRecoveryBlinkTimer.update(delta);
+                    if (damageRecoveryBlinkTimer.isFinished()) {
+                        recoveryBlink = !recoveryBlink;
+                        damageRecoveryBlinkTimer.reset();
+                    }
+                }
+                if (damageRecoveryTimer.isJustFinished()) {
+                    recoveryBlink = false;
                 }
                 wallJumpImpetusTimer.update(delta);
                 shootCoolDownTimer.update(delta);
@@ -716,8 +745,10 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
                     }
                     BodyComponent bodyComponent = getComponent(BodyComponent.class);
                     return wallJumpImpetusTimer.isFinished() && !bodyComponent.is(BodySense.FEET_ON_GROUND) &&
-                            ((bodyComponent.is(BodySense.TOUCHING_WALL_SLIDE_LEFT) && controller.isPressed(ControllerButton.LEFT)) ||
-                                    (bodyComponent.is(BodySense.TOUCHING_WALL_SLIDE_RIGHT) && controller.isPressed(ControllerButton.RIGHT)));
+                            ((bodyComponent.is(BodySense.TOUCHING_WALL_SLIDE_LEFT) &&
+                                    controller.isPressed(ControllerButton.LEFT)) ||
+                                    (bodyComponent.is(BodySense.TOUCHING_WALL_SLIDE_RIGHT) &&
+                                            controller.isPressed(ControllerButton.RIGHT)));
                 }
 
                 @Override
@@ -745,7 +776,8 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
                 @Override
                 protected boolean evaluate(float delta) {
                     BodyComponent bodyComponent = getComponent(BodyComponent.class);
-                    if (isDamaged() || controller.isPressed(ControllerButton.DOWN) || bodyComponent.is(BodySense.HEAD_TOUCHING_BLOCK)) {
+                    if (isDamaged() || controller.isPressed(ControllerButton.DOWN) ||
+                            bodyComponent.is(BodySense.HEAD_TOUCHING_BLOCK)) {
                         return false;
                     }
                     return behaviorComponent.is(JUMPING) ?
@@ -935,43 +967,38 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
             BodyComponent bodyComponent = getComponent(BodyComponent.class);
             DebugComponent debugComponent = new DebugComponent();
             debugComponent.addDebugHandle(bodyComponent::getCollisionBox, () -> Color.GREEN);
-            bodyComponent.getFixtures().forEach(fixture -> debugComponent.addDebugHandle(fixture::getFixtureBox,
-                    () -> Color.GOLD));
+            bodyComponent.getFixtures().forEach(fixture -> debugComponent.addDebugHandle(
+                    fixture::getFixtureBox, () -> Color.GOLD));
             return debugComponent;
         }
 
         private SpriteComponent defineSpriteComponent() {
-            SpriteComponent spriteComponent = new SpriteComponent();
-            spriteComponent.getSprite().setSize(1.65f * PPM, 1.35f * PPM);
-            spriteComponent.setSpriteUpdater(delta -> {
-                BodyComponent bodyComponent = getComponent(BodyComponent.class);
-                BehaviorComponent behaviorComponent = getComponent(BehaviorComponent.class);
-                Sprite sprite = spriteComponent.getSprite();
-                if (damageTimer.isFinished() && !damageRecoveryTimer.isFinished()) {
-                    damageRecoveryTimer.update(delta);
-                    damageRecoveryBlinkTimer.update(delta);
-                    sprite.setAlpha(recoveryBlink ? 0f : 1f);
-                    if (damageRecoveryBlinkTimer.isFinished()) {
-                        recoveryBlink = !recoveryBlink;
-                        damageRecoveryBlinkTimer.reset();
-                    }
+            Sprite sprite = new Sprite();
+            sprite.setSize(1.65f * PPM, 1.35f * PPM);
+            return new SpriteComponent(sprite, new SpriteAdapter() {
+
+                @Override
+                public Rectangle getBoundingBox() {
+                    return getComponent(BodyComponent.class).getCollisionBox();
                 }
-                if (damageRecoveryTimer.isJustFinished()) {
-                    sprite.setAlpha(1f);
+
+                @Override
+                public float getAlpha() {
+                    return recoveryBlink ? 0f : 1f;
                 }
-                if (behaviorComponent.is(WALL_SLIDING)) {
-                    sprite.setFlip(isFacing(Facing.RIGHT), false);
-                } else {
-                    sprite.setFlip(isFacing(Facing.LEFT), false);
+
+                @Override
+                public boolean isFlipX() {
+                    return getComponent(BehaviorComponent.class).is(WALL_SLIDING) ?
+                            isFacing(Facing.RIGHT) : isFacing(Facing.LEFT);
                 }
-                Vector2 bottomCenter = UtilMethods.bottomCenterPoint(bodyComponent.getCollisionBox());
-                sprite.setCenterX(bottomCenter.x);
-                sprite.setY(bottomCenter.y);
-                if (behaviorComponent.is(GROUND_SLIDING)) {
-                    sprite.translateY(-.035f * PPM);
+
+                @Override
+                public float getOffsetY() {
+                    return getComponent(BehaviorComponent.class).is(GROUND_SLIDING) ? -.035f * PPM : 0f;
                 }
+
             });
-            return spriteComponent;
         }
 
         private AnimationComponent defineAnimationComponent(TextureAtlas textureAtlas) {
@@ -1035,41 +1062,37 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
         private boolean dead;
 
         public TestExplosionOrb(IAssetLoader assetLoader, Vector2 spawn, Vector2 trajectory) {
-            addComponent(defineBodyComponent(spawn, trajectory));
+            addComponent(defineUpdatableComponent(trajectory));
             addComponent(defineAnimationComponent(assetLoader));
-            addComponent(defineSpriteComponent());
+            addComponent(defineSpriteComponent(spawn));
         }
 
-        private BodyComponent defineBodyComponent(Vector2 spawn, Vector2 trajectory) {
-            BodyComponent bodyComponent = new BodyComponent(BodyType.ABSTRACT);
-            bodyComponent.setSize(PPM, PPM);
-            bodyComponent.setCenter(spawn);
-            bodyComponent.setGravityOn(false);
-            bodyComponent.setAffectedByResistance(false);
-            bodyComponent.setVelocity(trajectory);
-            return bodyComponent;
+        private UpdatableComponent defineUpdatableComponent(Vector2 trajectory) {
+            UpdatableComponent updatableComponent = new UpdatableComponent();
+            updatableComponent.setUpdatable(delta ->
+                getComponent(SpriteComponent.class).getSprite().translate(
+                        trajectory.x * PPM * delta, trajectory.y * PPM * delta));
+            return updatableComponent;
         }
 
-        private SpriteComponent defineSpriteComponent() {
-            SpriteComponent spriteComponent = new SpriteComponent();
-            Sprite sprite = spriteComponent.getSprite();
+        private SpriteComponent defineSpriteComponent(Vector2 spawn) {
+            Sprite sprite = new Sprite();
             sprite.setSize(3f * PPM, 3f * PPM);
-            spriteComponent.setSpriteUpdater(delta -> {
-                Vector2 center = getComponent(BodyComponent.class).getCenter();
-                sprite.setCenter(center.x, center.y);
-            });
-            return spriteComponent;
+            sprite.setCenter(spawn.x, spawn.y);
+            return new SpriteComponent(sprite);
         }
 
         private AnimationComponent defineAnimationComponent(IAssetLoader assetLoader) {
-            TextureRegion explosionOrb = assetLoader.getAsset(DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class).findRegion("PlayerExplosionOrbs");
-            Animator animator = new Animator(() -> "ExplosionOrb", Map.of("ExplosionOrb", new TimedAnimation(explosionOrb, 2, .075f)));
+            TextureRegion explosionOrb = assetLoader.getAsset(DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class)
+                    .findRegion("PlayerExplosionOrbs");
+            Animator animator = new Animator(() -> "ExplosionOrb", Map.of("ExplosionOrb",
+                    new TimedAnimation(explosionOrb, 2, .075f)));
             return new AnimationComponent(animator);
         }
 
         @Override
         public Rectangle getBoundingBox() {
-            return getComponent(BodyComponent.class).getCollisionBox();
+            return getComponent(SpriteComponent.class).getSprite().getBoundingRectangle();
         }
 
     }
@@ -1109,18 +1132,23 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
             soundComponent.request(new SoundRequest(THUMP_SOUND, false, Percentage.of(VolumeVals.HIGH_VOLUME)));
             TestDisintegration disintegration = new TestDisintegration(assetLoader, getComponent(BodyComponent.class).getCenter());
             entitiesAndSystemsManager.addEntity(disintegration);
+            Gdx.audio.newSound(Gdx.files.internal("sounds/Thump.mp3")).play(.5f);
         }
 
         private SpriteComponent defineSpriteComponent(TextureRegion textureRegion) {
-            SpriteComponent spriteComponent = new SpriteComponent();
-            Sprite sprite = spriteComponent.getSprite();
+            Sprite sprite = new Sprite();
             sprite.setRegion(textureRegion);
             sprite.setSize(PPM * 1.25f, PPM * 1.25f);
-            spriteComponent.setSpriteUpdater(delta -> {
-                BodyComponent bodyComponent = getComponent(BodyComponent.class);
-                sprite.setCenter(bodyComponent.getCenter().x, bodyComponent.getCenter().y);
+            return new SpriteComponent(sprite, new SpriteAdapter() {
+                @Override
+                public Rectangle getBoundingBox() {
+                    return getComponent(BodyComponent.class).getCollisionBox();
+                }
+                @Override
+                public Position getPosition() {
+                    return Position.CENTER;
+                }
             });
-            return spriteComponent;
         }
 
         private BodyComponent defineBodyComponent(Vector2 spawn) {
@@ -1145,7 +1173,6 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
                 onDeath();
                 setDead(true);
             }
-            Gdx.audio.newSound(Gdx.files.internal("sounds/Thump.mp3")).play(.5f);
         }
 
     }
@@ -1177,10 +1204,10 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
         }
 
         private SpriteComponent defineSpriteComponent(Vector2 center) {
-            SpriteComponent spriteComponent = new SpriteComponent();
-            spriteComponent.getSprite().setSize(PPM, PPM);
-            spriteComponent.getSprite().setCenter(center.x, center.y);
-            return spriteComponent;
+            Sprite sprite = new Sprite();
+            sprite.setSize(PPM, PPM);
+            sprite.setCenter(center.x, center.y);
+            return new SpriteComponent(sprite);
         }
 
         private AnimationComponent defineAnimationComponent(IAssetLoader assetLoader) {

@@ -95,14 +95,15 @@ public class WorldSystem extends System {
                 });
             });
             for (int i = 0; i < bodies.size(); i++) {
-                BodyComponent bc1 = bodies.get(i);
-                // Handle contacts
                 for (int j = i + 1; j < bodies.size(); j++) {
-                    BodyComponent bc2 = bodies.get(j);
-                    for (Fixture f1 : bc1.getFixtures()) {
-                        for (Fixture f2 : bc2.getFixtures()) {
-                            if (Intersector.overlaps(f1.getFixtureBox(), f2.getFixtureBox())) {
-                                currentContacts.add(new Contact(f1, f2));
+                    for (Fixture f1 : bodies.get(i).getFixtures()) {
+                        if (f1.isActive()) {
+                            for (Fixture f2 : bodies.get(j).getFixtures()) {
+                                if (f2.isActive()) {
+                                    if (Intersector.overlaps(f1.getFixtureBox(), f2.getFixtureBox())) {
+                                        currentContacts.add(new Contact(f1, f2));
+                                    }
+                                }
                             }
                         }
                     }

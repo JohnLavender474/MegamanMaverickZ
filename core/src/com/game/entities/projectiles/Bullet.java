@@ -10,7 +10,7 @@ import com.game.ConstVals.TextureAssets;
 import com.game.ConstVals.VolumeVals;
 import com.game.core.IEntity;
 import com.game.GameContext2d;
-import com.game.contracts.Damager;
+import com.game.entities.contracts.contracts.Damager;
 import com.game.entities.decorations.Disintegration;
 import com.game.screens.levels.CullOnLevelCamTrans;
 import com.game.screens.levels.CullOnOutOfGameCamBounds;
@@ -69,6 +69,7 @@ public class Bullet implements IEntity, Damager, CullOnOutOfGameCamBounds, CullO
     }
 
     private SpriteComponent defineSpriteComponent(TextureRegion textureRegion) {
+        /*
         SpriteComponent spriteComponent = new SpriteComponent();
         Sprite sprite = spriteComponent.getSprite();
         sprite.setRegion(textureRegion);
@@ -78,6 +79,8 @@ public class Bullet implements IEntity, Damager, CullOnOutOfGameCamBounds, CullO
             sprite.setCenter(bodyComponent.getCenter().x, bodyComponent.getCenter().y);
         });
         return spriteComponent;
+         */
+        return null;
     }
 
     private BodyComponent defineBodyComponent(Vector2 spawn) {

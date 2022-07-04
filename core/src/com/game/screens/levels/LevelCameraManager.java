@@ -10,7 +10,7 @@ import com.game.utils.ProcessState;
 import com.game.utils.Timer;
 import com.game.utils.UtilMethods;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import java.util.Map;
 
@@ -20,20 +20,42 @@ import java.util.Map;
  * a map as
  * keys and can optionally be associated with a String value.
  */
-@RequiredArgsConstructor
 public class LevelCameraManager implements Updatable {
 
     private final Camera camera;
     private final Timer transitionTimer;
     private final Map<Rectangle, String> gameRooms;
-    private final LevelCameraFocusable levelCameraFocusable;
     private final Vector2 transTargetPos = new Vector2();
     private final Vector2 transStartPos = new Vector2();
+    private LevelCameraFocusable queuedFocusable;
+    private LevelCameraFocusable focusable;
     private Rectangle currentGameRoom;
     @Getter
     private ProcessState transitionState;
     @Getter
     private Direction transitionDirection;
+    private boolean updating;
+
+    public LevelCameraManager(Camera camera, Timer transitionTimer,
+                              Map<Rectangle, String> gameRooms, LevelCameraFocusable focusable) {
+        this.camera = camera;
+        this.transitionTimer = transitionTimer;
+        this.gameRooms = gameRooms;
+        this.focusable = focusable;
+    }
+
+    /**
+     * Sets the focusable. If updating, then action is queued for next update cycle.
+     *
+     * @param focusable the focusable
+     */
+    public void setFocusable(LevelCameraFocusable focusable) {
+        if (updating) {
+            queuedFocusable = focusable;
+        } else {
+            this.focusable = focusable;
+        }
+    }
 
     /**
      * Returns the String value associated with {@link #currentGameRoom}.
@@ -45,24 +67,6 @@ public class LevelCameraManager implements Updatable {
     }
 
     /**
-     * Gets trans target pos copy.
-     *
-     * @return the trans target pos copy
-     */
-    public Vector2 getTransTargetPosCopy() {
-        return transTargetPos.cpy();
-    }
-
-    /**
-     * Gets trans start pos copy.
-     *
-     * @return the trans start pos copy
-     */
-    public Vector2 getTransStartPosCopy() {
-        return transStartPos.cpy();
-    }
-
-    /**
      * Gets transition time ticker ratio.
      *
      * @return the transition time ticker ratio
@@ -71,40 +75,35 @@ public class LevelCameraManager implements Updatable {
         return transitionTimer.getRatio();
     }
 
-    /**
-     * Returns if the {@link LevelCameraFocusable} is not contained in any of the game rooms.
-     *
-     * @return if levelCameraFocusable is not contained in any of the game rooms
-     */
-    public boolean isFocusableBoundingBoxInAnyGameRoom() {
-        return gameRooms.keySet().stream().anyMatch(
-                gameRoom -> gameRoom.overlaps(levelCameraFocusable.getCurrentFocusBox()));
-    }
-
     private Rectangle nextGameRoom() {
         return gameRooms.keySet().stream().filter(
-                gameRoom -> gameRoom.contains(levelCameraFocusable.getCurrentFocus())).findFirst().orElse(null);
+                gameRoom -> gameRoom.contains(focusable.getCurrentFocus())).findFirst().orElse(null);
     }
 
     @Override
     public void update(float delta) {
+        if (queuedFocusable != null) {
+            focusable = queuedFocusable;
+            queuedFocusable = null;
+        }
+        updating = true;
         if (transitionState == null) {
             /*
              case 1: if current game room is null, try to find next game room and assign it to current game room,
              wait until next update cycle to attempt another action
 
-             case 2: if current game room contains levelCameraFocusable, then set camera position to getCurrentFocus and
+             case 2: if current game room contains focusable, then set camera position to getCurrentFocus and
              correct bounds if applicable
 
-             case 3: if current game room is not null and doesn't contain levelCameraFocusable, then set next game room,
+             case 3: if current game room is not null and doesn't contain focusable, then set next game room,
              and if next game room is a neighbour, then init transition process, otherwise jump directly to
-             levelCameraFocusable on next update cycle
+             focusable on next update cycle
              */
             if (currentGameRoom == null) {
                 currentGameRoom = nextGameRoom();
-            } else if (currentGameRoom.contains(levelCameraFocusable.getCurrentFocus())) {
-                camera.position.x = levelCameraFocusable.getCurrentFocus().x;
-                camera.position.y = levelCameraFocusable.getCurrentFocus().y;
+            } else if (currentGameRoom.contains(focusable.getCurrentFocus())) {
+                camera.position.x = focusable.getCurrentFocus().x;
+                camera.position.y = focusable.getCurrentFocus().y;
                 if (camera.position.y > (currentGameRoom.y + currentGameRoom.height) - camera.viewportHeight / 2.0f) {
                     camera.position.y = (currentGameRoom.y + currentGameRoom.height) - camera.viewportHeight / 2.0f;
                 }
@@ -125,7 +124,7 @@ public class LevelCameraManager implements Updatable {
                 }
                 Rectangle overlap = new Rectangle();
                 transitionDirection = UtilMethods.getOverlapPushDirection(
-                        levelCameraFocusable.getCurrentFocusBox(), currentGameRoom, overlap);
+                        focusable.getCurrentFocusBox(), currentGameRoom, overlap);
                 // go ahead and set current game room to next room, which needs to be done even if
                 // transition direction is null
                 currentGameRoom = nextGameRoom;
@@ -168,6 +167,7 @@ public class LevelCameraManager implements Updatable {
                     break;
             }
         }
+        updating = false;
     }
 
 }

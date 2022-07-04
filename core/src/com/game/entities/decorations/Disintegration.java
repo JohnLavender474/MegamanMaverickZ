@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
 import com.game.ConstVals.TextureAssets;
-import com.game.core.IEntity;
+import com.game.Entity;
 import com.game.GameContext2d;
 import com.game.animations.AnimationComponent;
 import com.game.animations.Animator;
@@ -24,7 +24,7 @@ import static com.game.ConstVals.ViewVals.PPM;
 
 @Getter
 @Setter
-public class Disintegration implements IEntity {
+public class Disintegration extends Entity {
 
     public static final float DISINTEGRATION_DURATION = 1f;
 
@@ -33,7 +33,7 @@ public class Disintegration implements IEntity {
     private boolean dead;
 
     public Disintegration(GameContext2d gameContext, Vector2 center) {
-        addComponent(new SpriteComponent());
+        // addComponent(new SpriteComponent());
         addComponent(defineUpdatableComponent());
         addComponent(defineBodyComponent(center));
         addComponent(defineSpriteComponent(center));
@@ -50,10 +50,13 @@ public class Disintegration implements IEntity {
     }
 
     private SpriteComponent defineSpriteComponent(Vector2 center) {
+        /*
         SpriteComponent spriteComponent = new SpriteComponent();
         spriteComponent.getSprite().setSize(PPM, PPM);
         spriteComponent.getSprite().setCenter(center.x, center.y);
         return spriteComponent;
+         */
+        return null;
     }
 
     private AnimationComponent defineAnimationComponent(GameContext2d gameContext) {

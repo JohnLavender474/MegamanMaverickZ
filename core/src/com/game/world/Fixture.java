@@ -6,14 +6,11 @@ import com.game.core.IEntity;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 /**
  * Defines a fixture fixed to a body. Offset is from the center of the body.
  */
 @Getter
-@Setter
-@ToString
 @RequiredArgsConstructor
 public class Fixture {
 
@@ -21,7 +18,8 @@ public class Fixture {
     private final FixtureType fixtureType;
     private final Vector2 offset = new Vector2();
     private final Rectangle fixtureBox = new Rectangle();
-    private Object userData;
+
+    @Setter private boolean active = true;
 
     /**
      * Set.

@@ -1,4 +1,5 @@
-import com.game.Component;
+package com.game;
+
 import com.game.core.IEntity;
 import lombok.Getter;
 import lombok.Setter;

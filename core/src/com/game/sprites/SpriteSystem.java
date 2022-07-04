@@ -5,10 +5,13 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
 import com.game.core.IEntity;
 import com.game.System;
-import com.game.updatables.Updatable;
+import com.game.utils.Position;
+import com.game.utils.UtilMethods;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Set;
@@ -41,9 +44,17 @@ public class SpriteSystem extends System {
     protected void processEntity(IEntity entity, float delta) {
         SpriteComponent spriteComponent = entity.getComponent(SpriteComponent.class);
         Sprite sprite = spriteComponent.getSprite();
-        Updatable spriteUpdater = spriteComponent.getSpriteUpdater();
-        if (spriteUpdater != null) {
-            spriteUpdater.update(delta);
+        SpriteAdapter spriteAdapter = spriteComponent.getSpriteAdapter();
+        if (spriteAdapter != null) {
+            Rectangle boundingBox = spriteAdapter.getBoundingBox();
+            Position position = spriteAdapter.getPosition();
+            if (boundingBox != null && position != null) {
+                Vector2 point = UtilMethods.getPoint(boundingBox, position);
+                UtilMethods.setToPoint(sprite.getBoundingRectangle(), point, position, sprite::setPosition);
+            }
+            sprite.setAlpha(spriteAdapter.isHidden() ? 0f : spriteAdapter.getAlpha());
+            sprite.setFlip(spriteAdapter.isFlipX(), spriteAdapter.isFlipY());
+            sprite.translate(spriteAdapter.getOffsetX(), spriteAdapter.getOffsetY());
         }
         Texture texture = sprite.getTexture();
         if (texture != null) {
