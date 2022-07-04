@@ -927,7 +927,7 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
             feet.setSize(10f, .75f);
             bodyComponent.addFixture(feet);
             Fixture head = new Fixture(this, HEAD);
-            head.setSize(7f, 2f);
+            head.setSize(10f, 2f);
             head.setOffset(0f, PPM / 2f);
             bodyComponent.addFixture(head);
             Fixture left = new Fixture(this, LEFT);
