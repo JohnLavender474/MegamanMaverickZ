@@ -2,23 +2,16 @@ package com.game.trajectories;
 
 import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
-import com.game.updatables.Updatable;
-import com.game.utils.Initializable;
 import com.game.utils.KeyValuePair;
 import com.game.utils.Timer;
-import com.game.utils.UtilMethods;
 import com.game.world.BodyComponent;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 /**
- * {@link Component} implementation for trajectories. This component sets the position of the {@link BodyComponent}, overriding any
+ * {@link Component} implementation for trajectories. This component sets the position of the {@link BodyComponent},
+ * overriding any
  * settings for friction, velocity, etc.
  */
 public class TrajectoryComponent implements Component {

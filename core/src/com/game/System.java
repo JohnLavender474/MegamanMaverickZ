@@ -82,9 +82,12 @@ public abstract class System implements Updatable {
     }
 
     /**
-     * Returns if the {@link IEntity} can be accepted as a member of this System by comparing {@link #getComponentMask()}
-     * to {@link IEntity#hasAllComponents(Collection)}. If the com.game.Entity's set of component keys contains all the component
-     * classes contained in this System's component mask, then the com.game.Entity is accepted, otherwise the com.game.Entity is rejected.
+     * Returns if the {@link IEntity} can be accepted as a member of this System by comparing
+     * {@link #getComponentMask()}
+     * to {@link IEntity#hasAllComponents(Collection)}. If the com.game.Entity's set of component keys contains all
+     * the component
+     * classes contained in this System's component mask, then the com.game.Entity is accepted, otherwise the com
+     * .game.Entity is rejected.
      *
      * @param entity the entity
      * @return true if the com.game.Entity can be added, else false
@@ -99,8 +102,7 @@ public abstract class System implements Updatable {
      * @param entity the entity
      * @throws InvalidActionException the invalid action exception
      */
-    public void addEntity(IEntity entity)
-            throws InvalidActionException {
+    public void addEntity(IEntity entity) throws InvalidActionException {
         if (!qualifiesMembership(entity)) {
             throw new InvalidActionException("Cannot add " + objName(entity) + " as member of " + this);
         }
@@ -109,7 +111,8 @@ public abstract class System implements Updatable {
 
     /**
      * Attempts to remove the {@link IEntity} from membership to this System. If this System is currently in an
-     * update cycle, then the com.game.Entity is queued to be removed on the next update cycle, else it is removed immediately.
+     * update cycle, then the com.game.Entity is queued to be removed on the next update cycle, else it is removed
+     * immediately.
      *
      * @param entity the entity
      */

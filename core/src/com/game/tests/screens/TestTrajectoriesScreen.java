@@ -37,7 +37,8 @@ public class TestTrajectoriesScreen extends ScreenAdapter {
         entitiesAndSystemsManager = new EntitiesAndSystemsManager();
         entitiesAndSystemsManager.addSystem(new WorldSystem(null, new Vector2(), 1f / 120f));
         entitiesAndSystemsManager.addSystem(new TrajectorySystem());
-        entitiesAndSystemsManager.addSystem(new DebugSystem(new ShapeRenderer(), (OrthographicCamera) viewport.getCamera()));
+        entitiesAndSystemsManager.addSystem(new DebugSystem(new ShapeRenderer(),
+                (OrthographicCamera) viewport.getCamera()));
         entitiesAndSystemsManager.addEntity(new TestTrajectoryEntity(new Rectangle(0f, 0f, PPM, PPM)));
     }
 

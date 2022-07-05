@@ -32,7 +32,10 @@ import com.game.entities.megaman.MegamanStats;
 import com.game.health.HealthSystem;
 import com.game.screens.levels.LevelScreen;
 import com.game.screens.menu.impl.MainMenuScreen;
+import com.game.sound.SoundSystem;
 import com.game.sprites.SpriteSystem;
+import com.game.trajectories.TrajectorySystem;
+import com.game.updatables.UpdatableSystem;
 import com.game.utils.KeyValuePair;
 import com.game.world.WorldContactListenerImpl;
 import com.game.world.WorldSystem;
@@ -93,49 +96,24 @@ public class MegamanMaverick extends Game implements GameContext2d {
         assetManager = new AssetManager();
         spriteBatch = new SpriteBatch();
         disposables.addAll(List.of(assetManager, spriteBatch, shapeRenderer));
-        loadAssets(Music.class,
-                MMX3_INTRO_STAGE_MUSIC,
-                MMZ_NEO_ARCADIA_MUSIC,
-                XENOBLADE_GAUR_PLAINS_MUSIC,
-                MMX_LEVEL_SELECT_SCREEN_MUSIC,
-                STAGE_SELECT_MM3_MUSIC);
-        loadAssets(Sound.class,
-                SELECT_PING_SOUND,
-                MARIO_JUMP_SOUND,
-                CURSOR_MOVE_BLOOP_SOUND,
-                DINK_SOUND,
-                ENEMY_BULLET_SOUND,
-                ENEMY_DAMAGE_SOUND,
-                MEGA_BUSTER_BULLET_SHOT_SOUND,
-                MEGA_BUSTER_CHARGED_SHOT_SOUND,
-                ENERGY_FILL_SOUND,
-                MEGA_BUSTER_CHARGING_SOUND,
-                MEGAMAN_DAMAGE_SOUND,
-                MEGAMAN_LAND_SOUND,
-                MEGAMAN_DEFEAT_SOUND,
-                WHOOSH_SOUND,
-                THUMP_SOUND,
-                EXPLOSION_SOUND,
-                PAUSE_SOUND);
-        loadAssets(TextureAtlas.class,
-                CHARGE_ORBS_TEXTURE_ATLAS,
-                OBJECTS_TEXTURE_ATLAS,
-                MET_TEXTURE_ATLAS,
-                ENEMIES_TEXTURE_ATLAS,
-                ITEMS_TEXTURE_ATLAS,
-                BACKGROUNDS_1_TEXTURE_ATLAS,
-                MEGAMAN_TEXTURE_ATLAS,
-                MEGAMAN_CHARGED_SHOT_TEXTURE_ATLAS,
-                ELECTRIC_BALL_TEXTURE_ATLAS,
-                DECORATIONS_TEXTURE_ATLAS,
+        loadAssets(Music.class, MMX3_INTRO_STAGE_MUSIC, MMZ_NEO_ARCADIA_MUSIC, XENOBLADE_GAUR_PLAINS_MUSIC,
+                MMX_LEVEL_SELECT_SCREEN_MUSIC, STAGE_SELECT_MM3_MUSIC);
+        loadAssets(Sound.class, SELECT_PING_SOUND, MARIO_JUMP_SOUND, CURSOR_MOVE_BLOOP_SOUND, DINK_SOUND,
+                ENEMY_BULLET_SOUND, ENEMY_DAMAGE_SOUND, MEGA_BUSTER_BULLET_SHOT_SOUND, MEGA_BUSTER_CHARGED_SHOT_SOUND
+                , ENERGY_FILL_SOUND, MEGA_BUSTER_CHARGING_SOUND, MEGAMAN_DAMAGE_SOUND, MEGAMAN_LAND_SOUND,
+                MEGAMAN_DEFEAT_SOUND, WHOOSH_SOUND, THUMP_SOUND, EXPLOSION_SOUND, PAUSE_SOUND);
+        loadAssets(TextureAtlas.class, CHARGE_ORBS_TEXTURE_ATLAS, OBJECTS_TEXTURE_ATLAS, MET_TEXTURE_ATLAS,
+                ENEMIES_TEXTURE_ATLAS, ITEMS_TEXTURE_ATLAS, BACKGROUNDS_1_TEXTURE_ATLAS, MEGAMAN_TEXTURE_ATLAS,
+                MEGAMAN_CHARGED_SHOT_TEXTURE_ATLAS, ELECTRIC_BALL_TEXTURE_ATLAS, DECORATIONS_TEXTURE_ATLAS,
                 HEALTH_WEAPON_STATS_TEXTURE_ATLAS);
         assetManager.finishLoading();
         // define systems, linked hash map retains insertion order so define iteration order here
         addSystem(new HealthSystem());
+        addSystem(new UpdatableSystem());
         addSystem(new ControllerSystem(this));
-        addSystem(new WorldSystem(new WorldContactListenerImpl(),
-                WorldVals.AIR_RESISTANCE, WorldVals.FIXED_TIME_STEP));
+        addSystem(new WorldSystem(new WorldContactListenerImpl(), WorldVals.AIR_RESISTANCE, WorldVals.FIXED_TIME_STEP));
         addSystem(new BehaviorSystem());
+        addSystem(new TrajectorySystem());
         addSystem(new AnimationSystem());
         addSystem(new SpriteSystem((OrthographicCamera) viewports.get(PLAYGROUND).getCamera(), getSpriteBatch()));
         addSystem(new DebugSystem(getShapeRenderer(), (OrthographicCamera) viewports.get(PLAYGROUND).getCamera()));
@@ -197,6 +175,7 @@ public class MegamanMaverick extends Game implements GameContext2d {
                     }
                 });
                 entityIterator.remove();
+                entity.onDeath();
             } else {
                 systems.values().forEach(system -> {
                     if (!system.entityIsMember(entity) && system.qualifiesMembership(entity)) {
@@ -226,8 +205,7 @@ public class MegamanMaverick extends Game implements GameContext2d {
     }
 
     @Override
-    public void setScreen(GameScreen key)
-            throws NoSuchElementException {
+    public void setScreen(GameScreen key) throws NoSuchElementException {
         Screen screen = screens.get(key);
         if (screen == null) {
             throw new NoSuchElementException("No screen found associated with key " + key);
@@ -248,7 +226,8 @@ public class MegamanMaverick extends Game implements GameContext2d {
     @Override
     public boolean isPressed(ControllerButton controllerButton) {
         ControllerButtonStatus controllerButtonStatus = controllerButtons.get(controllerButton);
-        return controllerButtonStatus == ControllerButtonStatus.IS_JUST_PRESSED || controllerButtonStatus == ControllerButtonStatus.IS_PRESSED;
+        return controllerButtonStatus == ControllerButtonStatus.IS_JUST_PRESSED ||
+                controllerButtonStatus == ControllerButtonStatus.IS_PRESSED;
     }
 
     @Override
@@ -298,11 +277,7 @@ public class MegamanMaverick extends Game implements GameContext2d {
     public void updateMessageDispatcher(float delta) {
         while (!messageQueue.isEmpty()) {
             Message message = messageQueue.poll();
-            messageListeners.forEach(listener -> {
-                if (listener.isListeningForMessageFrom(message.getOwner())) {
-                    listener.listenToMessage(message.getOwner(), message.getContents(), delta);
-                }
-            });
+            messageListeners.forEach(listener -> listener.listenToMessage(message.owner(), message.contents(), delta));
         }
     }
 
@@ -314,6 +289,7 @@ public class MegamanMaverick extends Game implements GameContext2d {
             Gdx.app.exit();
         }
         updateController();
+        updateMessageDispatcher(Gdx.graphics.getDeltaTime());
         super.render();
         viewports.values().forEach(Viewport::apply);
     }

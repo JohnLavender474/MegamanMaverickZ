@@ -1,5 +1,6 @@
 package com.game.entities.decorations;
 
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
@@ -33,7 +34,6 @@ public class Disintegration extends Entity {
     private boolean dead;
 
     public Disintegration(GameContext2d gameContext, Vector2 center) {
-        // addComponent(new SpriteComponent());
         addComponent(defineUpdatableComponent());
         addComponent(defineBodyComponent(center));
         addComponent(defineSpriteComponent(center));
@@ -50,21 +50,17 @@ public class Disintegration extends Entity {
     }
 
     private SpriteComponent defineSpriteComponent(Vector2 center) {
-        /*
-        SpriteComponent spriteComponent = new SpriteComponent();
-        spriteComponent.getSprite().setSize(PPM, PPM);
-        spriteComponent.getSprite().setCenter(center.x, center.y);
-        return spriteComponent;
-         */
-        return null;
+        Sprite sprite = new Sprite();
+        sprite.setSize(PPM, PPM);
+        sprite.setCenter(center.x, center.y);
+        return new SpriteComponent(sprite);
     }
 
     private AnimationComponent defineAnimationComponent(GameContext2d gameContext) {
-        Map<String, TimedAnimation> animations = Map.of("Disintegration", new TimedAnimation(
-                gameContext.getAsset(TextureAssets.DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class).findRegion(
-                        "Disintegration"), 3, 0.1f));
-        Animator animator = new Animator(() -> "Disintegration", animations);
-        return new AnimationComponent(animator);
+        Map<String, TimedAnimation> animations = Map.of("Disintegration",
+                new TimedAnimation(gameContext.getAsset(TextureAssets.DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class)
+                        .findRegion("Disintegration"), 3, 0.1f));
+        return new AnimationComponent(new Animator(() -> "Disintegration", animations));
     }
 
     private UpdatableComponent defineUpdatableComponent() {

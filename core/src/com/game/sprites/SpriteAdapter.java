@@ -2,16 +2,11 @@ package com.game.sprites;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.game.utils.Position;
+import com.game.utils.Wrapper;
 
 public interface SpriteAdapter {
 
-    default Rectangle getBoundingBox() {
-        return null;
-    }
-
-    default Position getPosition() {
-        return Position.BOTTOM_CENTER;
-    }
+    boolean setPositioning(Wrapper<Rectangle> bounds, Wrapper<Position> position);
 
     default float getAlpha() {
         return 1f;

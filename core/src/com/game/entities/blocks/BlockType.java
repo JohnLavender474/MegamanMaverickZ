@@ -17,11 +17,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum BlockType {
 
-    DEATH_BLOCK("DeathBlocks"),
-    STATIC_BLOCK("StaticBlocks"),
-    MOVING_BLOCK("MovingBlocks"),
-    FALLING_BLOCK("FallingBlocks"),
-    EVENT_ACTIVATOR("EventActivators");
+    DEATH_BLOCK("DeathBlocks"), STATIC_BLOCK("StaticBlocks"), MOVING_BLOCK("MovingBlocks"), FALLING_BLOCK(
+            "FallingBlocks"), EVENT_ACTIVATOR("EventActivators");
 
     private final String blockTypeLayerName;
 

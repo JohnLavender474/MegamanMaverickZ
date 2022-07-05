@@ -33,6 +33,7 @@ public class MainMenuScreen extends MenuScreen {
     private final Map<MainMenuButton, FontHandle> fonts = new EnumMap<>(MainMenuButton.class);
     private final Map<MainMenuButton, Vector2> arrowCenters = new EnumMap<>(MainMenuButton.class);
     private boolean arrowIsVisible;
+
     /**
      * Instantiates a new Main Menu Screen.
      *
@@ -56,8 +57,7 @@ public class MainMenuScreen extends MenuScreen {
             row -= 0.75f;
         }
         setMenuButton(MainMenuButton.GAME_START.name());
-        TextureAtlas textureAtlas = gameContext.getAsset(
-                TextureAssets.DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class);
+        TextureAtlas textureAtlas = gameContext.getAsset(TextureAssets.DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class);
         arrow.setRegion(textureAtlas.findRegion("Arrow"));
         arrow.setSize(0.5f * PPM, 0.5f * PPM);
         Vector2 arrowCenter = arrowCenters.get(MainMenuButton.GAME_START);
@@ -178,10 +178,7 @@ public class MainMenuScreen extends MenuScreen {
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private enum MainMenuButton {
 
-        GAME_START("GAME START"),
-        PASS_WORD("PASS WORD"),
-        SETTINGS("SETTINGS"),
-        EXIT("EXIT");
+        GAME_START("GAME START"), PASS_WORD("PASS WORD"), SETTINGS("SETTINGS"), EXIT("EXIT");
 
         private final String prompt;
 

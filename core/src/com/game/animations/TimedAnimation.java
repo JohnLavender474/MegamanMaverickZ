@@ -82,8 +82,7 @@ public class TimedAnimation implements Updatable, Resettable {
         int height = textureRegion.getRegionHeight();
         List<KeyValuePair<Float, TextureRegion>> keyValuePairs = new ArrayList<>();
         for (int i = 0; i < durations.size(); i++) {
-            keyValuePairs.add(new KeyValuePair<>(
-                    durations.get(i), new TextureRegion(textureRegion, width * i, 0,
+            keyValuePairs.add(new KeyValuePair<>(durations.get(i), new TextureRegion(textureRegion, width * i, 0,
                     width, height)));
         }
         return new TimedAnimation(keyValuePairs);
@@ -94,8 +93,8 @@ public class TimedAnimation implements Updatable, Resettable {
         int height = textureRegion.getRegionHeight();
         List<KeyValuePair<Float, TextureRegion>> frameTimeKeyValuePairs = new ArrayList<>();
         for (int i = 0; i < durations.length; i++) {
-            frameTimeKeyValuePairs.add(new KeyValuePair<>(durations[i], new TextureRegion(
-                    textureRegion, width * i, 0, width, height)));
+            frameTimeKeyValuePairs.add(new KeyValuePair<>(durations[i], new TextureRegion(textureRegion, width * i, 0
+                    , width, height)));
         }
         instantiate(frameTimeKeyValuePairs);
     }

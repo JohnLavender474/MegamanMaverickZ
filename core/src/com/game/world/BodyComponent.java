@@ -366,8 +366,7 @@ public class BodyComponent implements Component {
      * @return the list of fixtures
      */
     public List<Fixture> getFixtures(FixtureType fixtureType) {
-        return fixtures.stream().filter(fixture ->
-                fixture.getFixtureType().equals(fixtureType)).collect(Collectors.toList());
+        return fixtures.stream().filter(fixture -> fixture.getFixtureType().equals(fixtureType)).collect(Collectors.toList());
     }
 
     /**
@@ -377,8 +376,7 @@ public class BodyComponent implements Component {
      * @return the optional fixture
      */
     public Optional<Fixture> getFirstMatchingFixture(FixtureType fixtureType) {
-        return fixtures.stream().filter(fixture ->
-                fixture.getFixtureType().equals(fixtureType)).findFirst();
+        return fixtures.stream().filter(fixture -> fixture.getFixtureType().equals(fixtureType)).findFirst();
     }
 
     /**

@@ -1,25 +1,27 @@
 package com.game.health;
 
 import com.game.Component;
-import com.game.updatables.Updatable;
 import com.game.utils.Resettable;
 import lombok.Getter;
 import lombok.Setter;
 
 /**
  * {@link Component} implementation for health.
- *
  */
 @Getter
 @Setter
 public class HealthComponent implements Component, Resettable {
 
-    private Updatable healthUpdater;
+    private final Runnable runOnDeath;
     private int currentHealth;
     private int priorHealth;
 
-    public HealthComponent() {
+    public HealthComponent(Runnable runOnDeath) {
+        if (runOnDeath == null) {
+            throw new IllegalStateException("Run on death runnable cannot be null");
+        }
         reset();
+        this.runOnDeath = runOnDeath;
     }
 
     public void translateHealth(int delta) {

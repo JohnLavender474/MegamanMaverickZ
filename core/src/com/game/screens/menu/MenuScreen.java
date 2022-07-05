@@ -56,9 +56,7 @@ public abstract class MenuScreen extends ScreenAdapter {
         super.render(delta);
         MenuButton menuButton = menuButtons.get(currentMenuButtonKey);
         if (menuButton != null) {
-            if (gameContext.isJustPressed(ControllerButton.X) ||
-                    gameContext.isJustPressed(ControllerButton.A) ||
-                    gameContext.isJustPressed(ControllerButton.START)) {
+            if (gameContext.isJustPressed(ControllerButton.X) || gameContext.isJustPressed(ControllerButton.A) || gameContext.isJustPressed(ControllerButton.START)) {
                 menuButton.onSelect(delta);
             }
             if (gameContext.isJustPressed(ControllerButton.UP)) {

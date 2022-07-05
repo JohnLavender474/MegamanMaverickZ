@@ -165,7 +165,7 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
         // define player
         List<RectangleMapObject> playerSpawnObjs = levelTiledMap.getObjectsOfLayer(PLAYER_SPAWNS);
         playerSpawnObjs.get(0).getRectangle().getCenter(spawn);
-        player = new TestPlayer(spawn, deathTimer, testController, assetLoader, entitiesAndSystemsManager);
+        player = new TestPlayer(spawn, deathTimer, testController, assetLoader, entitiesAndSystemsManager, music);
         entitiesAndSystemsManager.addEntity(player);
         // define static blocks
         levelTiledMap.getObjectsOfLayer(STATIC_BLOCKS).forEach(staticBlockObj ->
@@ -244,13 +244,13 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
         entitiesAndSystemsManager.entities.forEach(entity -> {
             if (entity instanceof CullOnOutOfGameCamBounds cull &&
                     !playgroundViewport.getCamera().frustum.boundsInFrustum(
-                            UtilMethods.rectToBBox(cull.getBoundingBox()))) {
+                            UtilMethods.rectToBBox(cull.getCullBoundingBox()))) {
                 entity.setDead(true);
             }
         });
         if (deathTimer.isJustFinished()) {
             music.play();
-            player = new TestPlayer(spawn, deathTimer, testController, assetLoader, entitiesAndSystemsManager);
+            player = new TestPlayer(spawn, deathTimer, testController, assetLoader, entitiesAndSystemsManager, music);
             levelCameraManager.setFocusable(player);
             entitiesAndSystemsManager.addEntity(player);
         }
@@ -385,11 +385,8 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
         public void updateMessageDispatcher(float delta) {
             while (!messageQueue.isEmpty()) {
                 Message message = messageQueue.poll();
-                messageListeners.forEach(listener -> {
-                    if (listener.isListeningForMessageFrom(message.getOwner())) {
-                        listener.listenToMessage(message.getOwner(), message.getContents(), delta);
-                    }
-                });
+                messageListeners.forEach(listener -> listener.listenToMessage(
+                        message.owner(), message.contents(), delta));
             }
         }
 
@@ -512,7 +509,7 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
 
     @Getter
     @Setter
-    class TestPlayer implements IEntity, Damageable, Faceable, LevelCameraFocusable {
+    static class TestPlayer implements IEntity, Damageable, Faceable, LevelCameraFocusable {
 
         private static final float EXPLOSION_ORB_SPEED = 3.5f;
 
@@ -520,8 +517,6 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
         private final IController controller;
         private final IAssetLoader assetLoader;
         private final IEntitiesAndSystemsManager entitiesAndSystemsManager;
-        private final Rectangle priorFocusBox = new Rectangle(0f, 0f, .8f * PPM, .95f * PPM);
-        private final Rectangle currentFocusBox = new Rectangle(0f, 0f, .8f * PPM, .95f * PPM);
         private final Timer airDashTimer = new Timer(.25f);
         private final Timer groundSlideTimer = new Timer(.35f);
         private final Timer wallJumpImpetusTimer = new Timer(.2f);
@@ -538,14 +533,16 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
         private boolean recoveryBlink;
 
         private final Timer deathTimer;
+        private final Music music;
 
         public TestPlayer(Vector2 spawn, Timer deathTimer, IController controller, IAssetLoader assetLoader,
-                          IEntitiesAndSystemsManager entitiesAndSystemsManager) {
+                          IEntitiesAndSystemsManager entitiesAndSystemsManager, Music music) {
+            this.music = music;
             this.deathTimer = deathTimer;
             this.controller = controller;
             this.assetLoader = assetLoader;
             this.entitiesAndSystemsManager = entitiesAndSystemsManager;
-            addComponent(new HealthComponent());
+            addComponent(defineHealthComponent());
             addComponent(defineUpdatableComponent());
             addComponent(defineControllerComponent());
             addComponent(defineBehaviorComponent());
@@ -559,25 +556,6 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
             wallJumpImpetusTimer.setToEnd();
             damageTimer.setToEnd();
             damageRecoveryTimer.setToEnd();
-        }
-
-        @Override
-        public void onDeath() {
-            deathTimer.reset();
-            List<Vector2> trajectories = new ArrayList<>() {{
-                add(new Vector2(-EXPLOSION_ORB_SPEED, 0f));
-                add(new Vector2(-EXPLOSION_ORB_SPEED, EXPLOSION_ORB_SPEED));
-                add(new Vector2(0f, EXPLOSION_ORB_SPEED));
-                add(new Vector2(EXPLOSION_ORB_SPEED, EXPLOSION_ORB_SPEED));
-                add(new Vector2(EXPLOSION_ORB_SPEED, 0f));
-                add(new Vector2(EXPLOSION_ORB_SPEED, -EXPLOSION_ORB_SPEED));
-                add(new Vector2(0f, -EXPLOSION_ORB_SPEED));
-                add(new Vector2(-EXPLOSION_ORB_SPEED , -EXPLOSION_ORB_SPEED));
-            }};
-            trajectories.forEach(trajectory -> entitiesAndSystemsManager.addEntity(new TestExplosionOrb(
-                    assetLoader, getComponent(BodyComponent.class).getCenter(), trajectory)));
-            Gdx.audio.newSound(Gdx.files.internal("sounds/MegamanDefeat.mp3")).play();
-            music.stop();
         }
 
         @Override
@@ -629,12 +607,29 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
             Gdx.audio.newSound(Gdx.files.internal("sounds/MegaBusterBulletShot.mp3")).play();
         }
 
+        private HealthComponent defineHealthComponent() {
+            return new HealthComponent(() -> {
+                deathTimer.reset();
+                List<Vector2> trajectories = new ArrayList<>() {{
+                    add(new Vector2(-EXPLOSION_ORB_SPEED, 0f));
+                    add(new Vector2(-EXPLOSION_ORB_SPEED, EXPLOSION_ORB_SPEED));
+                    add(new Vector2(0f, EXPLOSION_ORB_SPEED));
+                    add(new Vector2(EXPLOSION_ORB_SPEED, EXPLOSION_ORB_SPEED));
+                    add(new Vector2(EXPLOSION_ORB_SPEED, 0f));
+                    add(new Vector2(EXPLOSION_ORB_SPEED, -EXPLOSION_ORB_SPEED));
+                    add(new Vector2(0f, -EXPLOSION_ORB_SPEED));
+                    add(new Vector2(-EXPLOSION_ORB_SPEED , -EXPLOSION_ORB_SPEED));
+                }};
+                trajectories.forEach(trajectory -> entitiesAndSystemsManager.addEntity(new TestExplosionOrb(
+                        assetLoader, getComponent(BodyComponent.class).getCenter(), trajectory)));
+                Gdx.audio.newSound(Gdx.files.internal("sounds/MegamanDefeat.mp3")).play();
+                music.stop();
+            });
+        }
+
         private UpdatableComponent defineUpdatableComponent() {
             UpdatableComponent updatableComponent = new UpdatableComponent();
             updatableComponent.setUpdatable(delta -> {
-                priorFocusBox.set(currentFocusBox);
-                UtilMethods.setBottomCenterToPoint(currentFocusBox,
-                        UtilMethods.bottomCenterPoint(getComponent(BodyComponent.class).getCollisionBox()));
                 damageTimer.update(delta);
                 if (damageTimer.isJustFinished()) {
                     damageRecoveryTimer.reset();
@@ -818,7 +813,8 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
                 @Override
                 protected boolean evaluate(float delta) {
                     if (isDamaged() || behaviorComponent.is(WALL_SLIDING) ||
-                            getComponent(BodyComponent.class).is(BodySense.FEET_ON_GROUND) || airDashTimer.isFinished()) {
+                            getComponent(BodyComponent.class).is(BodySense.FEET_ON_GROUND) ||
+                            airDashTimer.isFinished()) {
                         return false;
                     }
                     return behaviorComponent.is(AIR_DASHING) ? controller.isPressed(ControllerButton.A) :
@@ -869,16 +865,19 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
                 @Override
                 protected boolean evaluate(float delta) {
                     BodyComponent bodyComponent = getComponent(BodyComponent.class);
-                    if (behaviorComponent.is(BehaviorType.GROUND_SLIDING) && bodyComponent.is(BodySense.HEAD_TOUCHING_BLOCK)) {
+                    if (behaviorComponent.is(BehaviorType.GROUND_SLIDING) &&
+                            bodyComponent.is(BodySense.HEAD_TOUCHING_BLOCK)) {
                         return true;
                     }
                     if (isDamaged() || !bodyComponent.is(BodySense.FEET_ON_GROUND) || groundSlideTimer.isFinished()) {
                         return false;
                     }
                     if (!behaviorComponent.is(BehaviorType.GROUND_SLIDING)) {
-                        return controller.isPressed(ControllerButton.DOWN) && controller.isJustPressed(ControllerButton.A);
+                        return controller.isPressed(ControllerButton.DOWN) &&
+                                controller.isJustPressed(ControllerButton.A);
                     } else {
-                        return controller.isPressed(ControllerButton.DOWN) && controller.isPressed(ControllerButton.A);
+                        return controller.isPressed(ControllerButton.DOWN) &&
+                                controller.isPressed(ControllerButton.A);
                     }
                 }
 
@@ -977,9 +976,12 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
             sprite.setSize(1.65f * PPM, 1.35f * PPM);
             return new SpriteComponent(sprite, new SpriteAdapter() {
 
+
                 @Override
-                public Rectangle getBoundingBox() {
-                    return getComponent(BodyComponent.class).getCollisionBox();
+                public boolean setPositioning(Wrapper<Rectangle> bounds, Wrapper<Position> position) {
+                    bounds.setData(getComponent(BodyComponent.class).getCollisionBox());
+                    position.setData(Position.BOTTOM_CENTER);
+                    return true;
                 }
 
                 @Override
@@ -1046,6 +1048,11 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
             return new AnimationComponent(animator);
         }
 
+        @Override
+        public Vector2 getFocus() {
+            return UtilMethods.bottomCenterPoint(getComponent(BodyComponent.class).getCollisionBox());
+        }
+
         enum AButtonTask {
             JUMP,
             AIR_DASH
@@ -1091,7 +1098,7 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
         }
 
         @Override
-        public Rectangle getBoundingBox() {
+        public Rectangle getCullBoundingBox() {
             return getComponent(SpriteComponent.class).getSprite().getBoundingRectangle();
         }
 
@@ -1122,15 +1129,15 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
         }
 
         @Override
-        public Rectangle getBoundingBox() {
+        public Rectangle getCullBoundingBox() {
             return getComponent(BodyComponent.class).getCollisionBox();
         }
 
-        @Override
-        public void onDeath() {
+        public void disintegrate() {
             SoundComponent soundComponent = getComponent(SoundComponent.class);
             soundComponent.request(new SoundRequest(THUMP_SOUND, false, Percentage.of(VolumeVals.HIGH_VOLUME)));
-            TestDisintegration disintegration = new TestDisintegration(assetLoader, getComponent(BodyComponent.class).getCenter());
+            TestDisintegration disintegration = new TestDisintegration(
+                    assetLoader, getComponent(BodyComponent.class).getCenter());
             entitiesAndSystemsManager.addEntity(disintegration);
             Gdx.audio.newSound(Gdx.files.internal("sounds/Thump.mp3")).play(.5f);
         }
@@ -1139,15 +1146,10 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
             Sprite sprite = new Sprite();
             sprite.setRegion(textureRegion);
             sprite.setSize(PPM * 1.25f, PPM * 1.25f);
-            return new SpriteComponent(sprite, new SpriteAdapter() {
-                @Override
-                public Rectangle getBoundingBox() {
-                    return getComponent(BodyComponent.class).getCollisionBox();
-                }
-                @Override
-                public Position getPosition() {
-                    return Position.CENTER;
-                }
+            return new SpriteComponent(sprite, (bounds, position) -> {
+                bounds.setData(getCullBoundingBox());
+                position.setData(Position.CENTER);
+                return true;
             });
         }
 
@@ -1170,8 +1172,8 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
         @Override
         public void hit(Fixture fixture) {
             if (fixture.getFixtureType() == BLOCK) {
-                onDeath();
                 setDead(true);
+                disintegrate();
             }
         }
 

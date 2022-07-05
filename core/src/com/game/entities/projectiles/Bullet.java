@@ -6,10 +6,10 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
+import com.game.ConstVals;
 import com.game.ConstVals.TextureAssets;
-import com.game.ConstVals.VolumeVals;
-import com.game.core.IEntity;
 import com.game.GameContext2d;
+import com.game.core.IEntity;
 import com.game.entities.contracts.contracts.Damager;
 import com.game.entities.decorations.Disintegration;
 import com.game.screens.levels.CullOnLevelCamTrans;
@@ -18,6 +18,7 @@ import com.game.sound.SoundComponent;
 import com.game.sound.SoundRequest;
 import com.game.sprites.SpriteComponent;
 import com.game.utils.Percentage;
+import com.game.utils.Position;
 import com.game.utils.Timer;
 import com.game.world.BodyComponent;
 import com.game.world.BodyType;
@@ -31,10 +32,11 @@ import java.util.Map;
 
 import static com.game.ConstVals.SoundAssets.THUMP_SOUND;
 import static com.game.ConstVals.ViewVals.PPM;
+import static com.game.world.FixtureType.BLOCK;
 
 @Getter
 @Setter
-public class Bullet implements IEntity, Damager, CullOnOutOfGameCamBounds, CullOnLevelCamTrans {
+public class Bullet implements IEntity, IProjectile, Damager, CullOnOutOfGameCamBounds, CullOnLevelCamTrans {
 
     private final GameContext2d gameContext;
 
@@ -49,38 +51,33 @@ public class Bullet implements IEntity, Damager, CullOnOutOfGameCamBounds, CullO
         this.gameContext = gameContext;
         this.owner = owner;
         this.trajectory.set(trajectory);
-        addComponent(defineSpriteComponent(gameContext.getAsset(
-                TextureAssets.OBJECTS_TEXTURE_ATLAS, TextureAtlas.class).findRegion("YellowBullet")));
+        addComponent(defineSpriteComponent(gameContext.getAsset(TextureAssets.OBJECTS_TEXTURE_ATLAS,
+                TextureAtlas.class).findRegion("YellowBullet")));
         addComponent(defineBodyComponent(spawn));
         addComponent(new SoundComponent());
     }
 
     @Override
-    public Rectangle getBoundingBox() {
+    public Rectangle getCullBoundingBox() {
         return getComponent(BodyComponent.class).getCollisionBox();
     }
 
-    @Override
-    public void onDeath() {
+    public void disintegrate() {
         SoundComponent soundComponent = getComponent(SoundComponent.class);
-        soundComponent.request(new SoundRequest(THUMP_SOUND, false, Percentage.of(VolumeVals.HIGH_VOLUME)));
+        soundComponent.request(new SoundRequest(THUMP_SOUND, false, Percentage.of(ConstVals.VolumeVals.HIGH_VOLUME)));
         Disintegration disintegration = new Disintegration(gameContext, getComponent(BodyComponent.class).getCenter());
         gameContext.addEntity(disintegration);
     }
 
     private SpriteComponent defineSpriteComponent(TextureRegion textureRegion) {
-        /*
-        SpriteComponent spriteComponent = new SpriteComponent();
-        Sprite sprite = spriteComponent.getSprite();
+        Sprite sprite = new Sprite();
         sprite.setRegion(textureRegion);
         sprite.setSize(PPM * 1.25f, PPM * 1.25f);
-        spriteComponent.setSpriteUpdater(delta -> {
-            BodyComponent bodyComponent = getComponent(BodyComponent.class);
-            sprite.setCenter(bodyComponent.getCenter().x, bodyComponent.getCenter().y);
+        return new SpriteComponent(sprite, (bounds, position) -> {
+            bounds.setData(getCullBoundingBox());
+            position.setData(Position.CENTER);
+            return true;
         });
-        return spriteComponent;
-         */
-        return null;
     }
 
     private BodyComponent defineBodyComponent(Vector2 spawn) {
@@ -97,6 +94,14 @@ public class Bullet implements IEntity, Damager, CullOnOutOfGameCamBounds, CullO
         damageBox.setCenter(spawn.x, spawn.y);
         bodyComponent.addFixture(damageBox);
         return bodyComponent;
+    }
+
+    @Override
+    public void hit(Fixture fixture) {
+        if (fixture.getFixtureType() == BLOCK) {
+            setDead(true);
+            disintegrate();
+        }
     }
 
 }

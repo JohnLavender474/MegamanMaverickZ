@@ -8,5 +8,4 @@ package com.game.utils;
  * @param <K> the key parameter
  * @param <V> the value parameter
  */
-public record KeyValuePair<K, V>(K key, V value) {
-}
+public record KeyValuePair<K, V>(K key, V value) {}

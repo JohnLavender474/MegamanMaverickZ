@@ -3,6 +3,6 @@ package com.game.entities.megaman;
 /**
  * Megaman's various weapons.
  */
-public enum MegamanSpecialWeapon {
+public enum MegamanWeapon {
     MEGA_BUSTER
 }

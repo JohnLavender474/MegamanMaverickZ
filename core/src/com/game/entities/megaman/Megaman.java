@@ -1,58 +1,67 @@
 package com.game.entities.megaman;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.Component;
+import com.game.*;
 import com.game.ConstVals.TextureAssets;
-import com.game.core.IEntity;
-import com.game.GameContext2d;
 import com.game.animations.AnimationComponent;
 import com.game.animations.Animator;
 import com.game.animations.TimedAnimation;
 import com.game.behaviors.Behavior;
 import com.game.behaviors.BehaviorComponent;
 import com.game.behaviors.BehaviorType;
+import com.game.controllers.ControllerAdapter;
+import com.game.controllers.ControllerButton;
+import com.game.controllers.ControllerComponent;
+import com.game.core.IEntity;
+import com.game.debugging.DebugComponent;
 import com.game.entities.contracts.contracts.Damageable;
 import com.game.entities.contracts.contracts.Damager;
 import com.game.entities.contracts.contracts.Faceable;
 import com.game.entities.contracts.contracts.Facing;
-import com.game.controllers.ControllerAdapter;
-import com.game.controllers.ControllerButton;
-import com.game.controllers.ControllerComponent;
-import com.game.debugging.DebugComponent;
+import com.game.entities.decorations.ExplosionOrb;
 import com.game.entities.projectiles.Bullet;
+import com.game.health.HealthComponent;
 import com.game.screens.levels.LevelCameraFocusable;
+import com.game.sprites.SpriteAdapter;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
+import com.game.utils.Position;
 import com.game.utils.Timer;
 import com.game.utils.UtilMethods;
+import com.game.utils.Wrapper;
 import com.game.world.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Supplier;
 
 import static com.game.ConstVals.ViewVals.PPM;
 import static com.game.behaviors.BehaviorType.*;
+import static com.game.world.FixtureType.*;
 
 /**
  * Megaman implementation of {@link IEntity}.
  */
 @Getter
 @Setter
-public class Megaman implements IEntity, Damageable, Faceable, LevelCameraFocusable {
+public class Megaman extends Entity implements Damageable, Faceable, LevelCameraFocusable {
+
+    public enum MegamanMessage {
+        DEAD
+    }
 
     private static final float RUN_SPEED = 4f;
+    private static final float EXPLOSION_ORB_SPEED = 3.5f;
+
     private final GameContext2d gameContext;
-    private final Map<Class<? extends Component>, Component> components = new HashMap<>();
-    private final Rectangle priorFocusBox = new Rectangle(0f, 0f, .8f * PPM, .95f * PPM);
-    private final Rectangle currentFocusBox = new Rectangle(0f, 0f, .8f * PPM, .95f * PPM);
+
     private final Timer airDashTimer = new Timer(.25f);
     private final Timer groundSlideTimer = new Timer(.35f);
     private final Timer wallJumpImpetusTimer = new Timer(.2f);
@@ -62,31 +71,30 @@ public class Megaman implements IEntity, Damageable, Faceable, LevelCameraFocusa
     private final Timer damageTimer = new Timer(.75f);
     private final Timer damageRecoveryTimer = new Timer(1.5f);
     private final Timer damageRecoveryBlinkTimer = new Timer(.05f);
+
     private boolean dead;
     private boolean isCharging;
+    private boolean recoveryBlink;
+    private MegamanWeapon megamanWeapon;
     private Facing facing = Facing.RIGHT;
     private AButtonTask aButtonTask = AButtonTask.JUMP;
-    private boolean recoveryBlink;
-    public Megaman(GameContext2d gameContext) {
+
+    public Megaman(GameContext2d gameContext, Vector2 spawn) {
         this.gameContext = gameContext;
+        addComponent(defineHealthComponent());
         addComponent(defineUpdatableComponent());
         addComponent(defineControllerComponent());
         addComponent(defineBehaviorComponent());
-        addComponent(defineBodyComponent());
+        addComponent(defineBodyComponent(spawn));
         addComponent(defineDebugComponent());
         addComponent(defineSpriteComponent());
-        addComponent(defineAnimationComponent(gameContext.getAsset(TextureAssets.MEGAMAN_TEXTURE_ATLAS,
-                TextureAtlas.class)));
+        addComponent(defineAnimationComponent(gameContext.getAsset(
+                TextureAssets.MEGAMAN_TEXTURE_ATLAS, TextureAtlas.class)));
         shootCoolDownTimer.setToEnd();
         shootAnimationTimer.setToEnd();
         wallJumpImpetusTimer.setToEnd();
         damageTimer.setToEnd();
         damageRecoveryTimer.setToEnd();
-    }
-
-    @Override
-    public void onDeath() {
-
     }
 
     @Override
@@ -112,32 +120,65 @@ public class Megaman implements IEntity, Damageable, Faceable, LevelCameraFocusa
         return !shootAnimationTimer.isFinished();
     }
 
-    public void shoot() {
+    private void shoot() {
         if (isDamaged()) {
             return;
         }
-        Vector2 trajectory = new Vector2(15f * (facing == Facing.LEFT ? -PPM : PPM), 0f);
-        Vector2 spawn = getComponent(BodyComponent.class).getCenter().add(facing == Facing.LEFT ? -15f : 15f, 1f);
-        if (getComponent(BehaviorComponent.class).is(WALL_SLIDING)) {
-            spawn.y += 3.5f;
-        } else if (!getComponent(BodyComponent.class).is(BodySense.FEET_ON_GROUND)) {
-            spawn.y += 4.5f;
+        switch (megamanWeapon) {
+            case MEGA_BUSTER -> {
+                Vector2 trajectory = new Vector2(15f * (facing == Facing.LEFT ? -PPM : PPM), 0f);
+                Vector2 spawn = getComponent(BodyComponent.class).getCenter().add(
+                        facing == Facing.LEFT ? -15f : 15f, 1f);
+                if (getComponent(BehaviorComponent.class).is(WALL_SLIDING)) {
+                    spawn.y += 3.5f;
+                } else if (!getComponent(BodyComponent.class).is(BodySense.FEET_ON_GROUND)) {
+                    spawn.y += 4.5f;
+                }
+                Bullet bullet = new Bullet(gameContext, this, trajectory, spawn);
+                gameContext.addEntity(bullet);
+                shootCoolDownTimer.reset();
+                shootAnimationTimer.reset();
+                gameContext.getAsset(ConstVals.SoundAssets.MEGA_BUSTER_BULLET_SHOT_SOUND, Sound.class).play();
+            }
         }
-        Bullet bullet = new Bullet(gameContext, this, trajectory, spawn);
-        gameContext.addEntity(bullet);
-        shootCoolDownTimer.reset();
-        shootAnimationTimer.reset();
+    }
+
+    private HealthComponent defineHealthComponent() {
+        return new HealthComponent(() -> {
+            List<Vector2> trajectories = new ArrayList<>() {{
+                add(new Vector2(-EXPLOSION_ORB_SPEED, 0f));
+                add(new Vector2(-EXPLOSION_ORB_SPEED, EXPLOSION_ORB_SPEED));
+                add(new Vector2(0f, EXPLOSION_ORB_SPEED));
+                add(new Vector2(EXPLOSION_ORB_SPEED, EXPLOSION_ORB_SPEED));
+                add(new Vector2(EXPLOSION_ORB_SPEED, 0f));
+                add(new Vector2(EXPLOSION_ORB_SPEED, -EXPLOSION_ORB_SPEED));
+                add(new Vector2(0f, -EXPLOSION_ORB_SPEED));
+                add(new Vector2(-EXPLOSION_ORB_SPEED , -EXPLOSION_ORB_SPEED));
+            }};
+            trajectories.forEach(trajectory -> gameContext.addEntity(new ExplosionOrb(
+                    gameContext, getComponent(BodyComponent.class).getCenter(), trajectory)));
+            gameContext.getAsset(ConstVals.SoundAssets.MEGAMAN_DEFEAT_SOUND, Sound.class).play();
+            gameContext.addMessage(new Message(this, MegamanMessage.DEAD));
+        });
     }
 
     private UpdatableComponent defineUpdatableComponent() {
         UpdatableComponent updatableComponent = new UpdatableComponent();
         updatableComponent.setUpdatable(delta -> {
-            priorFocusBox.set(currentFocusBox);
-            UtilMethods.setBottomCenterToPoint(currentFocusBox,
-                    UtilMethods.bottomCenterPoint(getComponent(BodyComponent.class).getCollisionBox()));
             damageTimer.update(delta);
             if (damageTimer.isJustFinished()) {
                 damageRecoveryTimer.reset();
+            }
+            if (damageTimer.isFinished() && !damageRecoveryTimer.isFinished()) {
+                damageRecoveryTimer.update(delta);
+                damageRecoveryBlinkTimer.update(delta);
+                if (damageRecoveryBlinkTimer.isFinished()) {
+                    recoveryBlink = !recoveryBlink;
+                    damageRecoveryBlinkTimer.reset();
+                }
+            }
+            if (damageRecoveryTimer.isJustFinished()) {
+                recoveryBlink = false;
             }
             wallJumpImpetusTimer.update(delta);
             shootCoolDownTimer.update(delta);
@@ -148,8 +189,8 @@ public class Megaman implements IEntity, Damageable, Faceable, LevelCameraFocusa
     }
 
     private ControllerComponent defineControllerComponent() {
-        ControllerComponent gameContextComponent = new ControllerComponent();
-        gameContextComponent.addControllerAdapter(ControllerButton.LEFT, new ControllerAdapter() {
+        ControllerComponent controllerComponent = new ControllerComponent();
+        controllerComponent.addControllerAdapter(ControllerButton.LEFT, new ControllerAdapter() {
 
             @Override
             public void onPressContinued(float delta) {
@@ -162,7 +203,7 @@ public class Megaman implements IEntity, Damageable, Faceable, LevelCameraFocusa
                     setFacing(behaviorComponent.is(WALL_SLIDING) ? Facing.RIGHT : Facing.LEFT);
                 }
                 behaviorComponent.set(RUNNING, !behaviorComponent.is(WALL_SLIDING));
-                if (bodyComponent.getVelocity().x > -RUN_SPEED * PPM) {
+                if (bodyComponent.getVelocity().x > -4f * PPM) {
                     bodyComponent.applyImpulse(-PPM * 50f * delta, 0f);
                 }
             }
@@ -173,7 +214,7 @@ public class Megaman implements IEntity, Damageable, Faceable, LevelCameraFocusa
             }
 
         });
-        gameContextComponent.addControllerAdapter(ControllerButton.RIGHT, new ControllerAdapter() {
+        controllerComponent.addControllerAdapter(ControllerButton.RIGHT, new ControllerAdapter() {
 
             @Override
             public void onPressContinued(float delta) {
@@ -186,7 +227,7 @@ public class Megaman implements IEntity, Damageable, Faceable, LevelCameraFocusa
                     setFacing(behaviorComponent.is(WALL_SLIDING) ? Facing.LEFT : Facing.RIGHT);
                 }
                 behaviorComponent.set(RUNNING, !behaviorComponent.is(WALL_SLIDING));
-                if (bodyComponent.getVelocity().x < RUN_SPEED * PPM) {
+                if (bodyComponent.getVelocity().x < 4f * PPM) {
                     bodyComponent.applyImpulse(PPM * 50f * delta, 0f);
                 }
             }
@@ -196,8 +237,9 @@ public class Megaman implements IEntity, Damageable, Faceable, LevelCameraFocusa
                 getComponent(BehaviorComponent.class).setIsNot(RUNNING);
             }
 
+
         });
-        gameContextComponent.addControllerAdapter(ControllerButton.X, new ControllerAdapter() {
+        controllerComponent.addControllerAdapter(ControllerButton.X, new ControllerAdapter() {
 
             @Override
             public void onPressContinued(float delta) {
@@ -211,14 +253,15 @@ public class Megaman implements IEntity, Damageable, Faceable, LevelCameraFocusa
             @Override
             public void onJustReleased() {
                 BehaviorComponent behaviorComponent = getComponent(BehaviorComponent.class);
-                if (shootCoolDownTimer.isFinished() && !behaviorComponent.is(GROUND_SLIDING) && !behaviorComponent.is(AIR_DASHING)) {
+                if (shootCoolDownTimer.isFinished() && !behaviorComponent.is(GROUND_SLIDING) &&
+                        !behaviorComponent.is(AIR_DASHING)) {
                     shoot();
                 }
                 megaBusterChargingTimer.reset();
             }
 
         });
-        return gameContextComponent;
+        return controllerComponent;
     }
 
     private BehaviorComponent defineBehaviorComponent() {
@@ -232,8 +275,10 @@ public class Megaman implements IEntity, Damageable, Faceable, LevelCameraFocusa
                 }
                 BodyComponent bodyComponent = getComponent(BodyComponent.class);
                 return wallJumpImpetusTimer.isFinished() && !bodyComponent.is(BodySense.FEET_ON_GROUND) &&
-                        ((bodyComponent.is(BodySense.TOUCHING_WALL_SLIDE_LEFT) && gameContext.isPressed(ControllerButton.LEFT)) ||
-                                (bodyComponent.is(BodySense.TOUCHING_WALL_SLIDE_RIGHT) && gameContext.isPressed(ControllerButton.RIGHT)));
+                        ((bodyComponent.is(BodySense.TOUCHING_WALL_SLIDE_LEFT) &&
+                                gameContext.isPressed(ControllerButton.LEFT)) ||
+                                (bodyComponent.is(BodySense.TOUCHING_WALL_SLIDE_RIGHT) &&
+                                        gameContext.isPressed(ControllerButton.RIGHT)));
             }
 
             @Override
@@ -261,7 +306,9 @@ public class Megaman implements IEntity, Damageable, Faceable, LevelCameraFocusa
             @Override
             protected boolean evaluate(float delta) {
                 BodyComponent bodyComponent = getComponent(BodyComponent.class);
-                if (isDamaged() || gameContext.isPressed(ControllerButton.DOWN) || bodyComponent.is(BodySense.HEAD_TOUCHING_BLOCK)) {
+                if (isDamaged() || gameContext
+                        .isPressed(ControllerButton.DOWN) ||
+                        bodyComponent.is(BodySense.HEAD_TOUCHING_BLOCK)) {
                     return false;
                 }
                 return behaviorComponent.is(JUMPING) ?
@@ -301,7 +348,9 @@ public class Megaman implements IEntity, Damageable, Faceable, LevelCameraFocusa
 
             @Override
             protected boolean evaluate(float delta) {
-                if (isDamaged() || behaviorComponent.is(WALL_SLIDING) || getComponent(BodyComponent.class).is(BodySense.FEET_ON_GROUND) || airDashTimer.isFinished()) {
+                if (isDamaged() || behaviorComponent.is(WALL_SLIDING) ||
+                        getComponent(BodyComponent.class).is(BodySense.FEET_ON_GROUND) ||
+                        airDashTimer.isFinished()) {
                     return false;
                 }
                 return behaviorComponent.is(AIR_DASHING) ? gameContext.isPressed(ControllerButton.A) :
@@ -310,6 +359,7 @@ public class Megaman implements IEntity, Damageable, Faceable, LevelCameraFocusa
 
             @Override
             protected void init() {
+                Gdx.audio.newSound(Gdx.files.internal("sounds/Whoosh.mp3")).play();
                 getComponent(BodyComponent.class).setGravityOn(false);
                 behaviorComponent.setIs(BehaviorType.AIR_DASHING);
                 setAButtonTask(AButtonTask.JUMP);
@@ -351,16 +401,19 @@ public class Megaman implements IEntity, Damageable, Faceable, LevelCameraFocusa
             @Override
             protected boolean evaluate(float delta) {
                 BodyComponent bodyComponent = getComponent(BodyComponent.class);
-                if (behaviorComponent.is(BehaviorType.GROUND_SLIDING) && bodyComponent.is(BodySense.HEAD_TOUCHING_BLOCK)) {
+                if (behaviorComponent.is(BehaviorType.GROUND_SLIDING) &&
+                        bodyComponent.is(BodySense.HEAD_TOUCHING_BLOCK)) {
                     return true;
                 }
                 if (isDamaged() || !bodyComponent.is(BodySense.FEET_ON_GROUND) || groundSlideTimer.isFinished()) {
                     return false;
                 }
                 if (!behaviorComponent.is(BehaviorType.GROUND_SLIDING)) {
-                    return gameContext.isPressed(ControllerButton.DOWN) && gameContext.isJustPressed(ControllerButton.A);
+                    return gameContext.isPressed(ControllerButton.DOWN) &&
+                            gameContext.isJustPressed(ControllerButton.A);
                 } else {
-                    return gameContext.isPressed(ControllerButton.DOWN) && gameContext.isPressed(ControllerButton.A);
+                    return gameContext.isPressed(ControllerButton.DOWN) &&
+                            gameContext.isPressed(ControllerButton.A);
                 }
             }
 
@@ -401,16 +454,40 @@ public class Megaman implements IEntity, Damageable, Faceable, LevelCameraFocusa
         return behaviorComponent;
     }
 
-    private BodyComponent defineBodyComponent() {
+    private BodyComponent defineBodyComponent(Vector2 spawn) {
         BodyComponent bodyComponent = new BodyComponent(BodyType.DYNAMIC);
-        bodyComponent.setPosition(3f * PPM, 3f * PPM);
+        bodyComponent.setPosition(spawn);
         bodyComponent.setWidth(.8f * PPM);
+        Fixture feet = new Fixture(this, FEET);
+        feet.setSize(10f, .75f);
+        bodyComponent.addFixture(feet);
+        Fixture head = new Fixture(this, HEAD);
+        head.setSize(10f, 2f);
+        head.setOffset(0f, PPM / 2f);
+        bodyComponent.addFixture(head);
+        Fixture left = new Fixture(this, LEFT);
+        left.setWidth(1f);
+        left.setOffset(-.45f * PPM, 0f);
+        bodyComponent.addFixture(left);
+        Fixture right = new Fixture(this, RIGHT);
+        right.setWidth(1f);
+        right.setOffset(.45f * PPM, 0f);
+        bodyComponent.addFixture(right);
+        Fixture hitBox = new Fixture(this, HIT_BOX);
+        hitBox.setSize(.8f * PPM, .5f * PPM);
+        bodyComponent.addFixture(hitBox);
         bodyComponent.setPreProcess(delta -> {
             BehaviorComponent behaviorComponent = getComponent(BehaviorComponent.class);
             if (behaviorComponent.is(GROUND_SLIDING)) {
                 bodyComponent.setHeight(.45f * PPM);
+                feet.setOffset(0f, -PPM / 4f);
+                left.setHeight(PPM / 4f);
+                right.setHeight(PPM / 4f);
             } else {
                 bodyComponent.setHeight(.95f * PPM);
+                feet.setOffset(0f, -PPM / 2f);
+                left.setHeight(PPM * .75f);
+                right.setHeight(PPM * .75f);
             }
             if (bodyComponent.getVelocity().y < 0f && !bodyComponent.is(BodySense.FEET_ON_GROUND)) {
                 bodyComponent.setGravity(-60f * PPM);
@@ -418,25 +495,6 @@ public class Megaman implements IEntity, Damageable, Faceable, LevelCameraFocusa
                 bodyComponent.setGravity(-20f * PPM);
             }
         });
-        Fixture feet = new Fixture(this, FixtureType.FEET);
-        feet.setSize(10f, 1f);
-        feet.setOffset(0f, -PPM / 2f);
-        bodyComponent.addFixture(feet);
-        Fixture head = new Fixture(this, FixtureType.HEAD);
-        head.setSize(7f, 2f);
-        head.setOffset(0f, PPM / 2f);
-        bodyComponent.addFixture(head);
-        Fixture left = new Fixture(this, FixtureType.LEFT);
-        left.setSize(1f, .25f * PPM);
-        left.setOffset(-.45f * PPM, 0f);
-        bodyComponent.addFixture(left);
-        Fixture right = new Fixture(this, FixtureType.RIGHT);
-        right.setSize(1f, .25f * PPM);
-        right.setOffset(.45f * PPM, 0f);
-        bodyComponent.addFixture(right);
-        Fixture hitBox = new Fixture(this, FixtureType.HIT_BOX);
-        hitBox.setSize(.8f * PPM, .5f * PPM);
-        bodyComponent.addFixture(hitBox);
         return bodyComponent;
     }
 
@@ -444,46 +502,41 @@ public class Megaman implements IEntity, Damageable, Faceable, LevelCameraFocusa
         BodyComponent bodyComponent = getComponent(BodyComponent.class);
         DebugComponent debugComponent = new DebugComponent();
         debugComponent.addDebugHandle(bodyComponent::getCollisionBox, () -> Color.GREEN);
-        bodyComponent.getFixtures().forEach(fixture -> debugComponent.addDebugHandle(fixture::getFixtureBox,
-                () -> Color.GOLD));
+        bodyComponent.getFixtures().forEach(fixture -> debugComponent.addDebugHandle(
+                fixture::getFixtureBox, () -> Color.GOLD));
         return debugComponent;
     }
 
     private SpriteComponent defineSpriteComponent() {
-        /*
-        SpriteComponent spriteComponent = new SpriteComponent();
-        spriteComponent.getSprite().setSize(1.65f * PPM, 1.35f * PPM);
-        spriteComponent.setSpriteUpdater(delta -> {
-            BodyComponent bodyComponent = getComponent(BodyComponent.class);
-            BehaviorComponent behaviorComponent = getComponent(BehaviorComponent.class);
-            Sprite sprite = spriteComponent.getSprite();
-            if (damageTimer.isFinished() && !damageRecoveryTimer.isFinished()) {
-                damageRecoveryTimer.update(delta);
-                damageRecoveryBlinkTimer.update(delta);
-                sprite.setAlpha(recoveryBlink ? 0f : 1f);
-                if (damageRecoveryBlinkTimer.isFinished()) {
-                    recoveryBlink = !recoveryBlink;
-                    damageRecoveryBlinkTimer.reset();
-                }
+        Sprite sprite = new Sprite();
+        sprite.setSize(1.65f * PPM, 1.35f * PPM);
+        return new SpriteComponent(sprite, new SpriteAdapter() {
+
+
+            @Override
+            public boolean setPositioning(Wrapper<Rectangle> bounds, Wrapper<Position> position) {
+                bounds.setData(getComponent(BodyComponent.class).getCollisionBox());
+                position.setData(Position.BOTTOM_CENTER);
+                return true;
             }
-            if (damageRecoveryTimer.isJustFinished()) {
-                sprite.setAlpha(1f);
+
+            @Override
+            public float getAlpha() {
+                return recoveryBlink ? 0f : 1f;
             }
-            if (behaviorComponent.is(WALL_SLIDING)) {
-                sprite.setFlip(isFacing(Facing.RIGHT), false);
-            } else {
-                sprite.setFlip(isFacing(Facing.LEFT), false);
+
+            @Override
+            public boolean isFlipX() {
+                return getComponent(BehaviorComponent.class).is(WALL_SLIDING) ?
+                        isFacing(Facing.RIGHT) : isFacing(Facing.LEFT);
             }
-            Vector2 bottomCenter = UtilMethods.bottomCenterPoint(bodyComponent.getCollisionBox());
-            sprite.setCenterX(bottomCenter.x);
-            sprite.setY(bottomCenter.y);
-            if (behaviorComponent.is(GROUND_SLIDING)) {
-                sprite.translateY(-.035f * PPM);
+
+            @Override
+            public float getOffsetY() {
+                return getComponent(BehaviorComponent.class).is(GROUND_SLIDING) ? -.035f * PPM : 0f;
             }
+
         });
-        return spriteComponent;
-         */
-        return null;
     }
 
     private AnimationComponent defineAnimationComponent(TextureAtlas textureAtlas) {
@@ -527,12 +580,17 @@ public class Megaman implements IEntity, Damageable, Faceable, LevelCameraFocusa
         animations.put("AirDash", new TimedAnimation(textureAtlas.findRegion("AirDash")));
         animations.put("SlipSlide", new TimedAnimation(textureAtlas.findRegion("SlipSlide")));
         animations.put("SlipSlideShoot", new TimedAnimation(textureAtlas.findRegion("SlipSlideShoot")));
-        return new AnimationComponent(new Animator(keySupplier, animations));
+        Animator animator = new Animator(keySupplier, animations);
+        return new AnimationComponent(animator);
+    }
+    
+    @Override
+    public Vector2 getFocus() {
+        return UtilMethods.bottomCenterPoint(getComponent(BodyComponent.class).getCollisionBox());
     }
 
     public enum AButtonTask {
-        JUMP,
-        AIR_DASH
+        JUMP, AIR_DASH
     }
 
 

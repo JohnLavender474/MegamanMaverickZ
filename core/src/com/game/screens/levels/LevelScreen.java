@@ -6,138 +6,169 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.maps.MapObject;
-import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.collision.BoundingBox;
-import com.game.ConstVals.MegamanVals;
 import com.game.GameContext2d;
+import com.game.GameState;
+import com.game.MessageListener;
+import com.game.behaviors.BehaviorSystem;
+import com.game.controllers.ControllerSystem;
+import com.game.entities.blocks.Block;
 import com.game.entities.megaman.Megaman;
-import com.game.entities.megaman.MegamanStats;
+import com.game.entities.sensors.DeathSensor;
+import com.game.entities.sensors.WallSlideSensor;
+import com.game.trajectories.TrajectoryComponent;
+import com.game.updatables.UpdatableSystem;
 import com.game.utils.Direction;
-import com.game.utils.FontHandle;
 import com.game.utils.Timer;
 import com.game.utils.UtilMethods;
 import com.game.world.BodyComponent;
+import com.game.world.Fixture;
 import com.game.world.WorldSystem;
 
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import static com.game.ConstVals.LevelTiledMapLayer.*;
 import static com.game.ConstVals.RenderingGround.PLAYGROUND;
 import static com.game.ConstVals.ViewVals.PPM;
+import static com.game.world.FixtureType.*;
 
 // TODO: Dispose of assets in level screen when leaving level
 
-public class LevelScreen extends ScreenAdapter {
+public class LevelScreen extends ScreenAdapter implements MessageListener {
 
-    // expressed in seconds
-    public static final float DEATH_DELAY_DURATION = 3f;
-    public static final float PLAYER_ENTRANCE_DURATION = 1f;
-    // expressed in world units
+    public static final String BLOCKS = "Blocks";
+    public static final String GAME_ROOMS = "GameRooms";
+    public static final String ENEMY_SPAWNS = "EnemySpawns";
+    public static final String PLAYER_SPAWNS = "PlayerSpawns";
+    public static final String DEATH_SENSORS = "DeathSensors";
+    public static final String WALL_SLIDE_SENSORS = "WallSlideSensors";
+
     public static final float LEVEL_CAM_TRANS_DURATION = 1f;
     public static final float MEGAMAN_DELTA_ON_CAM_TRANS = 3f;
 
-    private final FontHandle readyFont = new FontHandle("Megaman10Font.ttf", 8);
-    private final Timer playerEntrance = new Timer(PLAYER_ENTRANCE_DURATION);
-    private final Timer deathDelay = new Timer(DEATH_DELAY_DURATION);
+    private final Map<Integer, Rectangle> playerSpawns = new HashMap<>();
     private final Sprite blackBoxSprite = new Sprite();
+    private final Timer deathTimer = new Timer(4f);
     private final Timer fadeTimer = new Timer();
     private final GameContext2d gameContext;
     private final String tmxFile;
+    private final Music music;
 
-    private Music music;
     private Megaman megaman;
     private boolean fadingIn;
     private boolean fadingOut;
-    private boolean readyVisible;
-    private HealthBarUi healthBarUi;
+    private int currentPlayerSpawn = 0;
     private LevelTiledMap levelTiledMap;
     private LevelCameraManager levelCameraManager;
 
-    public LevelScreen(GameContext2d gameContext, String tmxFile) {
+    public LevelScreen(GameContext2d gameContext, String tmxFile, String music) {
         this.gameContext = gameContext;
         this.tmxFile = tmxFile;
+        this.music = gameContext.getAsset(music, Music.class);
     }
 
     @Override
     public void show() {
-        // Level tiled map
-        // TODO: add sprite batch
-        levelTiledMap = new LevelTiledMap(
-                (OrthographicCamera) gameContext.getViewport(
-                        PLAYGROUND).getCamera(), null, tmxFile);
-        // Megaman
-        Map<String, Rectangle> megamanSpawns = levelTiledMap.getObjectsOfLayer(PLAYER_SPAWNS.getLayerName())
-                .stream().collect(Collectors.toMap(
-                        MapObject::getName, RectangleMapObject::getRectangle));
-        MegamanStats megamanStats = gameContext.getBlackboardObject(MegamanVals.MEGAMAN_STATS, MegamanStats.class);
-        // ------------------------------------------------------------------------------
-        // TODO: Replace with proper entrance
-        Vector2 testSpawnPos = new Vector2();
-        megamanSpawns.get("Start").getPosition(testSpawnPos);
-        megaman.getComponent(BodyComponent.class).getCollisionBox().setPosition(testSpawnPos);
-        // ------------------------------------------------------------------------------
-        gameContext.addEntity(megaman);
-        // Static blocks
-        List<RectangleMapObject> blockRectangleMapObjs = levelTiledMap.getObjectsOfLayer(STATIC_BLOCKS.getLayerName());
-        // Blocks
-
-        // Get game rooms layer
-        Map<Rectangle, String> gameRooms = levelTiledMap.getObjectsOfLayer(GAME_ROOMS.getLayerName())
-                .stream().collect(Collectors.toMap(
-                        RectangleMapObject::getRectangle, MapObject::getName));
-        // Load level camera manager
-        levelCameraManager = new LevelCameraManager(
-                gameContext.getViewport(PLAYGROUND).getCamera(),
-                new Timer(LEVEL_CAM_TRANS_DURATION),
-                gameRooms, megaman);
-        /*
-        // Load health bar UI
-        TextureRegion containerRegion = gameContext
-                .getAsset(TextureAssets.DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class)
-                .findRegion("Black");
-        Rectangle containerBounds = new Rectangle(PPM, 9.875f * PPM, 0.5f * PPM, 2.625f * PPM);
-        TextureRegion healthBitRegion = gameContext
-                .getAsset(TextureAssets.HEALTH_WEAPON_STATS_TEXTURE_ATLAS, TextureAtlas.class)
-                .findRegion("HealthbarFullBit");
-        healthBarUi = new HealthBarUi(uiViewport.getCamera(),
-                                      containerRegion, containerBounds,
-                                      healthBitRegion, MegamanVals.MAX_HEALTH_BITS);
-        TextureRegion blackBoxRegion = gameContext
-                .getAsset(TextureAssets.DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class)
-                .findRegion("Black");
-        // Load black box sprite for fading in/out
-        blackBoxSprite.setRegion(blackBoxRegion);
-         */
+        music.play();
+        deathTimer.setToEnd();
+        levelTiledMap = new LevelTiledMap((OrthographicCamera) gameContext.getViewport(PLAYGROUND).getCamera(),
+                gameContext.getSpriteBatch(), tmxFile);
+        // define player spawns
+        levelTiledMap.getObjectsOfLayer(PLAYER_SPAWNS).forEach(playerSpawnObj -> {
+           Integer key = playerSpawnObj.getProperties().get("key", Integer.class);
+           playerSpawns.put(key, playerSpawnObj.getRectangle());
+        });
+        // define blocks
+        levelTiledMap.getObjectsOfLayer(BLOCKS).forEach(blockObj -> {
+            Boolean wallSlideLeft = blockObj.getProperties().get("wallSlideLeft", Boolean.class);
+            Boolean wallSlideRight = blockObj.getProperties().get("wallSlideRight", Boolean.class);
+            Boolean affectedByResistance = blockObj.getProperties().get("abr", Boolean.class);
+            Boolean gravityOn = blockObj.getProperties().get("gravityOn", Boolean.class);
+            Float frictionX = blockObj.getProperties().get("frictionX", Float.class);
+            Float frictionY = blockObj.getProperties().get("frictionY", Float.class);
+            Block block = new Block(blockObj.getRectangle(),
+                    wallSlideLeft != null && wallSlideLeft, wallSlideRight != null && wallSlideRight,
+                    affectedByResistance != null && affectedByResistance, gravityOn != null && gravityOn,
+                    frictionX != null ? frictionX : .035f, frictionY != null ? frictionY : 0f);
+            gameContext.addEntity(block);
+            if (blockObj.getProperties().containsKey("trajectory")) {
+                TrajectoryComponent trajectoryComponent = new TrajectoryComponent();
+                String[] trajectories = blockObj.getProperties().get("trajectory", String.class).split(";");
+                for (String trajectory : trajectories) {
+                    String[] params = trajectory.split(",");
+                    float x = Float.parseFloat(params[0]);
+                    float y = Float.parseFloat(params[1]);
+                    float time = Float.parseFloat(params[2]);
+                    trajectoryComponent.addTrajectory(new Vector2(x * PPM, y * PPM), time);
+                }
+                block.addComponent(trajectoryComponent);
+                BodyComponent bodyComponent = block.getComponent(BodyComponent.class);
+                Fixture leftWallSlide = new Fixture(block, WALL_SLIDE_SENSOR);
+                leftWallSlide.setSize(PPM / 2f, bodyComponent.getCollisionBox().height - PPM / 3f);
+                leftWallSlide.setOffset(-bodyComponent.getCollisionBox().width / 2f, 0f);
+                bodyComponent.addFixture(leftWallSlide);
+                Fixture rightWallSlide = new Fixture(block, WALL_SLIDE_SENSOR);
+                rightWallSlide.setSize(PPM / 2f, bodyComponent.getCollisionBox().height - PPM / 3f);
+                rightWallSlide.setOffset(bodyComponent.getCollisionBox().width / 2f, 0f);
+                bodyComponent.addFixture(rightWallSlide);
+                Fixture feetSticker = new Fixture(block, FEET_STICKER);
+                feetSticker.setSize(bodyComponent.getCollisionBox().width, PPM / 3f);
+                feetSticker.setOffset(0f, (bodyComponent.getCollisionBox().height / 2f) - 2f);
+                bodyComponent.addFixture(feetSticker);
+            }
+        });
+        // define wall slide sensors
+        levelTiledMap.getObjectsOfLayer(WALL_SLIDE_SENSORS).forEach(wallSlideSensorObj ->
+                gameContext.addEntity(new WallSlideSensor(wallSlideSensorObj.getRectangle())));
+        // define death sensors
+        levelTiledMap.getObjectsOfLayer(DEATH_SENSORS).forEach(deathSensorObj ->
+                gameContext.addEntity(new DeathSensor(deathSensorObj.getRectangle())));
+        // define game rooms
+        Map<Rectangle, String> gameRooms = new HashMap<>();
+        levelTiledMap.getObjectsOfLayer(GAME_ROOMS).forEach(gameRoomObj ->
+                gameRooms.put(gameRoomObj.getRectangle(), gameRoomObj.getName()));
+        levelCameraManager = new LevelCameraManager(gameContext.getViewport(PLAYGROUND).getCamera(),
+                new Timer(1f), gameRooms, megaman);
     }
 
     @Override
     public void render(float delta) {
         super.render(delta);
+        if (gameContext.getGameState() == GameState.RUNNING) {
+           onGameRunning(delta);
+        }
+    }
+
+    private void onGameRunning(float delta) {
+        levelTiledMap.draw();
+        levelCameraManager.update(delta);
+        gameContext.updateSystems(delta);
         gameContext.getEntities().forEach(entity -> {
-            if (entity instanceof CullOnOutOfGameCamBounds cullable) {
-                BoundingBox cullBBox = UtilMethods.rectToBBox(cullable.getBoundingBox());
-                if (!gameContext.getViewport(PLAYGROUND).getCamera()
-                        .frustum.boundsInFrustum(cullBBox)) {
-                    cullable.getCullTimer().update(delta);
-                    if (cullable.getCullTimer().isFinished()) {
-                        entity.setDead(true);
-                    }
-                } else {
-                    cullable.getCullTimer().reset();
-                }
+            if (entity instanceof CullOnOutOfGameCamBounds cull &&
+                    !gameContext.getViewport(PLAYGROUND).getCamera().frustum.boundsInFrustum(
+                            UtilMethods.rectToBBox(cull.getCullBoundingBox()))) {
+                entity.setDead(true);
             }
         });
-        levelCameraManager.update(delta);
+        deathTimer.update(delta);
+        if (deathTimer.isJustFinished()) {
+            music.play();
+            Vector2 spawnPos = new Vector2();
+            playerSpawns.get(currentPlayerSpawn).getPosition(spawnPos);
+            megaman = new Megaman(gameContext, spawnPos);
+            levelCameraManager.setFocusable(megaman);
+            gameContext.addEntity(megaman);
+        }
         if (levelCameraManager.getTransitionState() != null) {
+            BodyComponent bodyComponent = megaman.getComponent(BodyComponent.class);
             switch (levelCameraManager.getTransitionState()) {
                 case BEGIN -> {
+                    bodyComponent.getVelocity().setZero();
+                    gameContext.getSystem(ControllerSystem.class).setOn(false);
+                    gameContext.getSystem(BehaviorSystem.class).setOn(false);
                     gameContext.getSystem(WorldSystem.class).setOn(false);
-                    // TODO: turn off other relevant systems
+                    gameContext.getSystem(UpdatableSystem.class).setOn(false);
                     gameContext.getEntities().forEach(entity -> {
                         if (entity instanceof CullOnLevelCamTrans) {
                             entity.setDead(true);
@@ -145,7 +176,11 @@ public class LevelScreen extends ScreenAdapter {
                     });
                 }
                 case CONTINUE -> {
-                    BodyComponent bodyComponent = megaman.getComponent(BodyComponent.class);
+                    gameContext.getEntities().forEach(entity -> {
+                        if (entity instanceof CullOnLevelCamTrans) {
+                            entity.setDead(true);
+                        }
+                    });
                     Direction direction = levelCameraManager.getTransitionDirection();
                     switch (direction) {
                         case UP -> bodyComponent.getCollisionBox().y +=
@@ -159,12 +194,18 @@ public class LevelScreen extends ScreenAdapter {
                     }
                 }
                 case END -> {
+                    gameContext.getSystem(ControllerSystem.class).setOn(true);
+                    gameContext.getSystem(BehaviorSystem.class).setOn(true);
                     gameContext.getSystem(WorldSystem.class).setOn(true);
-                    // TODO: turn on other relevant systems
+                    gameContext.getSystem(UpdatableSystem.class).setOn(true);
                 }
             }
         }
-        gameContext.updateSystems(delta);
+    }
+
+    @Override
+    public void listenToMessage(Object owner, Object message, float delta) {
+
     }
 
     @Override
@@ -214,14 +255,12 @@ public class LevelScreen extends ScreenAdapter {
         fadingOut = !fadeTimer.isFinished();
     }
 
-    private void initFadeIn()
-            throws IllegalStateException {
+    private void initFadeIn() throws IllegalStateException {
         blackBoxSprite.setBounds(0f, 0f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         fadeTimer.reset();
     }
 
-    private void initFadeOut()
-            throws IllegalStateException {
+    private void initFadeOut() throws IllegalStateException {
         blackBoxSprite.setBounds(0f, 0f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         blackBoxSprite.setAlpha(0f);
         fadeTimer.reset();

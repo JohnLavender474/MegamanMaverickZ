@@ -2,7 +2,6 @@ package com.game.screens.levels;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -10,8 +9,6 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile;
 import com.badlogic.gdx.utils.Disposable;
-import com.game.utils.Drawable;
-import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.HashMap;

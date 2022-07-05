@@ -101,8 +101,7 @@ public class Contact {
 
     @Override
     public boolean equals(Object o) {
-        return o instanceof Contact contact && ((fixture1.equals(contact.getFixture1()) && fixture2.equals(contact.getFixture2())) ||
-                (fixture1.equals(contact.getFixture2()) && fixture2.equals(contact.getFixture1())));
+        return o instanceof Contact contact && ((fixture1.equals(contact.getFixture1()) && fixture2.equals(contact.getFixture2())) || (fixture1.equals(contact.getFixture2()) && fixture2.equals(contact.getFixture1())));
     }
 
     @Override

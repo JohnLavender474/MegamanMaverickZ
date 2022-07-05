@@ -8,10 +8,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
-import com.game.core.IEntity;
 import com.game.System;
+import com.game.core.IEntity;
 import com.game.utils.Position;
 import com.game.utils.UtilMethods;
+import com.game.utils.Wrapper;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Set;
@@ -46,11 +47,19 @@ public class SpriteSystem extends System {
         Sprite sprite = spriteComponent.getSprite();
         SpriteAdapter spriteAdapter = spriteComponent.getSpriteAdapter();
         if (spriteAdapter != null) {
-            Rectangle boundingBox = spriteAdapter.getBoundingBox();
-            Position position = spriteAdapter.getPosition();
-            if (boundingBox != null && position != null) {
-                Vector2 point = UtilMethods.getPoint(boundingBox, position);
-                UtilMethods.setToPoint(sprite.getBoundingRectangle(), point, position, sprite::setPosition);
+            Wrapper<Rectangle> bounds = Wrapper.of(null);
+            Wrapper<Position> position = Wrapper.of(null);
+            if (spriteAdapter.setPositioning(bounds, position)) {
+                if (bounds.getData() == null) {
+                    throw new IllegalStateException("SpriteAdapter::setPositioning returns true but the value of " +
+                            "Wrapper<Rectangle>::getData is null");
+                }
+                if (position.getData() == null) {
+                    throw new IllegalStateException("SpriteAdapter::setPositioning returns true but the value of " +
+                            "Wrapper<Position>::getData is null");
+                }
+                Vector2 point = UtilMethods.getPoint(bounds.getData(), position.getData());
+                UtilMethods.setToPoint(sprite.getBoundingRectangle(), point, position.getData(), sprite::setPosition);
             }
             sprite.setAlpha(spriteAdapter.isHidden() ? 0f : spriteAdapter.getAlpha());
             sprite.setFlip(spriteAdapter.isFlipX(), spriteAdapter.isFlipY());

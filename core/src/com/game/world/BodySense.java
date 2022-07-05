@@ -7,11 +7,6 @@ package com.game.world;
  * body senses set and fixture 2 will have {@link #HIT_BY_HEAD} added to its body senses set.
  */
 public enum BodySense {
-    HIT_BY_HEAD,
-    FEET_ON_GROUND,
-    HEAD_TOUCHING_BLOCK,
-    TOUCHING_BLOCK_LEFT,
-    TOUCHING_BLOCK_RIGHT,
-    TOUCHING_WALL_SLIDE_LEFT,
-    TOUCHING_WALL_SLIDE_RIGHT
+    HIT_BY_HEAD, FEET_ON_GROUND, HEAD_TOUCHING_BLOCK, TOUCHING_BLOCK_LEFT, TOUCHING_BLOCK_RIGHT,
+    TOUCHING_WALL_SLIDE_LEFT, TOUCHING_WALL_SLIDE_RIGHT
 }

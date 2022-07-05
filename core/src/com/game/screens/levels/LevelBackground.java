@@ -12,8 +12,8 @@ public class LevelBackground implements Drawable {
 
     private final List<Sprite> backgroundSprites = new ArrayList<>();
 
-    public LevelBackground(TextureRegion textureRegion, float startX, float startY,
-                           float width, float height, int rows, int cols) {
+    public LevelBackground(TextureRegion textureRegion, float startX, float startY, float width, float height,
+                           int rows, int cols) {
         Sprite backgroundModel = new Sprite(textureRegion);
         backgroundModel.setBounds(startX, startY, width, height);
         for (int i = 0; i < rows; i++) {

@@ -8,7 +8,5 @@ package com.game.utils;
  * {@link #CONTINUE}: The process is currently running.
  */
 public enum ProcessState {
-    END,
-    BEGIN,
-    CONTINUE
+    END, BEGIN, CONTINUE
 }

@@ -32,8 +32,7 @@ public class UpdateCycle implements Updatable {
      * @param doUpdate  the do update boolean supplier
      * @throws InvalidArgumentException thrown if updatable or doUpdate is null
      */
-    public void addUpdatable(Updatable updatable, Supplier<Boolean> doUpdate)
-            throws InvalidArgumentException {
+    public void addUpdatable(Updatable updatable, Supplier<Boolean> doUpdate) throws InvalidArgumentException {
         if (updatable == null || doUpdate == null) {
             throw new InvalidArgumentException(updatable + " and " + doUpdate, "updatable and doUpdate");
         }

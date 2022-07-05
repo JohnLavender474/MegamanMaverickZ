@@ -8,7 +8,5 @@ package com.game.world;
  * ABSTRACT: Can pass through static and dynamic bodies.
  */
 public enum BodyType {
-    STATIC,
-    DYNAMIC,
-    ABSTRACT
+    STATIC, DYNAMIC, ABSTRACT
 }

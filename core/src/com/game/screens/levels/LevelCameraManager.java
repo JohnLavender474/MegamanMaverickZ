@@ -10,9 +10,11 @@ import com.game.utils.ProcessState;
 import com.game.utils.Timer;
 import com.game.utils.UtilMethods;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Map;
+import java.util.function.Supplier;
+
+import static com.game.ConstVals.ViewVals.PPM;
 
 /**
  * Handler for {@link OrthographicCamera} that makes it transition between {@link Rectangle} "rooms" and follow the
@@ -36,12 +38,12 @@ public class LevelCameraManager implements Updatable {
     private Direction transitionDirection;
     private boolean updating;
 
-    public LevelCameraManager(Camera camera, Timer transitionTimer,
-                              Map<Rectangle, String> gameRooms, LevelCameraFocusable focusable) {
+    public LevelCameraManager(Camera camera, Timer transitionTimer, Map<Rectangle, String> gameRooms,
+                              LevelCameraFocusable focusable) {
         this.camera = camera;
-        this.transitionTimer = transitionTimer;
         this.gameRooms = gameRooms;
         this.focusable = focusable;
+        this.transitionTimer = transitionTimer;
     }
 
     /**
@@ -76,8 +78,8 @@ public class LevelCameraManager implements Updatable {
     }
 
     private Rectangle nextGameRoom() {
-        return gameRooms.keySet().stream().filter(
-                gameRoom -> gameRoom.contains(focusable.getCurrentFocus())).findFirst().orElse(null);
+        return gameRooms.keySet().stream().filter(gameRoom -> gameRoom.contains(
+                focusable.getFocus())).findFirst().orElse(null);
     }
 
     @Override
@@ -101,9 +103,9 @@ public class LevelCameraManager implements Updatable {
              */
             if (currentGameRoom == null) {
                 currentGameRoom = nextGameRoom();
-            } else if (currentGameRoom.contains(focusable.getCurrentFocus())) {
-                camera.position.x = focusable.getCurrentFocus().x;
-                camera.position.y = focusable.getCurrentFocus().y;
+            } else if (currentGameRoom.contains(focusable.getFocus())) {
+                camera.position.x = focusable.getFocus().x;
+                camera.position.y = focusable.getFocus().y;
                 if (camera.position.y > (currentGameRoom.y + currentGameRoom.height) - camera.viewportHeight / 2.0f) {
                     camera.position.y = (currentGameRoom.y + currentGameRoom.height) - camera.viewportHeight / 2.0f;
                 }
@@ -122,9 +124,10 @@ public class LevelCameraManager implements Updatable {
                 if (nextGameRoom == null) {
                     return;
                 }
+                // generic 5 * PPM by 5 * PPM square is used to determine push direction
                 Rectangle overlap = new Rectangle();
-                transitionDirection = UtilMethods.getOverlapPushDirection(
-                        focusable.getCurrentFocusBox(), currentGameRoom, overlap);
+                Rectangle boundingBox = new Rectangle(0f, 0f, 5f * PPM, 5f * PPM).setCenter(focusable.getFocus());
+                transitionDirection = UtilMethods.getOverlapPushDirection(boundingBox, currentGameRoom, overlap);
                 // go ahead and set current game room to next room, which needs to be done even if
                 // transition direction is null
                 currentGameRoom = nextGameRoom;
@@ -136,14 +139,20 @@ public class LevelCameraManager implements Updatable {
                 transStartPos.set(UtilMethods.toVec2(camera.position));
                 transTargetPos.set(UtilMethods.toVec2(camera.position));
                 switch (transitionDirection) {
-                    case LEFT -> transTargetPos.x = (nextGameRoom.x + nextGameRoom.width) -
-                            Math.min(nextGameRoom.width / 2.0f, camera.viewportWidth / 2.0f);
-                    case RIGHT -> transTargetPos.x = nextGameRoom.x +
-                            Math.min(nextGameRoom.width / 2.0f, camera.viewportWidth / 2.0f);
-                    case UP -> transTargetPos.y = nextGameRoom.y +
-                            Math.min(nextGameRoom.height / 2.0f, camera.viewportHeight / 2.0f);
-                    case DOWN -> transTargetPos.y = (nextGameRoom.y + nextGameRoom.height) -
-                            Math.min(nextGameRoom.height / 2.0f, camera.viewportHeight / 2.0f);
+                    case LEFT ->
+                            transTargetPos.x =
+                                    (nextGameRoom.x + nextGameRoom.width) - Math.min(nextGameRoom.width / 2.0f,
+                                            camera.viewportWidth / 2.0f);
+                    case RIGHT ->
+                            transTargetPos.x = nextGameRoom.x + Math.min(nextGameRoom.width / 2.0f,
+                                    camera.viewportWidth / 2.0f);
+                    case UP ->
+                            transTargetPos.y = nextGameRoom.y + Math.min(nextGameRoom.height / 2.0f,
+                                    camera.viewportHeight / 2.0f);
+                    case DOWN ->
+                            transTargetPos.y =
+                                    (nextGameRoom.y + nextGameRoom.height) - Math.min(nextGameRoom.height / 2.0f,
+                                            camera.viewportHeight / 2.0f);
                 }
             }
         } else {
@@ -159,8 +168,8 @@ public class LevelCameraManager implements Updatable {
                     transitionState = ProcessState.CONTINUE;
                 case CONTINUE:
                     transitionTimer.update(delta);
-                    Vector2 pos = UtilMethods.interpolate(
-                            transStartPos, transTargetPos, getTransitionTimeTickerRatio());
+                    Vector2 pos = UtilMethods.interpolate(transStartPos, transTargetPos,
+                            getTransitionTimeTickerRatio());
                     camera.position.x = pos.x;
                     camera.position.y = pos.y;
                     transitionState = transitionTimer.isFinished() ? ProcessState.END : ProcessState.CONTINUE;

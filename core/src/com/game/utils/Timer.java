@@ -34,8 +34,7 @@ public class Timer implements Updatable, Resettable {
      * @param timeMarkedRunnables the time marked runnables
      * @throws InvalidArgumentException the invalid argument exception
      */
-    public Timer(float duration, TimeMarkedRunnable... timeMarkedRunnables)
-            throws InvalidArgumentException {
+    public Timer(float duration, TimeMarkedRunnable... timeMarkedRunnables) throws InvalidArgumentException {
         this(duration, Arrays.asList(timeMarkedRunnables));
     }
 
@@ -46,14 +45,13 @@ public class Timer implements Updatable, Resettable {
      * @param timeMarkedRunnables the time marked runnables
      * @throws InvalidArgumentException the invalid argument exception
      */
-    public Timer(float duration, Collection<TimeMarkedRunnable> timeMarkedRunnables)
-            throws InvalidArgumentException {
+    public Timer(float duration, Collection<TimeMarkedRunnable> timeMarkedRunnables) throws InvalidArgumentException {
         setDuration(duration);
         reset();
         timeMarkedRunnables.forEach(timeMarkedRunnable -> {
             if (timeMarkedRunnable.time() < 0f || timeMarkedRunnable.time() > duration) {
-                throw new InvalidFieldException(String.valueOf(timeMarkedRunnable.time()),
-                        "time marked runnable: time", "time marked runnable");
+                throw new InvalidFieldException(String.valueOf(timeMarkedRunnable.time()), "time marked runnable: " +
+                        "time", "time marked runnable");
             }
         });
         this.timeMarkedRunnables.addAll(timeMarkedRunnables);
@@ -65,8 +63,7 @@ public class Timer implements Updatable, Resettable {
      * @param duration the duration
      * @throws InvalidArgumentException thrown if duration is less than zero
      */
-    public void setDuration(float duration)
-            throws InvalidArgumentException {
+    public void setDuration(float duration) throws InvalidArgumentException {
         if (duration < 0f) {
             throw new InvalidArgumentException(String.valueOf(duration), "duration");
         }

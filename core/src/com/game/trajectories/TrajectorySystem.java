@@ -1,8 +1,8 @@
 package com.game.trajectories;
 
 import com.game.Component;
-import com.game.core.IEntity;
 import com.game.System;
+import com.game.core.IEntity;
 import com.game.world.BodyComponent;
 
 import java.util.Set;

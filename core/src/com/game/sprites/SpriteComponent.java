@@ -2,8 +2,9 @@ package com.game.sprites;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.game.Component;
-import com.game.updatables.Updatable;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 /**
  * {@link Component} implementation for handling {@link Sprite}.

@@ -11,8 +11,5 @@ package com.game.controllers;
  * {@link #IS_RELEASED}: The button is not pressed in this update cycle.
  */
 public enum ControllerButtonStatus {
-    IS_JUST_PRESSED,
-    IS_PRESSED,
-    IS_JUST_RELEASED,
-    IS_RELEASED
+    IS_JUST_PRESSED, IS_PRESSED, IS_JUST_RELEASED, IS_RELEASED
 }

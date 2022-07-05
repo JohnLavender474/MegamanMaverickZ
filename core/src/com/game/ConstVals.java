@@ -8,28 +8,19 @@ import lombok.RequiredArgsConstructor;
 public class ConstVals {
 
     public enum GameScreen {
-        TEST_LEVEL_1,
-        MAIN_MENU,
-        PASSWORD,
-        SETTINGS,
-        BOSS_SELECT
+        TEST_LEVEL_1, MAIN_MENU, PASSWORD, SETTINGS, BOSS_SELECT
     }
 
     public enum RenderingGround {
-        UI,
-        PLAYGROUND,
-        BACKGROUND
+        UI, PLAYGROUND, BACKGROUND
     }
 
     @Getter
     @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     public enum LevelTiledMapLayer {
 
-        GAME_ROOMS("GameRooms"),
-        ENEMY_SPAWNS("EnemySpawns"),
-        PLAYER_SPAWNS("PlayerSpawns"),
-        STATIC_BLOCKS("StaticBlocks"),
-        DEATH_BLOCKS("DeathBlocks");
+        GAME_ROOMS("GameRooms"), ENEMY_SPAWNS("EnemySpawns"), PLAYER_SPAWNS("PlayerSpawns"), STATIC_BLOCKS(
+                "StaticBlocks"), DEATH_BLOCKS("DeathBlocks");
 
         private final String layerName;
 

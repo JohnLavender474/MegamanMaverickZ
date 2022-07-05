@@ -19,5 +19,5 @@ public class MegamanStats {
     private Percentage health = Percentage.of(100);
     private Percentage[] healthTanks = new Percentage[MAX_HEALTH_TANKS];
     private Set<MegamanSpecialAbility> specialAbilities = new HashSet<>();
-    private Map<MegamanSpecialWeapon, Percentage> specialWeapons = new HashMap<>();
+    private Map<MegamanWeapon, Percentage> specialWeapons = new HashMap<>();
 }

@@ -1,10 +1,11 @@
 package com.game.screens.levels;
 
 import com.badlogic.gdx.math.Rectangle;
+import com.game.Entity;
 import com.game.utils.Timer;
 
 /**
- * Implemented by {@link Entity} that should be culled when out of bounds of the game camera.
+ * Implemented by {@link com.game.core.IEntity} that should be culled when out of bounds of the game camera.
  */
 public interface CullOnOutOfGameCamBounds {
 
@@ -21,6 +22,6 @@ public interface CullOnOutOfGameCamBounds {
      *
      * @return the bounding box
      */
-    Rectangle getBoundingBox();
+    Rectangle getCullBoundingBox();
 
 }

@@ -6,8 +6,8 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
 import com.game.Component;
-import com.game.core.IEntity;
 import com.game.System;
+import com.game.core.IEntity;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Set;
