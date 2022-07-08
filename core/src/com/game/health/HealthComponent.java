@@ -12,16 +12,22 @@ import lombok.Setter;
 @Setter
 public class HealthComponent implements Component, Resettable {
 
-    private final Runnable runOnDeath;
+    private Runnable runOnDeath;
     private int currentHealth;
     private int priorHealth;
+    private int maxHealth;
 
-    public HealthComponent(Runnable runOnDeath) {
+    public HealthComponent(int maxHealth) {
+        this(maxHealth, () -> {});
+    }
+
+    public HealthComponent(int maxHealth, Runnable runOnDeath) {
         if (runOnDeath == null) {
-            throw new IllegalStateException("Run on death runnable cannot be null");
+            throw new IllegalStateException();
         }
-        reset();
         this.runOnDeath = runOnDeath;
+        this.maxHealth = maxHealth;
+        reset();
     }
 
     public void translateHealth(int delta) {
@@ -29,17 +35,20 @@ public class HealthComponent implements Component, Resettable {
     }
 
     public void setHealth(int health) {
-        currentHealth = Math.max(0, Math.min(100, health));
+        currentHealth = Math.max(0, Math.min(maxHealth, health));
     }
 
     public boolean isHealthJustDepleted() {
         return currentHealth <= 0 && priorHealth > 0;
     }
 
+    public boolean isDead() {
+        return currentHealth <= 0;
+    }
+
     @Override
     public void reset() {
-        currentHealth = 100;
-        priorHealth = 100;
+        currentHealth = priorHealth = maxHealth;
     }
 
 }

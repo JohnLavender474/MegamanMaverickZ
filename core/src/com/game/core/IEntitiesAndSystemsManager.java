@@ -3,6 +3,7 @@ package com.game.core;
 import com.game.System;
 
 import java.util.Collection;
+import java.util.Set;
 
 public interface IEntitiesAndSystemsManager {
 
@@ -21,6 +22,13 @@ public interface IEntitiesAndSystemsManager {
      * @return the system
      */
     <S extends System> S getSystem(Class<S> sClass);
+
+    /**
+     * Get systems.
+     *
+     * @return systems
+     */
+    Collection<System> getSystems();
 
     /**
      * Update systems.

@@ -30,9 +30,8 @@ import com.game.core.IEntity;
 import com.game.debugging.DebugSystem;
 import com.game.entities.megaman.MegamanStats;
 import com.game.health.HealthSystem;
-import com.game.screens.levels.LevelScreen;
-import com.game.screens.menu.impl.MainMenuScreen;
-import com.game.sound.SoundSystem;
+import com.game.levels.LevelScreen;
+import com.game.menus.impl.MainMenuScreen;
 import com.game.sprites.SpriteSystem;
 import com.game.trajectories.TrajectorySystem;
 import com.game.updatables.UpdatableSystem;
@@ -40,7 +39,6 @@ import com.game.utils.KeyValuePair;
 import com.game.world.WorldContactListenerImpl;
 import com.game.world.WorldSystem;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.*;
 
@@ -62,17 +60,14 @@ public class MegamanMaverick extends Game implements GameContext2d {
     private final Map<ControllerButton, ControllerButtonStatus> controllerButtons =
             new EnumMap<>(ControllerButton.class);
     private final Map<RenderingGround, Viewport> viewports = new EnumMap<>(RenderingGround.class);
-    private final Map<GameScreen, Screen> screens = new EnumMap<>(GameScreen.class);
     private final Queue<KeyValuePair<Rectangle, Color>> debugQueue = new ArrayDeque<>();
     private final Map<Class<? extends System>, System> systems = new LinkedHashMap<>();
+    private final Map<GameScreen, Screen> screens = new EnumMap<>(GameScreen.class);
     private final Set<MessageListener> messageListeners = new HashSet<>();
     private final Queue<Message> messageQueue = new ArrayDeque<>();
     private final List<Disposable> disposables = new ArrayList<>();
     private final Map<String, Object> blackBoard = new HashMap<>();
     private final Set<IEntity> entities = new HashSet<>();
-    @Getter
-    @Setter
-    private GameState gameState;
     @Getter
     private ShapeRenderer shapeRenderer;
     @Getter
@@ -91,11 +86,12 @@ public class MegamanMaverick extends Game implements GameContext2d {
         }
         // screens
 
-        // rendering and assets
+        // rendering
         shapeRenderer = new ShapeRenderer();
         assetManager = new AssetManager();
         spriteBatch = new SpriteBatch();
         disposables.addAll(List.of(assetManager, spriteBatch, shapeRenderer));
+        // assets
         loadAssets(Music.class, MMX3_INTRO_STAGE_MUSIC, MMZ_NEO_ARCADIA_MUSIC, XENOBLADE_GAUR_PLAINS_MUSIC,
                 MMX_LEVEL_SELECT_SCREEN_MUSIC, STAGE_SELECT_MM3_MUSIC);
         loadAssets(Sound.class, SELECT_PING_SOUND, MARIO_JUMP_SOUND, CURSOR_MOVE_BLOOP_SOUND, DINK_SOUND,
@@ -105,24 +101,24 @@ public class MegamanMaverick extends Game implements GameContext2d {
         loadAssets(TextureAtlas.class, CHARGE_ORBS_TEXTURE_ATLAS, OBJECTS_TEXTURE_ATLAS, MET_TEXTURE_ATLAS,
                 ENEMIES_TEXTURE_ATLAS, ITEMS_TEXTURE_ATLAS, BACKGROUNDS_1_TEXTURE_ATLAS, MEGAMAN_TEXTURE_ATLAS,
                 MEGAMAN_CHARGED_SHOT_TEXTURE_ATLAS, ELECTRIC_BALL_TEXTURE_ATLAS, DECORATIONS_TEXTURE_ATLAS,
-                HEALTH_WEAPON_STATS_TEXTURE_ATLAS);
+                BITS_ATLAS);
         assetManager.finishLoading();
-        // define systems, linked hash map retains insertion order so define iteration order here
+        // systems
         addSystem(new HealthSystem());
         addSystem(new UpdatableSystem());
         addSystem(new ControllerSystem(this));
-        addSystem(new WorldSystem(new WorldContactListenerImpl(), WorldVals.AIR_RESISTANCE, WorldVals.FIXED_TIME_STEP));
+        addSystem(new WorldSystem(new WorldContactListenerImpl(),
+                WorldVals.AIR_RESISTANCE, WorldVals.FIXED_TIME_STEP));
         addSystem(new BehaviorSystem());
         addSystem(new TrajectorySystem());
         addSystem(new AnimationSystem());
         addSystem(new SpriteSystem((OrthographicCamera) viewports.get(PLAYGROUND).getCamera(), getSpriteBatch()));
         addSystem(new DebugSystem(getShapeRenderer(), (OrthographicCamera) viewports.get(PLAYGROUND).getCamera()));
-        // other
+        // blackboard
         putBlackboardObject(MegamanVals.MEGAMAN_STATS, new MegamanStats());
-        setGameState(GameState.IN_MENU);
         // set screen
         putScreen(GameScreen.MAIN_MENU, new MainMenuScreen(this));
-        putScreen(GameScreen.TEST_LEVEL_1, new LevelScreen(this, "tiledmaps/tmx/test1.tmx"));
+        putScreen(GameScreen.TEST_LEVEL_1, new LevelScreen(this, "tiledmaps/tmx/test1.tmx", MMX3_INTRO_STAGE_MUSIC));
         setScreen(GameScreen.TEST_LEVEL_1);
     }
 
@@ -161,6 +157,11 @@ public class MegamanMaverick extends Game implements GameContext2d {
     @Override
     public <S extends System> S getSystem(Class<S> sClass) {
         return sClass.cast(systems.get(sClass));
+    }
+
+    @Override
+    public Collection<System> getSystems() {
+        return systems.values();
     }
 
     @Override
@@ -277,7 +278,8 @@ public class MegamanMaverick extends Game implements GameContext2d {
     public void updateMessageDispatcher(float delta) {
         while (!messageQueue.isEmpty()) {
             Message message = messageQueue.poll();
-            messageListeners.forEach(listener -> listener.listenToMessage(message.owner(), message.contents(), delta));
+            messageListeners.forEach(listener -> listener.listenToMessage(
+                    message.owner(), message.contents(), delta));
         }
     }
 

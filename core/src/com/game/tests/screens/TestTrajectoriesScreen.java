@@ -124,6 +124,11 @@ public class TestTrajectoriesScreen extends ScreenAdapter {
         }
 
         @Override
+        public Collection<System> getSystems() {
+            return systems.values();
+        }
+
+        @Override
         public void updateSystems(float delta) {
             updating = true;
             while (!queuedEntities.isEmpty()) {

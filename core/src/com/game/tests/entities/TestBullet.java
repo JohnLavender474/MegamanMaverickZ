@@ -1,19 +1,18 @@
-package com.game.entities.projectiles;
+package com.game.tests.entities;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
 import com.game.ConstVals;
-import com.game.ConstVals.TextureAssets;
-import com.game.GameContext2d;
+import com.game.core.IAssetLoader;
+import com.game.core.IEntitiesAndSystemsManager;
 import com.game.core.IEntity;
+import com.game.entities.contracts.Damageable;
 import com.game.entities.contracts.Damager;
-import com.game.entities.decorations.Disintegration;
-import com.game.levels.CullOnLevelCamTrans;
-import com.game.levels.CullOnOutOfCamBounds;
+import com.game.entities.projectiles.IProjectile;
 import com.game.sound.SoundComponent;
 import com.game.sound.SoundRequest;
 import com.game.sprites.SpriteComponent;
@@ -23,7 +22,8 @@ import com.game.utils.Timer;
 import com.game.world.BodyComponent;
 import com.game.world.BodyType;
 import com.game.world.Fixture;
-import com.game.world.FixtureType;
+import com.game.levels.CullOnLevelCamTrans;
+import com.game.levels.CullOnOutOfCamBounds;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -32,27 +32,28 @@ import java.util.Map;
 
 import static com.game.ConstVals.SoundAssets.THUMP_SOUND;
 import static com.game.ConstVals.ViewVals.PPM;
-import static com.game.world.FixtureType.BLOCK;
+import static com.game.world.FixtureType.*;
 
 @Getter
 @Setter
-public class Bullet implements IEntity, IProjectile, Damager, CullOnOutOfCamBounds, CullOnLevelCamTrans {
-
-    private final GameContext2d gameContext;
+public class TestBullet implements IEntity, IProjectile, Damager, CullOnOutOfCamBounds, CullOnLevelCamTrans {
 
     private final Map<Class<? extends Component>, Component> components = new HashMap<>();
     private final Vector2 trajectory = new Vector2();
-    private final Timer cullTimer = new Timer(.15f);
-    private boolean dead;
+    private final Timer cullTimer = new Timer(.25f);
+    private final IAssetLoader assetLoader;
+    private final IEntitiesAndSystemsManager entitiesAndSystemsManager;
     private int damage;
+    private boolean dead;
     private IEntity owner;
 
-    public Bullet(GameContext2d gameContext, IEntity owner, Vector2 trajectory, Vector2 spawn) {
-        this.gameContext = gameContext;
+    public TestBullet(IEntity owner, Vector2 trajectory, Vector2 spawn, TextureRegion textureRegion,
+                      IAssetLoader assetLoader, IEntitiesAndSystemsManager entitiesAndSystemsManager) {
         this.owner = owner;
         this.trajectory.set(trajectory);
-        addComponent(defineSpriteComponent(gameContext.getAsset(TextureAssets.OBJECTS_TEXTURE_ATLAS,
-                TextureAtlas.class).findRegion("YellowBullet")));
+        this.assetLoader = assetLoader;
+        this.entitiesAndSystemsManager = entitiesAndSystemsManager;
+        addComponent(defineSpriteComponent(textureRegion));
         addComponent(defineBodyComponent(spawn));
         addComponent(new SoundComponent());
     }
@@ -65,8 +66,10 @@ public class Bullet implements IEntity, IProjectile, Damager, CullOnOutOfCamBoun
     public void disintegrate() {
         SoundComponent soundComponent = getComponent(SoundComponent.class);
         soundComponent.request(new SoundRequest(THUMP_SOUND, false, Percentage.of(ConstVals.VolumeVals.HIGH_VOLUME)));
-        Disintegration disintegration = new Disintegration(gameContext, getComponent(BodyComponent.class).getCenter());
-        gameContext.addEntity(disintegration);
+        TestDisintegration disintegration = new TestDisintegration(
+                assetLoader, getComponent(BodyComponent.class).getCenter());
+        entitiesAndSystemsManager.addEntity(disintegration);
+        Gdx.audio.newSound(Gdx.files.internal("sounds/Thump.mp3")).play(.5f);
     }
 
     private SpriteComponent defineSpriteComponent(TextureRegion textureRegion) {
@@ -85,11 +88,11 @@ public class Bullet implements IEntity, IProjectile, Damager, CullOnOutOfCamBoun
         bodyComponent.setPreProcess(delta -> bodyComponent.setVelocity(trajectory));
         bodyComponent.setSize(.1f * PPM, .1f * PPM);
         bodyComponent.setCenter(spawn.x, spawn.y);
-        Fixture projectile = new Fixture(this, FixtureType.PROJECTILE);
+        Fixture projectile = new Fixture(this, PROJECTILE);
         projectile.setSize(.1f * PPM, .1f * PPM);
         projectile.setCenter(spawn.x, spawn.y);
         bodyComponent.addFixture(projectile);
-        Fixture damageBox = new Fixture(this, FixtureType.DAMAGE_BOX);
+        Fixture damageBox = new Fixture(this, DAMAGE_BOX);
         damageBox.setSize(.1f * PPM, .1f * PPM);
         damageBox.setCenter(spawn.x, spawn.y);
         bodyComponent.addFixture(damageBox);
@@ -98,10 +101,15 @@ public class Bullet implements IEntity, IProjectile, Damager, CullOnOutOfCamBoun
 
     @Override
     public void hit(Fixture fixture) {
-        if (fixture.getFixtureType() == BLOCK) {
+        if (fixture.getFixtureType() == BLOCK || fixture.getFixtureType() == HIT_BOX) {
             setDead(true);
             disintegrate();
         }
+    }
+
+    @Override
+    public boolean canDamage(Damageable damageable) {
+        return !owner.equals(damageable);
     }
 
 }

@@ -14,9 +14,11 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.game.ConstVals.WorldVals;
+import com.game.MessageListener;
 import com.game.animations.AnimationSystem;
 import com.game.behaviors.BehaviorSystem;
 import com.game.controllers.ControllerSystem;
+import com.game.core.IEntity;
 import com.game.debugging.DebugComponent;
 import com.game.debugging.DebugSystem;
 import com.game.health.HealthComponent;
@@ -28,10 +30,7 @@ import com.game.tests.entities.*;
 import com.game.trajectories.TrajectoryComponent;
 import com.game.trajectories.TrajectorySystem;
 import com.game.updatables.UpdatableSystem;
-import com.game.utils.Direction;
-import com.game.utils.FontHandle;
-import com.game.utils.Timer;
-import com.game.utils.UtilMethods;
+import com.game.utils.*;
 import com.game.world.BodyComponent;
 import com.game.world.Fixture;
 import com.game.world.WorldSystem;
@@ -44,8 +43,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import static com.game.ConstVals.ViewVals.*;
+import static com.game.utils.UtilMethods.*;
 import static com.game.world.FixtureType.*;
 import static com.game.levels.LevelScreen.LEVEL_CAM_TRANS_DURATION;
 import static com.game.levels.LevelScreen.MEGAMAN_DELTA_ON_CAM_TRANS;
@@ -58,7 +59,7 @@ import static com.game.levels.LevelScreen.MEGAMAN_DELTA_ON_CAM_TRANS;
  * 1. Player dies, explosion orb decorations are spawned with trajectories, and timer is reset
  * 2. When timer reaches zero, player is respawned with health at 100%
  */
-public class TestMovingPlatformsScreen extends ScreenAdapter {
+public class TestMetScreen extends ScreenAdapter implements MessageListener {
 
     private static final String GAME_ROOMS = "GameRooms";
     private static final String ENEMY_SPAWNS = "EnemySpawns";
@@ -68,7 +69,6 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
     private static final String MOVING_BLOCKS = "MovingBlocks";
     private static final String WALL_SLIDE_SENSORS = "WallSlideSensors";
 
-    private final Vector2 spawn = new Vector2();
     private final Timer deathTimer = new Timer(4f);
     private final List<FontHandle> messages = new ArrayList<>();
 
@@ -76,26 +76,19 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
     private LevelCameraManager levelCameraManager;
     private TestController testController;
     private TestMessageDispatcher messageDispatcher;
+    private TestEntitySpawnManager entitySpawnManager;
     private TestEntitiesAndSystemsManager entitiesAndSystemsManager;
     private SpriteBatch spriteBatch;
     private TestAssetLoader assetLoader;
     private Viewport uiViewport;
     private Viewport playgroundViewport;
-    private TestPlayer player;
     private TestBlock testMovingBlock;
-    private Music music;
-    private FontHandle message1;
-    private FontHandle message2;
+    private TestPlayer player;
     private boolean isPaused;
+    private Music music;
 
     @Override
     public void show() {
-        message1 = new FontHandle("Megaman10Font.ttf", 6);
-        message1.setText("Not touching");
-        message1.setPosition(-PPM, 0f);
-        message2 = new FontHandle("Megaman10Font.ttf", 6);
-        message2.setPosition(message1.getPosition().x, message1.getPosition().y + PPM);
-        message2.setText("NULL");
         music = Gdx.audio.newMusic(Gdx.files.internal("music/MMX5_VoltKraken.mp3"));
         music.play();
         for (int i = 0; i < 3; i++) {
@@ -107,6 +100,7 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
         deathTimer.setToEnd();
         testController = new TestController();
         messageDispatcher = new TestMessageDispatcher();
+        messageDispatcher.addListener(this);
         entitiesAndSystemsManager = new TestEntitiesAndSystemsManager();
         spriteBatch = new SpriteBatch();
         ShapeRenderer shapeRenderer = new ShapeRenderer();
@@ -130,11 +124,23 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
                 (OrthographicCamera) playgroundViewport.getCamera()));
         levelTiledMap = new LevelTiledMap((OrthographicCamera) playgroundViewport.getCamera(),
                 spriteBatch, "tiledmaps/tmx/test1.tmx");
+        // define enemySpawns
+        Rectangle startPlayerSpawn = new Rectangle();
+        List<Rectangle> playerSpawns = levelTiledMap.getObjectsOfLayer(PLAYER_SPAWNS).stream().map(obj -> {
+            Rectangle rect = obj.getRectangle();
+            if (obj.getName().equals("start")) {
+                startPlayerSpawn.set(rect);
+            }
+            return rect;
+        }).toList();
+        List<TestEntitySpawn> enemySpawns = levelTiledMap.getObjectsOfLayer(ENEMY_SPAWNS).stream().map(
+                enemySpawnObj -> new TestEntitySpawn(entitiesAndSystemsManager, getEntitySpawnSupplier(enemySpawnObj),
+                        enemySpawnObj.getRectangle())).toList();
+        entitySpawnManager = new TestEntitySpawnManager(playgroundViewport.getCamera(), playerSpawns, enemySpawns);
+        entitySpawnManager.setCurrentPlayerSpawn(startPlayerSpawn);
         // define player
-        List<RectangleMapObject> playerSpawnObjs = levelTiledMap.getObjectsOfLayer(PLAYER_SPAWNS);
-        playerSpawnObjs.get(0).getRectangle().getCenter(spawn);
-        player = new TestPlayer(spawn, music, testController, assetLoader,
-                messageDispatcher, entitiesAndSystemsManager);
+        player = new TestPlayer(getPoint(entitySpawnManager.getCurrentPlayerSpawn(), Position.BOTTOM_CENTER), music,
+                testController, assetLoader, messageDispatcher, entitiesAndSystemsManager);
         entitiesAndSystemsManager.addEntity(player);
         // define static blocks
         levelTiledMap.getObjectsOfLayer(STATIC_BLOCKS).forEach(staticBlockObj ->
@@ -179,9 +185,6 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
         // define wall slide sensors
         levelTiledMap.getObjectsOfLayer(WALL_SLIDE_SENSORS).forEach(wallSlideSensorObj ->
                 entitiesAndSystemsManager.addEntity(new TestWallSlideSensor(wallSlideSensorObj.getRectangle())));
-        // define test damagers
-        levelTiledMap.getObjectsOfLayer(ENEMY_SPAWNS).forEach(enemySpawnObj ->
-                entitiesAndSystemsManager.addEntity(new TestDamager(enemySpawnObj.getRectangle())));
         // define death sensors
         levelTiledMap.getObjectsOfLayer(DEATH_SENSORS).forEach(deathSensorObj ->
                 entitiesAndSystemsManager.addEntity(new TestDeathSensor(deathSensorObj.getRectangle())));
@@ -203,6 +206,7 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
             return;
         }
         if (levelCameraManager.getTransitionState() == null) {
+            entitySpawnManager.update();
             testController.updateController();
         }
         levelTiledMap.draw();
@@ -211,26 +215,26 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
         messageDispatcher.updateMessageDispatcher(delta);
         entitiesAndSystemsManager.getEntities().forEach(entity -> {
             if (entity instanceof CullOnOutOfCamBounds cull &&
-                    !playgroundViewport.getCamera().frustum.boundsInFrustum(
-                            UtilMethods.rectToBBox(cull.getCullBoundingBox()))) {
+                    !playgroundViewport.getCamera().frustum.boundsInFrustum(rectToBBox(cull.getCullBoundingBox()))) {
                 entity.setDead(true);
             }
         });
         deathTimer.update(delta);
         if (deathTimer.isJustFinished()) {
             music.play();
-            player = new TestPlayer(spawn, music, testController, assetLoader,
-                    messageDispatcher, entitiesAndSystemsManager);
+            player = new TestPlayer(UtilMethods.bottomCenterPoint(entitySpawnManager.getCurrentPlayerSpawn()),
+                    music, testController, assetLoader, messageDispatcher, entitiesAndSystemsManager);
             levelCameraManager.setFocusable(player);
             entitiesAndSystemsManager.addEntity(player);
         }
+        Rectangle playerBounds = player.getComponent(BodyComponent.class).getCollisionBox();
         for (int i = 0; i < 3; i++) {
             FontHandle fontHandle = messages.get(i);
             switch (i) {
-                case 0 -> fontHandle.setText("Health: " +
-                        player.getComponent(HealthComponent.class).getCurrentHealth());
-                case 1 -> fontHandle.setText("Death timer: " + deathTimer.getTime());
-                case 2 -> fontHandle.setText("Entities alive: " + entitiesAndSystemsManager.getEntities().size());
+                case 0 -> fontHandle.setText("Health: " + player.getComponent(HealthComponent.class).getCurrentHealth());
+                case 1 -> fontHandle.setText("Entities: " + entitiesAndSystemsManager.getEntities().size());
+                case 2 -> fontHandle.setText("Player: " + roundedFloat(playerBounds.x, 1) + ", " +
+                        roundedFloat(playerBounds.y, 1));
             }
         }
         if (levelCameraManager.getTransitionState() != null) {
@@ -274,12 +278,9 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
                 }
             }
         }
-        message2.setText("Pos delta: " + testMovingBlock.getComponent(BodyComponent.class).getPosDelta());
         spriteBatch.setProjectionMatrix(uiViewport.getCamera().combined);
         spriteBatch.begin();
         messages.forEach(message -> message.draw(spriteBatch));
-        message1.draw(spriteBatch);
-        message2.draw(spriteBatch);
         spriteBatch.end();
         playgroundViewport.apply();
         uiViewport.apply();
@@ -289,6 +290,26 @@ public class TestMovingPlatformsScreen extends ScreenAdapter {
     public void resize(int width, int height) {
         uiViewport.update(width, height);
         playgroundViewport.update(width, height);
+    }
+
+    private Supplier<IEntity> getEntitySpawnSupplier(RectangleMapObject spawnObj) {
+        switch (spawnObj.getName()) {
+            case "test" -> {
+                return () -> new TestDamager(spawnObj.getRectangle());
+            }
+            case "met" -> {
+                return () -> new TestMet(entitiesAndSystemsManager, assetLoader, () -> player,
+                        getPoint(spawnObj.getRectangle(), Position.BOTTOM_CENTER));
+            }
+            default -> throw new IllegalStateException();
+        }
+    }
+
+    @Override
+    public void listenToMessage(Object owner, Object message, float delta) {
+        if (owner.equals(player) && message.equals("DEAD")) {
+            deathTimer.reset();
+        }
     }
 
 }

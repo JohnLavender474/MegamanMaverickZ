@@ -1,23 +1,17 @@
 package com.game.entities.megaman;
 
-import com.game.utils.MutableInt;
 import com.game.utils.Percentage;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import static com.game.ConstVals.MegamanVals.MAX_HEALTH_TANKS;
+import java.util.*;
 
 @Getter
 @Setter
 public class MegamanStats {
-    private MutableInt credits = MutableInt.of(0);
-    private Percentage health = Percentage.of(100);
-    private Percentage[] healthTanks = new Percentage[MAX_HEALTH_TANKS];
-    private Set<MegamanSpecialAbility> specialAbilities = new HashSet<>();
-    private Map<MegamanWeapon, Percentage> specialWeapons = new HashMap<>();
+    private int credits;
+    private int maxHealth;
+    private Map<Integer, Integer> healthTanks = new HashMap<>();
+    private Map<MegamanWeapon, Percentage> specialWeapons = new EnumMap<>(MegamanWeapon.class);
+    private Set<MegamanSpecialAbility> specialAbilities = EnumSet.noneOf(MegamanSpecialAbility.class);
 }

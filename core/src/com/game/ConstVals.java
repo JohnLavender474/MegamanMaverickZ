@@ -26,6 +26,11 @@ public class ConstVals {
 
     }
 
+    public enum Events {
+        PLAYER_DEAD,
+        LEVEL_FINISHED
+    }
+
     public static class MegamanVals {
         public static final int MAX_HEALTH_BITS = 20;
         public static final int MAX_HEALTH_TANKS = 4;
@@ -61,7 +66,7 @@ public class ConstVals {
         public static final String MEGAMAN_CHARGED_SHOT_TEXTURE_ATLAS = "sprites/SpriteSheets/MegamanChargedShot.txt";
         public static final String ELECTRIC_BALL_TEXTURE_ATLAS = "sprites/SpriteSheets/ElectricBall.txt";
         public static final String DECORATIONS_TEXTURE_ATLAS = "sprites/SpriteSheets/Decorations.txt";
-        public static final String HEALTH_WEAPON_STATS_TEXTURE_ATLAS = "sprites/SpriteSheets/HealthWeaponStats.txt";
+        public static final String BITS_ATLAS = "sprites/SpriteSheets/HealthAndWeaponBits.txt";
     }
 
     public static class MusicAssets {

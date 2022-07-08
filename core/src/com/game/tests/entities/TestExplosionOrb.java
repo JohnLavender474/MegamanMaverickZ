@@ -1,34 +1,40 @@
-package com.game.entities.decorations;
+package com.game.tests.entities;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.Entity;
-import com.game.GameContext2d;
+import com.game.Component;
 import com.game.animations.AnimationComponent;
 import com.game.animations.Animator;
 import com.game.animations.TimedAnimation;
-import com.game.levels.CullOnOutOfCamBounds;
+import com.game.core.IAssetLoader;
+import com.game.core.IEntity;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
 import com.game.utils.Timer;
+import com.game.levels.CullOnOutOfCamBounds;
 import lombok.Getter;
+import lombok.Setter;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static com.game.ConstVals.TextureAssets.DECORATIONS_TEXTURE_ATLAS;
 import static com.game.ConstVals.ViewVals.PPM;
 
 @Getter
-public class ExplosionOrb extends Entity implements CullOnOutOfCamBounds {
+@Setter
+public class TestExplosionOrb implements IEntity, CullOnOutOfCamBounds {
 
-    private final Timer cullTimer = new Timer(.5f);
+    private final Map<Class<? extends Component>, Component> components = new HashMap<>();
+    private final Timer cullTimer = new Timer(0.5f);
+    private boolean dead;
 
-    public ExplosionOrb(GameContext2d gameContext, Vector2 spawn, Vector2 trajectory) {
+    public TestExplosionOrb(IAssetLoader assetLoader, Vector2 spawn, Vector2 trajectory) {
         addComponent(defineUpdatableComponent(trajectory));
-        addComponent(defineAnimationComponent(gameContext));
+        addComponent(defineAnimationComponent(assetLoader));
         addComponent(defineSpriteComponent(spawn));
     }
 
@@ -47,8 +53,8 @@ public class ExplosionOrb extends Entity implements CullOnOutOfCamBounds {
         return new SpriteComponent(sprite);
     }
 
-    private AnimationComponent defineAnimationComponent(GameContext2d gameContext) {
-        TextureRegion explosionOrb = gameContext.getAsset(DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class)
+    private AnimationComponent defineAnimationComponent(IAssetLoader assetLoader) {
+        TextureRegion explosionOrb = assetLoader.getAsset(DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class)
                 .findRegion("PlayerExplosionOrbs");
         Animator animator = new Animator(() -> "ExplosionOrb", Map.of("ExplosionOrb",
                 new TimedAnimation(explosionOrb, 2, .075f)));
@@ -59,6 +65,5 @@ public class ExplosionOrb extends Entity implements CullOnOutOfCamBounds {
     public Rectangle getCullBoundingBox() {
         return getComponent(SpriteComponent.class).getSprite().getBoundingRectangle();
     }
-
 
 }

@@ -124,7 +124,7 @@
             <key>data</key>
             <struct type="DataFile">
                 <key>name</key>
-                <filename>../SpriteSheets/Met.txt</filename>
+                <filename>../SpriteSheets/HealthAndWeaponBits.txt</filename>
             </struct>
         </map>
         <key>multiPack</key>
@@ -173,10 +173,7 @@
         </struct>
         <key>individualSpriteSettings</key>
         <map type="IndividualSpriteSettingsMap">
-            <key type="filename">../Frames/Enemies/Met/GetUp.png</key>
-            <key type="filename">../Frames/Enemies/Met/LayDown.png</key>
-            <key type="filename">../Frames/Enemies/Met/PopUp.png</key>
-            <key type="filename">../Frames/Enemies/Met/StandNaked.png</key>
+            <key type="filename">../Frames/HealthAndWeaponBits/EmptyBit.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>
@@ -185,14 +182,13 @@
                 <key>scale9Enabled</key>
                 <false/>
                 <key>scale9Borders</key>
-                <rect>8,8,16,16</rect>
+                <rect>97,26,194,51</rect>
                 <key>scale9Paddings</key>
-                <rect>8,8,16,16</rect>
+                <rect>97,26,194,51</rect>
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
-            <key type="filename">../Frames/Enemies/Met/Run.png</key>
-            <key type="filename">../Frames/Enemies/Met/RunNaked.png</key>
+            <key type="filename">../Frames/HealthAndWeaponBits/HealthBit.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>
@@ -201,21 +197,16 @@
                 <key>scale9Enabled</key>
                 <false/>
                 <key>scale9Borders</key>
-                <rect>16,8,32,16</rect>
+                <rect>97,26,193,52</rect>
                 <key>scale9Paddings</key>
-                <rect>16,8,32,16</rect>
+                <rect>97,26,193,52</rect>
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
         </map>
         <key>fileList</key>
         <array>
-            <filename>../Frames/Enemies/Met/GetUp.png</filename>
-            <filename>../Frames/Enemies/Met/LayDown.png</filename>
-            <filename>../Frames/Enemies/Met/PopUp.png</filename>
-            <filename>../Frames/Enemies/Met/Run.png</filename>
-            <filename>../Frames/Enemies/Met/RunNaked.png</filename>
-            <filename>../Frames/Enemies/Met/StandNaked.png</filename>
+            <filename>../Frames/HealthAndWeaponBits</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

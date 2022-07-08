@@ -17,7 +17,7 @@ LayDown
   orig: 32, 32
   offset: 0, 0
   index: -1
-Peek
+PopUp
   rotate: false
   xy: 64, 0
   size: 32, 32

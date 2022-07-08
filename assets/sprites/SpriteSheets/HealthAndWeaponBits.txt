@@ -1,0 +1,19 @@
+HealthAndWeaponBits.png
+size: 388, 206
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+EmptyBit
+  rotate: false
+  xy: 0, 0
+  size: 388, 102
+  orig: 388, 102
+  offset: 0, 0
+  index: -1
+HealthBit
+  rotate: false
+  xy: 0, 102
+  size: 386, 104
+  orig: 386, 104
+  offset: 0, 0
+  index: -1
