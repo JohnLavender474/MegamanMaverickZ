@@ -39,10 +39,11 @@ import static com.game.world.FixtureType.*;
 public class TestBullet implements IEntity, IProjectile, Damager, CullOnOutOfCamBounds, CullOnLevelCamTrans {
 
     private final Map<Class<? extends Component>, Component> components = new HashMap<>();
-    private final Vector2 trajectory = new Vector2();
-    private final Timer cullTimer = new Timer(.25f);
-    private final IAssetLoader assetLoader;
     private final IEntitiesAndSystemsManager entitiesAndSystemsManager;
+    private final Vector2 trajectory = new Vector2();
+    private final Timer cullTimer = new Timer(5f);
+    private final IAssetLoader assetLoader;
+
     private int damage;
     private boolean dead;
     private IEntity owner;
@@ -101,9 +102,15 @@ public class TestBullet implements IEntity, IProjectile, Damager, CullOnOutOfCam
 
     @Override
     public void hit(Fixture fixture) {
-        if (fixture.getFixtureType() == BLOCK || fixture.getFixtureType() == HIT_BOX) {
+        if (fixture.getFixtureType() == BLOCK || (fixture.getFixtureType() == HIT_BOX &&
+                !fixture.getEntity().equals(owner))) {
             setDead(true);
             disintegrate();
+        } else if (fixture.getFixtureType() == SHIELD) {
+            trajectory.x *= -1f;
+            trajectory.y = 5f * PPM;
+            setOwner(fixture.getEntity());
+            Gdx.audio.newSound(Gdx.files.internal("sounds/Dink.mp3")).play();
         }
     }
 

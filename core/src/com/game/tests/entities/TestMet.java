@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
-import com.game.ConstVals;
 import com.game.animations.AnimationComponent;
 import com.game.animations.Animator;
 import com.game.animations.TimedAnimation;
@@ -35,7 +34,6 @@ import com.game.levels.CullOnLevelCamTrans;
 import com.game.levels.CullOnOutOfCamBounds;
 import lombok.Getter;
 import lombok.Setter;
-import org.lwjgl.util.glu.Project;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -62,9 +60,8 @@ public class TestMet implements IEntity, Faceable, Damager, Damageable, CullOnLe
     private final IAssetLoader assetLoader;
     private final IEntitiesAndSystemsManager entitiesAndSystemsManager;
     private final Map<Class<? extends Component>, Component> components = new HashMap<>();
-    private final Set<Class<? extends Damager>> damagerMaskSet = new HashSet<>() {{
-        add(TestBullet.class);
-    }};
+    private final Set<Class<? extends Damager>> damagerMaskSet = Set.of(TestBullet.class);
+
     private final Timer damageTimer = new Timer(.25f);
     private final Timer blinkTimer = new Timer(.05f);
     private final Timer cullTimer = new Timer(4f);
@@ -114,9 +111,8 @@ public class TestMet implements IEntity, Faceable, Damager, Damageable, CullOnLe
 
     private void shoot() {
         BodyComponent bodyComponent = getComponent(BodyComponent.class);
-        Vector2 trajectory = new Vector2(isFacing(Facing.RIGHT) ? 10f : -10f, .5f);
-        Vector2 bodyCenter = bodyComponent.getCenter().cpy();
-        Vector2 spawn = new Vector2(bodyCenter.x += (isFacing(Facing.RIGHT) ? .5f : -.5f), 1f);
+        Vector2 trajectory = new Vector2((isFacing(Facing.RIGHT) ? 10f : -10f) * PPM, .5f * PPM);
+        Vector2 spawn = bodyComponent.getCenter().cpy().add(isFacing(Facing.RIGHT) ? .5f : -.5f, -4f);
         TextureRegion yellowBullet = assetLoader.getAsset(OBJECTS_TEXTURE_ATLAS, TextureAtlas.class)
                 .findRegion("YellowBullet");
         TestBullet bullet = new TestBullet(this, trajectory, spawn, yellowBullet,
@@ -143,10 +139,12 @@ public class TestMet implements IEntity, Faceable, Damager, Damageable, CullOnLe
                 setMetBehavior(MetBehavior.SHIELDING);
             }
             BodyComponent bodyComponent = getComponent(BodyComponent.class);
-            bodyComponent.getFirstMatchingFixture(FixtureType.SHIELD).ifPresent(
-                    shield -> shield.setActive(metBehavior == MetBehavior.SHIELDING));
-            bodyComponent.getFirstMatchingFixture(FixtureType.HIT_BOX).ifPresent(
-                    hitBox -> hitBox.setActive(metBehavior != MetBehavior.SHIELDING));
+            bodyComponent.getFirstMatchingFixture(FixtureType.SHIELD).ifPresentOrElse(
+                    shield -> shield.setActive(metBehavior == MetBehavior.SHIELDING),
+                    () -> { throw new IllegalStateException(); });
+            bodyComponent.getFirstMatchingFixture(FixtureType.HIT_BOX).ifPresentOrElse(
+                    hitBox -> hitBox.setActive(metBehavior != MetBehavior.SHIELDING),
+                    () -> { throw new IllegalStateException(); });
             switch (metBehavior) {
                 case SHIELDING -> {
                     Timer shieldingTimer = metBehaviorTimers.get(MetBehavior.SHIELDING);
@@ -201,13 +199,16 @@ public class TestMet implements IEntity, Faceable, Damager, Damageable, CullOnLe
         bodyComponent.setGravity(-50f * PPM);
         // shield
         Fixture shield = new Fixture(this, FixtureType.SHIELD);
-        shield.setActive(false);
         shield.setSize(PPM, 1.5f * PPM);
         bodyComponent.addFixture(shield);
         // hit box
         Fixture hitBox = new Fixture(this, FixtureType.HIT_BOX);
         hitBox.setSize(.75f * PPM, .75f * PPM);
         bodyComponent.addFixture(hitBox);
+        // damage box
+        Fixture damageBox = new Fixture(this, FixtureType.DAMAGE_BOX);
+        damageBox.setSize(.75f * PPM, .75f * PPM);
+        bodyComponent.addFixture(damageBox);
         return bodyComponent;
     }
 
@@ -231,7 +232,7 @@ public class TestMet implements IEntity, Faceable, Damager, Damageable, CullOnLe
 
             @Override
             public boolean isFlipX() {
-                return getFacing() == Facing.LEFT;
+                return isFacing(Facing.LEFT);
             }
 
         });
@@ -244,11 +245,12 @@ public class TestMet implements IEntity, Faceable, Damager, Damageable, CullOnLe
             case PANIC -> "RunNaked";
             case SHIELDING -> "LayDown";
         };
-        Map<String, TimedAnimation> timedAnimations = new HashMap<>();
-        timedAnimations.put("Run", new TimedAnimation(textureAtlas.findRegion("Run"), 2, .125f));
-        timedAnimations.put("PopUp", new TimedAnimation(textureAtlas.findRegion("PopUp")));
-        timedAnimations.put("RunNaked", new TimedAnimation(textureAtlas.findRegion("RunNaked"), 2, .1f));
-        timedAnimations.put("LayDown", new TimedAnimation(textureAtlas.findRegion("LayDown")));
+        Map<String, TimedAnimation> timedAnimations = new HashMap<>() {{
+            put("Run", new TimedAnimation(textureAtlas.findRegion("Run"), 2, .125f));
+            put("PopUp", new TimedAnimation(textureAtlas.findRegion("PopUp")));
+            put("RunNaked", new TimedAnimation(textureAtlas.findRegion("RunNaked"), 2, .1f));
+            put("LayDown", new TimedAnimation(textureAtlas.findRegion("LayDown")));
+        }};
         return new AnimationComponent(new Animator(keySupplier, timedAnimations));
     }
 

@@ -30,7 +30,6 @@ public class TestEntitySpawn {
 
     public void update(Camera camera) {
         if (entity != null && entity.isDead()) {
-            System.out.println("Culled " + entity.getClass().getSimpleName());
             entity = null;
         }
         wasInCamBounds = inCamBounds;
@@ -38,8 +37,19 @@ public class TestEntitySpawn {
         if (entity == null && !wasInCamBounds && inCamBounds && doSpawn.get()) {
             entity = spawnSupplier.get();
             entitiesAndSystemsManager.addEntity(entity);
-            System.out.println("Spawned " + entity.getClass().getSimpleName());
         }
+    }
+
+    public void cull() {
+        if (entity == null) {
+            return;
+        }
+        entity.setDead(true);
+        entity = null;
+    }
+
+    public void resetCamBounds() {
+        inCamBounds = wasInCamBounds = false;
     }
 
 }

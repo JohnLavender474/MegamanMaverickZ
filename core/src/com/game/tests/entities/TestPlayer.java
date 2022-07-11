@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
-import com.game.ConstVals;
 import com.game.Message;
 import com.game.animations.AnimationComponent;
 import com.game.animations.Animator;
@@ -45,6 +44,7 @@ import lombok.Setter;
 import java.util.*;
 import java.util.function.Supplier;
 
+import static com.game.ConstVals.TextureAssets.*;
 import static com.game.ConstVals.ViewVals.PPM;
 import static com.game.behaviors.BehaviorType.*;
 import static com.game.behaviors.BehaviorType.CLIMBING;
@@ -56,11 +56,14 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
 
     private static final float EXPLOSION_ORB_SPEED = 3.5f;
 
-    private final Map<Class<? extends Component>, Component> components = new HashMap<>();
     private final IController controller;
     private final IAssetLoader assetLoader;
     private final IMessageDispatcher messageDispatcher;
     private final IEntitiesAndSystemsManager entitiesAndSystemsManager;
+    private final Map<Class<? extends Component>, Component> components = new HashMap<>();
+    private final Set<Class<? extends Damager>> damagerMaskSet = Set.of(
+            TestDamager.class, TestBullet.class, TestMet.class);
+
     private final Timer airDashTimer = new Timer(.25f);
     private final Timer groundSlideTimer = new Timer(.35f);
     private final Timer wallJumpImpetusTimer = new Timer(.2f);
@@ -70,6 +73,7 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
     private final Timer damageTimer = new Timer(.75f);
     private final Timer damageRecoveryTimer = new Timer(1.5f);
     private final Timer damageRecoveryBlinkTimer = new Timer(.05f);
+
     private boolean dead;
     private boolean isCharging;
     private Facing facing = Facing.RIGHT;
@@ -92,8 +96,7 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
         addComponent(defineBodyComponent(spawn));
         addComponent(defineDebugComponent());
         addComponent(defineSpriteComponent());
-        addComponent(defineAnimationComponent(assetLoader.getAsset(
-                ConstVals.TextureAssets.MEGAMAN_TEXTURE_ATLAS, TextureAtlas.class)));
+        addComponent(defineAnimationComponent(assetLoader.getAsset(MEGAMAN_TEXTURE_ATLAS, TextureAtlas.class)));
         shootCoolDownTimer.setToEnd();
         shootAnimationTimer.setToEnd();
         wallJumpImpetusTimer.setToEnd();
@@ -102,15 +105,11 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
     }
 
     @Override
-    public Set<Class<? extends Damager>> getDamagerMaskSet() {
-        return Set.of(TestDamager.class);
-    }
-
-    @Override
     public void takeDamageFrom(Class<? extends Damager> damagerClass) {
-        if (damagerClass.equals(TestDamager.class)) {
+        if (damagerClass.equals(TestDamager.class) || damagerClass.equals(TestBullet.class) ||
+                damagerClass.equals(TestMet.class)) {
             damageTimer.reset();
-            getComponent(HealthComponent.class).translateHealth(-50);
+            getComponent(HealthComponent.class).translateHealth(-20);
             Gdx.audio.newSound(Gdx.files.internal("sounds/MegamanDamage.mp3")).play();
         }
     }
@@ -140,8 +139,8 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
         } else if (!getComponent(BodyComponent.class).is(BodySense.FEET_ON_GROUND)) {
             spawn.y += 4.5f;
         }
-        TextureRegion yellowBullet = assetLoader.getAsset(ConstVals.TextureAssets.OBJECTS_TEXTURE_ATLAS,
-                TextureAtlas.class).findRegion("YellowBullet");
+        TextureRegion yellowBullet = assetLoader.getAsset(OBJECTS_TEXTURE_ATLAS, TextureAtlas.class)
+                .findRegion("YellowBullet");
         TestBullet bullet = new TestBullet(this, trajectory, spawn, yellowBullet,
                 assetLoader, entitiesAndSystemsManager);
         entitiesAndSystemsManager.addEntity(bullet);
@@ -174,6 +173,9 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
         UpdatableComponent updatableComponent = new UpdatableComponent();
         updatableComponent.setUpdatable(delta -> {
             damageTimer.update(delta);
+            if (isDamaged()) {
+                getComponent(BodyComponent.class).applyImpulse((isFacing(Facing.LEFT) ? .15f : -.15f) * PPM, 0f);
+            }
             if (damageTimer.isJustFinished()) {
                 damageRecoveryTimer.reset();
             }
@@ -481,7 +483,8 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
         right.setOffset(.45f * PPM, 0f);
         bodyComponent.addFixture(right);
         Fixture hitBox = new Fixture(this, HIT_BOX);
-        hitBox.setSize(.8f * PPM, .5f * PPM);
+        hitBox.setSize(.8f * PPM, .75f * PPM);
+        hitBox.setDebugColor(Color.RED);
         bodyComponent.addFixture(hitBox);
         bodyComponent.setPreProcess(delta -> {
             BehaviorComponent behaviorComponent = getComponent(BehaviorComponent.class);
@@ -510,7 +513,7 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
         DebugComponent debugComponent = new DebugComponent();
         debugComponent.addDebugHandle(bodyComponent::getCollisionBox, () -> Color.GREEN);
         bodyComponent.getFixtures().forEach(fixture -> debugComponent.addDebugHandle(
-                fixture::getFixtureBox, () -> Color.GOLD));
+                fixture::getFixtureBox, fixture::getDebugColor));
         return debugComponent;
     }
 

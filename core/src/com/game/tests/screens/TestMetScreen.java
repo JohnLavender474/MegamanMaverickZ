@@ -226,6 +226,7 @@ public class TestMetScreen extends ScreenAdapter implements MessageListener {
                     music, testController, assetLoader, messageDispatcher, entitiesAndSystemsManager);
             levelCameraManager.setFocusable(player);
             entitiesAndSystemsManager.addEntity(player);
+            entitySpawnManager.reset();
         }
         Rectangle playerBounds = player.getComponent(BodyComponent.class).getCollisionBox();
         for (int i = 0; i < 3; i++) {
