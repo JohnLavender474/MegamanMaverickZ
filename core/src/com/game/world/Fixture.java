@@ -8,6 +8,9 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Defines a fixture fixed to a body. Offset is from the center of the body.
  */
@@ -20,10 +23,32 @@ public class Fixture {
     private final FixtureType fixtureType;
     private final Vector2 offset = new Vector2();
     private final Rectangle fixtureBox = new Rectangle();
+    private final Map<String, Object> userData = new HashMap<>();
 
-    private Object userData;
     private boolean active = true;
     private Color debugColor = Color.YELLOW;
+
+    /**
+     * Put user data
+     *
+     * @param key the key
+     * @param data the data
+     */
+    public void putUserData(String key, Object data) {
+        userData.put(key, data);
+    }
+
+    /**
+     * Get user data.
+     *
+     * @param key the key
+     * @param tClass the class
+     * @return the data
+     * @param <T> the data type
+     */
+    public <T> T getUserData(String key, Class<T> tClass) {
+        return tClass.cast(userData.get(key));
+    }
 
     /**
      * Set.

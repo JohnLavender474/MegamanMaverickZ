@@ -28,6 +28,7 @@ public class TestAssetLoader implements IAssetLoader, Disposable {
                 THUMP_SOUND);
         loadAssets(TextureAtlas.class,
                 MET_TEXTURE_ATLAS,
+                ENEMIES_TEXTURE_ATLAS,
                 OBJECTS_TEXTURE_ATLAS,
                 MEGAMAN_TEXTURE_ATLAS,
                 DECORATIONS_TEXTURE_ATLAS);

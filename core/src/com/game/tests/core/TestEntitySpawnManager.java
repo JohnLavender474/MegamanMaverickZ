@@ -1,6 +1,8 @@
 package com.game.tests.core;
 
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.game.utils.Resettable;
 import lombok.Getter;
@@ -16,6 +18,7 @@ import static com.game.utils.UtilMethods.rectToBBox;
 public class TestEntitySpawnManager implements Resettable {
 
     private final Camera camera;
+    private final ShapeRenderer shapeRenderer;
     private final Collection<Rectangle> playerSpawns;
     private final Collection<TestEntitySpawn> enemySpawns;
 
@@ -23,7 +26,23 @@ public class TestEntitySpawnManager implements Resettable {
     private Rectangle currentPlayerSpawn;
 
     public void update() {
-        enemySpawns.forEach(enemySpawn -> enemySpawn.update(camera));
+        boolean isDrawing = shapeRenderer.isDrawing();
+        if (!isDrawing) {
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        }
+        shapeRenderer.setColor(Color.YELLOW);
+        enemySpawns.forEach(enemySpawn -> {
+            enemySpawn.update(camera);
+            Rectangle spawnBounds = enemySpawn.getSpawnBounds();
+            shapeRenderer.rect(spawnBounds.x, spawnBounds.y, spawnBounds.width, spawnBounds.height);
+
+        });
+        shapeRenderer.setColor(Color.BLUE);
+        playerSpawns.forEach(playerSpawn -> shapeRenderer.rect(
+                playerSpawn.x, playerSpawn.y, playerSpawn.width, playerSpawn.height));
+        if (!isDrawing) {
+            shapeRenderer.end();
+        }
         playerSpawns.stream().filter(playerSpawn -> camera.frustum.boundsInFrustum(rectToBBox(playerSpawn)))
                 .findFirst().ifPresent(this::setCurrentPlayerSpawn);
     }
@@ -34,6 +53,10 @@ public class TestEntitySpawnManager implements Resettable {
             enemySpawn.cull();
             enemySpawn.resetCamBounds();
         });
+    }
+
+    public int amountOfEnemySpawnsInCamBounds() {
+        return (int) enemySpawns.stream().filter(TestEntitySpawn::isInCamBounds).count();
     }
 
 }

@@ -67,10 +67,7 @@ public class TestWorldContactListener implements WorldContactListener {
             }
         } else if (contact.acceptMask(FEET, FEET_STICKER) && contact.maskFirstEntity() instanceof TestPlayer &&
                 contact.maskSecondEntity() instanceof TestBlock) {
-            java.lang.System.out.println("Pos delta: " + contact.maskSecondBody().getPosDelta());
-            java.lang.System.out.println("Before: " + contact.maskFirstBody().getPosition());
             contact.maskFirstBody().translate(contact.maskSecondBody().getPosDelta());
-            java.lang.System.out.println("After: " + contact.maskFirstBody().getPosition());
         } else if (contact.acceptMask(HEAD, BLOCK)) {
             contact.maskFirstEntity().getComponent(BodyComponent.class).setIs(BodySense.HEAD_TOUCHING_BLOCK);
         } else if (contact.acceptMask(DAMAGE_BOX, HIT_BOX) &&
@@ -79,6 +76,8 @@ public class TestWorldContactListener implements WorldContactListener {
                 damageable.canBeDamagedBy(damager) && damager.canDamage(damageable)) {
             damageable.takeDamageFrom(damager.getClass());
             damager.onDamageInflictedTo(damageable.getClass());
+        } else if (contact.acceptMask(PROJECTILE)) {
+            ((IProjectile) contact.maskFirstEntity()).hit(contact.getMask().second());
         }
     }
 

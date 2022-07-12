@@ -90,7 +90,7 @@ public class TestBullet implements IEntity, IProjectile, Damager, CullOnOutOfCam
         bodyComponent.setSize(.1f * PPM, .1f * PPM);
         bodyComponent.setCenter(spawn.x, spawn.y);
         Fixture projectile = new Fixture(this, PROJECTILE);
-        projectile.setSize(.1f * PPM, .1f * PPM);
+        projectile.setSize(.115f * PPM, .115f * PPM);
         projectile.setCenter(spawn.x, spawn.y);
         bodyComponent.addFixture(projectile);
         Fixture damageBox = new Fixture(this, DAMAGE_BOX);
@@ -102,14 +102,21 @@ public class TestBullet implements IEntity, IProjectile, Damager, CullOnOutOfCam
 
     @Override
     public void hit(Fixture fixture) {
-        if (fixture.getFixtureType() == BLOCK || (fixture.getFixtureType() == HIT_BOX &&
-                !fixture.getEntity().equals(owner))) {
+        if (fixture.getEntity().equals(owner)) {
+            return;
+        }
+        if (fixture.getFixtureType() == BLOCK || (fixture.getFixtureType() == HIT_BOX)) {
             setDead(true);
             disintegrate();
         } else if (fixture.getFixtureType() == SHIELD) {
-            trajectory.x *= -1f;
-            trajectory.y = 5f * PPM;
             setOwner(fixture.getEntity());
+            trajectory.x *= -1f;
+            String reflectDir = fixture.getUserData("reflectDir", String.class);
+            if (reflectDir == null || reflectDir.equals("straight")) {
+                trajectory.y = 0f;
+            } else {
+                trajectory.y = 5f * PPM * (reflectDir.equals("down") ? -1f : 1f);
+            }
             Gdx.audio.newSound(Gdx.files.internal("sounds/Dink.mp3")).play();
         }
     }

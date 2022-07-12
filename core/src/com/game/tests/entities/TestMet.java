@@ -25,6 +25,7 @@ import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
 import com.game.utils.Position;
 import com.game.utils.Timer;
+import com.game.utils.UtilMethods;
 import com.game.utils.Wrapper;
 import com.game.world.BodyComponent;
 import com.game.world.BodyType;
@@ -74,7 +75,7 @@ public class TestMet implements IEntity, Faceable, Damager, Damageable, CullOnLe
         System.out.println("Met spawn: " + spawn);
         this.entitiesAndSystemsManager = entitiesAndSystemsManager;
         this.assetLoader = assetLoader;
-        addComponent(new HealthComponent(100));
+        addComponent(new HealthComponent(30, this::disintegrate));
         addComponent(defineUpdatableComponent(megamanSupplier));
         addComponent(defineBodyComponent(spawn));
         addComponent(defineDebugComponent());
@@ -91,8 +92,8 @@ public class TestMet implements IEntity, Faceable, Damager, Damageable, CullOnLe
 
     @Override
     public void takeDamageFrom(Class<? extends Damager> damagerClass) {
-        damageTimer.reset();
         if (damagerClass.equals(TestBullet.class)) {
+            damageTimer.reset();
             getComponent(HealthComponent.class).translateHealth(-10);
             Gdx.audio.newSound(Gdx.files.internal("sounds/EnemyDamage.mp3")).play();
         }
@@ -121,23 +122,15 @@ public class TestMet implements IEntity, Faceable, Damager, Damageable, CullOnLe
         Gdx.audio.newSound(Gdx.files.internal("sounds/EnemyShoot.mp3")).play();
     }
 
-    private void explode() {
-        Vector2 explosion1Pos = getComponent(BodyComponent.class).getCenter();
-        entitiesAndSystemsManager.addEntity(new TestExplosion(assetLoader, explosion1Pos));
-        Vector2 explosion2Pos = getComponent(BodyComponent.class).getCenter().cpy().add(-.5f, .25f);
-        entitiesAndSystemsManager.addEntity(new TestExplosion(assetLoader, explosion2Pos));
-        Vector2 explosionPos3 = getComponent(BodyComponent.class).getCenter().cpy().add(.75f, -.75f);
-        entitiesAndSystemsManager.addEntity(new TestExplosion(assetLoader, explosionPos3));
+    private void disintegrate() {
+        entitiesAndSystemsManager.addEntity(new TestDisintegration(assetLoader,
+                getComponent(BodyComponent.class).getCenter(), new Vector2(2f * PPM, 2f * PPM)));
+        Gdx.audio.newSound(Gdx.files.internal("sounds/EnemyDamage.mp3")).play();
     }
 
     private UpdatableComponent defineUpdatableComponent(Supplier<TestPlayer> megamanSupplier) {
         return new UpdatableComponent(delta -> {
-            if (!damageTimer.isFinished()) {
-                damageTimer.update(delta);
-            }
-            if (playerIsAttacking(megamanSupplier.get())) {
-                setMetBehavior(MetBehavior.SHIELDING);
-            }
+            damageTimer.update(delta);
             BodyComponent bodyComponent = getComponent(BodyComponent.class);
             bodyComponent.getFirstMatchingFixture(FixtureType.SHIELD).ifPresentOrElse(
                     shield -> shield.setActive(metBehavior == MetBehavior.SHIELDING),
@@ -148,7 +141,9 @@ public class TestMet implements IEntity, Faceable, Damager, Damageable, CullOnLe
             switch (metBehavior) {
                 case SHIELDING -> {
                     Timer shieldingTimer = metBehaviorTimers.get(MetBehavior.SHIELDING);
-                    shieldingTimer.update(delta);
+                    if (!playerIsAttacking(megamanSupplier.get())) {
+                        shieldingTimer.update(delta);
+                    }
                     if (shieldingTimer.isFinished()) {
                         setMetBehavior(MetBehavior.POP_UP);
                     }
@@ -177,7 +172,7 @@ public class TestMet implements IEntity, Faceable, Damager, Damageable, CullOnLe
                     Timer panicTimer = metBehaviorTimers.get(MetBehavior.PANIC);
                     metBehaviorTimers.get(MetBehavior.PANIC).update(delta);
                     if (panicTimer.isFinished()) {
-                        explode();
+                        disintegrate();
                         setDead(true);
                     }
                 }
@@ -195,10 +190,12 @@ public class TestMet implements IEntity, Faceable, Damager, Damageable, CullOnLe
 
     private BodyComponent defineBodyComponent(Vector2 spawn) {
         BodyComponent bodyComponent = new BodyComponent(BodyType.DYNAMIC);
-        bodyComponent.set(spawn.x, spawn.y, .75f * PPM, .75f * PPM);
+        UtilMethods.setBottomCenterToPoint(bodyComponent.getCollisionBox(), spawn);
+        bodyComponent.setSize(.75f * PPM, .75f * PPM);
         bodyComponent.setGravity(-50f * PPM);
         // shield
         Fixture shield = new Fixture(this, FixtureType.SHIELD);
+        shield.putUserData("reflectDir", "up");
         shield.setSize(PPM, 1.5f * PPM);
         bodyComponent.addFixture(shield);
         // hit box

@@ -7,7 +7,6 @@ import com.game.core.IEntity;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.lwjgl.Sys;
 
 import java.util.function.Supplier;
 
@@ -30,17 +29,20 @@ public class TestEntitySpawn {
 
     public void update(Camera camera) {
         if (entity != null && entity.isDead()) {
+            System.out.println("Dead entity reset");
             entity = null;
         }
         wasInCamBounds = inCamBounds;
         inCamBounds = camera.frustum.boundsInFrustum(rectToBBox(spawnBounds));
         if (entity == null && !wasInCamBounds && inCamBounds && doSpawn.get()) {
+            System.out.println("spawn");
             entity = spawnSupplier.get();
             entitiesAndSystemsManager.addEntity(entity);
         }
     }
 
     public void cull() {
+        System.out.println("Culled");
         if (entity == null) {
             return;
         }

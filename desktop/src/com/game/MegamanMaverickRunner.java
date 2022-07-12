@@ -6,7 +6,8 @@ import com.game.tests.GameTestRunner;
 import com.game.tests.GameTestRunner.TestScreen;
 
 /**
- * The type Megaman maverick runner. Please note that on macOS your application needs to be started with the -XstartOnFirstThread JVM argument.
+ * The type Megaman maverick runner. Please note that on macOS your application needs to be started with the
+ * -XstartOnFirstThread JVM argument.
  */
 public class MegamanMaverickRunner {
 
@@ -19,8 +20,9 @@ public class MegamanMaverickRunner {
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
 		config.setForegroundFPS(60);
 		config.setTitle("Megaman Maverick");
-		config.setWindowedMode(1920, 1080);
-		test(TestScreen.TEST_MET, config);
+		// config.setWindowedMode(1920, 1080);
+		config.setWindowedMode(400, 300);
+		test(TestScreen.TEST_ENEMIES, config);
 		// new Lwjgl3Application(new MegamanMaverick(), config);
 	}
 

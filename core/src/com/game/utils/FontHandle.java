@@ -11,20 +11,25 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
+@Setter
 public class FontHandle implements Drawable {
 
     private final BitmapFont font;
-    @Getter
     private final Vector2 position = new Vector2();
-    @Setter
+
     private String text = "";
 
     public FontHandle(String ttfSrc, int fontSize) {
+        this(ttfSrc, fontSize, new Vector2());
+    }
+
+    public FontHandle(String ttfSrc, int fontSize, Vector2 position) {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal(ttfSrc));
         FreeTypeFontParameter parameter = new FreeTypeFontParameter();
         parameter.size = fontSize;
         font = generator.generateFont(parameter);
         generator.dispose();
+        setPosition(position);
     }
 
     public void setColor(Color color) {
@@ -32,7 +37,7 @@ public class FontHandle implements Drawable {
     }
 
     public void setPosition(Vector2 position) {
-        this.position.set(position);
+        setPosition(position.x, position.y);
     }
 
     public void setPosition(float x, float y) {

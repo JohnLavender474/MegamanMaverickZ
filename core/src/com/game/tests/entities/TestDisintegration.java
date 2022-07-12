@@ -11,7 +11,6 @@ import com.game.core.IAssetLoader;
 import com.game.core.IEntity;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
-import com.game.utils.Timer;
 import com.game.world.BodyComponent;
 import com.game.world.BodyType;
 import lombok.Getter;
@@ -24,19 +23,22 @@ import static com.game.ConstVals.TextureAssets.*;
 import static com.game.ConstVals.ViewVals.PPM;
 
 @Getter
-@Setter
 public class TestDisintegration implements IEntity {
 
-    public static final float DISINTEGRATION_DURATION = .15f;
-
     private final Map<Class<? extends Component>, Component> components = new HashMap<>();
-    private final Timer timer = new Timer(DISINTEGRATION_DURATION);
+
+    private TimedAnimation timedAnimation;
+    @Setter
     private boolean dead;
 
     public TestDisintegration(IAssetLoader assetLoader, Vector2 center) {
+        this(assetLoader, center, new Vector2(PPM, PPM));
+    }
+
+    public TestDisintegration(IAssetLoader assetLoader, Vector2 center, Vector2 size) {
         addComponent(defineBodyComponent(center));
         addComponent(defineAnimationComponent(assetLoader));
-        addComponent(defineSpriteComponent(center));
+        addComponent(defineSpriteComponent(center, size));
         addComponent(defineUpdatableComponent());
     }
 
@@ -49,25 +51,24 @@ public class TestDisintegration implements IEntity {
         return bodyComponent;
     }
 
-    private SpriteComponent defineSpriteComponent(Vector2 center) {
+    private SpriteComponent defineSpriteComponent(Vector2 center, Vector2 size) {
         Sprite sprite = new Sprite();
-        sprite.setSize(PPM, PPM);
+        sprite.setSize(size.x, size.y);
         sprite.setCenter(center.x, center.y);
         return new SpriteComponent(sprite);
     }
 
     private AnimationComponent defineAnimationComponent(IAssetLoader assetLoader) {
-        Map<String, TimedAnimation> animations = Map.of("Disintegration", new TimedAnimation(
-                assetLoader.getAsset(DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class).findRegion(
-                        "Disintegration"), 3, .1f));
-        Animator animator = new Animator(() -> "Disintegration", animations);
+        timedAnimation = new TimedAnimation(assetLoader.getAsset(DECORATIONS_TEXTURE_ATLAS,
+                TextureAtlas.class).findRegion("Disintegration"), 3, .1f);
+        timedAnimation.setLoop(false);
+        Animator animator = new Animator(() -> "Disintegration", Map.of("Disintegration", timedAnimation));
         return new AnimationComponent(animator);
     }
 
     private UpdatableComponent defineUpdatableComponent() {
         return new UpdatableComponent(delta -> {
-            timer.update(delta);
-            if (timer.isFinished()) {
+            if (timedAnimation.isFinished()) {
                 setDead(true);
             }
         });

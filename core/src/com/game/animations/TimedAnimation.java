@@ -121,6 +121,7 @@ public class TimedAnimation implements Updatable, Resettable {
     public void update(float delta) {
         if (timeElapsed >= animationDuration && !loop) {
             isFinished = true;
+            timeElapsed = animationDuration;
         }
         if (!isFinished) {
             timeElapsed += delta;

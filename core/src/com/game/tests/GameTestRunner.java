@@ -16,9 +16,8 @@ public class GameTestRunner extends Game {
 
     private final TestScreen testKey;
     private final Map<TestScreen, Screen> testScreens = new HashMap<>() {{
-        put(TestScreen.TEST_MOVING_PLATFORMS, new TestMovingPlatformsScreen());
         put(TestScreen.TEST_TRAJECTORIES, new TestTrajectoriesScreen());
-        put(TestScreen.TEST_MET, new TestMetScreen());
+        put(TestScreen.TEST_ENEMIES, new TestEnemiesScreen());
     }};
 
     @Override
@@ -43,7 +42,7 @@ public class GameTestRunner extends Game {
     }
 
     public enum TestScreen {
-        TEST_MET,
+        TEST_ENEMIES,
         TEST_TRAJECTORIES,
         TEST_MOVING_PLATFORMS,
     }

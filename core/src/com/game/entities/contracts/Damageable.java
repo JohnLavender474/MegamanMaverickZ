@@ -28,7 +28,9 @@ public interface Damageable {
      *
      * @return is invincible
      */
-    boolean isInvincible();
+    default boolean isInvincible() {
+        return false;
+    }
 
     /**
      * Can be damaged by the damager. Returns true if {@link #isInvincible()} is false and {@link #getDamagerMaskSet()}
