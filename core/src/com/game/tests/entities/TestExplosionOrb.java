@@ -3,7 +3,6 @@ package com.game.tests.entities;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
 import com.game.animations.AnimationComponent;
@@ -14,7 +13,6 @@ import com.game.core.IEntity;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
 import com.game.utils.Timer;
-import com.game.levels.CullOnOutOfCamBounds;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,10 +24,12 @@ import static com.game.ConstVals.ViewVals.PPM;
 
 @Getter
 @Setter
-public class TestExplosionOrb implements IEntity, CullOnOutOfCamBounds {
+public class TestExplosionOrb implements IEntity {
+
+    private static final float DURATION = 4f;
 
     private final Map<Class<? extends Component>, Component> components = new HashMap<>();
-    private final Timer cullTimer = new Timer(0.5f);
+    private final Timer cullTimer = new Timer(4f);
     private boolean dead;
 
     public TestExplosionOrb(IAssetLoader assetLoader, Vector2 spawn, Vector2 trajectory) {
@@ -40,9 +40,14 @@ public class TestExplosionOrb implements IEntity, CullOnOutOfCamBounds {
 
     private UpdatableComponent defineUpdatableComponent(Vector2 trajectory) {
         UpdatableComponent updatableComponent = new UpdatableComponent();
-        updatableComponent.setUpdatable(delta ->
-                getComponent(SpriteComponent.class).getSprite().translate(
-                        trajectory.x * PPM * delta, trajectory.y * PPM * delta));
+        updatableComponent.setUpdatable(delta -> {
+            getComponent(SpriteComponent.class).getSprite().translate(
+                    trajectory.x * PPM * delta, trajectory.y * PPM * delta);
+            cullTimer.update(delta);
+            if (cullTimer.isFinished()) {
+                setDead(true);
+            }
+        });
         return updatableComponent;
     }
 
@@ -59,11 +64,6 @@ public class TestExplosionOrb implements IEntity, CullOnOutOfCamBounds {
         Animator animator = new Animator(() -> "ExplosionOrb", Map.of("ExplosionOrb",
                 new TimedAnimation(explosionOrb, 2, .075f)));
         return new AnimationComponent(animator);
-    }
-
-    @Override
-    public Rectangle getCullBoundingBox() {
-        return getComponent(SpriteComponent.class).getSprite().getBoundingRectangle();
     }
 
 }

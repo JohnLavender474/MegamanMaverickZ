@@ -478,7 +478,7 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
         bodyComponent.setPosition(spawn);
         bodyComponent.setWidth(.8f * PPM);
         Fixture feet = new Fixture(this, FEET);
-        feet.setSize(10f, .75f);
+        feet.setSize(9.5f, .75f);
         bodyComponent.addFixture(feet);
         Fixture head = new Fixture(this, HEAD);
         head.setSize(10f, 2f);

@@ -59,13 +59,14 @@ public class TestMet implements IEntity, Faceable, Damager, Damageable, CullOnLe
         put(MetBehavior.PANIC, new Timer(1f));
     }};
     private final IAssetLoader assetLoader;
+    private final Supplier<TestPlayer> megamanSupplier;
     private final IEntitiesAndSystemsManager entitiesAndSystemsManager;
     private final Map<Class<? extends Component>, Component> components = new HashMap<>();
     private final Set<Class<? extends Damager>> damagerMaskSet = Set.of(TestBullet.class);
 
     private final Timer damageTimer = new Timer(.25f);
     private final Timer blinkTimer = new Timer(.05f);
-    private final Timer cullTimer = new Timer(4f);
+    private final Timer cullTimer = new Timer(1.5f);
 
     private boolean dead;
     private Facing facing;
@@ -74,6 +75,7 @@ public class TestMet implements IEntity, Faceable, Damager, Damageable, CullOnLe
                    Supplier<TestPlayer> megamanSupplier, Vector2 spawn) {
         System.out.println("Met spawn: " + spawn);
         this.entitiesAndSystemsManager = entitiesAndSystemsManager;
+        this.megamanSupplier = megamanSupplier;
         this.assetLoader = assetLoader;
         addComponent(new HealthComponent(30, this::disintegrate));
         addComponent(defineUpdatableComponent(megamanSupplier));
@@ -112,8 +114,10 @@ public class TestMet implements IEntity, Faceable, Damager, Damageable, CullOnLe
 
     private void shoot() {
         BodyComponent bodyComponent = getComponent(BodyComponent.class);
-        Vector2 trajectory = new Vector2((isFacing(Facing.RIGHT) ? 10f : -10f) * PPM, .5f * PPM);
+        // Vector2 trajectory = new Vector2((isFacing(Facing.RIGHT) ? 10f : -10f) * PPM, .5f * PPM);
         Vector2 spawn = bodyComponent.getCenter().cpy().add(isFacing(Facing.RIGHT) ? .5f : -.5f, -4f);
+        Vector2 trajectory = UtilMethods.normalizedTrajectory(spawn, megamanSupplier.get()
+                .getComponent(BodyComponent.class).getCenter(), 10f * PPM);
         TextureRegion yellowBullet = assetLoader.getAsset(OBJECTS_TEXTURE_ATLAS, TextureAtlas.class)
                 .findRegion("YellowBullet");
         TestBullet bullet = new TestBullet(this, trajectory, spawn, yellowBullet,

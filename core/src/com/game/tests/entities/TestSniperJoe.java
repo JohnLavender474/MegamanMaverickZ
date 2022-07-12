@@ -12,6 +12,7 @@ import com.game.animations.AnimationComponent;
 import com.game.animations.Animator;
 import com.game.animations.TimeMarkedRunnable;
 import com.game.animations.TimedAnimation;
+import com.game.behaviors.BehaviorComponent;
 import com.game.core.IAssetLoader;
 import com.game.core.IEntitiesAndSystemsManager;
 import com.game.debugging.DebugComponent;
@@ -29,10 +30,7 @@ import com.game.utils.Position;
 import com.game.utils.Timer;
 import com.game.utils.UtilMethods;
 import com.game.utils.Wrapper;
-import com.game.world.BodyComponent;
-import com.game.world.BodyType;
-import com.game.world.Fixture;
-import com.game.world.FixtureType;
+import com.game.world.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -51,10 +49,11 @@ public class TestSniperJoe extends Entity implements Faceable, Damager, Damageab
     private static final float BULLET_SPEED = 15f;
 
     private final IAssetLoader assetLoader;
+    private final Supplier<TestPlayer> playerSupplier;
     private final IEntitiesAndSystemsManager entitiesAndSystemsManager;
     private final Set<Class<? extends Damager>> damagerMaskSet = Set.of(TestBullet.class);
 
-    private final Timer cullTimer = new Timer(2f);
+    private final Timer cullTimer = new Timer(1.5f);
     private final Timer blinkTimer = new Timer(.075f);
     private final Timer recoveryTimer = new Timer(1f);
     private final Timer shieldedTimer = new Timer(1.75f);
@@ -69,6 +68,7 @@ public class TestSniperJoe extends Entity implements Faceable, Damager, Damageab
     public TestSniperJoe(IEntitiesAndSystemsManager entitiesAndSystemsManager, IAssetLoader assetLoader,
                          Supplier<TestPlayer> playerSupplier, Vector2 spawn) {
         this.assetLoader = assetLoader;
+        this.playerSupplier = playerSupplier;
         this.entitiesAndSystemsManager = entitiesAndSystemsManager;
         addComponent(defineUpdatableComponent(playerSupplier));
         addComponent(defineSpriteComponent());
@@ -82,9 +82,14 @@ public class TestSniperJoe extends Entity implements Faceable, Damager, Damageab
     }
 
     private void shoot() {
-        Vector2 trajectory = new Vector2(PPM * (isFacing(Facing.LEFT) ? -BULLET_SPEED : BULLET_SPEED), 0f);
+        // Vector2 trajectory = new Vector2(PPM * (isFacing(Facing.LEFT) ? -BULLET_SPEED : BULLET_SPEED), 0f);
         Vector2 spawn = getComponent(BodyComponent.class).getCenter().cpy().add(
-                (isFacing(Facing.LEFT) ? -5f : 5f), -3f);
+                (isFacing(Facing.LEFT) ? -5f : 5f), -3.25f);
+        Vector2 target = playerSupplier.get().getComponent(BodyComponent.class).getCenter();
+        if (!playerSupplier.get().getComponent(BodyComponent.class).is(BodySense.FEET_ON_GROUND)) {
+            target.sub(0f, 15f);
+        }
+        Vector2 trajectory = UtilMethods.normalizedTrajectory(spawn, target, BULLET_SPEED * PPM);
         TextureRegion textureRegion = assetLoader.getAsset(OBJECTS_TEXTURE_ATLAS, TextureAtlas.class)
                 .findRegion("YellowBullet");
         TestBullet bullet = new TestBullet(this, trajectory, spawn, textureRegion,

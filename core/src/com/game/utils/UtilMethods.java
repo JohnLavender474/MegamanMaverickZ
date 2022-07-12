@@ -12,6 +12,23 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 public class UtilMethods {
 
     /**
+     * Returns the normalized trajectory.
+     *
+     * @param start the starting point
+     * @param end the ending point
+     * @param speed the speed
+     * @return the normalized trajectory
+     */
+    public static Vector2 normalizedTrajectory(Vector2 start, Vector2 end, float speed) {
+        float x = end.x - start.x;
+        float y = end.y - start.y;
+        float length = (float) Math.sqrt(x * x + y * y);
+        x /= length;
+        y /= length;
+        return new Vector2(x * speed, y * speed);
+    }
+
+    /**
      * Rounded float.
      *
      * @param num   the num

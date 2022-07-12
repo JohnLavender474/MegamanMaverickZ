@@ -186,17 +186,18 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
     @Override
     public void render(float delta) {
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
+            Gdx.audio.newSound(Gdx.files.internal("sounds/PauseMenu.mp3")).play();
             isPaused = !isPaused;
         }
         if (isPaused) {
             return;
         }
+        levelCameraManager.update(delta);
+        levelTiledMap.draw();
         if (levelCameraManager.getTransitionState() == null) {
             entitySpawnManager.update();
             testController.updateController();
         }
-        levelTiledMap.draw();
-        levelCameraManager.update(delta);
         entitiesAndSystemsManager.updateSystems(delta);
         messageDispatcher.updateMessageDispatcher(delta);
         entitiesAndSystemsManager.getEntities().stream()
@@ -206,7 +207,7 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
                     if (!playgroundViewport.getCamera().frustum.boundsInFrustum(
                             rectToBBox(cull.getCullBoundingBox()))) {
                         cull.getCullTimer().update(delta);
-                    } else {
+                    } else if (deathTimer.isFinished()) {
                         cull.getCullTimer().reset();
                     }
                     if (cull.getCullTimer().isFinished()) {
@@ -221,6 +222,15 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
             levelCameraManager.setFocusable(player);
             entitiesAndSystemsManager.addEntity(player);
             entitySpawnManager.reset();
+            entitiesAndSystemsManager.getEntities().forEach(entity -> {
+                if (entity instanceof CullOnLevelCamTrans || entity instanceof CullOnOutOfCamBounds) {
+                    System.out.println("KILLED");
+                    entity.setDead(true);
+                    if (entity instanceof CullOnOutOfCamBounds cull) {
+                        cull.getCullTimer().setToEnd();
+                    }
+                }
+            });
         }
         if (levelCameraManager.getTransitionState() != null) {
             BodyComponent bodyComponent = player.getComponent(BodyComponent.class);

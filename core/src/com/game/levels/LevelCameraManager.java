@@ -51,6 +51,7 @@ public class LevelCameraManager implements Updatable {
      * @param focusable the focusable
      */
     public void setFocusable(CameraFocusable focusable) {
+        setCamToFocusable();
         if (updating) {
             queuedFocusable = focusable;
         } else {
@@ -76,11 +77,6 @@ public class LevelCameraManager implements Updatable {
         return transitionTimer.getRatio();
     }
 
-    private Rectangle nextGameRoom() {
-        return gameRooms.keySet().stream().filter(gameRoom -> gameRoom.contains(
-                focusable.getFocus())).findFirst().orElse(null);
-    }
-
     @Override
     public void update(float delta) {
         if (queuedFocusable != null) {
@@ -103,8 +99,7 @@ public class LevelCameraManager implements Updatable {
             if (currentGameRoom == null) {
                 currentGameRoom = nextGameRoom();
             } else if (currentGameRoom.contains(focusable.getFocus())) {
-                camera.position.x = focusable.getFocus().x;
-                camera.position.y = focusable.getFocus().y;
+                setCamToFocusable();
                 if (camera.position.y > (currentGameRoom.y + currentGameRoom.height) - camera.viewportHeight / 2.0f) {
                     camera.position.y = (currentGameRoom.y + currentGameRoom.height) - camera.viewportHeight / 2.0f;
                 }
@@ -176,6 +171,16 @@ public class LevelCameraManager implements Updatable {
             }
         }
         updating = false;
+    }
+
+    private Rectangle nextGameRoom() {
+        return gameRooms.keySet().stream().filter(gameRoom -> gameRoom.contains(
+                focusable.getFocus())).findFirst().orElse(null);
+    }
+
+    private void setCamToFocusable() {
+        camera.position.x = focusable.getFocus().x;
+        camera.position.y = focusable.getFocus().y;
     }
 
 }

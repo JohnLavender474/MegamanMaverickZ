@@ -41,7 +41,7 @@ public class TestBullet implements IEntity, IProjectile, Damager, CullOnOutOfCam
     private final Map<Class<? extends Component>, Component> components = new HashMap<>();
     private final IEntitiesAndSystemsManager entitiesAndSystemsManager;
     private final Vector2 trajectory = new Vector2();
-    private final Timer cullTimer = new Timer(5f);
+    private final Timer cullTimer = new Timer(.15f);
     private final IAssetLoader assetLoader;
 
     private int damage;
