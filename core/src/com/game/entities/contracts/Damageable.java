@@ -17,11 +17,11 @@ public interface Damageable {
     Set<Class<? extends Damager>> getDamagerMaskSet();
 
     /**
-     * Take damage from.
+     * Take damage from the damager.
      *
-     * @param damagerClass the damager class
+     * @param damager the damager
      */
-    void takeDamageFrom(Class<? extends Damager> damagerClass);
+    void takeDamageFrom(Damager damager);
 
     /**
      * Is invincible.

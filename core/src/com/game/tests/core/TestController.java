@@ -1,18 +1,18 @@
 package com.game.tests.core;
 
 import com.game.controllers.ControllerButton;
-import com.game.controllers.ControllerButtonStatus;
+import com.game.controllers.ButtonStatus;
 import com.game.core.IController;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.game.controllers.ControllerButtonStatus.*;
+import static com.game.controllers.ButtonStatus.*;
 import static com.game.controllers.ControllerUtils.*;
 
 public class TestController implements IController {
 
-    private final Map<ControllerButton, ControllerButtonStatus> controllerButtons = new HashMap<>() {{
+    private final Map<ControllerButton, ButtonStatus> controllerButtons = new HashMap<>() {{
         for (ControllerButton controllerButton : ControllerButton.values()) {
             put(controllerButton, IS_RELEASED);
         }
@@ -37,7 +37,7 @@ public class TestController implements IController {
     @Override
     public void updateController() {
         for (ControllerButton controllerButton : ControllerButton.values()) {
-            ControllerButtonStatus status = controllerButtons.get(controllerButton);
+            ButtonStatus status = controllerButtons.get(controllerButton);
             boolean isControllerButtonPressed = isControllerConnected() ?
                     isControllerButtonPressed(controllerButton.getControllerBindingCode()) :
                     isKeyboardButtonPressed(controllerButton.getKeyboardBindingCode());

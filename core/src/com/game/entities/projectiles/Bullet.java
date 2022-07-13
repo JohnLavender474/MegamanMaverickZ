@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
-import com.game.ConstVals;
 import com.game.ConstVals.TextureAssets;
 import com.game.GameContext2d;
 import com.game.core.IEntity;
@@ -14,8 +13,6 @@ import com.game.entities.contracts.Damager;
 import com.game.entities.decorations.Disintegration;
 import com.game.levels.CullOnLevelCamTrans;
 import com.game.levels.CullOnOutOfCamBounds;
-import com.game.sound.SoundComponent;
-import com.game.sound.SoundRequest;
 import com.game.sprites.SpriteComponent;
 import com.game.utils.Percentage;
 import com.game.utils.Position;
@@ -30,7 +27,6 @@ import lombok.Setter;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.game.ConstVals.SoundAssets.THUMP_SOUND;
 import static com.game.ConstVals.ViewVals.PPM;
 import static com.game.world.FixtureType.BLOCK;
 
@@ -54,7 +50,6 @@ public class Bullet implements IEntity, IProjectile, Damager, CullOnOutOfCamBoun
         addComponent(defineSpriteComponent(gameContext.getAsset(TextureAssets.OBJECTS_TEXTURE_ATLAS,
                 TextureAtlas.class).findRegion("YellowBullet")));
         addComponent(defineBodyComponent(spawn));
-        addComponent(new SoundComponent());
     }
 
     @Override
@@ -63,10 +58,7 @@ public class Bullet implements IEntity, IProjectile, Damager, CullOnOutOfCamBoun
     }
 
     public void disintegrate() {
-        SoundComponent soundComponent = getComponent(SoundComponent.class);
-        soundComponent.request(new SoundRequest(THUMP_SOUND, false, Percentage.of(ConstVals.VolumeVals.HIGH_VOLUME)));
-        Disintegration disintegration = new Disintegration(gameContext, getComponent(BodyComponent.class).getCenter());
-        gameContext.addEntity(disintegration);
+
     }
 
     private SpriteComponent defineSpriteComponent(TextureRegion textureRegion) {

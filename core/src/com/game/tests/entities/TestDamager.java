@@ -49,10 +49,10 @@ public class TestDamager implements IEntity, Damager, Damageable, CullOnOutOfCam
     }
 
     @Override
-    public void takeDamageFrom(Class<? extends Damager> damagerClass) {
+    public void takeDamageFrom(Damager damager) {
         damageTimer.reset();
-        if (damagerClass.equals(TestBullet.class)) {
-            getComponent(HealthComponent.class).translateHealth(-20);
+        if (damager instanceof TestBullet) {
+            getComponent(HealthComponent.class).sub(20);
             Gdx.audio.newSound(Gdx.files.internal("sounds/EnemyDamage.mp3")).play();
         }
     }

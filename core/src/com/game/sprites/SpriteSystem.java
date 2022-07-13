@@ -20,16 +20,16 @@ import java.util.Set;
 /**
  * {@link System} implementation for rendering and optionally animating {@link Sprite} instances.
  */
-@RequiredArgsConstructor
 public class SpriteSystem extends System {
 
     private final OrthographicCamera camera;
     private final SpriteBatch spriteBatch;
     private boolean isDrawing;
 
-    @Override
-    public Set<Class<? extends Component>> getComponentMask() {
-        return Set.of(SpriteComponent.class);
+    public SpriteSystem(OrthographicCamera camera, SpriteBatch spriteBatch) {
+        super(Set.of(SpriteComponent.class));
+        this.camera = camera;
+        this.spriteBatch = spriteBatch;
     }
 
     @Override

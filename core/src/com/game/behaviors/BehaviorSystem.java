@@ -12,9 +12,8 @@ import java.util.Set;
  */
 public class BehaviorSystem extends System {
 
-    @Override
-    public Set<Class<? extends Component>> getComponentMask() {
-        return Set.of(BehaviorComponent.class);
+    public BehaviorSystem() {
+        super(Set.of(BehaviorComponent.class));
     }
 
     @Override

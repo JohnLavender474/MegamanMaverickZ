@@ -4,6 +4,7 @@ import com.game.core.IEntity;
 import com.game.updatables.Updatable;
 import com.game.utils.exceptions.InvalidActionException;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.util.*;
@@ -13,25 +14,19 @@ import static com.game.utils.UtilMethods.objName;
 /**
  * The base class of game systems. Instances of this class perform game logic on a set of {@link IEntity} instances.
  * Entities are eligible to be added to a System only if {@link IEntity#hasAllComponents(Collection)} contains all the
- * elements of {@link #getComponentMask}. Because the behavior of systems is independent of game state, systems should
+ * elements of {@link #componentMask}. Because the behavior of systems is independent of game state, systems should
  * only be initialized once.
  */
+@RequiredArgsConstructor
 public abstract class System implements Updatable {
 
     private final Set<IEntity> entities = new HashSet<>();
     private final Queue<IEntity> entitiesToAddQueue = new LinkedList<>();
     private final Queue<IEntity> entitiesToRemoveQueue = new LinkedList<>();
+    private final Set<Class<? extends Component>> componentMask;
     @Setter
     @Getter
     private boolean isOn = true;
-
-    /**
-     * Defines the set of {@link Component} instances that designates the component mask of this System.
-     * See {@link #qualifiesMembership(IEntity)}.
-     *
-     * @return the set of component class instances for masking
-     */
-    public abstract Set<Class<? extends Component>> getComponentMask();
 
     /**
      * Process each {@link IEntity} during the update cycle.
@@ -65,7 +60,7 @@ public abstract class System implements Updatable {
      * @param delta the delta time
      */
     @Override
-    public final void update(float delta) {
+    public void update(float delta) {
         if (!isOn) {
             return;
         }
@@ -82,8 +77,7 @@ public abstract class System implements Updatable {
     }
 
     /**
-     * Returns if the {@link IEntity} can be accepted as a member of this System by comparing
-     * {@link #getComponentMask()}
+     * Returns if the {@link IEntity} can be accepted as a member of this System by comparing {@link #componentMask}
      * to {@link IEntity#hasAllComponents(Collection)}. If the com.game.Entity's set of component keys contains all
      * the component
      * classes contained in this System's component mask, then the com.game.Entity is accepted, otherwise the com
@@ -93,7 +87,7 @@ public abstract class System implements Updatable {
      * @return true if the com.game.Entity can be added, else false
      */
     public boolean qualifiesMembership(IEntity entity) {
-        return entity.hasAllComponents(getComponentMask());
+        return entity.hasAllComponents(componentMask);
     }
 
     /**
@@ -129,26 +123,6 @@ public abstract class System implements Updatable {
      */
     public boolean entityIsMember(IEntity entity) {
         return entities.contains(entity);
-    }
-
-    /**
-     * Returns if the {@link IEntity} is queued for membership but not yet a member.
-     *
-     * @param entity the entity
-     * @return true if the entity is queued for membership
-     */
-    public boolean entityIsQueuedForMembership(IEntity entity) {
-        return entitiesToAddQueue.contains(entity);
-    }
-
-    /**
-     * Returns if the {@link IEntity} is queued for removal.
-     *
-     * @param entity the entity
-     * @return true if the entity is queued for removal
-     */
-    public boolean entityIsQueuedForRemoval(IEntity entity) {
-        return entitiesToRemoveQueue.contains(entity);
     }
 
     /**

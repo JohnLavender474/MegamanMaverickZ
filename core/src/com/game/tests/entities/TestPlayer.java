@@ -110,13 +110,10 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
     }
 
     @Override
-    public void takeDamageFrom(Class<? extends Damager> damagerClass) {
-        if (damagerClass.equals(TestDamager.class) || damagerClass.equals(TestBullet.class) ||
-                damagerClass.equals(TestMet.class) || damagerClass.equals(TestSniperJoe.class)) {
-            damageTimer.reset();
-            getComponent(HealthComponent.class).translateHealth(-20);
-            Gdx.audio.newSound(Gdx.files.internal("sounds/MegamanDamage.mp3")).play();
-        }
+    public void takeDamageFrom(Damager damager) {
+        damageTimer.reset();
+        getComponent(HealthComponent.class).sub(20);
+        Gdx.audio.newSound(Gdx.files.internal("sounds/MegamanDamage.mp3")).play();
     }
 
     @Override
@@ -493,7 +490,7 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
         right.setOffset(.45f * PPM, 0f);
         bodyComponent.addFixture(right);
         Fixture hitBox = new Fixture(this, HIT_BOX);
-        hitBox.setSize(.8f * PPM, PPM);
+        hitBox.setSize(PPM, .75f * PPM);
         hitBox.setDebugColor(Color.RED);
         bodyComponent.addFixture(hitBox);
         bodyComponent.setPreProcess(delta -> {
@@ -507,8 +504,8 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
             } else {
                 bodyComponent.setHeight(.95f * PPM);
                 feet.setOffset(0f, -PPM / 2f);
-                left.setHeight(PPM * .75f);
-                right.setHeight(PPM * .75f);
+                left.setHeight(PPM * .5f);
+                right.setHeight(PPM * .5f);
             }
             if (bodyComponent.getVelocity().y < 0f && !bodyComponent.is(BodySense.FEET_ON_GROUND)) {
                 bodyComponent.setGravity(-60f * PPM);

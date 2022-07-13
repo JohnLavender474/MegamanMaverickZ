@@ -1,6 +1,5 @@
 package com.game.trajectories;
 
-import com.game.Component;
 import com.game.System;
 import com.game.core.IEntity;
 import com.game.world.BodyComponent;
@@ -9,9 +8,8 @@ import java.util.Set;
 
 public class TrajectorySystem extends System {
 
-    @Override
-    public Set<Class<? extends Component>> getComponentMask() {
-        return Set.of(TrajectoryComponent.class, BodyComponent.class);
+    public TrajectorySystem() {
+        super(Set.of(TrajectoryComponent.class, BodyComponent.class));
     }
 
     @Override

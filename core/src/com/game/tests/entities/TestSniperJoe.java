@@ -12,7 +12,6 @@ import com.game.animations.AnimationComponent;
 import com.game.animations.Animator;
 import com.game.animations.TimeMarkedRunnable;
 import com.game.animations.TimedAnimation;
-import com.game.behaviors.BehaviorComponent;
 import com.game.core.IAssetLoader;
 import com.game.core.IEntitiesAndSystemsManager;
 import com.game.debugging.DebugComponent;
@@ -82,14 +81,16 @@ public class TestSniperJoe extends Entity implements Faceable, Damager, Damageab
     }
 
     private void shoot() {
-        // Vector2 trajectory = new Vector2(PPM * (isFacing(Facing.LEFT) ? -BULLET_SPEED : BULLET_SPEED), 0f);
+        Vector2 trajectory = new Vector2(PPM * (isFacing(Facing.LEFT) ? -BULLET_SPEED : BULLET_SPEED), 0f);
         Vector2 spawn = getComponent(BodyComponent.class).getCenter().cpy().add(
                 (isFacing(Facing.LEFT) ? -5f : 5f), -3.25f);
+        /*
         Vector2 target = playerSupplier.get().getComponent(BodyComponent.class).getCenter();
         if (!playerSupplier.get().getComponent(BodyComponent.class).is(BodySense.FEET_ON_GROUND)) {
             target.sub(0f, 15f);
         }
         Vector2 trajectory = UtilMethods.normalizedTrajectory(spawn, target, BULLET_SPEED * PPM);
+         */
         TextureRegion textureRegion = assetLoader.getAsset(OBJECTS_TEXTURE_ATLAS, TextureAtlas.class)
                 .findRegion("YellowBullet");
         TestBullet bullet = new TestBullet(this, trajectory, spawn, textureRegion,
@@ -111,10 +112,10 @@ public class TestSniperJoe extends Entity implements Faceable, Damager, Damageab
     }
 
     @Override
-    public void takeDamageFrom(Class<? extends Damager> damagerClass) {
-        if (damagerClass.equals(TestBullet.class)) {
+    public void takeDamageFrom(Damager damager) {
+        if (damager instanceof TestBullet) {
             recoveryTimer.reset();
-            getComponent(HealthComponent.class).translateHealth(-10);
+            getComponent(HealthComponent.class).sub(10);
             Gdx.audio.newSound(Gdx.files.internal("sounds/EnemyDamage.mp3")).play();
         }
     }

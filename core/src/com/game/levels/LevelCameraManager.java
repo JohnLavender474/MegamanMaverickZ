@@ -14,6 +14,7 @@ import lombok.Getter;
 import java.util.Map;
 
 import static com.game.ConstVals.ViewVals.PPM;
+import static com.game.utils.UtilMethods.*;
 
 /**
  * Handler for {@link OrthographicCamera} that makes it transition between {@link Rectangle} "rooms" and follow the
@@ -121,7 +122,7 @@ public class LevelCameraManager implements Updatable {
                 // generic 5 * PPM by 5 * PPM square is used to determine push direction
                 Rectangle overlap = new Rectangle();
                 Rectangle boundingBox = new Rectangle(0f, 0f, 5f * PPM, 5f * PPM).setCenter(focusable.getFocus());
-                transitionDirection = UtilMethods.getOverlapPushDirection(boundingBox, currentGameRoom, overlap);
+                transitionDirection = getOverlapPushDirection(boundingBox, currentGameRoom, overlap);
                 // go ahead and set current game room to next room, which needs to be done even if
                 // transition direction is null
                 currentGameRoom = nextGameRoom;
@@ -130,8 +131,8 @@ public class LevelCameraManager implements Updatable {
                 }
                 // set transition state to BEGIN, set start and target vector2 values
                 transitionState = ProcessState.BEGIN;
-                transStartPos.set(UtilMethods.toVec2(camera.position));
-                transTargetPos.set(UtilMethods.toVec2(camera.position));
+                transStartPos.set(toVec2(camera.position));
+                transTargetPos.set(toVec2(camera.position));
                 switch (transitionDirection) {
                     case LEFT ->
                             transTargetPos.x =
@@ -162,8 +163,7 @@ public class LevelCameraManager implements Updatable {
                     transitionState = ProcessState.CONTINUE;
                 case CONTINUE:
                     transitionTimer.update(delta);
-                    Vector2 pos = UtilMethods.interpolate(transStartPos, transTargetPos,
-                            getTransitionTimeTickerRatio());
+                    Vector2 pos = interpolate(transStartPos, transTargetPos, getTransitionTimeTickerRatio());
                     camera.position.x = pos.x;
                     camera.position.y = pos.y;
                     transitionState = transitionTimer.isFinished() ? ProcessState.END : ProcessState.CONTINUE;

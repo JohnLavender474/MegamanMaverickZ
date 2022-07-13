@@ -68,7 +68,7 @@ public class Contact {
      *
      * @return the entity
      */
-    public IEntity maskFirstEntity() {
+    public IEntity mask1stEntity() {
         return mask.first().getEntity();
     }
 
@@ -77,8 +77,8 @@ public class Contact {
      *
      * @return the body component
      */
-    public BodyComponent maskFirstBody() {
-        return maskFirstEntity().getComponent(BodyComponent.class);
+    public BodyComponent mask1stBody() {
+        return mask1stEntity().getComponent(BodyComponent.class);
     }
 
     /**
@@ -86,7 +86,7 @@ public class Contact {
      *
      * @return the entity
      */
-    public IEntity maskSecondEntity() {
+    public IEntity mask2ndEntity() {
         return mask.second().getEntity();
     }
 
@@ -95,13 +95,15 @@ public class Contact {
      *
      * @return the body component
      */
-    public BodyComponent maskSecondBody() {
-        return maskSecondEntity().getComponent(BodyComponent.class);
+    public BodyComponent mask2ndBody() {
+        return mask2ndEntity().getComponent(BodyComponent.class);
     }
 
     @Override
     public boolean equals(Object o) {
-        return o instanceof Contact contact && ((fixture1.equals(contact.getFixture1()) && fixture2.equals(contact.getFixture2())) || (fixture1.equals(contact.getFixture2()) && fixture2.equals(contact.getFixture1())));
+        return o instanceof Contact contact &&
+                ((fixture1.equals(contact.getFixture1()) && fixture2.equals(contact.getFixture2())) ||
+                        (fixture1.equals(contact.getFixture2()) && fixture2.equals(contact.getFixture1())));
     }
 
     @Override

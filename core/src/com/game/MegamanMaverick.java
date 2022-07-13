@@ -17,14 +17,11 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.game.ConstVals.GameScreen;
-import com.game.ConstVals.MegamanVals;
-import com.game.ConstVals.RenderingGround;
-import com.game.ConstVals.WorldVals;
+import com.game.ConstVals.*;
 import com.game.animations.AnimationSystem;
 import com.game.behaviors.BehaviorSystem;
 import com.game.controllers.ControllerButton;
-import com.game.controllers.ControllerButtonStatus;
+import com.game.controllers.ButtonStatus;
 import com.game.controllers.ControllerSystem;
 import com.game.core.IEntity;
 import com.game.debugging.DebugSystem;
@@ -39,6 +36,7 @@ import com.game.utils.KeyValuePair;
 import com.game.world.WorldContactListenerImpl;
 import com.game.world.WorldSystem;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.*;
 
@@ -57,8 +55,7 @@ import static com.game.controllers.ControllerUtils.*;
 @Getter
 public class MegamanMaverick extends Game implements GameContext2d {
 
-    private final Map<ControllerButton, ControllerButtonStatus> controllerButtons =
-            new EnumMap<>(ControllerButton.class);
+    private final Map<ControllerButton, ButtonStatus> controllerButtons = new EnumMap<>(ControllerButton.class);
     private final Map<RenderingGround, Viewport> viewports = new EnumMap<>(RenderingGround.class);
     private final Queue<KeyValuePair<Rectangle, Color>> debugQueue = new ArrayDeque<>();
     private final Map<Class<? extends System>, System> systems = new LinkedHashMap<>();
@@ -68,11 +65,11 @@ public class MegamanMaverick extends Game implements GameContext2d {
     private final List<Disposable> disposables = new ArrayList<>();
     private final Map<String, Object> blackBoard = new HashMap<>();
     private final Set<IEntity> entities = new HashSet<>();
-    @Getter
     private ShapeRenderer shapeRenderer;
-    @Getter
     private SpriteBatch spriteBatch;
     private AssetManager assetManager;
+    @Setter
+    private int volume;
 
     @Override
     public void create() {
@@ -82,10 +79,8 @@ public class MegamanMaverick extends Game implements GameContext2d {
         }
         // controller buttons
         for (ControllerButton controllerButton : ControllerButton.values()) {
-            controllerButtons.put(controllerButton, ControllerButtonStatus.IS_RELEASED);
+            controllerButtons.put(controllerButton, ButtonStatus.IS_RELEASED);
         }
-        // screens
-
         // rendering
         shapeRenderer = new ShapeRenderer();
         assetManager = new AssetManager();
@@ -107,8 +102,7 @@ public class MegamanMaverick extends Game implements GameContext2d {
         addSystem(new HealthSystem());
         addSystem(new UpdatableSystem());
         addSystem(new ControllerSystem(this));
-        addSystem(new WorldSystem(new WorldContactListenerImpl(),
-                WorldVals.AIR_RESISTANCE, WorldVals.FIXED_TIME_STEP));
+        addSystem(new WorldSystem(new WorldContactListenerImpl(), WorldVals.AIR_RESISTANCE, WorldVals.FIXED_TIME_STEP));
         addSystem(new BehaviorSystem());
         addSystem(new TrajectorySystem());
         addSystem(new AnimationSystem());
@@ -116,9 +110,10 @@ public class MegamanMaverick extends Game implements GameContext2d {
         addSystem(new DebugSystem(getShapeRenderer(), (OrthographicCamera) viewports.get(PLAYGROUND).getCamera()));
         // blackboard
         putBlackboardObject(MegamanVals.MEGAMAN_STATS, new MegamanStats());
-        // set screen
+        // define screens
         putScreen(GameScreen.MAIN_MENU, new MainMenuScreen(this));
         putScreen(GameScreen.TEST_LEVEL_1, new LevelScreen(this, "tiledmaps/tmx/test1.tmx", MMX3_INTRO_STAGE_MUSIC));
+        // set screen
         setScreen(GameScreen.TEST_LEVEL_1);
     }
 
@@ -221,40 +216,40 @@ public class MegamanMaverick extends Game implements GameContext2d {
 
     @Override
     public boolean isJustPressed(ControllerButton controllerButton) {
-        return controllerButtons.get(controllerButton) == ControllerButtonStatus.IS_JUST_PRESSED;
+        return controllerButtons.get(controllerButton) == ButtonStatus.IS_JUST_PRESSED;
     }
 
     @Override
     public boolean isPressed(ControllerButton controllerButton) {
-        ControllerButtonStatus controllerButtonStatus = controllerButtons.get(controllerButton);
-        return controllerButtonStatus == ControllerButtonStatus.IS_JUST_PRESSED ||
-                controllerButtonStatus == ControllerButtonStatus.IS_PRESSED;
+        ButtonStatus buttonStatus = controllerButtons.get(controllerButton);
+        return buttonStatus == ButtonStatus.IS_JUST_PRESSED ||
+                buttonStatus == ButtonStatus.IS_PRESSED;
     }
 
     @Override
     public boolean isJustReleased(ControllerButton controllerButton) {
-        return controllerButtons.get(controllerButton) == ControllerButtonStatus.IS_JUST_RELEASED;
+        return controllerButtons.get(controllerButton) == ButtonStatus.IS_JUST_RELEASED;
     }
 
     @Override
     public void updateController() {
         for (ControllerButton controllerButton : ControllerButton.values()) {
-            ControllerButtonStatus status = controllerButtons.get(controllerButton);
+            ButtonStatus status = controllerButtons.get(controllerButton);
             boolean isControllerButtonPressed = isControllerConnected() ?
                     isControllerButtonPressed(controllerButton.getControllerBindingCode()) :
                     isKeyboardButtonPressed(controllerButton.getKeyboardBindingCode());
             if (isControllerButtonPressed) {
-                if (status == ControllerButtonStatus.IS_RELEASED ||
-                        status == ControllerButtonStatus.IS_JUST_RELEASED) {
-                    controllerButtons.replace(controllerButton, ControllerButtonStatus.IS_JUST_PRESSED);
+                if (status == ButtonStatus.IS_RELEASED ||
+                        status == ButtonStatus.IS_JUST_RELEASED) {
+                    controllerButtons.replace(controllerButton, ButtonStatus.IS_JUST_PRESSED);
                 } else {
-                    controllerButtons.replace(controllerButton, ControllerButtonStatus.IS_PRESSED);
+                    controllerButtons.replace(controllerButton, ButtonStatus.IS_PRESSED);
                 }
-            } else if (status == ControllerButtonStatus.IS_JUST_RELEASED ||
-                    status == ControllerButtonStatus.IS_RELEASED) {
-                controllerButtons.replace(controllerButton, ControllerButtonStatus.IS_RELEASED);
+            } else if (status == ButtonStatus.IS_JUST_RELEASED ||
+                    status == ButtonStatus.IS_RELEASED) {
+                controllerButtons.replace(controllerButton, ButtonStatus.IS_RELEASED);
             } else {
-                controllerButtons.replace(controllerButton, ControllerButtonStatus.IS_JUST_RELEASED);
+                controllerButtons.replace(controllerButton, ButtonStatus.IS_JUST_RELEASED);
             }
         }
     }

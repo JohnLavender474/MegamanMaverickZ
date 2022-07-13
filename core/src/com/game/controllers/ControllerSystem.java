@@ -1,24 +1,21 @@
 package com.game.controllers;
 
-import com.game.Component;
 import com.game.System;
 import com.game.core.IController;
 import com.game.core.IEntity;
-import lombok.RequiredArgsConstructor;
 
 import java.util.Set;
 
 /**
  * {@link System} implementation for handling {@link ControllerComponent} instances.
  */
-@RequiredArgsConstructor
 public class ControllerSystem extends System {
 
-    private final IController iController;
+    private final IController controller;
 
-    @Override
-    public Set<Class<? extends Component>> getComponentMask() {
-        return Set.of(ControllerComponent.class);
+    public ControllerSystem(IController controller) {
+        super(Set.of(ControllerComponent.class));
+        this.controller = controller;
     }
 
     @Override
@@ -29,11 +26,11 @@ public class ControllerSystem extends System {
             if (controllerAdapter == null) {
                 continue;
             }
-            if (iController.isJustPressed(controllerButton)) {
+            if (controller.isJustPressed(controllerButton)) {
                 controllerAdapter.onJustPressed();
-            } else if (iController.isPressed(controllerButton)) {
+            } else if (controller.isPressed(controllerButton)) {
                 controllerAdapter.onPressContinued(delta);
-            } else if (iController.isJustReleased(controllerButton)) {
+            } else if (controller.isJustReleased(controllerButton)) {
                 controllerAdapter.onJustReleased();
             } else {
                 controllerAdapter.onReleaseContinued();

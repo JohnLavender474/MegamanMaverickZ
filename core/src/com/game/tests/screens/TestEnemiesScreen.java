@@ -6,16 +6,21 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.game.ConstVals;
+import com.game.ConstVals.TextureAssets;
 import com.game.ConstVals.WorldVals;
 import com.game.MessageListener;
 import com.game.animations.AnimationSystem;
+import com.game.behaviors.BehaviorComponent;
 import com.game.behaviors.BehaviorSystem;
 import com.game.controllers.ControllerSystem;
 import com.game.core.IEntity;
@@ -23,7 +28,6 @@ import com.game.debugging.DebugComponent;
 import com.game.debugging.DebugSystem;
 import com.game.health.HealthComponent;
 import com.game.health.HealthSystem;
-import com.game.sound.SoundSystem;
 import com.game.sprites.SpriteSystem;
 import com.game.tests.core.*;
 import com.game.tests.entities.*;
@@ -43,6 +47,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import static com.game.ConstVals.TextureAssets.*;
 import static com.game.ConstVals.ViewVals.*;
 import static com.game.utils.UtilMethods.*;
 import static com.game.world.FixtureType.*;
@@ -68,6 +73,7 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
     private static final String WALL_SLIDE_SENSORS = "WallSlideSensors";
 
     private final Timer deathTimer = new Timer(4f);
+    private final Timer blackTimer = new Timer(.3f);
     private final Map<String, FontHandle> messages = new HashMap<>();
 
     private LevelTiledMap levelTiledMap;
@@ -84,6 +90,7 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
     private TestBlock testMovingBlock;
     private TestPlayer player;
     private boolean isPaused;
+    private Sprite black;
     private Music music;
 
     @Override
@@ -91,6 +98,8 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
         messages.put("Health", new FontHandle("Megaman10Font.ttf", 20, new Vector2(-800, 400)));
         messages.put("AmountInCamBounds", new FontHandle("Megaman10Font.ttf", 20, new Vector2(-800, 350)));
         messages.put("EntityCount", new FontHandle("Megaman10Font.ttf", 20, new Vector2(-800, 300)));
+        messages.put("Behaviors", new FontHandle("Megaman10Font.ttf", 20, new Vector2(-800, 250)));
+        messages.put("BodySenses", new FontHandle("Megaman10Font.ttf", 20, new Vector2(-800, 200)));
         music = Gdx.audio.newMusic(Gdx.files.internal("music/MMX5_VoltKraken.mp3"));
         music.play();
         deathTimer.setToEnd();
@@ -105,6 +114,9 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
         uiViewport.getCamera().position.y = 0f;
         playgroundViewport = new FitViewport(VIEW_WIDTH * PPM, VIEW_HEIGHT * PPM);
         assetLoader = new TestAssetLoader();
+        black = new Sprite(assetLoader.getAsset(DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class).findRegion("Black"));
+        black.setSize(1920f, 1080f);
+        black.setCenter(0f, 0f);
         entitiesAndSystemsManager.addSystem(new WorldSystem(new TestWorldContactListener(),
                 WorldVals.AIR_RESISTANCE, WorldVals.FIXED_TIME_STEP));
         entitiesAndSystemsManager.addSystem(new UpdatableSystem());
@@ -115,7 +127,6 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
         entitiesAndSystemsManager.addSystem(new SpriteSystem(
                 (OrthographicCamera) playgroundViewport.getCamera(), spriteBatch));
         entitiesAndSystemsManager.addSystem(new AnimationSystem());
-        entitiesAndSystemsManager.addSystem(new SoundSystem(assetLoader));
         entitiesAndSystemsManager.addSystem(new DebugSystem(shapeRenderer,
                 (OrthographicCamera) playgroundViewport.getCamera()));
         levelTiledMap = new LevelTiledMap((OrthographicCamera) playgroundViewport.getCamera(),
@@ -217,20 +228,20 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
         deathTimer.update(delta);
         if (deathTimer.isJustFinished()) {
             music.play();
-            player = new TestPlayer(UtilMethods.bottomCenterPoint(entitySpawnManager.getCurrentPlayerSpawn()),
+            player = new TestPlayer(bottomCenterPoint(entitySpawnManager.getCurrentPlayerSpawn()),
                     music, testController, assetLoader, messageDispatcher, entitiesAndSystemsManager);
             levelCameraManager.setFocusable(player);
             entitiesAndSystemsManager.addEntity(player);
             entitySpawnManager.reset();
             entitiesAndSystemsManager.getEntities().forEach(entity -> {
                 if (entity instanceof CullOnLevelCamTrans || entity instanceof CullOnOutOfCamBounds) {
-                    System.out.println("KILLED");
                     entity.setDead(true);
                     if (entity instanceof CullOnOutOfCamBounds cull) {
                         cull.getCullTimer().setToEnd();
                     }
                 }
             });
+            blackTimer.reset();
         }
         if (levelCameraManager.getTransitionState() != null) {
             BodyComponent bodyComponent = player.getComponent(BodyComponent.class);
@@ -238,6 +249,7 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
                 case BEGIN -> {
                     bodyComponent.getVelocity().setZero();
                     entitiesAndSystemsManager.getSystem(ControllerSystem.class).setOn(false);
+                    entitiesAndSystemsManager.getSystem(TrajectorySystem.class).setOn(false);
                     entitiesAndSystemsManager.getSystem(UpdatableSystem.class).setOn(false);
                     entitiesAndSystemsManager.getSystem(BehaviorSystem.class).setOn(false);
                     entitiesAndSystemsManager.getSystem(WorldSystem.class).setOn(false);
@@ -267,6 +279,7 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
                 }
                 case END -> {
                     entitiesAndSystemsManager.getSystem(ControllerSystem.class).setOn(true);
+                    entitiesAndSystemsManager.getSystem(TrajectorySystem.class).setOn(true);
                     entitiesAndSystemsManager.getSystem(UpdatableSystem.class).setOn(true);
                     entitiesAndSystemsManager.getSystem(BehaviorSystem.class).setOn(true);
                     entitiesAndSystemsManager.getSystem(WorldSystem.class).setOn(true);
@@ -283,6 +296,16 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
         messages.get("AmountInCamBounds").draw(spriteBatch);
         messages.get("EntityCount").setText("Entity count: " + entitiesAndSystemsManager.getEntities().size());
         messages.get("EntityCount").draw(spriteBatch);
+        messages.get("Behaviors").setText("Behaviors: " + player.getComponent(
+                BehaviorComponent.class).getActiveBehaviors());
+        messages.get("Behaviors").draw(spriteBatch);
+        messages.get("BodySenses").setText("Body senses: " + player.getComponent(
+                BodyComponent.class).getBodySenses());
+        messages.get("BodySenses").draw(spriteBatch);
+        if (!blackTimer.isFinished()) {
+            blackTimer.update(delta);
+            black.draw(spriteBatch);
+        }
         spriteBatch.end();
         uiViewport.apply();
         playgroundViewport.apply();

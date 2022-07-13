@@ -23,7 +23,15 @@ public interface Damager {
      *
      * @param damageableClass the damageable class
      */
-    default void onDamageInflictedTo(Class<? extends Damageable> damageableClass) {
+    default void onDamageInflictedTo(Class<? extends Damageable> damageableClass) {}
+
+    /**
+     * Returns the amount of damage to apply.
+     *
+     * @return amount of damage to apply
+     */
+    default int getDamageAmount() {
+        return 0;
     }
 
 }

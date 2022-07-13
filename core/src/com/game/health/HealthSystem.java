@@ -12,9 +12,8 @@ import java.util.Set;
  */
 public class HealthSystem extends System {
 
-    @Override
-    public Set<Class<? extends Component>> getComponentMask() {
-        return Set.of(HealthComponent.class);
+    public HealthSystem() {
+        super(Set.of(HealthComponent.class));
     }
 
     @Override

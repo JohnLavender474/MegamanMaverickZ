@@ -3,11 +3,10 @@ package com.game.world;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.Component;
 import com.game.System;
 import com.game.core.IEntity;
 import com.game.updatables.Updatable;
-import lombok.RequiredArgsConstructor;
+import com.game.utils.UtilMethods;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -18,7 +17,6 @@ import java.util.Set;
  * {@link System} implementation that handles the logic of the "game world physics", i.e. gravity, collision handling,
  * and contact-event-handling.
  */
-@RequiredArgsConstructor
 public class WorldSystem extends System {
 
     private final Set<Contact> priorContacts = new HashSet<>();
@@ -30,9 +28,11 @@ public class WorldSystem extends System {
     private final float fixedTimeStep;
     private float accumulator;
 
-    @Override
-    public Set<Class<? extends Component>> getComponentMask() {
-        return Set.of(BodyComponent.class);
+    public WorldSystem(WorldContactListener worldContactListener, Vector2 airResistance, float fixedTimeStep) {
+        super(Set.of(BodyComponent.class));
+        this.airResistance = airResistance;
+        this.fixedTimeStep = fixedTimeStep;
+        this.worldContactListener = worldContactListener;
     }
 
     @Override
@@ -44,8 +44,8 @@ public class WorldSystem extends System {
     @Override
     protected void processEntity(IEntity entity, float delta) {
         BodyComponent bodyComponent = entity.getComponent(BodyComponent.class);
-        bodyComponent.setPriorCollisionBoxToCurrent();
         bodies.add(bodyComponent);
+        bodyComponent.setPriorCollisionBoxToCurrent();
         if (bodyComponent.getPreProcess() != null) {
             bodyComponent.getPreProcess().update(delta);
         }
@@ -71,8 +71,8 @@ public class WorldSystem extends System {
                 }
                 // Apply resistance
                 if (bodyComponent.isAffectedByResistance()) {
-                    bodyComponent.getVelocity().x *= 1f / Math.max(1f, bodyComponent.getResistance().x);
-                    bodyComponent.getVelocity().y *= 1f / Math.max(1f, bodyComponent.getResistance().y);
+                    bodyComponent.getVelocity().x /= Math.max(1f, bodyComponent.getResistance().x);
+                    bodyComponent.getVelocity().y /= Math.max(1f, bodyComponent.getResistance().y);
                 }
                 // Reset resistance
                 bodyComponent.setResistance(airResistance);
@@ -94,21 +94,6 @@ public class WorldSystem extends System {
                     fixture.setCenter(center);
                 });
             });
-            for (int i = 0; i < bodies.size(); i++) {
-                for (int j = i + 1; j < bodies.size(); j++) {
-                    for (Fixture f1 : bodies.get(i).getFixtures()) {
-                        if (f1.isActive()) {
-                            for (Fixture f2 : bodies.get(j).getFixtures()) {
-                                if (f2.isActive()) {
-                                    if (Intersector.overlaps(f1.getFixtureBox(), f2.getFixtureBox())) {
-                                        currentContacts.add(new Contact(f1, f2));
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
             // Handle collisions
             for (int i = 0; i < bodies.size(); i++) {
                 for (int j = i + 1; j < bodies.size(); j++) {
@@ -117,6 +102,21 @@ public class WorldSystem extends System {
                     Rectangle overlap = new Rectangle();
                     if (Intersector.intersectRectangles(bc1.getCollisionBox(), bc2.getCollisionBox(), overlap)) {
                         handleCollision(bc1, bc2, overlap);
+                    }
+                }
+            }
+            for (int i = 0; i < bodies.size(); i++) {
+                for (int j = i + 1; j < bodies.size(); j++) {
+                    for (Fixture f1 : bodies.get(i).getFixtures()) {
+                        if (f1.isActive()) {
+                            for (Fixture f2 : bodies.get(j).getFixtures()) {
+                                if (f2.isActive()) {
+                                    if (UtilMethods.overlaps(f1.getFixtureBox(), f2.getFixtureBox())) {
+                                        currentContacts.add(new Contact(f1, f2));
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -182,14 +182,6 @@ public class WorldSystem extends System {
             }
         } else {
             if (bc1.getCollisionBox().getX() > bc2.getCollisionBox().getX()) {
-                /*
-                if (Math.ceil(bc1.getVelocity().x) < 0f) {
-                    bc1.applyResistanceY(bc2.getFriction().y);
-                }
-                if (Math.floor(bc2.getVelocity().x) > 0f) {
-                    bc2.applyResistanceY(bc1.getFriction().y);
-                }
-                 */
                 // If one is dynamic and the other static, handle collision
                 if (bc1.getBodyType() == BodyType.DYNAMIC && bc2.getBodyType() == BodyType.STATIC) {
                     bc1.getCollisionBox().x += overlap.getWidth();
@@ -197,14 +189,6 @@ public class WorldSystem extends System {
                     bc2.getCollisionBox().x -= overlap.getWidth();
                 }
             } else {
-                /*
-                if (Math.ceil(bc2.getVelocity().x) < 0f) {
-                    bc2.applyResistanceY(bc1.getFriction().y);
-                }
-                if (Math.floor(bc1.getVelocity().x) > 0f) {
-                    bc1.applyResistanceY(bc2.getFriction().y);
-                }
-                 */
                 // If one is dynamic and the other static, handle collision
                 if (bc1.getBodyType() == BodyType.DYNAMIC && bc2.getBodyType() == BodyType.STATIC) {
                     bc1.getCollisionBox().x -= overlap.getWidth();

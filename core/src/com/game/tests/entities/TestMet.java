@@ -27,10 +27,7 @@ import com.game.utils.Position;
 import com.game.utils.Timer;
 import com.game.utils.UtilMethods;
 import com.game.utils.Wrapper;
-import com.game.world.BodyComponent;
-import com.game.world.BodyType;
-import com.game.world.Fixture;
-import com.game.world.FixtureType;
+import com.game.world.*;
 import com.game.levels.CullOnLevelCamTrans;
 import com.game.levels.CullOnOutOfCamBounds;
 import lombok.Getter;
@@ -42,6 +39,8 @@ import java.util.function.Supplier;
 import static com.game.ConstVals.TextureAssets.*;
 import static com.game.ConstVals.TextureAssets.OBJECTS_TEXTURE_ATLAS;
 import static com.game.ConstVals.ViewVals.PPM;
+import static com.game.utils.UtilMethods.*;
+import static com.game.world.BodySense.*;
 
 @Getter
 @Setter
@@ -73,7 +72,6 @@ public class TestMet implements IEntity, Faceable, Damager, Damageable, CullOnLe
 
     public TestMet(IEntitiesAndSystemsManager entitiesAndSystemsManager, IAssetLoader assetLoader,
                    Supplier<TestPlayer> megamanSupplier, Vector2 spawn) {
-        System.out.println("Met spawn: " + spawn);
         this.entitiesAndSystemsManager = entitiesAndSystemsManager;
         this.megamanSupplier = megamanSupplier;
         this.assetLoader = assetLoader;
@@ -93,10 +91,10 @@ public class TestMet implements IEntity, Faceable, Damager, Damageable, CullOnLe
     }
 
     @Override
-    public void takeDamageFrom(Class<? extends Damager> damagerClass) {
-        if (damagerClass.equals(TestBullet.class)) {
+    public void takeDamageFrom(Damager damager) {
+        if (damager instanceof TestBullet) {
             damageTimer.reset();
-            getComponent(HealthComponent.class).translateHealth(-10);
+            getComponent(HealthComponent.class).sub(10);
             Gdx.audio.newSound(Gdx.files.internal("sounds/EnemyDamage.mp3")).play();
         }
     }
@@ -114,10 +112,12 @@ public class TestMet implements IEntity, Faceable, Damager, Damageable, CullOnLe
 
     private void shoot() {
         BodyComponent bodyComponent = getComponent(BodyComponent.class);
-        // Vector2 trajectory = new Vector2((isFacing(Facing.RIGHT) ? 10f : -10f) * PPM, .5f * PPM);
+        Vector2 trajectory = new Vector2((isFacing(Facing.RIGHT) ? 10f : -10f) * PPM, .5f * PPM);
         Vector2 spawn = bodyComponent.getCenter().cpy().add(isFacing(Facing.RIGHT) ? .5f : -.5f, -4f);
+        /*
         Vector2 trajectory = UtilMethods.normalizedTrajectory(spawn, megamanSupplier.get()
                 .getComponent(BodyComponent.class).getCenter(), 10f * PPM);
+         */
         TextureRegion yellowBullet = assetLoader.getAsset(OBJECTS_TEXTURE_ATLAS, TextureAtlas.class)
                 .findRegion("YellowBullet");
         TestBullet bullet = new TestBullet(this, trajectory, spawn, yellowBullet,
@@ -168,7 +168,9 @@ public class TestMet implements IEntity, Faceable, Damager, Damageable, CullOnLe
                     Timer runningTimer = metBehaviorTimers.get(MetBehavior.RUNNING);
                     runningTimer.update(delta);
                     bodyComponent.setVelocity((isFacing(Facing.LEFT) ? -8f : 8f) * PPM, 0f);
-                    if (runningTimer.isFinished()) {
+                    if (runningTimer.isFinished() ||
+                            (isFacing(Facing.LEFT) && bodyComponent.is(TOUCHING_HITBOX_LEFT)) ||
+                            (isFacing(Facing.RIGHT) && bodyComponent.is(TOUCHING_HITBOX_RIGHT))) {
                         setMetBehavior(MetBehavior.SHIELDING);
                     }
                 }
@@ -194,9 +196,19 @@ public class TestMet implements IEntity, Faceable, Damager, Damageable, CullOnLe
 
     private BodyComponent defineBodyComponent(Vector2 spawn) {
         BodyComponent bodyComponent = new BodyComponent(BodyType.DYNAMIC);
-        UtilMethods.setBottomCenterToPoint(bodyComponent.getCollisionBox(), spawn);
+        setBottomCenterToPoint(bodyComponent.getCollisionBox(), spawn);
         bodyComponent.setSize(.75f * PPM, .75f * PPM);
         bodyComponent.setGravity(-50f * PPM);
+        // left
+        Fixture left = new Fixture(this, FixtureType.LEFT);
+        left.setSize(3f, .75f * PPM);
+        left.setOffset(-.65f * PPM, 0f);
+        bodyComponent.addFixture(left);
+        // right
+        Fixture right = new Fixture(this, FixtureType.RIGHT);
+        right.setSize(3f, .75f * PPM);
+        right.setOffset(.65f * PPM, 0f);
+        bodyComponent.addFixture(right);
         // shield
         Fixture shield = new Fixture(this, FixtureType.SHIELD);
         shield.putUserData("reflectDir", "up");

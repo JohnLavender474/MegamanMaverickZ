@@ -30,7 +30,11 @@ public class HealthComponent implements Component, Resettable {
         reset();
     }
 
-    public void translateHealth(int delta) {
+    public void sub(int delta) {
+        setHealth(currentHealth - delta);
+    }
+
+    public void add(int delta) {
         setHealth(currentHealth + delta);
     }
 

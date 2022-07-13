@@ -12,6 +12,8 @@ import lombok.Setter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.*;
+
 /**
  * {@link Component} implementation for world bodies.
  */
@@ -366,7 +368,7 @@ public class BodyComponent implements Component {
      * @return the list of fixtures
      */
     public List<Fixture> getFixtures(FixtureType fixtureType) {
-        return fixtures.stream().filter(fixture -> fixture.getFixtureType().equals(fixtureType)).collect(Collectors.toList());
+        return fixtures.stream().filter(fixture -> fixture.getFixtureType().equals(fixtureType)).collect(toList());
     }
 
     /**

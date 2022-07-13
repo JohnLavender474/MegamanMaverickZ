@@ -5,23 +5,21 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
-import com.game.Component;
 import com.game.System;
 import com.game.core.IEntity;
-import lombok.RequiredArgsConstructor;
 
 import java.util.Set;
 
-@RequiredArgsConstructor
 public class DebugSystem extends System {
 
     private final ShapeRenderer shapeRenderer;
     private final OrthographicCamera camera;
     private boolean isDrawing;
 
-    @Override
-    public Set<Class<? extends Component>> getComponentMask() {
-        return Set.of(DebugComponent.class);
+    public DebugSystem(ShapeRenderer shapeRenderer, OrthographicCamera camera) {
+        super(Set.of(DebugComponent.class));
+        this.shapeRenderer = shapeRenderer;
+        this.camera = camera;
     }
 
     @Override

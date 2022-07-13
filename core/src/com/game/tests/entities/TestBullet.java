@@ -1,22 +1,20 @@
 package com.game.tests.entities;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
-import com.game.ConstVals;
 import com.game.core.IAssetLoader;
 import com.game.core.IEntitiesAndSystemsManager;
 import com.game.core.IEntity;
+import com.game.debugging.DebugComponent;
 import com.game.entities.contracts.Damageable;
 import com.game.entities.contracts.Damager;
 import com.game.entities.projectiles.IProjectile;
-import com.game.sound.SoundComponent;
-import com.game.sound.SoundRequest;
 import com.game.sprites.SpriteComponent;
-import com.game.utils.Percentage;
 import com.game.utils.Position;
 import com.game.utils.Timer;
 import com.game.world.BodyComponent;
@@ -30,7 +28,6 @@ import lombok.Setter;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.game.ConstVals.SoundAssets.THUMP_SOUND;
 import static com.game.ConstVals.ViewVals.PPM;
 import static com.game.world.FixtureType.*;
 
@@ -56,7 +53,7 @@ public class TestBullet implements IEntity, IProjectile, Damager, CullOnOutOfCam
         this.entitiesAndSystemsManager = entitiesAndSystemsManager;
         addComponent(defineSpriteComponent(textureRegion));
         addComponent(defineBodyComponent(spawn));
-        addComponent(new SoundComponent());
+        addComponent(defineDebugComponent());
     }
 
     @Override
@@ -65,17 +62,26 @@ public class TestBullet implements IEntity, IProjectile, Damager, CullOnOutOfCam
     }
 
     public void disintegrate() {
-        SoundComponent soundComponent = getComponent(SoundComponent.class);
-        soundComponent.request(new SoundRequest(THUMP_SOUND, false, Percentage.of(ConstVals.VolumeVals.HIGH_VOLUME)));
         TestDisintegration disintegration = new TestDisintegration(
                 assetLoader, getComponent(BodyComponent.class).getCenter());
         entitiesAndSystemsManager.addEntity(disintegration);
         Gdx.audio.newSound(Gdx.files.internal("sounds/Thump.mp3")).play(.5f);
     }
 
+    @Override
+    public boolean canDamage(Damageable damageable) {
+        return !owner.equals(damageable);
+    }
+
+    @Override
+    public void onDamageInflictedTo(Class<? extends Damageable> damageableClass) {
+        disintegrate();
+        setDead(true);
+    }
+
     private SpriteComponent defineSpriteComponent(TextureRegion textureRegion) {
         Sprite sprite = new Sprite();
-        sprite.setRegion(textureRegion);
+        // sprite.setRegion(textureRegion);
         sprite.setSize(PPM * 1.25f, PPM * 1.25f);
         return new SpriteComponent(sprite, (bounds, position) -> {
             bounds.setData(getCullBoundingBox());
@@ -90,14 +96,23 @@ public class TestBullet implements IEntity, IProjectile, Damager, CullOnOutOfCam
         bodyComponent.setSize(.1f * PPM, .1f * PPM);
         bodyComponent.setCenter(spawn.x, spawn.y);
         Fixture projectile = new Fixture(this, PROJECTILE);
-        projectile.setSize(.115f * PPM, .115f * PPM);
-        projectile.setCenter(spawn.x, spawn.y);
+        projectile.setSize(.1f * PPM, .1f * PPM);
         bodyComponent.addFixture(projectile);
         Fixture damageBox = new Fixture(this, DAMAGE_BOX);
         damageBox.setSize(.1f * PPM, .1f * PPM);
-        damageBox.setCenter(spawn.x, spawn.y);
         bodyComponent.addFixture(damageBox);
         return bodyComponent;
+    }
+
+    private DebugComponent defineDebugComponent() {
+        DebugComponent debugComponent = new DebugComponent();
+        getComponent(BodyComponent.class).getFixtures().forEach(fixture ->
+                debugComponent.addDebugHandle(fixture::getFixtureBox, () -> switch (fixture.getFixtureType()) {
+                    case PROJECTILE -> Color.BLUE;
+                    case DAMAGE_BOX -> Color.RED;
+                    default -> Color.GREEN;
+                }));
+        return debugComponent;
     }
 
     @Override
@@ -105,7 +120,7 @@ public class TestBullet implements IEntity, IProjectile, Damager, CullOnOutOfCam
         if (fixture.getEntity().equals(owner)) {
             return;
         }
-        if (fixture.getFixtureType() == BLOCK || (fixture.getFixtureType() == HIT_BOX)) {
+        if (fixture.getFixtureType() == BLOCK) {
             setDead(true);
             disintegrate();
         } else if (fixture.getFixtureType() == SHIELD) {
@@ -119,11 +134,6 @@ public class TestBullet implements IEntity, IProjectile, Damager, CullOnOutOfCam
             }
             Gdx.audio.newSound(Gdx.files.internal("sounds/Dink.mp3")).play();
         }
-    }
-
-    @Override
-    public boolean canDamage(Damageable damageable) {
-        return !owner.equals(damageable);
     }
 
 }

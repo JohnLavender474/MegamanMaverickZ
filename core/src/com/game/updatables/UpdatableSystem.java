@@ -1,6 +1,5 @@
 package com.game.updatables;
 
-import com.game.Component;
 import com.game.System;
 import com.game.core.IEntity;
 
@@ -11,9 +10,8 @@ import java.util.Set;
  */
 public class UpdatableSystem extends System {
 
-    @Override
-    public Set<Class<? extends Component>> getComponentMask() {
-        return Set.of(UpdatableComponent.class);
+    public UpdatableSystem() {
+        super(Set.of(UpdatableComponent.class));
     }
 
     @Override

@@ -128,14 +128,4 @@ public class Fixture {
         fixtureBox.setCenter(x, y);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        return o instanceof Fixture fixture && fixture.getFixtureType().equals(fixtureType);
-    }
-
-    @Override
-    public int hashCode() {
-        return 49 + 7 * fixtureType.hashCode();
-    }
-
 }
