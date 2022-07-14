@@ -33,11 +33,8 @@ public class ExplosionOrb extends Entity implements CullOnOutOfCamBounds {
     }
 
     private UpdatableComponent defineUpdatableComponent(Vector2 trajectory) {
-        UpdatableComponent updatableComponent = new UpdatableComponent();
-        updatableComponent.setUpdatable(delta ->
-                getComponent(SpriteComponent.class).getSprite().translate(
-                        trajectory.x * PPM * delta, trajectory.y * PPM * delta));
-        return updatableComponent;
+        return new UpdatableComponent(delta -> getComponent(SpriteComponent.class).getSprite().translate(
+                trajectory.x * PPM * delta, trajectory.y * PPM * delta));
     }
 
     private SpriteComponent defineSpriteComponent(Vector2 spawn) {

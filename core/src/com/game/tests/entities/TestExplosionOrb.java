@@ -39,8 +39,7 @@ public class TestExplosionOrb implements IEntity {
     }
 
     private UpdatableComponent defineUpdatableComponent(Vector2 trajectory) {
-        UpdatableComponent updatableComponent = new UpdatableComponent();
-        updatableComponent.setUpdatable(delta -> {
+        return new UpdatableComponent(delta -> {
             getComponent(SpriteComponent.class).getSprite().translate(
                     trajectory.x * PPM * delta, trajectory.y * PPM * delta);
             cullTimer.update(delta);
@@ -48,7 +47,6 @@ public class TestExplosionOrb implements IEntity {
                 setDead(true);
             }
         });
-        return updatableComponent;
     }
 
     private SpriteComponent defineSpriteComponent(Vector2 spawn) {

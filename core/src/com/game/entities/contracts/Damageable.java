@@ -10,7 +10,7 @@ import java.util.Set;
 public interface Damageable {
 
     /**
-     * Damager mask set.
+     * DamagerDef mask set.
      *
      * @return the set
      */

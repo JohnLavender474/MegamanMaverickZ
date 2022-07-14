@@ -163,8 +163,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
     }
 
     private UpdatableComponent defineUpdatableComponent() {
-        UpdatableComponent updatableComponent = new UpdatableComponent();
-        updatableComponent.setUpdatable(delta -> {
+        return new UpdatableComponent(delta -> {
             damageTimer.update(delta);
             if (isDamaged()) {
                 getComponent(BodyComponent.class).applyImpulse((isFacing(Facing.LEFT) ? .15f : -.15f) * PPM, 0f);
@@ -188,7 +187,6 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
             shootAnimationTimer.update(delta);
             setCharging(megaBusterChargingTimer.isFinished());
         });
-        return updatableComponent;
     }
 
     private ControllerComponent defineControllerComponent() {

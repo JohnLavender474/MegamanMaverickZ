@@ -85,13 +85,11 @@ public class TestDamager implements IEntity, Damager, Damageable, CullOnOutOfCam
     }
 
     private UpdatableComponent defineUpdatableComponent() {
-        UpdatableComponent updatableComponent = new UpdatableComponent();
-        updatableComponent.setUpdatable(delta -> {
+        return new UpdatableComponent(delta -> {
             if (!damageTimer.isFinished()) {
                 damageTimer.update(delta);
             }
         });
-        return updatableComponent;
     }
 
     @Override
