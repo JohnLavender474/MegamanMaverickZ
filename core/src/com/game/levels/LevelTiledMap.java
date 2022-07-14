@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.game.ConstVals.RenderingGround.*;
+import static com.game.ConstVals.RenderingGround.PLAYGROUND;
 
 /**
  * Manager class for {@link TiledMap} and {@link OrthogonalTiledMapRenderer}.
@@ -65,7 +65,7 @@ public class LevelTiledMap implements Disposable {
      * See {@link #LevelTiledMap(OrthographicCamera, SpriteBatch, String)}.
      *
      * @param gameContext the game context
-     * @param tmxFile the tmx file
+     * @param tmxFile     the tmx file
      */
     public LevelTiledMap(GameContext2d gameContext, String tmxFile) {
         this((OrthographicCamera) gameContext.getViewport(PLAYGROUND).getCamera(),

@@ -1,6 +1,5 @@
 package com.game.behaviors;
 
-import com.game.Component;
 import com.game.System;
 import com.game.core.IEntity;
 import com.game.updatables.Updatable;

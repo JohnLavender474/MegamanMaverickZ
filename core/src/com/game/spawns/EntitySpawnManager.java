@@ -6,9 +6,9 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-import java.util.*;
+import java.util.Collection;
 
-import static com.game.utils.UtilMethods.*;
+import static com.game.utils.UtilMethods.rectToBBox;
 
 @Getter
 @RequiredArgsConstructor

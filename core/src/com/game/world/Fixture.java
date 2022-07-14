@@ -31,7 +31,7 @@ public class Fixture {
     /**
      * Put user data
      *
-     * @param key the key
+     * @param key  the key
      * @param data the data
      */
     public void putUserData(String key, Object data) {
@@ -41,10 +41,10 @@ public class Fixture {
     /**
      * Get user data.
      *
-     * @param key the key
+     * @param key    the key
      * @param tClass the class
+     * @param <T>    the data type
      * @return the data
-     * @param <T> the data type
      */
     public <T> T getUserData(String key, Class<T> tClass) {
         return tClass.cast(userData.get(key));

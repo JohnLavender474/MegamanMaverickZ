@@ -29,7 +29,10 @@ import com.game.utils.Position;
 import com.game.utils.Timer;
 import com.game.utils.UtilMethods;
 import com.game.utils.Wrapper;
-import com.game.world.*;
+import com.game.world.BodyComponent;
+import com.game.world.BodyType;
+import com.game.world.Fixture;
+import com.game.world.FixtureType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -38,7 +41,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import static com.game.ConstVals.TextureAssets.*;
+import static com.game.ConstVals.TextureAssets.ENEMIES_TEXTURE_ATLAS;
+import static com.game.ConstVals.TextureAssets.OBJECTS_TEXTURE_ATLAS;
 import static com.game.ConstVals.ViewVals.PPM;
 
 @Getter

@@ -16,8 +16,11 @@ public class UpdatableSystem extends System {
 
     @Override
     protected void processEntity(IEntity entity, float delta) {
-        UpdatableComponent updatableComponent = entity.getComponent(UpdatableComponent.class);
-        updatableComponent.getUpdatable().update(delta);
+        entity.getComponent(UpdatableComponent.class).getUpdatables().forEach((updatable, doUpdate) -> {
+            if (doUpdate.get()) {
+                updatable.update(delta);
+            }
+        });
     }
 
 }

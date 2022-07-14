@@ -14,14 +14,14 @@ import com.game.debugging.DebugComponent;
 import com.game.entities.contracts.Damageable;
 import com.game.entities.contracts.Damager;
 import com.game.entities.projectiles.IProjectile;
+import com.game.levels.CullOnLevelCamTrans;
+import com.game.levels.CullOnOutOfCamBounds;
 import com.game.sprites.SpriteComponent;
 import com.game.utils.Position;
 import com.game.utils.Timer;
 import com.game.world.BodyComponent;
 import com.game.world.BodyType;
 import com.game.world.Fixture;
-import com.game.levels.CullOnLevelCamTrans;
-import com.game.levels.CullOnOutOfCamBounds;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -81,7 +81,7 @@ public class TestBullet implements IEntity, IProjectile, Damager, CullOnOutOfCam
 
     private SpriteComponent defineSpriteComponent(TextureRegion textureRegion) {
         Sprite sprite = new Sprite();
-        // sprite.setRegion(textureRegion);
+        sprite.setRegion(textureRegion);
         sprite.setSize(PPM * 1.25f, PPM * 1.25f);
         return new SpriteComponent(sprite, (bounds, position) -> {
             bounds.setData(getCullBoundingBox());

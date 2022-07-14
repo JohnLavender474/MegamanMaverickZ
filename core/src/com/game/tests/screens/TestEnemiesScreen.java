@@ -15,8 +15,6 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.game.ConstVals;
-import com.game.ConstVals.TextureAssets;
 import com.game.ConstVals.WorldVals;
 import com.game.MessageListener;
 import com.game.animations.AnimationSystem;
@@ -28,31 +26,34 @@ import com.game.debugging.DebugComponent;
 import com.game.debugging.DebugSystem;
 import com.game.health.HealthComponent;
 import com.game.health.HealthSystem;
+import com.game.levels.CullOnLevelCamTrans;
+import com.game.levels.CullOnOutOfCamBounds;
+import com.game.levels.LevelCameraManager;
+import com.game.levels.LevelTiledMap;
 import com.game.sprites.SpriteSystem;
 import com.game.tests.core.*;
 import com.game.tests.entities.*;
 import com.game.trajectories.TrajectoryComponent;
 import com.game.trajectories.TrajectorySystem;
 import com.game.updatables.UpdatableSystem;
-import com.game.utils.*;
+import com.game.utils.Direction;
+import com.game.utils.FontHandle;
+import com.game.utils.Position;
+import com.game.utils.Timer;
 import com.game.world.BodyComponent;
 import com.game.world.WorldSystem;
-import com.game.levels.CullOnLevelCamTrans;
-import com.game.levels.CullOnOutOfCamBounds;
-import com.game.levels.LevelCameraManager;
-import com.game.levels.LevelTiledMap;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import static com.game.ConstVals.TextureAssets.*;
+import static com.game.ConstVals.TextureAssets.DECORATIONS_TEXTURE_ATLAS;
 import static com.game.ConstVals.ViewVals.*;
-import static com.game.utils.UtilMethods.*;
-import static com.game.world.FixtureType.*;
 import static com.game.levels.LevelScreen.LEVEL_CAM_TRANS_DURATION;
 import static com.game.levels.LevelScreen.MEGAMAN_DELTA_ON_CAM_TRANS;
+import static com.game.utils.UtilMethods.*;
+import static com.game.world.FixtureType.BLOCK;
 
 /**
  * When the player dies, there should be 8 explosion orbs and about 3 seconds of delay before switching back to

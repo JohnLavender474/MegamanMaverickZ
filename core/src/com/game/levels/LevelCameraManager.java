@@ -8,7 +8,6 @@ import com.game.updatables.Updatable;
 import com.game.utils.Direction;
 import com.game.utils.ProcessState;
 import com.game.utils.Timer;
-import com.game.utils.UtilMethods;
 import lombok.Getter;
 
 import java.util.Map;
@@ -134,20 +133,16 @@ public class LevelCameraManager implements Updatable {
                 transStartPos.set(toVec2(camera.position));
                 transTargetPos.set(toVec2(camera.position));
                 switch (transitionDirection) {
-                    case LEFT ->
-                            transTargetPos.x =
-                                    (nextGameRoom.x + nextGameRoom.width) - Math.min(nextGameRoom.width / 2.0f,
-                                            camera.viewportWidth / 2.0f);
-                    case RIGHT ->
-                            transTargetPos.x = nextGameRoom.x + Math.min(nextGameRoom.width / 2.0f,
+                    case LEFT -> transTargetPos.x =
+                            (nextGameRoom.x + nextGameRoom.width) - Math.min(nextGameRoom.width / 2.0f,
                                     camera.viewportWidth / 2.0f);
-                    case UP ->
-                            transTargetPos.y = nextGameRoom.y + Math.min(nextGameRoom.height / 2.0f,
+                    case RIGHT -> transTargetPos.x = nextGameRoom.x + Math.min(nextGameRoom.width / 2.0f,
+                            camera.viewportWidth / 2.0f);
+                    case UP -> transTargetPos.y = nextGameRoom.y + Math.min(nextGameRoom.height / 2.0f,
+                            camera.viewportHeight / 2.0f);
+                    case DOWN -> transTargetPos.y =
+                            (nextGameRoom.y + nextGameRoom.height) - Math.min(nextGameRoom.height / 2.0f,
                                     camera.viewportHeight / 2.0f);
-                    case DOWN ->
-                            transTargetPos.y =
-                                    (nextGameRoom.y + nextGameRoom.height) - Math.min(nextGameRoom.height / 2.0f,
-                                            camera.viewportHeight / 2.0f);
                 }
             }
         } else {

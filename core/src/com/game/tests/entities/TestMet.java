@@ -20,37 +20,38 @@ import com.game.entities.contracts.Damager;
 import com.game.entities.contracts.Faceable;
 import com.game.entities.contracts.Facing;
 import com.game.health.HealthComponent;
+import com.game.levels.CullOnLevelCamTrans;
+import com.game.levels.CullOnOutOfCamBounds;
 import com.game.sprites.SpriteAdapter;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
 import com.game.utils.Position;
 import com.game.utils.Timer;
-import com.game.utils.UtilMethods;
 import com.game.utils.Wrapper;
-import com.game.world.*;
-import com.game.levels.CullOnLevelCamTrans;
-import com.game.levels.CullOnOutOfCamBounds;
+import com.game.world.BodyComponent;
+import com.game.world.BodyType;
+import com.game.world.Fixture;
+import com.game.world.FixtureType;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.*;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 
-import static com.game.ConstVals.TextureAssets.*;
+import static com.game.ConstVals.TextureAssets.MET_TEXTURE_ATLAS;
 import static com.game.ConstVals.TextureAssets.OBJECTS_TEXTURE_ATLAS;
 import static com.game.ConstVals.ViewVals.PPM;
-import static com.game.utils.UtilMethods.*;
-import static com.game.world.BodySense.*;
+import static com.game.utils.UtilMethods.setBottomCenterToPoint;
+import static com.game.world.BodySense.TOUCHING_HITBOX_LEFT;
+import static com.game.world.BodySense.TOUCHING_HITBOX_RIGHT;
 
 @Getter
 @Setter
 public class TestMet implements IEntity, Faceable, Damager, Damageable, CullOnLevelCamTrans, CullOnOutOfCamBounds {
 
-    enum MetBehavior {
-        SHIELDING, POP_UP, RUNNING, PANIC
-    }
-
-    private MetBehavior metBehavior;
     private final Map<MetBehavior, Timer> metBehaviorTimers = new EnumMap<>(MetBehavior.class) {{
         put(MetBehavior.SHIELDING, new Timer(1.15f));
         put(MetBehavior.POP_UP, new Timer(.5f));
@@ -62,11 +63,10 @@ public class TestMet implements IEntity, Faceable, Damager, Damageable, CullOnLe
     private final IEntitiesAndSystemsManager entitiesAndSystemsManager;
     private final Map<Class<? extends Component>, Component> components = new HashMap<>();
     private final Set<Class<? extends Damager>> damagerMaskSet = Set.of(TestBullet.class);
-
     private final Timer damageTimer = new Timer(.25f);
     private final Timer blinkTimer = new Timer(.05f);
     private final Timer cullTimer = new Timer(1.5f);
-
+    private MetBehavior metBehavior;
     private boolean dead;
     private Facing facing;
 
@@ -134,14 +134,17 @@ public class TestMet implements IEntity, Faceable, Damager, Damageable, CullOnLe
 
     private UpdatableComponent defineUpdatableComponent(Supplier<TestPlayer> megamanSupplier) {
         return new UpdatableComponent(delta -> {
+            if (megamanSupplier.get().isDead()) {
+                return;
+            }
             damageTimer.update(delta);
             BodyComponent bodyComponent = getComponent(BodyComponent.class);
             bodyComponent.getFirstMatchingFixture(FixtureType.SHIELD).ifPresentOrElse(
                     shield -> shield.setActive(metBehavior == MetBehavior.SHIELDING),
-                    () -> { throw new IllegalStateException(); });
+                    () -> {throw new IllegalStateException();});
             bodyComponent.getFirstMatchingFixture(FixtureType.HIT_BOX).ifPresentOrElse(
                     hitBox -> hitBox.setActive(metBehavior != MetBehavior.SHIELDING),
-                    () -> { throw new IllegalStateException(); });
+                    () -> {throw new IllegalStateException();});
             switch (metBehavior) {
                 case SHIELDING -> {
                     Timer shieldingTimer = metBehaviorTimers.get(MetBehavior.SHIELDING);
@@ -191,7 +194,7 @@ public class TestMet implements IEntity, Faceable, Damager, Damageable, CullOnLe
         BodyComponent playerBody = player.getComponent(BodyComponent.class);
         return player.isShooting() &&
                 ((metBody.getPosition().x < playerBody.getPosition().x && player.isFacing(Facing.LEFT)) ||
-                (metBody.getPosition().x > playerBody.getPosition().x && player.isFacing(Facing.RIGHT)));
+                        (metBody.getPosition().x > playerBody.getPosition().x && player.isFacing(Facing.RIGHT)));
     }
 
     private BodyComponent defineBodyComponent(Vector2 spawn) {
@@ -265,6 +268,10 @@ public class TestMet implements IEntity, Faceable, Damager, Damageable, CullOnLe
             put("LayDown", new TimedAnimation(textureAtlas.findRegion("LayDown")));
         }};
         return new AnimationComponent(new Animator(keySupplier, timedAnimations));
+    }
+
+    enum MetBehavior {
+        SHIELDING, POP_UP, RUNNING, PANIC
     }
 
 }

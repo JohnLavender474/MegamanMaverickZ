@@ -1,9 +1,7 @@
 package com.game.health;
 
-import com.game.Component;
 import com.game.System;
 import com.game.core.IEntity;
-import com.game.updatables.Updatable;
 
 import java.util.Set;
 

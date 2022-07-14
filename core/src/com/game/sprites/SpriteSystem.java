@@ -7,13 +7,11 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.Component;
 import com.game.System;
 import com.game.core.IEntity;
 import com.game.utils.Position;
 import com.game.utils.UtilMethods;
 import com.game.utils.Wrapper;
-import lombok.RequiredArgsConstructor;
 
 import java.util.Set;
 

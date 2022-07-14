@@ -93,7 +93,8 @@ public class TestTrajectoriesScreen extends ScreenAdapter {
 
     static class EntitiesAndSystemsManager implements IEntitiesAndSystemsManager {
 
-        @Getter private final Set<IEntity> entities = new HashSet<>();
+        @Getter
+        private final Set<IEntity> entities = new HashSet<>();
         private final Map<Class<? extends System>, System> systems = new LinkedHashMap<>();
         private final Queue<IEntity> queuedEntities = new ArrayDeque<>();
         private boolean updating;

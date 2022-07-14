@@ -26,6 +26,7 @@ import com.game.entities.contracts.Damager;
 import com.game.entities.contracts.Faceable;
 import com.game.entities.contracts.Facing;
 import com.game.health.HealthComponent;
+import com.game.levels.CameraFocusable;
 import com.game.sprites.SpriteAdapter;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
@@ -37,29 +38,28 @@ import com.game.world.BodyComponent;
 import com.game.world.BodySense;
 import com.game.world.BodyType;
 import com.game.world.Fixture;
-import com.game.levels.CameraFocusable;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.*;
 import java.util.function.Supplier;
 
-import static com.game.ConstVals.TextureAssets.*;
+import static com.game.ConstVals.TextureAssets.MEGAMAN_TEXTURE_ATLAS;
+import static com.game.ConstVals.TextureAssets.OBJECTS_TEXTURE_ATLAS;
 import static com.game.ConstVals.ViewVals.PPM;
 import static com.game.behaviors.BehaviorType.*;
-import static com.game.behaviors.BehaviorType.CLIMBING;
 import static com.game.world.FixtureType.*;
 
 @Getter
 @Setter
 public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusable {
 
-    private static final float EXPLOSION_ORB_SPEED = 3.5f;
-
     public enum AButtonTask {
         JUMP,
         AIR_DASH
     }
+
+    private static final float EXPLOSION_ORB_SPEED = 3.5f;
 
     private final IController controller;
     private final IAssetLoader assetLoader;
@@ -68,7 +68,6 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
     private final Map<Class<? extends Component>, Component> components = new HashMap<>();
     private final Set<Class<? extends Damager>> damagerMaskSet = Set.of(
             TestDamager.class, TestBullet.class, TestMet.class, TestSniperJoe.class);
-
     private final Timer airDashTimer = new Timer(.25f);
     private final Timer groundSlideTimer = new Timer(.35f);
     private final Timer wallJumpImpetusTimer = new Timer(.2f);
@@ -78,14 +77,12 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
     private final Timer damageRecoveryTimer = new Timer(1.5f);
     private final Timer damageRecoveryBlinkTimer = new Timer(.05f);
     private final Timer damageTimer = new Timer(.75f);
-
+    private final Music music;
     private boolean dead;
     private boolean isCharging;
     private boolean recoveryBlink;
     private Facing facing = Facing.RIGHT;
     private AButtonTask aButtonTask = AButtonTask.JUMP;
-
-    private final Music music;
 
     public TestPlayer(Vector2 spawn, Music music, IController controller, IAssetLoader assetLoader,
                       IMessageDispatcher messageDispatcher, IEntitiesAndSystemsManager entitiesAndSystemsManager) {
@@ -167,7 +164,7 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
                 add(new Vector2(EXPLOSION_ORB_SPEED, 0f));
                 add(new Vector2(EXPLOSION_ORB_SPEED, -EXPLOSION_ORB_SPEED));
                 add(new Vector2(0f, -EXPLOSION_ORB_SPEED));
-                add(new Vector2(-EXPLOSION_ORB_SPEED , -EXPLOSION_ORB_SPEED));
+                add(new Vector2(-EXPLOSION_ORB_SPEED, -EXPLOSION_ORB_SPEED));
             }};
             trajectories.forEach(trajectory -> entitiesAndSystemsManager.addEntity(new TestExplosionOrb(
                     assetLoader, getComponent(BodyComponent.class).getCenter(), trajectory)));
@@ -177,8 +174,7 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
     }
 
     private UpdatableComponent defineUpdatableComponent() {
-        UpdatableComponent updatableComponent = new UpdatableComponent();
-        updatableComponent.setUpdatable(delta -> {
+        return new UpdatableComponent(delta -> {
             damageTimer.update(delta);
             if (isDamaged()) {
                 getComponent(BodyComponent.class).applyImpulse((isFacing(Facing.LEFT) ? .15f : -.15f) * PPM, 0f);
@@ -202,7 +198,6 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
             shootAnimationTimer.update(delta);
             setCharging(megaBusterChargingTimer.isFinished());
         });
-        return updatableComponent;
     }
 
     private ControllerComponent defineControllerComponent() {

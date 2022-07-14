@@ -55,7 +55,7 @@ public class TestWorldContactListener implements WorldContactListener {
 
     @Override
     public void continueContact(Contact contact, float delta) {
-       if (contact.acceptMask(LEFT, BLOCK)) {
+        if (contact.acceptMask(LEFT, BLOCK)) {
             contact.mask1stBody().setIs(TOUCHING_BLOCK_LEFT);
         } else if (contact.acceptMask(RIGHT, BLOCK)) {
             contact.mask1stBody().setIs(TOUCHING_BLOCK_RIGHT);

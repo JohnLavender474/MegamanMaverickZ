@@ -108,9 +108,9 @@ public class WorldSystem extends System {
             for (int i = 0; i < bodies.size(); i++) {
                 for (int j = i + 1; j < bodies.size(); j++) {
                     for (Fixture f1 : bodies.get(i).getFixtures()) {
-                        if (f1.isActive()) {
+                        if (f1.isActive() && !f1.getEntity().isDead()) {
                             for (Fixture f2 : bodies.get(j).getFixtures()) {
-                                if (f2.isActive()) {
+                                if (f2.isActive() && !f2.getEntity().isDead()) {
                                     if (UtilMethods.overlaps(f1.getFixtureBox(), f2.getFixtureBox())) {
                                         currentContacts.add(new Contact(f1, f2));
                                     }

@@ -11,7 +11,7 @@ import lombok.Setter;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static com.game.utils.UtilMethods.*;
+import static com.game.utils.UtilMethods.rectToBBox;
 
 @Getter
 @RequiredArgsConstructor

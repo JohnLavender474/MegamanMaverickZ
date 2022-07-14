@@ -6,7 +6,10 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.*;
+import com.game.ConstVals;
+import com.game.Entity;
+import com.game.GameContext2d;
+import com.game.Message;
 import com.game.animations.AnimationComponent;
 import com.game.animations.Animator;
 import com.game.animations.TimedAnimation;
@@ -28,9 +31,14 @@ import com.game.levels.CameraFocusable;
 import com.game.sprites.SpriteAdapter;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
-import com.game.utils.*;
+import com.game.utils.Position;
 import com.game.utils.Timer;
-import com.game.world.*;
+import com.game.utils.UtilMethods;
+import com.game.utils.Wrapper;
+import com.game.world.BodyComponent;
+import com.game.world.BodySense;
+import com.game.world.BodyType;
+import com.game.world.Fixture;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -38,7 +46,8 @@ import java.util.*;
 import java.util.function.Supplier;
 
 import static com.game.ConstVals.MegamanVals.MEGAMAN_STATS;
-import static com.game.ConstVals.SoundAssets.*;
+import static com.game.ConstVals.SoundAssets.MEGAMAN_DAMAGE_SOUND;
+import static com.game.ConstVals.SoundAssets.MEGA_BUSTER_BULLET_SHOT_SOUND;
 import static com.game.ConstVals.TextureAssets.MEGAMAN_TEXTURE_ATLAS;
 import static com.game.ConstVals.ViewVals.PPM;
 import static com.game.behaviors.BehaviorType.*;
@@ -51,17 +60,11 @@ import static com.game.world.FixtureType.*;
 @Setter
 public class Megaman extends Entity implements Damageable, Faceable, CameraFocusable {
 
-    public enum AButtonTask {
-        JUMP, AIR_DASH
-    }
-
     private static final float RUN_SPEED = 4f;
     private static final float EXPLOSION_ORB_SPEED = 3.5f;
-
     private final GameContext2d gameContext;
     private final MegamanStats megamanStats;
     private final Set<Class<? extends Damager>> damagerMaskSet = Set.of();
-
     private final Timer airDashTimer = new Timer(.25f);
     private final Timer groundSlideTimer = new Timer(.35f);
     private final Timer wallJumpImpetusTimer = new Timer(.2f);
@@ -71,13 +74,11 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
     private final Timer damageRecoveryTimer = new Timer(1.5f);
     private final Timer damageRecoveryBlinkTimer = new Timer(.05f);
     private final Timer damageTimer = new Timer(.75f);
-
     private boolean isCharging;
     private boolean recoveryBlink;
     private MegamanWeapon megamanWeapon;
     private Facing facing = Facing.RIGHT;
     private AButtonTask aButtonTask = AButtonTask.JUMP;
-
     public Megaman(GameContext2d gameContext, Vector2 spawn) {
         this.gameContext = gameContext;
         this.megamanStats = gameContext.getBlackboardObject(MEGAMAN_STATS, MegamanStats.class);
@@ -153,7 +154,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
                 add(new Vector2(EXPLOSION_ORB_SPEED, 0f));
                 add(new Vector2(EXPLOSION_ORB_SPEED, -EXPLOSION_ORB_SPEED));
                 add(new Vector2(0f, -EXPLOSION_ORB_SPEED));
-                add(new Vector2(-EXPLOSION_ORB_SPEED , -EXPLOSION_ORB_SPEED));
+                add(new Vector2(-EXPLOSION_ORB_SPEED, -EXPLOSION_ORB_SPEED));
             }};
             trajectories.forEach(trajectory -> gameContext.addEntity(new ExplosionOrb(
                     gameContext, getComponent(BodyComponent.class).getCenter(), trajectory)));
@@ -575,6 +576,10 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         animations.put("SlipSlideShoot", new TimedAnimation(textureAtlas.findRegion("SlipSlideShoot")));
         Animator animator = new Animator(keySupplier, animations);
         return new AnimationComponent(animator);
+    }
+
+    public enum AButtonTask {
+        JUMP, AIR_DASH
     }
 
 }

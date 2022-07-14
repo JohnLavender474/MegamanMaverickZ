@@ -40,9 +40,10 @@ import java.util.List;
 import java.util.Map;
 
 import static com.game.ConstVals.RenderingGround.PLAYGROUND;
-import static com.game.ConstVals.TextureAssets.*;
+import static com.game.ConstVals.TextureAssets.BITS_ATLAS;
 import static com.game.ConstVals.ViewVals.PPM;
-import static com.game.world.FixtureType.*;
+import static com.game.world.FixtureType.FEET_STICKER;
+import static com.game.world.FixtureType.WALL_SLIDE_SENSOR;
 
 public class LevelScreen extends ScreenAdapter implements MessageListener {
 
@@ -95,7 +96,7 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
             playerSpawns.add(playerSpawnObj.getRectangle());
             return playerSpawnObj.getName().equals("start");
         }).findFirst().map(RectangleMapObject::getRectangle).ifPresentOrElse(
-                entitySpawnManager::setCurrentPlayerSpawn, () -> { throw new IllegalStateException(); });
+                entitySpawnManager::setCurrentPlayerSpawn, () -> {throw new IllegalStateException();});
         EntitySpawnFunctionFactory factory = new EntitySpawnFunctionFactory();
         List<EntitySpawn> enemySpawns = levelTiledMap.getObjectsOfLayer(ENEMY_SPAWNS).stream().map(enemySpawnObj ->
                 new EntitySpawn(gameContext, enemySpawnObj, factory.getFunction(enemySpawnObj.getName()))).toList();
@@ -241,9 +242,9 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
             }
         }
     }
-    
+
     private void onGamePaused(float delta) {
-        
+
     }
 
     @Override

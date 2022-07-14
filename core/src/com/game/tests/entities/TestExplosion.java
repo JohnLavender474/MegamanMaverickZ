@@ -18,7 +18,7 @@ import lombok.Setter;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.game.ConstVals.TextureAssets.*;
+import static com.game.ConstVals.TextureAssets.DECORATIONS_TEXTURE_ATLAS;
 import static com.game.ConstVals.ViewVals.PPM;
 
 @Getter

@@ -69,7 +69,7 @@
  <objectgroup id="3" name="DeathSensors">
   <object id="9" x="0" y="268" width="800" height="48"/>
  </objectgroup>
- <objectgroup id="4" name="GameRooms" visible="0">
+ <objectgroup id="4" name="GameRooms">
   <object id="10" x="16" y="16" width="528" height="224"/>
   <object id="11" x="543" y="16" width="1109" height="224"/>
   <object id="47" x="1652" y="16" width="140" height="220"/>

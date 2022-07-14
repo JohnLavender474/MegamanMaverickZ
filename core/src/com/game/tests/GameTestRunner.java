@@ -5,7 +5,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
-import com.game.tests.screens.*;
+import com.game.tests.screens.TestEnemiesScreen;
+import com.game.tests.screens.TestTrajectoriesScreen;
 import lombok.RequiredArgsConstructor;
 
 import java.util.HashMap;

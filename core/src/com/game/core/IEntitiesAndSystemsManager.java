@@ -3,7 +3,6 @@ package com.game.core;
 import com.game.System;
 
 import java.util.Collection;
-import java.util.Set;
 
 public interface IEntitiesAndSystemsManager {
 

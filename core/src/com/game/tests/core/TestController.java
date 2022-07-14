@@ -1,7 +1,7 @@
 package com.game.tests.core;
 
-import com.game.controllers.ControllerButton;
 import com.game.controllers.ButtonStatus;
+import com.game.controllers.ControllerButton;
 import com.game.core.IController;
 
 import java.util.HashMap;

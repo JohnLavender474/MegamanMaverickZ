@@ -22,7 +22,7 @@ public class UtilMethods {
      * Returns the normalized trajectory.
      *
      * @param start the starting point
-     * @param end the ending point
+     * @param end   the ending point
      * @param speed the speed
      * @return the normalized trajectory
      */
