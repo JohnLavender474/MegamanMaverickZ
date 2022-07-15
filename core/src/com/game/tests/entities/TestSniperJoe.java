@@ -201,11 +201,11 @@ public class TestSniperJoe extends Entity implements Faceable, Damager, Damageab
         bodyComponent.setSize(PPM, 1.5f * PPM);
         bodyComponent.setGravity(-50f * PPM);
         // hit box
-        Fixture hitBox = new Fixture(this, FixtureType.HIT_BOX);
+        Fixture hitBox = new Fixture(this, FixtureType.DAMAGEABLE_BOX);
         hitBox.setSize(.75f * PPM, 1.15f * PPM);
         bodyComponent.addFixture(hitBox);
         // damage Box
-        Fixture damageBox = new Fixture(this, FixtureType.DAMAGE_BOX);
+        Fixture damageBox = new Fixture(this, FixtureType.DAMAGER_BOX);
         damageBox.setCenter(.75f * PPM, 1.25f * PPM);
         bodyComponent.addFixture(damageBox);
         // shield

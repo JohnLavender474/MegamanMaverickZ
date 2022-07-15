@@ -1,11 +1,11 @@
-package com.game.entities.projectiles;
+package com.game.entities.contracts;
 
 import com.game.world.Fixture;
 
 /**
  * Interface for any entity representing a projectile.
  */
-public interface IProjectile {
+public interface Hitter {
 
     /**
      * Called when the projectile hits a fixture.

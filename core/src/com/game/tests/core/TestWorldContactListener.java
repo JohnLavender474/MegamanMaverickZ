@@ -2,11 +2,9 @@ package com.game.tests.core;
 
 import com.badlogic.gdx.Gdx;
 import com.game.core.IEntity;
-import com.game.damage.DamageComponent;
-import com.game.damage.DamagerDef;
 import com.game.entities.contracts.Damageable;
 import com.game.entities.contracts.Damager;
-import com.game.entities.projectiles.IProjectile;
+import com.game.entities.contracts.Hitter;
 import com.game.health.HealthComponent;
 import com.game.tests.entities.TestBlock;
 import com.game.tests.entities.TestPlayer;
@@ -21,19 +19,7 @@ public class TestWorldContactListener implements WorldContactListener {
 
     @Override
     public void beginContact(Contact contact, float delta) {
-        // test damage component
-        if (contact.acceptMask(HIT_BOX, DAMAGE_BOX)) {
-            if (!contact.mask1stEntity().hasComponent(HealthComponent.class) ||
-                    !contact.mask1stEntity().hasComponent(DamageComponent.class) ||
-                    !contact.getMask().second().hasUserData("DamagerDef", DamagerDef.class)) {
-                throw new IllegalStateException();
-            }
-            DamageComponent damageComponent = contact.mask1stEntity().getComponent(DamageComponent.class);
-            DamagerDef damagerDef = contact.getMask().second().getUserData("DamagerDef", DamagerDef.class);
-            damageComponent.setDamagedBy(damagerDef);
-        }
-        // end test
-        if (contact.acceptMask(HIT_BOX, DEATH)) {
+        if (contact.acceptMask(DAMAGEABLE_BOX, DEATH)) {
             contact.mask1stEntity().getComponent(HealthComponent.class).setHealth(0);
         } else if (contact.acceptMask(LEFT, BLOCK)) {
             contact.mask1stBody().setIs(TOUCHING_BLOCK_LEFT);
@@ -43,9 +29,11 @@ public class TestWorldContactListener implements WorldContactListener {
             contact.mask1stBody().setIs(TOUCHING_WALL_SLIDE_LEFT);
         } else if (contact.acceptMask(RIGHT, WALL_SLIDE_SENSOR)) {
             contact.mask1stBody().setIs(TOUCHING_WALL_SLIDE_RIGHT);
-        } else if (contact.acceptMask(LEFT, HIT_BOX) && !contact.mask1stEntity().equals(contact.mask2ndEntity())) {
+        } else if (contact.acceptMask(LEFT, DAMAGEABLE_BOX) &&
+                !contact.mask1stEntity().equals(contact.mask2ndEntity())) {
             contact.mask1stBody().setIs(TOUCHING_HITBOX_LEFT);
-        } else if (contact.acceptMask(RIGHT, HIT_BOX) && !contact.mask1stEntity().equals(contact.mask2ndEntity())) {
+        } else if (contact.acceptMask(RIGHT, DAMAGEABLE_BOX) &&
+                !contact.mask1stEntity().equals(contact.mask2ndEntity())) {
             contact.mask1stBody().setIs(TOUCHING_HITBOX_RIGHT);
         } else if (contact.acceptMask(FEET, BLOCK)) {
             IEntity entity = contact.mask1stEntity();
@@ -56,14 +44,14 @@ public class TestWorldContactListener implements WorldContactListener {
             }
         } else if (contact.acceptMask(HEAD, BLOCK)) {
             contact.mask1stBody().setIs(HEAD_TOUCHING_BLOCK);
-        } else if (contact.acceptMask(DAMAGE_BOX, HIT_BOX) &&
-                contact.mask1stBody() instanceof Damager damager &&
+        } else if (contact.acceptMask(DAMAGER_BOX, DAMAGEABLE_BOX) &&
+                contact.mask1stEntity() instanceof Damager damager &&
                 contact.mask2ndEntity() instanceof Damageable damageable &&
                 damageable.canBeDamagedBy(damager) && damager.canDamage(damageable)) {
             damageable.takeDamageFrom(damager);
             damager.onDamageInflictedTo(damageable.getClass());
-        } else if (contact.acceptMask(PROJECTILE)) {
-            ((IProjectile) contact.mask1stEntity()).hit(contact.getMask().second());
+        } else if (contact.acceptMask(HITTER_BOX) && contact.mask1stEntity() instanceof Hitter hitter) {
+            hitter.hit(contact.getMask().second());
         }
     }
 
@@ -77,9 +65,11 @@ public class TestWorldContactListener implements WorldContactListener {
             contact.mask1stBody().setIs(TOUCHING_WALL_SLIDE_LEFT);
         } else if (contact.acceptMask(RIGHT, WALL_SLIDE_SENSOR)) {
             contact.mask1stBody().setIs(TOUCHING_WALL_SLIDE_RIGHT);
-        } else if (contact.acceptMask(LEFT, HIT_BOX) && !contact.mask1stEntity().equals(contact.mask2ndEntity())) {
+        } else if (contact.acceptMask(LEFT, DAMAGEABLE_BOX) &&
+                !contact.mask1stEntity().equals(contact.mask2ndEntity())) {
             contact.mask1stBody().setIs(TOUCHING_HITBOX_LEFT);
-        } else if (contact.acceptMask(RIGHT, HIT_BOX) && !contact.mask1stEntity().equals(contact.mask2ndEntity())) {
+        } else if (contact.acceptMask(RIGHT, DAMAGEABLE_BOX) &&
+                !contact.mask1stEntity().equals(contact.mask2ndEntity())) {
             contact.mask1stBody().setIs(TOUCHING_HITBOX_RIGHT);
         } else if (contact.acceptMask(FEET, BLOCK)) {
             IEntity entity = contact.mask1stEntity();
@@ -92,14 +82,14 @@ public class TestWorldContactListener implements WorldContactListener {
             contact.mask1stBody().translate(contact.mask2ndBody().getPosDelta());
         } else if (contact.acceptMask(HEAD, BLOCK)) {
             contact.mask1stEntity().getComponent(BodyComponent.class).setIs(HEAD_TOUCHING_BLOCK);
-        } else if (contact.acceptMask(DAMAGE_BOX, HIT_BOX) &&
+        } else if (contact.acceptMask(DAMAGER_BOX, DAMAGEABLE_BOX) &&
                 contact.mask1stEntity() instanceof Damager damager &&
                 contact.mask2ndEntity() instanceof Damageable damageable &&
                 damageable.canBeDamagedBy(damager) && damager.canDamage(damageable)) {
             damageable.takeDamageFrom(damager);
             damager.onDamageInflictedTo(damageable.getClass());
-        } else if (contact.acceptMask(PROJECTILE)) {
-            ((IProjectile) contact.mask1stEntity()).hit(contact.getMask().second());
+        } else if (contact.acceptMask(HITTER_BOX) && contact.mask1stEntity() instanceof Hitter hitter) {
+            hitter.hit(contact.getMask().second());
         }
     }
 
@@ -113,9 +103,11 @@ public class TestWorldContactListener implements WorldContactListener {
             contact.mask1stBody().setIsNot(TOUCHING_WALL_SLIDE_LEFT);
         } else if (contact.acceptMask(RIGHT, WALL_SLIDE_SENSOR)) {
             contact.mask1stBody().setIsNot(TOUCHING_WALL_SLIDE_RIGHT);
-        } else if (contact.acceptMask(LEFT, HIT_BOX) && !contact.mask1stEntity().equals(contact.mask2ndEntity())) {
+        } else if (contact.acceptMask(LEFT, DAMAGEABLE_BOX) &&
+                !contact.mask1stEntity().equals(contact.mask2ndEntity())) {
             contact.mask1stBody().setIsNot(TOUCHING_HITBOX_LEFT);
-        } else if (contact.acceptMask(RIGHT, HIT_BOX) && !contact.mask1stEntity().equals(contact.mask2ndEntity())) {
+        } else if (contact.acceptMask(RIGHT, DAMAGEABLE_BOX) &&
+                !contact.mask1stEntity().equals(contact.mask2ndEntity())) {
             contact.mask1stBody().setIsNot(TOUCHING_HITBOX_RIGHT);
         } else if (contact.acceptMask(FEET, BLOCK)) {
             contact.mask1stBody().setIsNot(FEET_ON_GROUND);

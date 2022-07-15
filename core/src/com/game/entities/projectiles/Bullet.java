@@ -10,6 +10,7 @@ import com.game.ConstVals.TextureAssets;
 import com.game.GameContext2d;
 import com.game.core.IEntity;
 import com.game.entities.contracts.Damager;
+import com.game.entities.contracts.Hitter;
 import com.game.levels.CullOnLevelCamTrans;
 import com.game.levels.CullOnOutOfCamBounds;
 import com.game.sprites.SpriteComponent;
@@ -30,7 +31,7 @@ import static com.game.world.FixtureType.BLOCK;
 
 @Getter
 @Setter
-public class Bullet implements IEntity, IProjectile, Damager, CullOnOutOfCamBounds, CullOnLevelCamTrans {
+public class Bullet implements IEntity, Hitter, Damager, CullOnOutOfCamBounds, CullOnLevelCamTrans {
 
     private final GameContext2d gameContext;
 
@@ -75,11 +76,11 @@ public class Bullet implements IEntity, IProjectile, Damager, CullOnOutOfCamBoun
         bodyComponent.setPreProcess(delta -> bodyComponent.setVelocity(trajectory));
         bodyComponent.setSize(.1f * PPM, .1f * PPM);
         bodyComponent.setCenter(spawn.x, spawn.y);
-        Fixture projectile = new Fixture(this, FixtureType.PROJECTILE);
+        Fixture projectile = new Fixture(this, FixtureType.HITTER_BOX);
         projectile.setSize(.1f * PPM, .1f * PPM);
         projectile.setCenter(spawn.x, spawn.y);
         bodyComponent.addFixture(projectile);
-        Fixture damageBox = new Fixture(this, FixtureType.DAMAGE_BOX);
+        Fixture damageBox = new Fixture(this, FixtureType.DAMAGER_BOX);
         damageBox.setSize(.1f * PPM, .1f * PPM);
         damageBox.setCenter(spawn.x, spawn.y);
         bodyComponent.addFixture(damageBox);

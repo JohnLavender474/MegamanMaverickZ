@@ -484,7 +484,7 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
         right.setWidth(1f);
         right.setOffset(.45f * PPM, 0f);
         bodyComponent.addFixture(right);
-        Fixture hitBox = new Fixture(this, HIT_BOX);
+        Fixture hitBox = new Fixture(this, DAMAGEABLE_BOX);
         hitBox.setSize(PPM, .75f * PPM);
         hitBox.setDebugColor(Color.RED);
         bodyComponent.addFixture(hitBox);

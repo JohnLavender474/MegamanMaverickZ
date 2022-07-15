@@ -142,7 +142,7 @@ public class TestMet implements IEntity, Faceable, Damager, Damageable, CullOnLe
             bodyComponent.getFirstMatchingFixture(FixtureType.SHIELD).ifPresentOrElse(
                     shield -> shield.setActive(metBehavior == MetBehavior.SHIELDING),
                     () -> {throw new IllegalStateException();});
-            bodyComponent.getFirstMatchingFixture(FixtureType.HIT_BOX).ifPresentOrElse(
+            bodyComponent.getFirstMatchingFixture(FixtureType.DAMAGEABLE_BOX).ifPresentOrElse(
                     hitBox -> hitBox.setActive(metBehavior != MetBehavior.SHIELDING),
                     () -> {throw new IllegalStateException();});
             switch (metBehavior) {
@@ -218,11 +218,11 @@ public class TestMet implements IEntity, Faceable, Damager, Damageable, CullOnLe
         shield.setSize(PPM, 1.5f * PPM);
         bodyComponent.addFixture(shield);
         // hit box
-        Fixture hitBox = new Fixture(this, FixtureType.HIT_BOX);
+        Fixture hitBox = new Fixture(this, FixtureType.DAMAGEABLE_BOX);
         hitBox.setSize(.75f * PPM, .75f * PPM);
         bodyComponent.addFixture(hitBox);
         // damage box
-        Fixture damageBox = new Fixture(this, FixtureType.DAMAGE_BOX);
+        Fixture damageBox = new Fixture(this, FixtureType.DAMAGER_BOX);
         damageBox.setSize(.75f * PPM, .75f * PPM);
         bodyComponent.addFixture(damageBox);
         return bodyComponent;

@@ -25,8 +25,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static com.game.world.FixtureType.DAMAGE_BOX;
-import static com.game.world.FixtureType.HIT_BOX;
+import static com.game.world.FixtureType.DAMAGER_BOX;
+import static com.game.world.FixtureType.DAMAGEABLE_BOX;
 
 @Getter
 @Setter
@@ -68,10 +68,10 @@ public class TestDamager implements IEntity, Damager, Damageable, CullOnOutOfCam
         bodyComponent.setGravityOn(false);
         bodyComponent.setFriction(0f, 0f);
         bodyComponent.setAffectedByResistance(false);
-        Fixture hitBox = new Fixture(this, HIT_BOX);
+        Fixture hitBox = new Fixture(this, DAMAGEABLE_BOX);
         hitBox.set(UtilMethods.getScaledRect(bounds, 1.05f));
         bodyComponent.addFixture(hitBox);
-        Fixture damageBox = new Fixture(this, DAMAGE_BOX);
+        Fixture damageBox = new Fixture(this, DAMAGER_BOX);
         damageBox.set(UtilMethods.getScaledRect(bounds, 1.05f));
         bodyComponent.addFixture(damageBox);
         return bodyComponent;

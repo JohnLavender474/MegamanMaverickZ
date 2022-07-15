@@ -82,6 +82,15 @@ public class Contact {
     }
 
     /**
+     * Mask first fixture.
+     *
+     * @return the fixture
+     */
+    public Fixture mask1stFixture() {
+        return mask.first();
+    }
+
+    /**
      * Fetches the {@link IEntity} of the second {@link Fixture} contained in {@link #getMask()}.
      *
      * @return the entity
@@ -97,6 +106,15 @@ public class Contact {
      */
     public BodyComponent mask2ndBody() {
         return mask2ndEntity().getComponent(BodyComponent.class);
+    }
+
+    /**
+     * Mask second fixture.
+     *
+     * @return the fixture
+     */
+    public Fixture mask2ndFixture() {
+        return mask.second();
     }
 
     @Override

@@ -7,13 +7,14 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
+import com.game.Entity;
 import com.game.core.IAssetLoader;
 import com.game.core.IEntitiesAndSystemsManager;
 import com.game.core.IEntity;
 import com.game.debugging.DebugComponent;
 import com.game.entities.contracts.Damageable;
 import com.game.entities.contracts.Damager;
-import com.game.entities.projectiles.IProjectile;
+import com.game.entities.contracts.Hitter;
 import com.game.levels.CullOnLevelCamTrans;
 import com.game.levels.CullOnOutOfCamBounds;
 import com.game.sprites.SpriteComponent;
@@ -33,7 +34,7 @@ import static com.game.world.FixtureType.*;
 
 @Getter
 @Setter
-public class TestBullet implements IEntity, IProjectile, Damager, CullOnOutOfCamBounds, CullOnLevelCamTrans {
+public class TestBullet extends Entity implements Hitter, Damager, CullOnOutOfCamBounds, CullOnLevelCamTrans {
 
     private final Map<Class<? extends Component>, Component> components = new HashMap<>();
     private final IEntitiesAndSystemsManager entitiesAndSystemsManager;
@@ -95,10 +96,10 @@ public class TestBullet implements IEntity, IProjectile, Damager, CullOnOutOfCam
         bodyComponent.setPreProcess(delta -> bodyComponent.setVelocity(trajectory));
         bodyComponent.setSize(.1f * PPM, .1f * PPM);
         bodyComponent.setCenter(spawn.x, spawn.y);
-        Fixture projectile = new Fixture(this, PROJECTILE);
+        Fixture projectile = new Fixture(this, HITTER_BOX);
         projectile.setSize(.1f * PPM, .1f * PPM);
         bodyComponent.addFixture(projectile);
-        Fixture damageBox = new Fixture(this, DAMAGE_BOX);
+        Fixture damageBox = new Fixture(this, DAMAGER_BOX);
         damageBox.setSize(.1f * PPM, .1f * PPM);
         bodyComponent.addFixture(damageBox);
         return bodyComponent;
@@ -108,8 +109,8 @@ public class TestBullet implements IEntity, IProjectile, Damager, CullOnOutOfCam
         DebugComponent debugComponent = new DebugComponent();
         getComponent(BodyComponent.class).getFixtures().forEach(fixture ->
                 debugComponent.addDebugHandle(fixture::getFixtureBox, () -> switch (fixture.getFixtureType()) {
-                    case PROJECTILE -> Color.BLUE;
-                    case DAMAGE_BOX -> Color.RED;
+                    case HITTER_BOX -> Color.BLUE;
+                    case DAMAGER_BOX -> Color.RED;
                     default -> Color.GREEN;
                 }));
         return debugComponent;
