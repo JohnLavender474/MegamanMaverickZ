@@ -51,6 +51,18 @@ public class Fixture {
     }
 
     /**
+     * Has user data.
+     *
+     * @param key    the key
+     * @param tClass the class
+     * @param <T>    the data type
+     * @return if has data
+     */
+    public <T> boolean hasUserData(String key, Class<T> tClass) {
+        return userData.containsKey(key) && tClass.isAssignableFrom(userData.get(key).getClass());
+    }
+
+    /**
      * Set.
      *
      * @param bounds the bounds

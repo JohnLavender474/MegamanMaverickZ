@@ -19,6 +19,10 @@ public interface IEntity {
         return componentClass.cast(getComponents().get(componentClass));
     }
 
+    default boolean hasComponent(Class<? extends Component> clazz) {
+        return getComponents().containsKey(clazz) && clazz.isAssignableFrom(getComponents().get(clazz).getClass());
+    }
+
     default boolean hasAllComponents(Collection<Class<? extends Component>> clazzes) {
         return getComponents().keySet().containsAll(clazzes);
     }

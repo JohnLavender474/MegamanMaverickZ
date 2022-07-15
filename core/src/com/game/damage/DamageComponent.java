@@ -3,6 +3,7 @@ package com.game.damage;
 import com.game.Component;
 import com.game.utils.Timer;
 import com.game.utils.UpdatableConsumer;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,19 +13,17 @@ import java.util.function.Supplier;
 
 import static com.game.damage.DamageProcess.*;
 
+@Getter
 public class DamageComponent implements Component {
 
     private final Map<DamageProcess, UpdatableConsumer<DamagerDef>> damageProcessSteps;
     private final Function<DamagerDef, Boolean> damageAcceptanceFunc;
     private final Supplier<Boolean> invincibilitySupplier;
     private final Function<DamagerDef, Integer> damageFunc;
-    @Getter
     private final Timer recoveryTimer;
-    @Getter
     private final Timer damageTimer;
 
-    @Getter
-    @Setter
+    @Setter(AccessLevel.PACKAGE)
     private DamagerDef damagerDef;
 
     public DamageComponent(Map<DamageProcess, UpdatableConsumer<DamagerDef>> damageProcessSteps,
@@ -48,7 +47,7 @@ public class DamageComponent implements Component {
     }
 
     public void setDamagedBy(DamagerDef damagerDef) {
-        setDamagerDef(damagerDef);
+        this.damagerDef = damagerDef;
         damageTimer.reset();
     }
 

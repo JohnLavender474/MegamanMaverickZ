@@ -2,6 +2,8 @@ package com.game.tests.core;
 
 import com.badlogic.gdx.Gdx;
 import com.game.core.IEntity;
+import com.game.damage.DamageComponent;
+import com.game.damage.DamagerDef;
 import com.game.entities.contracts.Damageable;
 import com.game.entities.contracts.Damager;
 import com.game.entities.projectiles.IProjectile;
@@ -19,6 +21,18 @@ public class TestWorldContactListener implements WorldContactListener {
 
     @Override
     public void beginContact(Contact contact, float delta) {
+        // test damage component
+        if (contact.acceptMask(HIT_BOX, DAMAGE_BOX)) {
+            if (!contact.mask1stEntity().hasComponent(HealthComponent.class) ||
+                    !contact.mask1stEntity().hasComponent(DamageComponent.class) ||
+                    !contact.getMask().second().hasUserData("DamagerDef", DamagerDef.class)) {
+                throw new IllegalStateException();
+            }
+            DamageComponent damageComponent = contact.mask1stEntity().getComponent(DamageComponent.class);
+            DamagerDef damagerDef = contact.getMask().second().getUserData("DamagerDef", DamagerDef.class);
+            damageComponent.setDamagedBy(damagerDef);
+        }
+        // end test
         if (contact.acceptMask(HIT_BOX, DEATH)) {
             contact.mask1stEntity().getComponent(HealthComponent.class).setHealth(0);
         } else if (contact.acceptMask(LEFT, BLOCK)) {
