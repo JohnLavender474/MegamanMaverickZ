@@ -60,9 +60,15 @@ public class TestSuctionRoller extends Entity implements Damager, Damageable, Fa
                 (isFacing(Facing.RIGHT) && bodyComponent.is(BodySense.TOUCHING_BLOCK_RIGHT));
     }
 
-    private UpdatableComponent defineUpdatableComponent() {
+    private UpdatableComponent defineUpdatableComponent(Supplier<TestPlayer> testPlayerSupplier) {
         return new UpdatableComponent(delta -> {
-
+            BodyComponent thisBody = getComponent(BodyComponent.class);
+            BodyComponent playerBody = testPlayerSupplier.get().getComponent(BodyComponent.class);
+            if (onWall()) {
+                
+            } else {
+                setFacing(thisBody.isLeftOf(playerBody) ? Facing.RIGHT : Facing.LEFT);
+            }
         });
     }
 
