@@ -22,6 +22,8 @@ import com.game.behaviors.BehaviorComponent;
 import com.game.behaviors.BehaviorSystem;
 import com.game.controllers.ControllerSystem;
 import com.game.core.IEntity;
+import com.game.cull.CullOnCamTransSystem;
+import com.game.cull.CullOnOutOfCamBoundsSystem;
 import com.game.debugging.DebugComponent;
 import com.game.debugging.DebugSystem;
 import com.game.health.HealthComponent;
@@ -120,6 +122,8 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
         black.setCenter(0f, 0f);
         entitiesAndSystemsManager.addSystem(new WorldSystem(new TestWorldContactListener(),
                 WorldVals.AIR_RESISTANCE, WorldVals.FIXED_TIME_STEP));
+        entitiesAndSystemsManager.addSystem(new CullOnCamTransSystem(() -> levelCameraManager.getTransitionState()));
+        entitiesAndSystemsManager.addSystem(new CullOnOutOfCamBoundsSystem(playgroundViewport.getCamera()));
         entitiesAndSystemsManager.addSystem(new UpdatableSystem());
         entitiesAndSystemsManager.addSystem(new ControllerSystem(testController));
         entitiesAndSystemsManager.addSystem(new HealthSystem());
@@ -339,7 +343,11 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
                 return () -> new TestSniperJoe(entitiesAndSystemsManager, assetLoader, () -> player,
                         getPoint(spawnObj.getRectangle(), Position.BOTTOM_CENTER));
             }
-            default -> throw new IllegalStateException();
+            case "suction_roller" -> {
+                return () -> new TestSuctionRoller(assetLoader, () -> player, getPoint(
+                        spawnObj.getRectangle(), Position.BOTTOM_CENTER));
+            }
+            default -> throw new IllegalStateException("Cannot find matching entity for <" + spawnObj.getName() + ">");
         }
     }
 

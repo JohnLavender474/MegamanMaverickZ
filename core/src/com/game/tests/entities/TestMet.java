@@ -7,21 +7,19 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.Component;
+import com.game.Entity;
 import com.game.animations.AnimationComponent;
-import com.game.animations.Animator;
 import com.game.animations.TimedAnimation;
 import com.game.core.IAssetLoader;
 import com.game.core.IEntitiesAndSystemsManager;
-import com.game.core.IEntity;
+import com.game.cull.CullOnCamTransComponent;
+import com.game.cull.CullOnOutOfCamBoundsComponent;
 import com.game.debugging.DebugComponent;
 import com.game.entities.contracts.Damageable;
 import com.game.entities.contracts.Damager;
 import com.game.entities.contracts.Faceable;
 import com.game.entities.contracts.Facing;
 import com.game.health.HealthComponent;
-import com.game.levels.CullOnLevelCamTrans;
-import com.game.levels.CullOnOutOfCamBounds;
 import com.game.sprites.SpriteAdapter;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
@@ -50,7 +48,11 @@ import static com.game.world.BodySense.TOUCHING_HITBOX_RIGHT;
 
 @Getter
 @Setter
-public class TestMet implements IEntity, Faceable, Damager, Damageable, CullOnLevelCamTrans, CullOnOutOfCamBounds {
+public class TestMet extends Entity implements Faceable, Damager, Damageable {
+
+    private enum MetBehavior {
+        SHIELDING, POP_UP, RUNNING, PANIC
+    }
 
     private final Map<MetBehavior, Timer> metBehaviorTimers = new EnumMap<>(MetBehavior.class) {{
         put(MetBehavior.SHIELDING, new Timer(1.15f));
@@ -61,13 +63,11 @@ public class TestMet implements IEntity, Faceable, Damager, Damageable, CullOnLe
     private final IAssetLoader assetLoader;
     private final Supplier<TestPlayer> megamanSupplier;
     private final IEntitiesAndSystemsManager entitiesAndSystemsManager;
-    private final Map<Class<? extends Component>, Component> components = new HashMap<>();
     private final Set<Class<? extends Damager>> damagerMaskSet = Set.of(TestBullet.class);
     private final Timer damageTimer = new Timer(.25f);
     private final Timer blinkTimer = new Timer(.05f);
-    private final Timer cullTimer = new Timer(1.5f);
+
     private MetBehavior metBehavior;
-    private boolean dead;
     private Facing facing;
 
     public TestMet(IEntitiesAndSystemsManager entitiesAndSystemsManager, IAssetLoader assetLoader,
@@ -75,6 +75,9 @@ public class TestMet implements IEntity, Faceable, Damager, Damageable, CullOnLe
         this.entitiesAndSystemsManager = entitiesAndSystemsManager;
         this.megamanSupplier = megamanSupplier;
         this.assetLoader = assetLoader;
+        addComponent(new CullOnCamTransComponent());
+        addComponent(new CullOnOutOfCamBoundsComponent(
+                () -> getComponent(BodyComponent.class).getCollisionBox(), 1.5f));
         addComponent(new HealthComponent(30, this::disintegrate));
         addComponent(defineUpdatableComponent(megamanSupplier));
         addComponent(defineBodyComponent(spawn));
@@ -83,11 +86,6 @@ public class TestMet implements IEntity, Faceable, Damager, Damageable, CullOnLe
         addComponent(defineAnimationComponent(assetLoader.getAsset(MET_TEXTURE_ATLAS, TextureAtlas.class)));
         setMetBehavior(MetBehavior.SHIELDING);
         damageTimer.setToEnd();
-    }
-
-    @Override
-    public Rectangle getCullBoundingBox() {
-        return getComponent(BodyComponent.class).getCollisionBox();
     }
 
     @Override
@@ -114,10 +112,6 @@ public class TestMet implements IEntity, Faceable, Damager, Damageable, CullOnLe
         BodyComponent bodyComponent = getComponent(BodyComponent.class);
         Vector2 trajectory = new Vector2((isFacing(Facing.RIGHT) ? 10f : -10f) * PPM, .5f * PPM);
         Vector2 spawn = bodyComponent.getCenter().cpy().add(isFacing(Facing.RIGHT) ? .5f : -.5f, -4f);
-        /*
-        Vector2 trajectory = UtilMethods.normalizedTrajectory(spawn, megamanSupplier.get()
-                .getComponent(BodyComponent.class).getCenter(), 10f * PPM);
-         */
         TextureRegion yellowBullet = assetLoader.getAsset(OBJECTS_TEXTURE_ATLAS, TextureAtlas.class)
                 .findRegion("YellowBullet");
         TestBullet bullet = new TestBullet(this, trajectory, spawn, yellowBullet,
@@ -199,8 +193,8 @@ public class TestMet implements IEntity, Faceable, Damager, Damageable, CullOnLe
 
     private BodyComponent defineBodyComponent(Vector2 spawn) {
         BodyComponent bodyComponent = new BodyComponent(BodyType.DYNAMIC);
-        setBottomCenterToPoint(bodyComponent.getCollisionBox(), spawn);
         bodyComponent.setSize(.75f * PPM, .75f * PPM);
+        setBottomCenterToPoint(bodyComponent.getCollisionBox(), spawn);
         bodyComponent.setGravity(-50f * PPM);
         // left
         Fixture left = new Fixture(this, FixtureType.LEFT);
@@ -267,11 +261,7 @@ public class TestMet implements IEntity, Faceable, Damager, Damageable, CullOnLe
             put("RunNaked", new TimedAnimation(textureAtlas.findRegion("RunNaked"), 2, .1f));
             put("LayDown", new TimedAnimation(textureAtlas.findRegion("LayDown")));
         }};
-        return new AnimationComponent(new Animator(keySupplier, timedAnimations));
-    }
-
-    enum MetBehavior {
-        SHIELDING, POP_UP, RUNNING, PANIC
+        return new AnimationComponent(keySupplier, timedAnimations);
     }
 
 }

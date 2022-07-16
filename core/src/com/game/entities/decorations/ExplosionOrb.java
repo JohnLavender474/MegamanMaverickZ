@@ -2,21 +2,17 @@ package com.game.entities.decorations;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Entity;
 import com.game.GameContext2d;
 import com.game.animations.AnimationComponent;
-import com.game.animations.Animator;
 import com.game.animations.TimedAnimation;
 import com.game.levels.CullOnOutOfCamBounds;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
 import com.game.utils.Timer;
 import lombok.Getter;
-
-import java.util.Map;
 
 import static com.game.ConstVals.TextureAssets.DECORATIONS_TEXTURE_ATLAS;
 import static com.game.ConstVals.ViewVals.PPM;
@@ -45,11 +41,8 @@ public class ExplosionOrb extends Entity implements CullOnOutOfCamBounds {
     }
 
     private AnimationComponent defineAnimationComponent(GameContext2d gameContext) {
-        TextureRegion explosionOrb = gameContext.getAsset(DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class)
-                .findRegion("PlayerExplosionOrbs");
-        Animator animator = new Animator(() -> "ExplosionOrb", Map.of("ExplosionOrb",
-                new TimedAnimation(explosionOrb, 2, .075f)));
-        return new AnimationComponent(animator);
+        return new AnimationComponent(new TimedAnimation(gameContext.getAsset(
+                DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class).findRegion("PlayerExplosionOrbs"), 2, .075f));
     }
 
     @Override

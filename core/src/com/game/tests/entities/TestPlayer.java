@@ -11,7 +11,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
 import com.game.Message;
 import com.game.animations.AnimationComponent;
-import com.game.animations.Animator;
 import com.game.animations.TimedAnimation;
 import com.game.behaviors.Behavior;
 import com.game.behaviors.BehaviorComponent;
@@ -502,11 +501,14 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
                 left.setHeight(PPM * .5f);
                 right.setHeight(PPM * .5f);
             }
+            bodyComponent.setGravity((behaviorComponent.is(JUMPING) ? -20f : -60f) * PPM);
+            /*
             if (bodyComponent.getVelocity().y < 0f && !bodyComponent.is(BodySense.FEET_ON_GROUND)) {
                 bodyComponent.setGravity(-60f * PPM);
             } else {
                 bodyComponent.setGravity(-20f * PPM);
             }
+             */
         });
         return bodyComponent;
     }
@@ -593,8 +595,7 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
         animations.put("AirDash", new TimedAnimation(textureAtlas.findRegion("AirDash")));
         animations.put("SlipSlide", new TimedAnimation(textureAtlas.findRegion("SlipSlide")));
         animations.put("SlipSlideShoot", new TimedAnimation(textureAtlas.findRegion("SlipSlideShoot")));
-        Animator animator = new Animator(keySupplier, animations);
-        return new AnimationComponent(animator);
+        return new AnimationComponent(keySupplier, animations);
     }
 
 }

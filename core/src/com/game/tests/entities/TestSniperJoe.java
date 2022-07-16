@@ -9,25 +9,23 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Entity;
 import com.game.animations.AnimationComponent;
-import com.game.animations.Animator;
 import com.game.animations.TimeMarkedRunnable;
 import com.game.animations.TimedAnimation;
 import com.game.core.IAssetLoader;
 import com.game.core.IEntitiesAndSystemsManager;
+import com.game.cull.CullOnCamTransComponent;
+import com.game.cull.CullOnOutOfCamBoundsComponent;
 import com.game.debugging.DebugComponent;
 import com.game.entities.contracts.Damageable;
 import com.game.entities.contracts.Damager;
 import com.game.entities.contracts.Faceable;
 import com.game.entities.contracts.Facing;
 import com.game.health.HealthComponent;
-import com.game.levels.CullOnLevelCamTrans;
-import com.game.levels.CullOnOutOfCamBounds;
 import com.game.sprites.SpriteAdapter;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
 import com.game.utils.Position;
 import com.game.utils.Timer;
-import com.game.utils.UtilMethods;
 import com.game.utils.Wrapper;
 import com.game.world.BodyComponent;
 import com.game.world.BodyType;
@@ -44,10 +42,10 @@ import java.util.function.Supplier;
 import static com.game.ConstVals.TextureAssets.ENEMIES_TEXTURE_ATLAS;
 import static com.game.ConstVals.TextureAssets.OBJECTS_TEXTURE_ATLAS;
 import static com.game.ConstVals.ViewVals.PPM;
+import static com.game.utils.UtilMethods.*;
 
 @Getter
-public class TestSniperJoe extends Entity implements Faceable, Damager, Damageable,
-        CullOnLevelCamTrans, CullOnOutOfCamBounds {
+public class TestSniperJoe extends Entity implements Faceable, Damager, Damageable {
 
     private static final float BULLET_SPEED = 15f;
 
@@ -56,23 +54,23 @@ public class TestSniperJoe extends Entity implements Faceable, Damager, Damageab
     private final IEntitiesAndSystemsManager entitiesAndSystemsManager;
     private final Set<Class<? extends Damager>> damagerMaskSet = Set.of(TestBullet.class);
 
-    private final Timer cullTimer = new Timer(1.5f);
-    private final Timer blinkTimer = new Timer(.075f);
     private final Timer recoveryTimer = new Timer(1f);
     private final Timer shieldedTimer = new Timer(1.75f);
     private final Timer shootingTimer = new Timer(1.5f, new TimeMarkedRunnable(.15f, this::shoot),
             new TimeMarkedRunnable(.75f, this::shoot), new TimeMarkedRunnable(1.35f, this::shoot));
 
+    private boolean isShielded = true;
     @Setter
     private Facing facing;
-    private boolean blink;
-    private boolean isShielded = true;
 
     public TestSniperJoe(IEntitiesAndSystemsManager entitiesAndSystemsManager, IAssetLoader assetLoader,
                          Supplier<TestPlayer> playerSupplier, Vector2 spawn) {
         this.assetLoader = assetLoader;
         this.playerSupplier = playerSupplier;
         this.entitiesAndSystemsManager = entitiesAndSystemsManager;
+        addComponent(new CullOnCamTransComponent());
+        addComponent(new CullOnOutOfCamBoundsComponent(
+                () -> getComponent(BodyComponent.class).getCollisionBox(), 1.5f));
         addComponent(defineUpdatableComponent(playerSupplier));
         addComponent(defineSpriteComponent());
         addComponent(defineAnimationComponent(assetLoader.getAsset(ENEMIES_TEXTURE_ATLAS, TextureAtlas.class)));
@@ -88,13 +86,6 @@ public class TestSniperJoe extends Entity implements Faceable, Damager, Damageab
         Vector2 trajectory = new Vector2(PPM * (isFacing(Facing.LEFT) ? -BULLET_SPEED : BULLET_SPEED), 0f);
         Vector2 spawn = getComponent(BodyComponent.class).getCenter().cpy().add(
                 (isFacing(Facing.LEFT) ? -5f : 5f), -3.25f);
-        /*
-        Vector2 target = playerSupplier.get().getComponent(BodyComponent.class).getCenter();
-        if (!playerSupplier.get().getComponent(BodyComponent.class).is(BodySense.FEET_ON_GROUND)) {
-            target.sub(0f, 15f);
-        }
-        Vector2 trajectory = UtilMethods.normalizedTrajectory(spawn, target, BULLET_SPEED * PPM);
-         */
         TextureRegion textureRegion = assetLoader.getAsset(OBJECTS_TEXTURE_ATLAS, TextureAtlas.class)
                 .findRegion("YellowBullet");
         TestBullet bullet = new TestBullet(this, trajectory, spawn, textureRegion,
@@ -129,11 +120,6 @@ public class TestSniperJoe extends Entity implements Faceable, Damager, Damageab
         return !recoveryTimer.isFinished();
     }
 
-    @Override
-    public Rectangle getCullBoundingBox() {
-        return getComponent(BodyComponent.class).getCollisionBox();
-    }
-
     private HealthComponent defineHealthComponent() {
         return new HealthComponent(30, this::explode);
     }
@@ -142,13 +128,6 @@ public class TestSniperJoe extends Entity implements Faceable, Damager, Damageab
         return new UpdatableComponent(delta -> {
             // recovery
             recoveryTimer.update(delta);
-            if (!recoveryTimer.isFinished()) {
-                blinkTimer.update(delta);
-                if (blinkTimer.isFinished()) {
-                    blinkTimer.reset();
-                    blink = !blink;
-                }
-            }
             // facing
             setFacing(Math.round(playerSupplier.get().getComponent(BodyComponent.class).getPosition().x) <
                     Math.round(getComponent(BodyComponent.class).getPosition().x) ? Facing.LEFT : Facing.RIGHT);
@@ -178,11 +157,6 @@ public class TestSniperJoe extends Entity implements Faceable, Damager, Damageab
                 return isFacing(Facing.RIGHT);
             }
 
-            @Override
-            public float getAlpha() {
-                return recoveryTimer.isFinished() ? 1f : blink ? 0f : 1f;
-            }
-
         });
     }
 
@@ -192,13 +166,13 @@ public class TestSniperJoe extends Entity implements Faceable, Damager, Damageab
             put("Shooting", new TimedAnimation(textureAtlas.findRegion("SniperJoe/SniperJoeShooting")));
             put("Shielded", new TimedAnimation(textureAtlas.findRegion("SniperJoe/SniperJoeShielded")));
         }};
-        return new AnimationComponent(new Animator(keySupplier, timedAnimations));
+        return new AnimationComponent(keySupplier, timedAnimations);
     }
 
     private BodyComponent defineBodyComponent(Vector2 spawn) {
         BodyComponent bodyComponent = new BodyComponent(BodyType.DYNAMIC);
-        UtilMethods.setBottomCenterToPoint(bodyComponent.getCollisionBox(), spawn);
         bodyComponent.setSize(PPM, 1.5f * PPM);
+        setBottomCenterToPoint(bodyComponent.getCollisionBox(), spawn);
         bodyComponent.setGravity(-50f * PPM);
         // hit box
         Fixture hitBox = new Fixture(this, FixtureType.DAMAGEABLE_BOX);

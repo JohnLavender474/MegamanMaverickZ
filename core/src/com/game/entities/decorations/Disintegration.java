@@ -8,7 +8,6 @@ import com.game.ConstVals.TextureAssets;
 import com.game.Entity;
 import com.game.GameContext2d;
 import com.game.animations.AnimationComponent;
-import com.game.animations.Animator;
 import com.game.animations.TimedAnimation;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
@@ -57,10 +56,8 @@ public class Disintegration extends Entity {
     }
 
     private AnimationComponent defineAnimationComponent(GameContext2d gameContext) {
-        Map<String, TimedAnimation> animations = Map.of("Disintegration",
-                new TimedAnimation(gameContext.getAsset(TextureAssets.DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class)
-                        .findRegion("Disintegration"), 3, 0.1f));
-        return new AnimationComponent(new Animator(() -> "Disintegration", animations));
+        return new AnimationComponent(new TimedAnimation(gameContext.getAsset(
+                TextureAssets.DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class).findRegion("Disintegration"), 3, 0.1f));
     }
 
     private UpdatableComponent defineUpdatableComponent() {

@@ -2,11 +2,9 @@ package com.game.tests.entities;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
 import com.game.animations.AnimationComponent;
-import com.game.animations.Animator;
 import com.game.animations.TimedAnimation;
 import com.game.core.IAssetLoader;
 import com.game.core.IEntity;
@@ -57,11 +55,9 @@ public class TestExplosionOrb implements IEntity {
     }
 
     private AnimationComponent defineAnimationComponent(IAssetLoader assetLoader) {
-        TextureRegion explosionOrb = assetLoader.getAsset(DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class)
-                .findRegion("PlayerExplosionOrbs");
-        Animator animator = new Animator(() -> "ExplosionOrb", Map.of("ExplosionOrb",
-                new TimedAnimation(explosionOrb, 2, .075f)));
-        return new AnimationComponent(animator);
+        TimedAnimation timedAnimation = new TimedAnimation(assetLoader.getAsset(
+                DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class).findRegion("PlayerExplosionOrbs"), 2, .075f);
+        return new AnimationComponent(timedAnimation);
     }
 
 }

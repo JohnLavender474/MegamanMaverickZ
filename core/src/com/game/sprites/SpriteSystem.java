@@ -59,9 +59,10 @@ public class SpriteSystem extends System {
                 Vector2 point = UtilMethods.getPoint(bounds.getData(), position.getData());
                 UtilMethods.setToPoint(sprite.getBoundingRectangle(), point, position.getData(), sprite::setPosition);
             }
+            sprite.translate(spriteAdapter.getOffsetX(), spriteAdapter.getOffsetY());
             sprite.setAlpha(spriteAdapter.isHidden() ? 0f : spriteAdapter.getAlpha());
             sprite.setFlip(spriteAdapter.isFlipX(), spriteAdapter.isFlipY());
-            sprite.translate(spriteAdapter.getOffsetX(), spriteAdapter.getOffsetY());
+            sprite.setRotation(spriteAdapter.getRotation());
         }
         Texture texture = sprite.getTexture();
         if (texture != null) {

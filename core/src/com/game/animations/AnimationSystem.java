@@ -16,7 +16,7 @@ public class AnimationSystem extends System {
     protected void processEntity(IEntity entity, float delta) {
         SpriteComponent spriteComponent = entity.getComponent(SpriteComponent.class);
         AnimationComponent animationComponent = entity.getComponent(AnimationComponent.class);
-        animationComponent.animator().animate(spriteComponent.getSprite(), delta);
+        animationComponent.animate(spriteComponent.getSprite(), delta);
     }
 
 }

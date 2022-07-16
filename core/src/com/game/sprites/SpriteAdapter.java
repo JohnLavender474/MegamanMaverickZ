@@ -12,6 +12,10 @@ public interface SpriteAdapter {
         return 1f;
     }
 
+    default float getRotation() {
+        return 0f;
+    }
+
     default boolean isHidden() {
         return false;
     }

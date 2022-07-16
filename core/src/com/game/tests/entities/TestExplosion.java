@@ -5,7 +5,6 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
 import com.game.animations.AnimationComponent;
-import com.game.animations.Animator;
 import com.game.animations.TimedAnimation;
 import com.game.core.IAssetLoader;
 import com.game.core.IEntity;
@@ -49,7 +48,7 @@ public class TestExplosion implements IEntity {
         timedAnimation = new TimedAnimation(assetLoader.getAsset(DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class)
                 .findRegion("Explosion"), 11, .025f);
         timedAnimation.setLoop(false);
-        return new AnimationComponent(new Animator(() -> "explosion", Map.of("explosion", timedAnimation)));
+        return new AnimationComponent(timedAnimation);
     }
 
     private UpdatableComponent defineUpdatableComponent() {

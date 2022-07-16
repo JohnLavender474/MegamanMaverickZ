@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.9" tiledversion="1.9.0" orientation="orthogonal" renderorder="right-down" width="125" height="20" tilewidth="16" tileheight="16" infinite="0" nextlayerid="9" nextobjectid="56">
+<map version="1.9" tiledversion="1.9.0" orientation="orthogonal" renderorder="right-down" width="125" height="20" tilewidth="16" tileheight="16" infinite="0" nextlayerid="9" nextobjectid="57">
  <tileset firstgid="1" source="../tsx/Tileset1.tsx"/>
  <layer id="1" name="Tile Layer " width="125" height="20">
   <data encoding="csv">
@@ -48,7 +48,7 @@
   <object id="39" x="1024" y="160" width="32" height="32"/>
  </objectgroup>
  <objectgroup id="5" name="PlayerSpawns">
-  <object id="13" name="start" x="36" y="184" width="4" height="8"/>
+  <object id="13" name="start" x="556" y="152" width="4" height="8"/>
  </objectgroup>
  <objectgroup id="6" name="WallSlideSensors">
   <object id="17" x="124" y="192" width="4" height="44"/>
@@ -69,18 +69,17 @@
  <objectgroup id="3" name="DeathSensors">
   <object id="9" x="0" y="268" width="800" height="48"/>
  </objectgroup>
- <objectgroup id="4" name="GameRooms">
+ <objectgroup id="4" name="GameRooms" visible="0">
   <object id="10" x="16" y="16" width="528" height="224"/>
   <object id="11" x="543" y="16" width="1109" height="224"/>
   <object id="47" x="1652" y="16" width="140" height="220"/>
  </objectgroup>
  <objectgroup id="8" name="EnemySpawns">
-  <object id="43" name="met" x="744" y="152" width="4" height="8"/>
   <object id="44" name="met" x="860" y="152" width="4" height="8"/>
-  <object id="45" name="met" x="664" y="152" width="4" height="8"/>
-  <object id="46" name="sniper_joe" x="344" y="124" width="4" height="4"/>
+  <object id="46" name="sniper_joe" x="344" y="120" width="4" height="8"/>
   <object id="48" name="met" x="1140" y="184" width="4" height="8"/>
   <object id="49" name="met" x="1320" y="184" width="4" height="8"/>
   <object id="50" name="sniper_joe" x="1240" y="184" width="4" height="8"/>
+  <object id="56" name="suction_roller" x="736" y="152" width="4" height="8"/>
  </objectgroup>
 </map>

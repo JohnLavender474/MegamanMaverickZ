@@ -4,46 +4,36 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.Component;
 import com.game.Entity;
 import com.game.core.IAssetLoader;
 import com.game.core.IEntitiesAndSystemsManager;
 import com.game.core.IEntity;
+import com.game.cull.CullOnCamTransComponent;
+import com.game.cull.CullOnOutOfCamBoundsComponent;
 import com.game.debugging.DebugComponent;
 import com.game.entities.contracts.Damageable;
 import com.game.entities.contracts.Damager;
 import com.game.entities.contracts.Hitter;
-import com.game.levels.CullOnLevelCamTrans;
-import com.game.levels.CullOnOutOfCamBounds;
 import com.game.sprites.SpriteComponent;
 import com.game.utils.Position;
-import com.game.utils.Timer;
 import com.game.world.BodyComponent;
 import com.game.world.BodyType;
 import com.game.world.Fixture;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static com.game.ConstVals.ViewVals.PPM;
 import static com.game.world.FixtureType.*;
 
 @Getter
 @Setter
-public class TestBullet extends Entity implements Hitter, Damager, CullOnOutOfCamBounds, CullOnLevelCamTrans {
+public class TestBullet extends Entity implements Hitter, Damager {
 
-    private final Map<Class<? extends Component>, Component> components = new HashMap<>();
     private final IEntitiesAndSystemsManager entitiesAndSystemsManager;
     private final Vector2 trajectory = new Vector2();
-    private final Timer cullTimer = new Timer(.15f);
     private final IAssetLoader assetLoader;
 
-    private int damage;
-    private boolean dead;
     private IEntity owner;
 
     public TestBullet(IEntity owner, Vector2 trajectory, Vector2 spawn, TextureRegion textureRegion,
@@ -52,14 +42,12 @@ public class TestBullet extends Entity implements Hitter, Damager, CullOnOutOfCa
         this.trajectory.set(trajectory);
         this.assetLoader = assetLoader;
         this.entitiesAndSystemsManager = entitiesAndSystemsManager;
+        addComponent(new CullOnOutOfCamBoundsComponent(() ->
+                getComponent(BodyComponent.class).getCollisionBox(), .15f));
+        addComponent(new CullOnCamTransComponent());
         addComponent(defineSpriteComponent(textureRegion));
         addComponent(defineBodyComponent(spawn));
         addComponent(defineDebugComponent());
-    }
-
-    @Override
-    public Rectangle getCullBoundingBox() {
-        return getComponent(BodyComponent.class).getCollisionBox();
     }
 
     public void disintegrate() {
@@ -85,7 +73,7 @@ public class TestBullet extends Entity implements Hitter, Damager, CullOnOutOfCa
         sprite.setRegion(textureRegion);
         sprite.setSize(PPM * 1.25f, PPM * 1.25f);
         return new SpriteComponent(sprite, (bounds, position) -> {
-            bounds.setData(getCullBoundingBox());
+            bounds.setData(getComponent(BodyComponent.class).getCollisionBox());
             position.setData(Position.CENTER);
             return true;
         });

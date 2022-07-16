@@ -50,6 +50,55 @@ public class BodyComponent implements Component {
     }
 
     /**
+     * If this body is above the other.
+     *
+     * @param bodyComponent the other body component
+     * @return if this body is above the other
+     */
+    public boolean isAbove(BodyComponent bodyComponent) {
+        return getCenter().y > bodyComponent.getCenter().y;
+    }
+
+    /**
+     * If this body is below the other.
+     *
+     * @param bodyComponent the other body component
+     * @return if this body is below the other
+     */
+    public boolean isBelow(BodyComponent bodyComponent) {
+        return !isAbove(bodyComponent);
+    }
+
+    /**
+     * If this body is right of the other.
+     *
+     * @param bodyComponent the other body component
+     * @return if this body is right of the other
+     */
+    public boolean isRightOf(BodyComponent bodyComponent) {
+        return getCenter().x > bodyComponent.getCenter().x;
+    }
+
+    /**
+     * If this body is left of the other.
+     *
+     * @param bodyComponent the other body component
+     * @return if this body is left of the other
+     */
+    public boolean isLeftOf(BodyComponent bodyComponent) {
+        return !isRightOf(bodyComponent);
+    }
+
+    /**
+     * Translate gravity.
+     *
+     * @param delta the delta
+     */
+    public void translateGravity(float delta) {
+        gravity += delta;
+    }
+
+    /**
      * Set.
      *
      * @param bounds the bounds
