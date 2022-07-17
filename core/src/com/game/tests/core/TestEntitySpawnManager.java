@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
-import com.game.utils.Resettable;
+import com.game.utils.interfaces.Resettable;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;

@@ -1,8 +1,8 @@
 package com.game.sprites;
 
 import com.badlogic.gdx.math.Rectangle;
-import com.game.utils.Position;
-import com.game.utils.Wrapper;
+import com.game.utils.enums.Position;
+import com.game.utils.objects.Wrapper;
 
 public interface SpriteAdapter {
 

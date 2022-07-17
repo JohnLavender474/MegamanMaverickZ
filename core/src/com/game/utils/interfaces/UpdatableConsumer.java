@@ -1,4 +1,4 @@
-package com.game.utils;
+package com.game.utils.interfaces;
 
 public interface UpdatableConsumer<T> {
 

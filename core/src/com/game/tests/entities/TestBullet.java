@@ -16,7 +16,7 @@ import com.game.entities.contracts.Damageable;
 import com.game.entities.contracts.Damager;
 import com.game.entities.contracts.Hitter;
 import com.game.sprites.SpriteComponent;
-import com.game.utils.Position;
+import com.game.utils.enums.Position;
 import com.game.world.BodyComponent;
 import com.game.world.BodyType;
 import com.game.world.Fixture;

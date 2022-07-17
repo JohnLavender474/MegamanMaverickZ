@@ -23,9 +23,9 @@ import com.game.health.HealthComponent;
 import com.game.sprites.SpriteAdapter;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
-import com.game.utils.Position;
-import com.game.utils.Timer;
-import com.game.utils.Wrapper;
+import com.game.utils.enums.Position;
+import com.game.utils.objects.Timer;
+import com.game.utils.objects.Wrapper;
 import com.game.world.BodyComponent;
 import com.game.world.BodyType;
 import com.game.world.Fixture;
@@ -110,8 +110,8 @@ public class TestMet extends Entity implements Faceable, Damager, Damageable {
 
     private void shoot() {
         BodyComponent bodyComponent = getComponent(BodyComponent.class);
-        Vector2 trajectory = new Vector2((isFacing(Facing.RIGHT) ? 10f : -10f) * PPM, .5f * PPM);
-        Vector2 spawn = bodyComponent.getCenter().cpy().add(isFacing(Facing.RIGHT) ? .5f : -.5f, -4f);
+        Vector2 trajectory = new Vector2((isFacing(Facing.F_RIGHT) ? 10f : -10f) * PPM, .5f * PPM);
+        Vector2 spawn = bodyComponent.getCenter().cpy().add(isFacing(Facing.F_RIGHT) ? .5f : -.5f, -4f);
         TextureRegion yellowBullet = assetLoader.getAsset(OBJECTS_TEXTURE_ATLAS, TextureAtlas.class)
                 .findRegion("YellowBullet");
         TestBullet bullet = new TestBullet(this, trajectory, spawn, yellowBullet,
@@ -151,7 +151,7 @@ public class TestMet extends Entity implements Faceable, Damager, Damageable {
                 }
                 case POP_UP -> {
                     setFacing(Math.round(megamanSupplier.get().getComponent(BodyComponent.class).getPosition().x) <
-                            Math.round(bodyComponent.getPosition().x) ? Facing.LEFT : Facing.RIGHT);
+                            Math.round(bodyComponent.getPosition().x) ? Facing.F_LEFT : Facing.F_RIGHT);
                     Timer popUpTimer = metBehaviorTimers.get(MetBehavior.POP_UP);
                     if (popUpTimer.isAtBeginning()) {
                         shoot();
@@ -164,10 +164,10 @@ public class TestMet extends Entity implements Faceable, Damager, Damageable {
                 case RUNNING -> {
                     Timer runningTimer = metBehaviorTimers.get(MetBehavior.RUNNING);
                     runningTimer.update(delta);
-                    bodyComponent.setVelocity((isFacing(Facing.LEFT) ? -8f : 8f) * PPM, 0f);
+                    bodyComponent.setVelocity((isFacing(Facing.F_LEFT) ? -8f : 8f) * PPM, 0f);
                     if (runningTimer.isFinished() ||
-                            (isFacing(Facing.LEFT) && bodyComponent.is(TOUCHING_HITBOX_LEFT)) ||
-                            (isFacing(Facing.RIGHT) && bodyComponent.is(TOUCHING_HITBOX_RIGHT))) {
+                            (isFacing(Facing.F_LEFT) && bodyComponent.is(TOUCHING_HITBOX_LEFT)) ||
+                            (isFacing(Facing.F_RIGHT) && bodyComponent.is(TOUCHING_HITBOX_RIGHT))) {
                         setMetBehavior(MetBehavior.SHIELDING);
                     }
                 }
@@ -187,8 +187,8 @@ public class TestMet extends Entity implements Faceable, Damager, Damageable {
         BodyComponent metBody = getComponent(BodyComponent.class);
         BodyComponent playerBody = player.getComponent(BodyComponent.class);
         return player.isShooting() &&
-                ((metBody.getPosition().x < playerBody.getPosition().x && player.isFacing(Facing.LEFT)) ||
-                        (metBody.getPosition().x > playerBody.getPosition().x && player.isFacing(Facing.RIGHT)));
+                ((metBody.getPosition().x < playerBody.getPosition().x && player.isFacing(Facing.F_LEFT)) ||
+                        (metBody.getPosition().x > playerBody.getPosition().x && player.isFacing(Facing.F_RIGHT)));
     }
 
     private BodyComponent defineBodyComponent(Vector2 spawn) {
@@ -242,7 +242,7 @@ public class TestMet extends Entity implements Faceable, Damager, Damageable {
 
             @Override
             public boolean isFlipX() {
-                return isFacing(Facing.LEFT);
+                return isFacing(Facing.F_LEFT);
             }
 
         });

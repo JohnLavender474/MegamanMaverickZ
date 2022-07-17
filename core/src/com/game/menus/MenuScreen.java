@@ -6,7 +6,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.game.ConstVals.RenderingGround;
 import com.game.GameContext2d;
 import com.game.controllers.ControllerButton;
-import com.game.utils.Direction;
+import com.game.utils.enums.Direction;
 import lombok.Getter;
 
 import java.util.Map;
@@ -68,13 +68,13 @@ public abstract class MenuScreen extends ScreenAdapter {
                 menuButton.onSelect(delta);
             }
             if (gameContext.isJustPressed(ControllerButton.UP)) {
-                menuButton.onNavigate(Direction.UP, delta);
+                menuButton.onNavigate(Direction.DIR_UP, delta);
             } else if (gameContext.isJustPressed(ControllerButton.DOWN)) {
-                menuButton.onNavigate(Direction.DOWN, delta);
+                menuButton.onNavigate(Direction.DIR_DOWN, delta);
             } else if (gameContext.isJustPressed(ControllerButton.LEFT)) {
-                menuButton.onNavigate(Direction.LEFT, delta);
+                menuButton.onNavigate(Direction.DIR_LEFT, delta);
             } else if (gameContext.isJustPressed(ControllerButton.RIGHT)) {
-                menuButton.onNavigate(Direction.RIGHT, delta);
+                menuButton.onNavigate(Direction.DIR_RIGHT, delta);
             }
         }
     }

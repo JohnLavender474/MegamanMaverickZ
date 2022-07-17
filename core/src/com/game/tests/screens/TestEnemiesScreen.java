@@ -38,10 +38,10 @@ import com.game.tests.entities.*;
 import com.game.trajectories.TrajectoryComponent;
 import com.game.trajectories.TrajectorySystem;
 import com.game.updatables.UpdatableSystem;
-import com.game.utils.Direction;
-import com.game.utils.FontHandle;
-import com.game.utils.Position;
-import com.game.utils.Timer;
+import com.game.utils.enums.Direction;
+import com.game.utils.objects.FontHandle;
+import com.game.utils.enums.Position;
+import com.game.utils.objects.Timer;
 import com.game.world.BodyComponent;
 import com.game.world.WorldSystem;
 
@@ -272,13 +272,13 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
                     });
                     Direction direction = levelCameraManager.getTransitionDirection();
                     switch (direction) {
-                        case UP -> bodyComponent.getCollisionBox().y +=
+                        case DIR_UP -> bodyComponent.getCollisionBox().y +=
                                 (MEGAMAN_DELTA_ON_CAM_TRANS * PPM * delta) / LEVEL_CAM_TRANS_DURATION;
-                        case DOWN -> bodyComponent.getCollisionBox().y -=
+                        case DIR_DOWN -> bodyComponent.getCollisionBox().y -=
                                 (MEGAMAN_DELTA_ON_CAM_TRANS * PPM * delta) / LEVEL_CAM_TRANS_DURATION;
-                        case LEFT -> bodyComponent.getCollisionBox().x -=
+                        case DIR_LEFT -> bodyComponent.getCollisionBox().x -=
                                 (MEGAMAN_DELTA_ON_CAM_TRANS * PPM * delta) / LEVEL_CAM_TRANS_DURATION;
-                        case RIGHT -> bodyComponent.getCollisionBox().x +=
+                        case DIR_RIGHT -> bodyComponent.getCollisionBox().x +=
                                 (MEGAMAN_DELTA_ON_CAM_TRANS * PPM * delta) / LEVEL_CAM_TRANS_DURATION;
                     }
                 }

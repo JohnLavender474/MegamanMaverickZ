@@ -3,7 +3,7 @@ package com.game.cull;
 import com.game.System;
 import com.game.core.IEntity;
 import com.game.updatables.Updatable;
-import com.game.utils.ProcessState;
+import com.game.utils.enums.ProcessState;
 import lombok.Setter;
 
 import java.util.Set;

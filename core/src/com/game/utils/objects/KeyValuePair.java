@@ -1,4 +1,4 @@
-package com.game.utils;
+package com.game.utils.objects;
 
 /**
  * Represents a key-value pair of two object instances each of a different type. Can also be treated merely as a pair

@@ -1,5 +1,5 @@
 package com.game.entities.contracts;
 
 public enum Facing {
-    LEFT, RIGHT
+    F_LEFT, F_RIGHT
 }

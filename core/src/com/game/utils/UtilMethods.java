@@ -5,12 +5,38 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import com.game.utils.enums.Direction;
+import com.game.utils.enums.Position;
+import com.game.utils.interfaces.Positional;
 
 /**
  * Global utility methods.
  */
 public class UtilMethods {
 
+    /**
+     * Returns true if the test object is equal to any of the following supplied objects.
+     *
+     * @param test the test object
+     * @param objs the var args of supplied objects to test against
+     * @return if the test object is equal to any of the following supplied objects
+     */
+    public static boolean equalsAny(Object test, Object... objs) {
+        for (Object obj : objs) {
+            if (test.equals(obj)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns if the two rectangles overlap.
+     *
+     * @param r1 the first rectangle
+     * @param r2 the second rectangle
+     * @return if the two rectangles overlap
+     */
     public static boolean overlaps(Rectangle r1, Rectangle r2) {
         return r1.x <= r2.x + r2.width &&
                 r1.x + r1.width >= r2.x &&
@@ -145,9 +171,9 @@ public class UtilMethods {
             return null;
         }
         if (overlap.width > overlap.height) {
-            return toBePushed.y > other.y ? Direction.UP : Direction.DOWN;
+            return toBePushed.y > other.y ? Direction.DIR_UP : Direction.DIR_DOWN;
         } else {
-            return toBePushed.x > other.x ? Direction.RIGHT : Direction.LEFT;
+            return toBePushed.x > other.x ? Direction.DIR_RIGHT : Direction.DIR_LEFT;
         }
     }
 

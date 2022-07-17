@@ -11,7 +11,7 @@ import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
-import com.game.utils.Timer;
+import com.game.utils.objects.Timer;
 import com.game.world.BodyComponent;
 import com.game.world.BodyType;
 import lombok.Getter;

@@ -9,11 +9,12 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.System;
 import com.game.core.IEntity;
-import com.game.utils.Position;
-import com.game.utils.UtilMethods;
-import com.game.utils.Wrapper;
+import com.game.utils.enums.Position;
+import com.game.utils.objects.Wrapper;
 
 import java.util.Set;
+
+import static com.game.utils.UtilMethods.*;
 
 /**
  * {@link System} implementation for rendering and optionally animating {@link Sprite} instances.
@@ -22,6 +23,7 @@ public class SpriteSystem extends System {
 
     private final OrthographicCamera camera;
     private final SpriteBatch spriteBatch;
+
     private boolean isDrawing;
 
     public SpriteSystem(OrthographicCamera camera, SpriteBatch spriteBatch) {
@@ -56,9 +58,10 @@ public class SpriteSystem extends System {
                     throw new IllegalStateException("SpriteAdapter::setPositioning returns true but the value of " +
                             "Wrapper<Position>::getData is null");
                 }
-                Vector2 point = UtilMethods.getPoint(bounds.getData(), position.getData());
-                UtilMethods.setToPoint(sprite.getBoundingRectangle(), point, position.getData(), sprite::setPosition);
+                Vector2 point = getPoint(bounds.getData(), position.getData());
+                setToPoint(sprite.getBoundingRectangle(), point, position.getData(), sprite::setPosition);
             }
+            sprite.setOrigin(sprite.getWidth() / 2f, sprite.getHeight() / 2f);
             sprite.translate(spriteAdapter.getOffsetX(), spriteAdapter.getOffsetY());
             sprite.setAlpha(spriteAdapter.isHidden() ? 0f : spriteAdapter.getAlpha());
             sprite.setFlip(spriteAdapter.isFlipX(), spriteAdapter.isFlipY());

@@ -30,10 +30,10 @@ import com.game.levels.CameraFocusable;
 import com.game.sprites.SpriteAdapter;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
-import com.game.utils.Position;
-import com.game.utils.Timer;
+import com.game.utils.enums.Position;
+import com.game.utils.objects.Timer;
 import com.game.utils.UtilMethods;
-import com.game.utils.Wrapper;
+import com.game.utils.objects.Wrapper;
 import com.game.world.BodyComponent;
 import com.game.world.BodySense;
 import com.game.world.BodyType;
@@ -83,7 +83,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
     private boolean isCharging;
     private boolean recoveryBlink;
     private MegamanWeapon megamanWeapon;
-    private Facing facing = Facing.RIGHT;
+    private Facing facing = Facing.F_RIGHT;
     private AButtonTask aButtonTask = AButtonTask.JUMP;
 
     public Megaman(GameContext2d gameContext, Vector2 spawn) {
@@ -132,9 +132,9 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         }
         switch (megamanWeapon) {
             case MEGA_BUSTER -> {
-                Vector2 trajectory = new Vector2(15f * (facing == Facing.LEFT ? -PPM : PPM), 0f);
+                Vector2 trajectory = new Vector2(15f * (facing == Facing.F_LEFT ? -PPM : PPM), 0f);
                 Vector2 spawn = getComponent(BodyComponent.class).getCenter().add(
-                        facing == Facing.LEFT ? -15f : 15f, 1f);
+                        facing == Facing.F_LEFT ? -15f : 15f, 1f);
                 if (getComponent(BehaviorComponent.class).is(WALL_SLIDING)) {
                     spawn.y += 3.5f;
                 } else if (!getComponent(BodyComponent.class).is(BodySense.FEET_ON_GROUND)) {
@@ -176,7 +176,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         return new UpdatableComponent(delta -> {
             damageTimer.update(delta);
             if (isDamaged()) {
-                getComponent(BodyComponent.class).applyImpulse((isFacing(Facing.LEFT) ? .15f : -.15f) * PPM, 0f);
+                getComponent(BodyComponent.class).applyImpulse((isFacing(Facing.F_LEFT) ? .15f : -.15f) * PPM, 0f);
             }
             if (damageTimer.isJustFinished()) {
                 damageRecoveryTimer.reset();
@@ -211,7 +211,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
                 BodyComponent bodyComponent = getComponent(BodyComponent.class);
                 BehaviorComponent behaviorComponent = getComponent(BehaviorComponent.class);
                 if (wallJumpImpetusTimer.isFinished()) {
-                    setFacing(behaviorComponent.is(WALL_SLIDING) ? Facing.RIGHT : Facing.LEFT);
+                    setFacing(behaviorComponent.is(WALL_SLIDING) ? Facing.F_RIGHT : Facing.F_LEFT);
                 }
                 behaviorComponent.set(RUNNING, !behaviorComponent.is(WALL_SLIDING));
                 if (bodyComponent.getVelocity().x > -4f * PPM) {
@@ -235,7 +235,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
                 BodyComponent bodyComponent = getComponent(BodyComponent.class);
                 BehaviorComponent behaviorComponent = getComponent(BehaviorComponent.class);
                 if (wallJumpImpetusTimer.isFinished()) {
-                    setFacing(behaviorComponent.is(WALL_SLIDING) ? Facing.LEFT : Facing.RIGHT);
+                    setFacing(behaviorComponent.is(WALL_SLIDING) ? Facing.F_LEFT : Facing.F_RIGHT);
                 }
                 behaviorComponent.set(RUNNING, !behaviorComponent.is(WALL_SLIDING));
                 if (bodyComponent.getVelocity().x < 4f * PPM) {
@@ -335,7 +335,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
                 behaviorComponent.setIs(JUMPING);
                 BodyComponent bodyComponent = getComponent(BodyComponent.class);
                 if (behaviorComponent.is(WALL_SLIDING)) {
-                    bodyComponent.applyImpulse((isFacing(Facing.LEFT) ? -1f : 1f) * 15f * PPM, 32f * PPM);
+                    bodyComponent.applyImpulse((isFacing(Facing.F_LEFT) ? -1f : 1f) * 15f * PPM, 32f * PPM);
                     wallJumpImpetusTimer.reset();
                 } else {
                     bodyComponent.applyImpulse(0f, 18f * PPM);
@@ -381,12 +381,12 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
                 BodyComponent bodyComponent = getComponent(BodyComponent.class);
                 airDashTimer.update(delta);
                 bodyComponent.setVelocityY(0f);
-                if ((isFacing(Facing.LEFT) && bodyComponent.is(BodySense.TOUCHING_BLOCK_LEFT)) ||
-                        (isFacing(Facing.RIGHT) && bodyComponent.is(BodySense.TOUCHING_BLOCK_RIGHT))) {
+                if ((isFacing(Facing.F_LEFT) && bodyComponent.is(BodySense.TOUCHING_BLOCK_LEFT)) ||
+                        (isFacing(Facing.F_RIGHT) && bodyComponent.is(BodySense.TOUCHING_BLOCK_RIGHT))) {
                     return;
                 }
                 float x = 12f * PPM;
-                if (isFacing(Facing.LEFT)) {
+                if (isFacing(Facing.F_LEFT)) {
                     x *= -1f;
                 }
                 bodyComponent.setVelocityX(x);
@@ -398,7 +398,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
                 airDashTimer.reset();
                 bodyComponent.setGravityOn(true);
                 behaviorComponent.setIsNot(BehaviorType.AIR_DASHING);
-                if (isFacing(Facing.LEFT)) {
+                if (isFacing(Facing.F_LEFT)) {
                     bodyComponent.applyImpulse(-5f * PPM, 0f);
                 } else {
                     bodyComponent.applyImpulse(5f * PPM, 0f);
@@ -438,12 +438,12 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
                 BodyComponent bodyComponent = getComponent(BodyComponent.class);
                 groundSlideTimer.update(delta);
                 if (isDamaged() ||
-                        (isFacing(Facing.LEFT) && bodyComponent.is(BodySense.TOUCHING_BLOCK_LEFT)) ||
-                        (isFacing(Facing.RIGHT) && bodyComponent.is(BodySense.TOUCHING_BLOCK_RIGHT))) {
+                        (isFacing(Facing.F_LEFT) && bodyComponent.is(BodySense.TOUCHING_BLOCK_LEFT)) ||
+                        (isFacing(Facing.F_RIGHT) && bodyComponent.is(BodySense.TOUCHING_BLOCK_RIGHT))) {
                     return;
                 }
                 float x = 12f * PPM;
-                if (isFacing(Facing.LEFT)) {
+                if (isFacing(Facing.F_LEFT)) {
                     x *= -1f;
                 }
                 bodyComponent.setVelocityX(x);
@@ -454,7 +454,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
                 BodyComponent bodyComponent = getComponent(BodyComponent.class);
                 groundSlideTimer.reset();
                 behaviorComponent.setIsNot(BehaviorType.GROUND_SLIDING);
-                if (isFacing(Facing.LEFT)) {
+                if (isFacing(Facing.F_LEFT)) {
                     bodyComponent.applyImpulse(-5f * PPM, 0f);
                 } else {
                     bodyComponent.applyImpulse(5f * PPM, 0f);
@@ -529,7 +529,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
             @Override
             public boolean isFlipX() {
                 return getComponent(BehaviorComponent.class).is(WALL_SLIDING) ?
-                        isFacing(Facing.RIGHT) : isFacing(Facing.LEFT);
+                        isFacing(Facing.F_RIGHT) : isFacing(Facing.F_LEFT);
             }
 
             @Override

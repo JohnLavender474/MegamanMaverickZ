@@ -1,7 +1,7 @@
 package com.game.levels;
 
 import com.badlogic.gdx.math.Rectangle;
-import com.game.utils.Timer;
+import com.game.utils.objects.Timer;
 
 /**
  * Implemented by {@link com.game.core.IEntity} that should be culled when out of bounds of the game camera.

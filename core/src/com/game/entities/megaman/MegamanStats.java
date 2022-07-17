@@ -1,6 +1,6 @@
 package com.game.entities.megaman;
 
-import com.game.utils.Percentage;
+import com.game.utils.objects.Percentage;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -8,9 +8,9 @@ import com.game.ConstVals.TextureAssets;
 import com.game.GameContext2d;
 import com.game.menus.MenuButton;
 import com.game.menus.MenuScreen;
-import com.game.utils.Direction;
-import com.game.utils.FontHandle;
-import com.game.utils.Timer;
+import com.game.utils.enums.Direction;
+import com.game.utils.objects.FontHandle;
+import com.game.utils.objects.Timer;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -103,7 +103,7 @@ public class MainMenuScreen extends MenuScreen {
 
                 @Override
                 public void onNavigate(Direction direction, float delta) {
-                    if (direction == Direction.DOWN) {
+                    if (direction == Direction.DIR_DOWN) {
                         setMenuButton(MainMenuButton.PASS_WORD.name());
                         Vector2 center = arrowCenters.get(MainMenuButton.PASS_WORD);
                         arrow.setCenter(center.x, center.y);
@@ -120,12 +120,12 @@ public class MainMenuScreen extends MenuScreen {
                 @Override
                 public void onNavigate(Direction direction, float delta) {
                     switch (direction) {
-                        case UP -> {
+                        case DIR_UP -> {
                             setMenuButton(MainMenuButton.GAME_START.name());
                             Vector2 center = arrowCenters.get(MainMenuButton.GAME_START);
                             arrow.setCenter(center.x, center.y);
                         }
-                        case DOWN -> {
+                        case DIR_DOWN -> {
                             setMenuButton(MainMenuButton.SETTINGS.name());
                             Vector2 center = arrowCenters.get(MainMenuButton.SETTINGS);
                             arrow.setCenter(center.x, center.y);
@@ -143,12 +143,12 @@ public class MainMenuScreen extends MenuScreen {
                 @Override
                 public void onNavigate(Direction direction, float delta) {
                     switch (direction) {
-                        case UP -> {
+                        case DIR_UP -> {
                             setMenuButton(MainMenuButton.PASS_WORD.name());
                             Vector2 center = arrowCenters.get(MainMenuButton.PASS_WORD);
                             arrow.setCenter(center.x, center.y);
                         }
-                        case DOWN -> {
+                        case DIR_DOWN -> {
                             setMenuButton(MainMenuButton.EXIT.name());
                             Vector2 center = arrowCenters.get(MainMenuButton.EXIT);
                             arrow.setCenter(center.x, center.y);
@@ -165,7 +165,7 @@ public class MainMenuScreen extends MenuScreen {
 
                 @Override
                 public void onNavigate(Direction direction, float delta) {
-                    if (direction == Direction.UP) {
+                    if (direction == Direction.DIR_UP) {
                         setMenuButton(MainMenuButton.SETTINGS.name());
                         Vector2 center = arrowCenters.get(MainMenuButton.SETTINGS);
                         arrow.setCenter(center.x, center.y);

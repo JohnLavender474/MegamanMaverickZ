@@ -11,7 +11,7 @@ import com.game.animations.TimedAnimation;
 import com.game.levels.CullOnOutOfCamBounds;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
-import com.game.utils.Timer;
+import com.game.utils.objects.Timer;
 import lombok.Getter;
 
 import static com.game.ConstVals.TextureAssets.DECORATIONS_TEXTURE_ATLAS;

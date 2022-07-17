@@ -12,7 +12,7 @@ import com.game.health.HealthComponent;
 import com.game.levels.CullOnLevelCamTrans;
 import com.game.levels.CullOnOutOfCamBounds;
 import com.game.updatables.UpdatableComponent;
-import com.game.utils.Timer;
+import com.game.utils.objects.Timer;
 import com.game.utils.UtilMethods;
 import com.game.world.BodyComponent;
 import com.game.world.BodyType;

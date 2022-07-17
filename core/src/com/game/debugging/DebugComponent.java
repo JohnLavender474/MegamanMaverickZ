@@ -3,7 +3,7 @@ package com.game.debugging;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Rectangle;
 import com.game.Component;
-import com.game.utils.KeyValuePair;
+import com.game.utils.objects.KeyValuePair;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

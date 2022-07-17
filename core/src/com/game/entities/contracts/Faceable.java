@@ -33,10 +33,10 @@ public interface Faceable {
      * Swap facing.
      */
     default void swapFacing() {
-        if (getFacing() == Facing.RIGHT) {
-            setFacing(Facing.LEFT);
+        if (getFacing() == Facing.F_RIGHT) {
+            setFacing(Facing.F_LEFT);
         } else {
-            setFacing(Facing.RIGHT);
+            setFacing(Facing.F_RIGHT);
         }
     }
 

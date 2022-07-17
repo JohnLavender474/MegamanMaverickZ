@@ -3,8 +3,8 @@ package com.game.animations;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.game.updatables.Updatable;
-import com.game.utils.KeyValuePair;
-import com.game.utils.Resettable;
+import com.game.utils.objects.KeyValuePair;
+import com.game.utils.interfaces.Resettable;
 import lombok.Getter;
 import lombok.Setter;
 

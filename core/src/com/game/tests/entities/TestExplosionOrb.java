@@ -10,7 +10,7 @@ import com.game.core.IAssetLoader;
 import com.game.core.IEntity;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
-import com.game.utils.Timer;
+import com.game.utils.objects.Timer;
 import lombok.Getter;
 import lombok.Setter;
 

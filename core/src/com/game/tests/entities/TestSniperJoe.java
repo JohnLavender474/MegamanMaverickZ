@@ -24,9 +24,9 @@ import com.game.health.HealthComponent;
 import com.game.sprites.SpriteAdapter;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
-import com.game.utils.Position;
-import com.game.utils.Timer;
-import com.game.utils.Wrapper;
+import com.game.utils.enums.Position;
+import com.game.utils.objects.Timer;
+import com.game.utils.objects.Wrapper;
 import com.game.world.BodyComponent;
 import com.game.world.BodyType;
 import com.game.world.Fixture;
@@ -83,9 +83,9 @@ public class TestSniperJoe extends Entity implements Faceable, Damager, Damageab
     }
 
     private void shoot() {
-        Vector2 trajectory = new Vector2(PPM * (isFacing(Facing.LEFT) ? -BULLET_SPEED : BULLET_SPEED), 0f);
+        Vector2 trajectory = new Vector2(PPM * (isFacing(Facing.F_LEFT) ? -BULLET_SPEED : BULLET_SPEED), 0f);
         Vector2 spawn = getComponent(BodyComponent.class).getCenter().cpy().add(
-                (isFacing(Facing.LEFT) ? -5f : 5f), -3.25f);
+                (isFacing(Facing.F_LEFT) ? -5f : 5f), -3.25f);
         TextureRegion textureRegion = assetLoader.getAsset(OBJECTS_TEXTURE_ATLAS, TextureAtlas.class)
                 .findRegion("YellowBullet");
         TestBullet bullet = new TestBullet(this, trajectory, spawn, textureRegion,
@@ -130,7 +130,7 @@ public class TestSniperJoe extends Entity implements Faceable, Damager, Damageab
             recoveryTimer.update(delta);
             // facing
             setFacing(Math.round(playerSupplier.get().getComponent(BodyComponent.class).getPosition().x) <
-                    Math.round(getComponent(BodyComponent.class).getPosition().x) ? Facing.LEFT : Facing.RIGHT);
+                    Math.round(getComponent(BodyComponent.class).getPosition().x) ? Facing.F_LEFT : Facing.F_RIGHT);
             // behavior timer
             Timer behaviorTimer = isShielded ? shieldedTimer : shootingTimer;
             behaviorTimer.update(delta);
@@ -154,7 +154,7 @@ public class TestSniperJoe extends Entity implements Faceable, Damager, Damageab
 
             @Override
             public boolean isFlipX() {
-                return isFacing(Facing.RIGHT);
+                return isFacing(Facing.F_RIGHT);
             }
 
         });
@@ -190,8 +190,8 @@ public class TestSniperJoe extends Entity implements Faceable, Damager, Damageab
         // body pre-process
         bodyComponent.setPreProcess(delta -> {
             if (isShielded) {
-                hitBox.setOffset(isFacing(Facing.LEFT) ? 3f : -3f, 0f);
-                shield.setOffset(isFacing(Facing.LEFT) ? -5f : 5f, 0f);
+                hitBox.setOffset(isFacing(Facing.F_LEFT) ? 3f : -3f, 0f);
+                shield.setOffset(isFacing(Facing.F_LEFT) ? -5f : 5f, 0f);
             } else {
                 hitBox.setOffset(0f, 0f);
             }

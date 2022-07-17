@@ -1,4 +1,4 @@
-package com.game.utils;
+package com.game.utils.enums;
 
 /**
  * Enumeration of the various states of any process.

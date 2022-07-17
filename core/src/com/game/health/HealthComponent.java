@@ -1,7 +1,7 @@
 package com.game.health;
 
 import com.game.Component;
-import com.game.utils.Resettable;
+import com.game.utils.interfaces.Resettable;
 import lombok.Getter;
 import lombok.Setter;
 

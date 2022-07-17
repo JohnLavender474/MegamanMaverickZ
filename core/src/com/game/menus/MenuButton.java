@@ -1,6 +1,6 @@
 package com.game.menus;
 
-import com.game.utils.Direction;
+import com.game.utils.enums.Direction;
 
 /**
  * The interface MenuButton prompt.

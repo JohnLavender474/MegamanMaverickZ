@@ -1,4 +1,4 @@
-package com.game.utils;
+package com.game.utils.interfaces;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 

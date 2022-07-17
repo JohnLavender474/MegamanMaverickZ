@@ -1,4 +1,4 @@
-package com.game.utils;
+package com.game.utils.objects;
 
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;

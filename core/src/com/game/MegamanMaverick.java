@@ -35,7 +35,7 @@ import com.game.menus.impl.MainMenuScreen;
 import com.game.sprites.SpriteSystem;
 import com.game.trajectories.TrajectorySystem;
 import com.game.updatables.UpdatableSystem;
-import com.game.utils.KeyValuePair;
+import com.game.utils.objects.KeyValuePair;
 import com.game.world.WorldContactListenerImpl;
 import com.game.world.WorldSystem;
 import lombok.Getter;
