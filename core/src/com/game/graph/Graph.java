@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -21,6 +22,14 @@ public class Graph {
                 nodes[i][j] = new Node(dimensions, i, j);
             }
         }
+    }
+
+    public List<Node> getNodes() {
+        List<Node> nodeList = new ArrayList<>();
+        for (Node[] row : nodes) {
+            nodeList.addAll(Arrays.asList(row));
+        }
+        return nodeList;
     }
 
     public float distanceBetween(Node node1, Node node2) {
