@@ -15,10 +15,10 @@ public class Graph {
 
     private Node[][] nodes;
 
-    public void set(Vector2 dimensions, int rows, int cols) {
-        nodes = new Node[rows][cols];
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
+    public void set(Vector2 dimensions, int x, int y) {
+        nodes = new Node[x][y];
+        for (int i = 0; i < x; i++) {
+            for (int j = 0; j < y; j++) {
                 nodes[i][j] = new Node(dimensions, i, j);
             }
         }
@@ -32,33 +32,37 @@ public class Graph {
         return nodeList;
     }
 
+    public Node getNode(int row, int col) {
+        return nodes[row][col];
+    }
+
     public float distanceBetween(Node node1, Node node2) {
         return centerPoint(node1).dst(centerPoint(node2));
     }
 
     public List<Node> getNodesOverlapping(Rectangle rectangle) {
-        int minRow = Math.max(0, (int) Math.floor(rectangle.x));
-        int minCol = Math.max(0, (int) Math.floor(rectangle.y));
-        int maxRow = Math.min(nodes.length, (int) Math.ceil(rectangle.x + rectangle.width));
-        int maxCol = Math.min(nodes[0].length, (int) Math.ceil(rectangle.y + rectangle.height));
+        int minX = Math.max(0, (int) Math.floor(rectangle.x));
+        int minY = Math.max(0, (int) Math.floor(rectangle.y));
+        int maxX = Math.min(nodes.length, (int) Math.ceil(rectangle.x + rectangle.width));
+        int maxY = Math.min(nodes[0].length, (int) Math.ceil(rectangle.y + rectangle.height));
         List<Node> overlappingNodes = new ArrayList<>();
-        for (int i = minRow; i < maxRow; i++) {
-            overlappingNodes.addAll(asList(nodes[i]).subList(minCol, maxCol));
+        for (int i = minX; i < maxX; i++) {
+            overlappingNodes.addAll(asList(nodes[i]).subList(minY, maxY));
         }
         return overlappingNodes;
     }
 
     public List<Node> getNeighborsOf(Node node) {
         List<Node> neighbors = new ArrayList<>();
-        for (int i = node.getRow() - 1; i <= node.getRow() + 1; i++) {
-            neighbors.addAll(asList(nodes[i]).subList(node.getCol() - 1, node.getCol() + 2));
+        for (int i = node.getX() - 1; i <= node.getX() + 1; i++) {
+            neighbors.addAll(asList(nodes[i]).subList(node.getY() - 1, node.getY() + 2));
         }
         return neighbors;
     }
 
     public void forEach(Consumer<Node> consumer) {
-        for (Node[] row : nodes) {
-            for (Node node : row) {
+        for (Node[] arr : nodes) {
+            for (Node node : arr) {
                 consumer.accept(node);
             }
         }

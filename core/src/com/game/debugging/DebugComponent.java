@@ -21,6 +21,11 @@ public class DebugComponent implements Component {
 
     private final List<KeyValuePair<Supplier<Rectangle>, Supplier<Color>>> debugHandles = new ArrayList<>();
 
+    public DebugComponent(Supplier<Rectangle> rectangleSupplier, Supplier<Color> colorSupplier) {
+        this(new KeyValuePair<>(rectangleSupplier, colorSupplier));
+    }
+
+    @SafeVarargs
     public DebugComponent(KeyValuePair<Supplier<Rectangle>, Supplier<Color>>... debugHandles) {
         this(Arrays.asList(debugHandles));
     }

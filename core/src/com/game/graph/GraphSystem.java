@@ -18,14 +18,14 @@ public class GraphSystem extends System {
 
     @Override
     protected void preProcess(float delta) {
-        graph.forEach(Node::clearEntities);
+        graph.forEach(Node::clear);
     }
 
     @Override
     protected void processEntity(IEntity entity, float delta) {
         GraphComponent graphComponent = entity.getComponent(GraphComponent.class);
         List<Node> nodes = graph.getNodesOverlapping(graphComponent.getBoundsSupplier().get());
-        nodes.forEach(node -> node.addEntity(entity));
+        nodes.forEach(node -> node.add(entity));
     }
 
 }

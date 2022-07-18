@@ -2,8 +2,6 @@ package com.game.graph;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.Entity;
-import com.game.core.IEntity;
 import lombok.Getter;
 
 import java.util.HashSet;
@@ -12,26 +10,26 @@ import java.util.Set;
 @Getter
 public class Node extends Rectangle {
 
-    private final int row;
-    private final int col;
-    private final Set<IEntity> entities = new HashSet<>();
+    private final int x;
+    private final int y;
+    private final Set<Object> objects = new HashSet<>();
 
-    public Node(Vector2 dimensions, int row, int col) {
-        this.row = row;
-        this.col = col;
-        set(dimensions.x * row, dimensions.y * col, dimensions.x, dimensions.y);
+    public Node(Vector2 dimensions, int x, int y) {
+        this.x = x;
+        this.y = y;
+        set(dimensions.x * x, dimensions.y * y, dimensions.x, dimensions.y);
     }
 
-    public void addEntity(IEntity entity) {
-        entities.add(entity);
+    public void add(Object o) {
+        objects.add(o);
     }
 
-    public boolean containsEntity(IEntity entity) {
-        return entities.contains(entity);
+    public boolean contains(Object o) {
+        return objects.contains(o);
     }
 
-    public void clearEntities() {
-        entities.clear();
+    public void clear() {
+        objects.clear();
     }
 
 }
