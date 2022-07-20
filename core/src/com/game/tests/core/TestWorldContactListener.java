@@ -51,7 +51,7 @@ public class TestWorldContactListener implements WorldContactListener {
             damageable.takeDamageFrom(damager);
             damager.onDamageInflictedTo(damageable.getClass());
         } else if (contact.acceptMask(HITTER_BOX) && contact.mask1stEntity() instanceof Hitter hitter) {
-            hitter.hit(contact.getMask().second());
+            hitter.hit(contact.getMask().getSecond());
         }
     }
 
@@ -89,7 +89,7 @@ public class TestWorldContactListener implements WorldContactListener {
             damageable.takeDamageFrom(damager);
             damager.onDamageInflictedTo(damageable.getClass());
         } else if (contact.acceptMask(HITTER_BOX) && contact.mask1stEntity() instanceof Hitter hitter) {
-            hitter.hit(contact.getMask().second());
+            hitter.hit(contact.getMask().getSecond());
         }
     }
 

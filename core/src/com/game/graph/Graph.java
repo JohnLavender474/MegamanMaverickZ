@@ -37,7 +37,7 @@ public class Graph {
     }
 
     public float distanceBetween(Node node1, Node node2) {
-        return centerPoint(node1).dst(centerPoint(node2));
+        return centerPoint(node1.getBounds()).dst(centerPoint(node2.getBounds()));
     }
 
     public List<Node> getNodesOverlapping(Rectangle rectangle) {

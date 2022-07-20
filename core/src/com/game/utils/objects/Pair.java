@@ -1,5 +1,6 @@
 package com.game.utils.objects;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -16,26 +17,26 @@ import lombok.RequiredArgsConstructor;
  */
 @Getter
 @RequiredArgsConstructor
-public class HomoPair<T> {
+public class Pair<T> {
 
     private final T first;
     private final T second;
     private final boolean swappable;
 
-    public HomoPair(T first, T second) {
+    public Pair(T first, T second) {
         this(first, second, true);
     }
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof HomoPair<?> homoPair)) {
+        if (!(o instanceof Pair<?> pair)) {
             return false;
         }
-        if (first.equals(homoPair.getFirst())) {
-            return second.equals(homoPair.getSecond());
+        if (first.equals(pair.getFirst())) {
+            return second.equals(pair.getSecond());
         }
-        if (isSwappable() && first.equals(homoPair.getSecond())) {
-            return second.equals(homoPair.getFirst());
+        if (isSwappable() && first.equals(pair.getSecond())) {
+            return second.equals(pair.getFirst());
         }
         return false;
     }

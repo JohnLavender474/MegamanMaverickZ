@@ -72,7 +72,8 @@ public class TestPathfindingScreen extends ScreenAdapter {
                 }
                 timer.update(delta);
                 return timer.isFinished();
-            }, () -> getComponent(BodyComponent.class).getCenter(), targetSupplier, Set.of(TARGET), 50f * PPM, true);
+            }, obj -> true, () -> 50f * PPM, () -> true,
+                    () -> getComponent(BodyComponent.class).getCenter(), targetSupplier);
         }
 
         private DebugComponent defineDebugComponent() {

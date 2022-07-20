@@ -3,7 +3,7 @@ package com.game.world;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.game.core.IEntity;
-import com.game.utils.objects.HomoPair;
+import com.game.utils.objects.Pair;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -23,7 +23,7 @@ public class Contact {
 
     private final Fixture fixture1;
     private final Fixture fixture2;
-    private HomoPair<Fixture> mask;
+    private Pair<Fixture> mask;
 
     /**
      * Checks if {@link Fixture#getFixtureType()} of {@link #fixture1} and {@link #fixture2} matches the supplied
@@ -36,10 +36,10 @@ public class Contact {
      */
     public boolean acceptMask(FixtureType fixtureType1, FixtureType fixtureType2) {
         if (fixture1.getFixtureType().equals(fixtureType1) && fixture2.getFixtureType().equals(fixtureType2)) {
-            mask = new HomoPair<>(fixture1, fixture2);
+            mask = new Pair<>(fixture1, fixture2);
             return true;
         } else if (fixture2.getFixtureType().equals(fixtureType1) && fixture1.getFixtureType().equals(fixtureType2)) {
-            mask = new HomoPair<>(fixture2, fixture1);
+            mask = new Pair<>(fixture2, fixture1);
             return true;
         }
         return false;
@@ -54,10 +54,10 @@ public class Contact {
      */
     public boolean acceptMask(FixtureType fixtureType) {
         if (fixture1.getFixtureType().equals(fixtureType)) {
-            mask = new HomoPair<>(fixture1, fixture2);
+            mask = new Pair<>(fixture1, fixture2);
             return true;
         } else if (fixture2.getFixtureType().equals(fixtureType)) {
-            mask = new HomoPair<>(fixture2, fixture1);
+            mask = new Pair<>(fixture2, fixture1);
             return true;
         }
         return false;

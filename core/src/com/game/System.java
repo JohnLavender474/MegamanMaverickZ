@@ -2,7 +2,6 @@ package com.game;
 
 import com.game.core.IEntity;
 import com.game.updatables.Updatable;
-import com.game.utils.exceptions.InvalidActionException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -94,11 +93,10 @@ public abstract class System implements Updatable {
      * Attempts to add the {@link IEntity} as a member, returns true if the attempt is successful, else false.
      *
      * @param entity the entity
-     * @throws InvalidActionException the invalid action exception
      */
-    public void addEntity(IEntity entity) throws InvalidActionException {
+    public void addEntity(IEntity entity) {
         if (!qualifiesMembership(entity)) {
-            throw new InvalidActionException("Cannot add " + objName(entity) + " as member of " + this);
+            throw new IllegalStateException("Cannot add " + objName(entity) + " as member of " + this);
         }
         entitiesToAddQueue.add(entity);
     }
