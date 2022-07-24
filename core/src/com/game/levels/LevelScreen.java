@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -89,7 +90,7 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
         music.play();
         deathTimer.setToEnd();
         // define level tiled map
-        levelTiledMap = new LevelTiledMap(gameContext, tmxFile);
+        levelTiledMap = new LevelTiledMap(tmxFile);
         // define entity spawns manager
         List<Rectangle> playerSpawns = new ArrayList<>();
         levelTiledMap.getObjectsOfLayer(PLAYER_SPAWNS).stream().filter(playerSpawnObj -> {
@@ -191,7 +192,8 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
     }
 
     private void onGameRunning(float delta) {
-        levelTiledMap.draw();
+        levelTiledMap.draw((OrthographicCamera) gameContext.getViewport(PLAYGROUND).getCamera(),
+                gameContext.getSpriteBatch());
         levelCameraManager.update(delta);
         gameContext.updateSystems(delta);
         healthBar.draw();

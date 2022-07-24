@@ -7,30 +7,51 @@ import lombok.Getter;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.game.utils.UtilMethods.*;
+
 @Getter
 public class Node {
 
     private final int x;
     private final int y;
+    private final Graph graph;
     private final Rectangle bounds = new Rectangle();
     private final Set<Object> objects = new HashSet<>();
 
-    public Node(Vector2 dimensions, int x, int y) {
+    public Node(int x, int y, Graph graph, Rectangle bounds) {
         this.x = x;
         this.y = y;
-        bounds.set(dimensions.x * x, dimensions.y * y, dimensions.x, dimensions.y);
+        this.graph = graph;
+        this.bounds.set(bounds);
+    }
+
+    public Set<Node> getNeighbors(boolean allowDiagonal) {
+        return graph.getNeighbors(this, allowDiagonal);
     }
 
     public void add(Object o) {
         objects.add(o);
     }
 
-    public boolean contains(Object o) {
-        return objects.contains(o);
-    }
-
     public void clear() {
         objects.clear();
+    }
+
+    public Vector2 getCenter() {
+        return centerPoint(bounds);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof Node node && x == node.getX() && y == node.getY();
+    }
+
+    @Override
+    public int hashCode() {
+        int hashcode = 7;
+        hashcode += 27 * x;
+        hashcode += 49 * y;
+        return hashcode;
     }
 
 }

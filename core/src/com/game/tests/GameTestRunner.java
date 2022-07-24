@@ -6,6 +6,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.game.tests.screens.TestEnemiesScreen;
+import com.game.tests.screens.TestPathfindingScreen;
 import com.game.tests.screens.TestTrajectoriesScreen;
 import lombok.RequiredArgsConstructor;
 
@@ -16,10 +17,10 @@ import java.util.Map;
 public class GameTestRunner extends Game {
 
     private final TestScreen testKey;
-    private final Map<TestScreen, Screen> testScreens = new HashMap<>() {{
-        put(TestScreen.TEST_TRAJECTORIES, new TestTrajectoriesScreen());
-        put(TestScreen.TEST_ENEMIES, new TestEnemiesScreen());
-    }};
+    private final Map<TestScreen, Screen> testScreens = Map.of(
+            TestScreen.TEST_TRAJECTORIES, new TestTrajectoriesScreen(),
+            TestScreen.TEST_PATHFINDING, new TestPathfindingScreen(),
+            TestScreen.TEST_ENEMIES, new TestEnemiesScreen());
 
     @Override
     public void create() {
@@ -44,8 +45,8 @@ public class GameTestRunner extends Game {
 
     public enum TestScreen {
         TEST_ENEMIES,
-        TEST_TRAJECTORIES,
-        TEST_MOVING_PLATFORMS,
+        TEST_PATHFINDING,
+        TEST_TRAJECTORIES
     }
 
 }

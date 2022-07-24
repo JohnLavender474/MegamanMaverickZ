@@ -41,12 +41,23 @@ public class BodyComponent implements Component {
     private boolean affectedByResistance = true;
 
     /**
-     * Instantiates a new Body Component.
+     * Instantiates a new Body Component with the given {@link BodyType} value.
      *
      * @param bodyType the body type
      */
     public BodyComponent(BodyType bodyType) {
         this.bodyType = bodyType;
+    }
+
+    /**
+     * See {@link #BodyComponent(BodyType)}. Bounds of supplied collision box are copied.
+     *
+     * @param bodyType the body type
+     * @param collisionBox the collision box bounds to be copied
+     */
+    public BodyComponent(BodyType bodyType, Rectangle collisionBox) {
+        this(bodyType);
+        this.collisionBox.set(collisionBox);
     }
 
     /**

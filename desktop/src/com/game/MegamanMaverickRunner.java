@@ -18,16 +18,12 @@ public class MegamanMaverickRunner {
 	 */
 	public static void main(String[] arg) {
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
+		config.setIdleFPS(60);
 		config.setForegroundFPS(60);
-		config.setTitle("Megaman Maverick");
 		config.setWindowedMode(1920, 1080);
-		// config.setWindowedMode(400, 300);
-		test(TestScreen.TEST_ENEMIES, config);
+		config.setTitle("Megaman Maverick");
+		new Lwjgl3Application(new GameTestRunner(TestScreen.TEST_PATHFINDING), config);
 		// new Lwjgl3Application(new MegamanMaverick(), config);
-	}
-
-	private static void test(TestScreen testScreen, Lwjgl3ApplicationConfiguration config) {
-		new Lwjgl3Application(new GameTestRunner(testScreen), config);
 	}
 
 }

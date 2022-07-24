@@ -24,7 +24,7 @@ public class GraphSystem extends System {
     @Override
     protected void processEntity(IEntity entity, float delta) {
         GraphComponent graphComponent = entity.getComponent(GraphComponent.class);
-        List<Node> nodes = graph.getNodesOverlapping(graphComponent.boundsSupplier().get());
+        List<Node> nodes = graph.getNodesOverlapping(graphComponent.getBounds());
         nodes.forEach(node -> node.add(entity));
     }
 

@@ -26,6 +26,8 @@ import com.game.cull.CullOnCamTransSystem;
 import com.game.cull.CullOnOutOfCamBoundsSystem;
 import com.game.debugging.DebugComponent;
 import com.game.debugging.DebugSystem;
+import com.game.graph.Graph;
+import com.game.graph.GraphSystem;
 import com.game.health.HealthComponent;
 import com.game.health.HealthSystem;
 import com.game.levels.CullOnLevelCamTrans;
@@ -87,11 +89,12 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
     private TestEntitiesAndSystemsManager entitiesAndSystemsManager;
     private ShapeRenderer shapeRenderer;
     private TestAssetLoader assetLoader;
-    private SpriteBatch spriteBatch;
     private Viewport playgroundViewport;
-    private Viewport uiViewport;
     private TestBlock testMovingBlock;
+    private SpriteBatch spriteBatch;
+    private Viewport uiViewport;
     private TestPlayer player;
+    private Graph levelGraph;
     private boolean isPaused;
     private Sprite black;
     private Music music;
@@ -125,6 +128,7 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
         entitiesAndSystemsManager.addSystem(new CullOnCamTransSystem(() -> levelCameraManager.getTransitionState()));
         entitiesAndSystemsManager.addSystem(new CullOnOutOfCamBoundsSystem(playgroundViewport.getCamera()));
         entitiesAndSystemsManager.addSystem(new UpdatableSystem());
+        entitiesAndSystemsManager.addSystem(new GraphSystem());
         entitiesAndSystemsManager.addSystem(new ControllerSystem(testController));
         entitiesAndSystemsManager.addSystem(new HealthSystem());
         entitiesAndSystemsManager.addSystem(new BehaviorSystem());
@@ -134,8 +138,7 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
         entitiesAndSystemsManager.addSystem(new AnimationSystem());
         entitiesAndSystemsManager.addSystem(new DebugSystem(shapeRenderer,
                 (OrthographicCamera) playgroundViewport.getCamera()));
-        levelTiledMap = new LevelTiledMap((OrthographicCamera) playgroundViewport.getCamera(),
-                spriteBatch, "tiledmaps/tmx/test1.tmx");
+        levelTiledMap = new LevelTiledMap("tiledmaps/tmx/test1.tmx");
         // define enemySpawns
         Rectangle startPlayerSpawn = new Rectangle();
         List<Rectangle> playerSpawns = levelTiledMap.getObjectsOfLayer(PLAYER_SPAWNS).stream().map(obj -> {
@@ -194,6 +197,10 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
         Map<Rectangle, String> gameRooms = new HashMap<>();
         levelTiledMap.getObjectsOfLayer(GAME_ROOMS).forEach(rectangleMapObject ->
                 gameRooms.put(rectangleMapObject.getRectangle(), rectangleMapObject.getName()));
+        // Level graph
+        levelGraph = new Graph(new Vector2(PPM, PPM),
+                levelTiledMap.getWidthInTiles(), levelTiledMap.getHeightInTiles());
+        entitiesAndSystemsManager.getSystem(GraphSystem.class).setGraph(levelGraph);
         // level camera manager
         Timer transitionTimer = new Timer(1f);
         levelCameraManager = new LevelCameraManager(playgroundViewport.getCamera(), transitionTimer, gameRooms, player);
@@ -209,12 +216,13 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
             return;
         }
         levelCameraManager.update(delta);
-        levelTiledMap.draw();
+        levelTiledMap.draw((OrthographicCamera) playgroundViewport.getCamera(), spriteBatch);
         if (levelCameraManager.getTransitionState() == null) {
             entitySpawnManager.update();
             testController.updateController();
         }
         entitiesAndSystemsManager.updateSystems(delta);
+        levelGraph.draw(shapeRenderer, Color.BLUE);
         messageDispatcher.updateMessageDispatcher(delta);
         entitiesAndSystemsManager.getEntities().stream()
                 .filter(entity -> entity instanceof CullOnOutOfCamBounds)

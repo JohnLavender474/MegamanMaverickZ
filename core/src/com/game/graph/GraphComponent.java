@@ -5,4 +5,10 @@ import com.game.Component;
 
 import java.util.function.Supplier;
 
-public record GraphComponent(Supplier<Rectangle> boundsSupplier) implements Component {}
+public record GraphComponent(Supplier<Rectangle> boundsSupplier) implements Component {
+
+    public Rectangle getBounds() {
+        return boundsSupplier.get();
+    }
+
+}
