@@ -109,12 +109,14 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
             Boolean wallSlideRight = blockObj.getProperties().get("wallSlideRight", Boolean.class);
             Boolean affectedByResistance = blockObj.getProperties().get("abr", Boolean.class);
             Boolean gravityOn = blockObj.getProperties().get("gravityOn", Boolean.class);
+            Boolean feetSticky = blockObj.getProperties().get("feetSticky", Boolean.class);
             Float frictionX = blockObj.getProperties().get("frictionX", Float.class);
             Float frictionY = blockObj.getProperties().get("frictionY", Float.class);
             Block block = new Block(blockObj.getRectangle(),
-                    wallSlideLeft != null && wallSlideLeft, wallSlideRight != null && wallSlideRight,
+                    new Vector2(frictionX != null ? frictionX : .035f, frictionY != null ? frictionY : 0f),
                     affectedByResistance != null && affectedByResistance, gravityOn != null && gravityOn,
-                    frictionX != null ? frictionX : .035f, frictionY != null ? frictionY : 0f);
+                    wallSlideLeft != null && wallSlideLeft, wallSlideRight != null && wallSlideRight,
+                    feetSticky != null && feetSticky);
             gameContext.addEntity(block);
             if (blockObj.getProperties().containsKey("trajectory")) {
                 TrajectoryComponent trajectoryComponent = new TrajectoryComponent();

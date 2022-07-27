@@ -8,12 +8,12 @@ import lombok.Getter;
 import java.util.function.Supplier;
 
 @Getter
-public class CullOnOutOfCamBoundsComponent implements Component {
+public class CullOutOfCamBoundsComponent implements Component {
 
     private final Timer cullTimer;
     private final Supplier<Rectangle> boundsSupplier;
 
-    public CullOnOutOfCamBoundsComponent(Supplier<Rectangle> boundsSupplier, float graceDuration) {
+    public CullOutOfCamBoundsComponent(Supplier<Rectangle> boundsSupplier, float graceDuration) {
         this.boundsSupplier = boundsSupplier;
         this.cullTimer = new Timer(graceDuration);
     }

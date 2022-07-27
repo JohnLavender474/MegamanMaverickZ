@@ -1,5 +1,6 @@
 package com.game.debugging;
 
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -10,14 +11,14 @@ import com.game.core.IEntity;
 
 import java.util.Set;
 
-public class DebugSystem extends System {
+public class DebugRectSystem extends System {
 
     private final ShapeRenderer shapeRenderer;
-    private final OrthographicCamera camera;
+    private final Camera camera;
     private boolean isDrawing;
 
-    public DebugSystem(ShapeRenderer shapeRenderer, OrthographicCamera camera) {
-        super(Set.of(DebugComponent.class));
+    public DebugRectSystem(Camera camera, ShapeRenderer shapeRenderer) {
+        super(Set.of(DebugRectComponent.class));
         this.shapeRenderer = shapeRenderer;
         this.camera = camera;
     }
@@ -33,8 +34,8 @@ public class DebugSystem extends System {
 
     @Override
     protected void processEntity(IEntity entity, float delta) {
-        DebugComponent debugComponent = entity.getComponent(DebugComponent.class);
-        debugComponent.getDebugHandles().forEach(debugHandle -> {
+        DebugRectComponent debugRectComponent = entity.getComponent(DebugRectComponent.class);
+        debugRectComponent.getDebugHandles().forEach(debugHandle -> {
             Rectangle rectangle = debugHandle.key().get();
             Color color = debugHandle.value().get();
             shapeRenderer.setColor(color);

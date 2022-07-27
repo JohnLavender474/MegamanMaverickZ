@@ -6,7 +6,9 @@ import com.game.utils.objects.Wrapper;
 
 public interface SpriteAdapter {
 
-    boolean setPositioning(Wrapper<Rectangle> bounds, Wrapper<Position> position);
+    default boolean setPositioning(Wrapper<Rectangle> bounds, Wrapper<Position> position) {
+        return false;
+    }
 
     default float getAlpha() {
         return 1f;

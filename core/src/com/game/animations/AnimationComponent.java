@@ -20,7 +20,7 @@ public class AnimationComponent implements Component {
     /**
      * Create new animation component with only a single timed animation.
      *
-     * @param timedAnimation
+     * @param timedAnimation the timed animation
      */
     public AnimationComponent(TimedAnimation timedAnimation) {
         this.animations = Map.of("", timedAnimation);

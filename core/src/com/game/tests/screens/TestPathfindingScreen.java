@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
@@ -13,8 +12,8 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.game.Entity;
 import com.game.core.IEntitiesAndSystemsManager;
-import com.game.debugging.DebugComponent;
-import com.game.debugging.DebugSystem;
+import com.game.debugging.DebugRectComponent;
+import com.game.debugging.DebugRectSystem;
 import com.game.graph.Graph;
 import com.game.graph.GraphComponent;
 import com.game.graph.GraphSystem;
@@ -39,6 +38,7 @@ import java.util.function.Supplier;
 
 import static com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.*;
 import static com.game.ConstVals.ViewVals.*;
+import static com.game.utils.UtilMethods.centerPoint;
 import static com.game.world.BodyType.*;
 
 public class TestPathfindingScreen extends ScreenAdapter {
@@ -73,7 +73,7 @@ public class TestPathfindingScreen extends ScreenAdapter {
         entitiesAndSystemsManager.addSystem(new WorldSystem(null, Vector2.Zero, 1f / 120f));
         entitiesAndSystemsManager.addSystem(new TrajectorySystem());
         entitiesAndSystemsManager.addSystem(new UpdatableSystem());
-        entitiesAndSystemsManager.addSystem(new DebugSystem(shapeRenderer, (OrthographicCamera) viewport.getCamera()));
+        entitiesAndSystemsManager.addSystem(new DebugRectSystem(viewport.getCamera(), shapeRenderer));
         levelTiledMap = new LevelTiledMap("tiledmaps/tmx/testpathfinding.tmx");
         levelTiledMap.getObjectsOfLayer(OBSTACLES).forEach(obstObj ->
             entitiesAndSystemsManager.addEntity(new TestObstacleEntity(obstObj.getRectangle())));
@@ -101,7 +101,7 @@ public class TestPathfindingScreen extends ScreenAdapter {
         } else {
             bodyComponent.setVelocity(Vector2.Zero);
         }
-        List<Vector2> path = testPathfindingEntity.getComponent(PathfindingComponent.class).getCurrentPathCpy();
+        List<Rectangle> path = testPathfindingEntity.getComponent(PathfindingComponent.class).getPathCpy();
         levelGraph.draw(shapeRenderer, node -> {
             if (node.getObjects().stream().anyMatch(o -> o instanceof TestObstacleEntity)) {
                 return Color.ORANGE;
@@ -122,7 +122,7 @@ public class TestPathfindingScreen extends ScreenAdapter {
         }
         shapeRenderer.setColor(Color.WHITE);
         for (int i = 0; i < path.size() - 1; i++) {
-            shapeRenderer.line(path.get(i), path.get(i + 1));
+            shapeRenderer.line(centerPoint(path.get(i)), centerPoint(path.get(i + 1)));
         }
         if (!isDrawing) {
             shapeRenderer.end();
@@ -174,17 +174,18 @@ public class TestPathfindingScreen extends ScreenAdapter {
         }
 
         private PathfindingComponent definePathfindingComponent(Supplier<Vector2> targetSupplier) {
-            Timer updateTimer = new Timer(.5f);
+            Timer updateTimer = new Timer(1f);
             PathfindingComponent pathfindingComponent = new PathfindingComponent(
                     this::getFocus, targetSupplier,
                     target -> {
-                        float angle = MathUtils.atan2(target.y - getFocus().y, target.x - getFocus().x);
+                        Vector2 targetCenter = centerPoint(target);
+                        float angle = MathUtils.atan2(targetCenter.y - getFocus().y, targetCenter.x - getFocus().x);
                         trajectory.set(MathUtils.cos(angle), MathUtils.sin(angle)).scl(SPEED * PPM);
                     },
-                    target -> getComponent(BodyComponent.class).getCollisionBox().contains(target));
-            pathfindingComponent.setDoAvoidFunc(
-                    node -> node.getObjects().stream().anyMatch(o -> o instanceof TestObstacleEntity));
-            pathfindingComponent.setDoUpdateFunc(
+                    target -> getComponent(BodyComponent.class).getCollisionBox().contains(centerPoint(target)));
+            pathfindingComponent.setDoAcceptPredicate(node -> node.getObjects().stream().noneMatch(
+                    o -> o instanceof TestObstacleEntity));
+            pathfindingComponent.setDoUpdatePredicate(
                     delta -> {
                         updateTimer.update(delta);
                         boolean isFinished = updateTimer.isFinished();
@@ -219,11 +220,12 @@ public class TestPathfindingScreen extends ScreenAdapter {
         }
 
         private GraphComponent defineGraphComponent() {
-            return new GraphComponent(() -> getComponent(BodyComponent.class).getCollisionBox());
+            return new GraphComponent(() -> getComponent(BodyComponent.class).getCollisionBox(),
+                    () -> List.of(this));
         }
 
-        private DebugComponent defineDebugComponent(Color color) {
-            return new DebugComponent(() -> getComponent(BodyComponent.class).getCollisionBox(), () -> color);
+        private DebugRectComponent defineDebugComponent(Color color) {
+            return new DebugRectComponent(() -> getComponent(BodyComponent.class).getCollisionBox(), () -> color);
         }
 
         @Override

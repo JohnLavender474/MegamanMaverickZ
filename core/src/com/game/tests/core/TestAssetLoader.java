@@ -21,6 +21,7 @@ public class TestAssetLoader implements IAssetLoader, Disposable {
         loadAssets(Sound.class,
                 ENEMY_BULLET_SOUND,
                 ENEMY_DAMAGE_SOUND,
+                MEGA_BUSTER_CHARGING_SOUND,
                 MEGA_BUSTER_BULLET_SHOT_SOUND,
                 MEGAMAN_LAND_SOUND,
                 MEGAMAN_DEFEAT_SOUND,
@@ -31,7 +32,8 @@ public class TestAssetLoader implements IAssetLoader, Disposable {
                 ENEMIES_TEXTURE_ATLAS,
                 OBJECTS_TEXTURE_ATLAS,
                 MEGAMAN_TEXTURE_ATLAS,
-                DECORATIONS_TEXTURE_ATLAS);
+                DECORATIONS_TEXTURE_ATLAS,
+                MEGAMAN_CHARGED_SHOT_TEXTURE_ATLAS);
         assetManager.finishLoading();
     }
 

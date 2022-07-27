@@ -1,5 +1,5 @@
 Megaman.png
-size: 1664, 32
+size: 1728, 32
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
@@ -157,51 +157,58 @@ SlipSlide
   orig: 32, 32
   offset: 0, 0
   index: -1
-SlipSlideShoot
+SlipSlideCharging
   rotate: false
   xy: 1344, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+SlipSlideShoot
+  rotate: false
+  xy: 1408, 0
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 Stand
   rotate: false
-  xy: 1376, 0
+  xy: 1440, 0
   size: 64, 32
   orig: 64, 32
   offset: 0, 0
   index: -1
 StandCharging
   rotate: false
-  xy: 1440, 0
+  xy: 1504, 0
   size: 64, 32
   orig: 64, 32
   offset: 0, 0
   index: -1
 StandShoot
   rotate: false
-  xy: 1504, 0
+  xy: 1568, 0
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 WallSlide
   rotate: false
-  xy: 1536, 0
+  xy: 1600, 0
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 WallSlideCharging
   rotate: false
-  xy: 1568, 0
+  xy: 1632, 0
   size: 64, 32
   orig: 64, 32
   offset: 0, 0
   index: -1
 WallSlideShoot
   rotate: false
-  xy: 1632, 0
+  xy: 1696, 0
   size: 32, 32
   orig: 32, 32
   offset: 0, 0

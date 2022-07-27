@@ -14,8 +14,8 @@ import com.game.animations.TimedAnimation;
 import com.game.core.IAssetLoader;
 import com.game.core.IEntitiesAndSystemsManager;
 import com.game.cull.CullOnCamTransComponent;
-import com.game.cull.CullOnOutOfCamBoundsComponent;
-import com.game.debugging.DebugComponent;
+import com.game.cull.CullOutOfCamBoundsComponent;
+import com.game.debugging.DebugRectComponent;
 import com.game.entities.contracts.Damageable;
 import com.game.entities.contracts.Damager;
 import com.game.entities.contracts.Faceable;
@@ -69,7 +69,7 @@ public class TestSniperJoe extends Entity implements Faceable, Damager, Damageab
         this.playerSupplier = playerSupplier;
         this.entitiesAndSystemsManager = entitiesAndSystemsManager;
         addComponent(new CullOnCamTransComponent());
-        addComponent(new CullOnOutOfCamBoundsComponent(
+        addComponent(new CullOutOfCamBoundsComponent(
                 () -> getComponent(BodyComponent.class).getCollisionBox(), 1.5f));
         addComponent(defineUpdatableComponent(playerSupplier));
         addComponent(defineSpriteComponent());
@@ -200,16 +200,16 @@ public class TestSniperJoe extends Entity implements Faceable, Damager, Damageab
         return bodyComponent;
     }
 
-    private DebugComponent defineDebugComponent() {
-        DebugComponent debugComponent = new DebugComponent();
+    private DebugRectComponent defineDebugComponent() {
+        DebugRectComponent debugRectComponent = new DebugRectComponent();
         getComponent(BodyComponent.class).getFixtures().forEach(fixture ->
-                debugComponent.addDebugHandle(fixture::getFixtureBox, () -> {
+                debugRectComponent.addDebugHandle(fixture::getFixtureBox, () -> {
                     if (fixture.getFixtureType() == FixtureType.SHIELD) {
                         return fixture.isActive() ? Color.GREEN : Color.GRAY;
                     }
                     return Color.BLUE;
                 }));
-        return debugComponent;
+        return debugRectComponent;
     }
 
 }

@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import lombok.Getter;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -27,6 +28,14 @@ public class Node {
 
     public Set<Node> getNeighbors(boolean allowDiagonal) {
         return graph.getNeighbors(this, allowDiagonal);
+    }
+
+    public Node getNodeOffset(int offsetX, int offsetY) {
+        return graph.getNode(x + offsetX, y + offsetY);
+    }
+
+    public void addAll(Collection<Object> objs) {
+        objs.forEach(this::add);
     }
 
     public void add(Object o) {

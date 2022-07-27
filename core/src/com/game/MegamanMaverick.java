@@ -27,7 +27,7 @@ import com.game.controllers.ButtonStatus;
 import com.game.controllers.ControllerButton;
 import com.game.controllers.ControllerSystem;
 import com.game.core.IEntity;
-import com.game.debugging.DebugSystem;
+import com.game.debugging.DebugRectSystem;
 import com.game.entities.megaman.MegamanStats;
 import com.game.health.HealthSystem;
 import com.game.levels.LevelScreen;
@@ -110,7 +110,7 @@ public class MegamanMaverick extends Game implements GameContext2d {
         addSystem(new TrajectorySystem());
         addSystem(new AnimationSystem());
         addSystem(new SpriteSystem((OrthographicCamera) viewports.get(PLAYGROUND).getCamera(), getSpriteBatch()));
-        addSystem(new DebugSystem(getShapeRenderer(), (OrthographicCamera) viewports.get(PLAYGROUND).getCamera()));
+        addSystem(new DebugRectSystem(viewports.get(PLAYGROUND).getCamera(), getShapeRenderer()));
         // blackboard
         putBlackboardObject(MegamanVals.MEGAMAN_STATS, new MegamanStats());
         // define screens

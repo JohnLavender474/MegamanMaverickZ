@@ -1,24 +1,17 @@
-package com.game.tests.entities;
+package com.game.entities.enemies;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.Entity;
+import com.game.GameContext2d;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
-import com.game.core.IAssetLoader;
-import com.game.core.IEntitiesAndSystemsManager;
-import com.game.cull.CullOnCamTransComponent;
-import com.game.cull.CullOutOfCamBoundsComponent;
-import com.game.debugging.DebugLinesComponent;
-import com.game.debugging.DebugRectComponent;
-import com.game.entities.contracts.Damageable;
-import com.game.entities.contracts.Damager;
+import com.game.entities.blocks.Block;
 import com.game.entities.contracts.Faceable;
 import com.game.entities.contracts.Facing;
-import com.game.health.HealthComponent;
+import com.game.entities.megaman.Megaman;
+import com.game.entities.projectiles.Bullet;
 import com.game.pathfinding.PathfindingComponent;
 import com.game.sprites.SpriteAdapter;
 import com.game.sprites.SpriteComponent;
@@ -26,79 +19,49 @@ import com.game.updatables.UpdatableComponent;
 import com.game.utils.enums.Position;
 import com.game.utils.objects.Timer;
 import com.game.utils.objects.Wrapper;
-import com.game.world.*;
+import com.game.world.BodyComponent;
+import com.game.world.Fixture;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Set;
 import java.util.function.Supplier;
 
-import static com.badlogic.gdx.graphics.Color.*;
 import static com.game.ConstVals.TextureAssets.*;
 import static com.game.ConstVals.ViewVals.PPM;
-import static com.game.entities.contracts.Facing.*;
-import static com.game.utils.enums.Position.*;
+import static com.game.entities.contracts.Facing.F_LEFT;
+import static com.game.entities.contracts.Facing.F_RIGHT;
 import static com.game.utils.UtilMethods.*;
+import static com.game.utils.enums.Position.*;
 import static com.game.world.BodySense.*;
-import static com.game.world.BodyType.*;
+import static com.game.world.BodyType.DYNAMIC;
 import static com.game.world.FixtureType.*;
 
 @Getter
 @Setter
-public class TestSuctionRoller extends Entity implements Damager, Damageable, Faceable {
+public class SuctionRoller extends AbstractEnemy implements Faceable {
 
-    private final Set<Class<? extends Damager>> damagerMaskSet = Set.of(TestBullet.class);
-    private final IEntitiesAndSystemsManager entitiesAndSystemsManager;
-    private final IAssetLoader assetLoader;
     private final Rectangle nextTarget = new Rectangle();
     private final Timer offWallGrace = new Timer(.15f);
-    private final Timer damageTimer = new Timer(.25f);
 
     private Facing facing;
     private boolean isOnWall;
     private boolean wasOnWall;
 
-    public TestSuctionRoller(IEntitiesAndSystemsManager entitiesAndSystemsManager, IAssetLoader assetLoader,
-                             Supplier<TestPlayer> testPlayerSupplier, Vector2 spawn) {
-        this.entitiesAndSystemsManager = entitiesAndSystemsManager;
-        this.assetLoader = assetLoader;
+    public SuctionRoller(GameContext2d gameContext, Supplier<Megaman> megamanSupplier, Vector2 spawn) {
+        super(gameContext, megamanSupplier);
         damageTimer.setToEnd();
         offWallGrace.setToEnd();
+        damageNegotiation.put(Bullet.class, 5);
+        addComponent(definePathfindingComponent());
+        addComponent(defineAnimationComponent());
+        addComponent(defineUpdatableComponent());
+        addComponent(defineBodyComponent(spawn));
         addComponent(defineSpriteComponent());
-        addComponent(new HealthComponent(30, this::disintegrate));
-        addComponent(defineUpdatableComponent(testPlayerSupplier));
-        addComponent(defineBodyComponent(spawn, testPlayerSupplier));
-        addComponent(definePathfindingComponent(testPlayerSupplier));
-        addComponent(defineAnimationComponent(assetLoader.getAsset(ENEMIES_TEXTURE_ATLAS, TextureAtlas.class)));
-        addComponent(new CullOutOfCamBoundsComponent(() -> getComponent(BodyComponent.class).getCollisionBox(), 2f));
-        addComponent(new CullOnCamTransComponent());
-        addComponent(defineDebugRectComponent());
-        addComponent(defineDebugLinesComponent());
     }
 
-    @Override
-    public void takeDamageFrom(Damager damager) {
-        if (damager instanceof TestBullet) {
-            damageTimer.reset();
-            getComponent(HealthComponent.class).sub(5);
-            Gdx.audio.newSound(Gdx.files.internal("sounds/EnemyDamage.mp3")).play();
-        }
-    }
-
-    @Override
-    public boolean isInvincible() {
-        return !damageTimer.isFinished();
-    }
-
-    private void disintegrate() {
-        entitiesAndSystemsManager.addEntity(new TestDisintegration(assetLoader,
-                getComponent(BodyComponent.class).getCenter(), new Vector2(2f * PPM, 2f * PPM)));
-        Gdx.audio.newSound(Gdx.files.internal("sounds/EnemyDamage.mp3")).play();
-    }
-
-    private UpdatableComponent defineUpdatableComponent(Supplier<TestPlayer> testPlayerSupplier) {
+    private UpdatableComponent defineUpdatableComponent() {
         return new UpdatableComponent(delta -> {
-            if (testPlayerSupplier.get().isDead()) {
+            if (getMegaman().isDead()) {
                 return;
             }
             damageTimer.update(delta);
@@ -110,7 +73,7 @@ public class TestSuctionRoller extends Entity implements Damager, Damageable, Fa
             if (wasOnWall && !isOnWall) {
                 offWallGrace.reset();
             }
-            BodyComponent playerBody = testPlayerSupplier.get().getComponent(BodyComponent.class);
+            BodyComponent playerBody = getMegaman().getComponent(BodyComponent.class);
             if (thisBody.is(FEET_ON_GROUND)) {
                 if (bottomRightPoint(playerBody.getCollisionBox()).x < thisBody.getPosition().x) {
                     setFacing(F_LEFT);
@@ -121,15 +84,15 @@ public class TestSuctionRoller extends Entity implements Damager, Damageable, Fa
         });
     }
 
-    private PathfindingComponent definePathfindingComponent(Supplier<TestPlayer> testPlayerSupplier) {
+    private PathfindingComponent definePathfindingComponent() {
         PathfindingComponent pathfindingComponent = new PathfindingComponent(
-                () -> getComponent(BodyComponent.class).getCenter(), () -> testPlayerSupplier.get().getFocus(),
+                () -> getComponent(BodyComponent.class).getCenter(), () -> getMegaman().getFocus(),
                 nextTarget::set,
                 target -> getComponent(BodyComponent.class).getCollisionBox().contains(centerPoint(target)));
         pathfindingComponent.setDoAcceptPredicate(node ->
-            node.getObjects().stream().noneMatch(o -> o instanceof TestBlock) &&
-                    (node.getObjects().contains("Ground") || node.getObjects().contains("LeftWall") ||
-                            node.getObjects().contains("RightWall")));
+                node.getObjects().stream().noneMatch(o -> o instanceof Block) &&
+                        (node.getObjects().contains("Ground") || node.getObjects().contains("LeftWall") ||
+                                node.getObjects().contains("RightWall")));
         pathfindingComponent.setDoAllowDiagonal(() -> false);
         Timer timer = new Timer(.25f);
         pathfindingComponent.setDoUpdatePredicate(delta -> {
@@ -172,18 +135,19 @@ public class TestSuctionRoller extends Entity implements Damager, Damageable, Fa
         });
     }
 
-    private AnimationComponent defineAnimationComponent(TextureAtlas textureAtlas) {
+    private AnimationComponent defineAnimationComponent() {
+        TextureAtlas textureAtlas = gameContext.getAsset(ENEMIES_TEXTURE_ATLAS, TextureAtlas.class);
         return new AnimationComponent(new TimedAnimation(textureAtlas.findRegion("SuctionRoller"), 5, .1f));
     }
 
-    private BodyComponent defineBodyComponent(Vector2 spawn, Supplier<TestPlayer> testPlayerSupplier) {
+    private BodyComponent defineBodyComponent(Vector2 spawn) {
         BodyComponent bodyComponent = new BodyComponent(DYNAMIC);
         bodyComponent.setGravity(-35f * PPM);
         bodyComponent.setSize(.75f * PPM, PPM);
         setBottomCenterToPoint(bodyComponent.getCollisionBox(), spawn);
         bodyComponent.setPreProcess(delta -> {
             BodyComponent thisBody = getComponent(BodyComponent.class);
-            BodyComponent testPlayerBody = testPlayerSupplier.get().getComponent(BodyComponent.class);
+            BodyComponent testPlayerBody = getMegaman().getComponent(BodyComponent.class);
             if (isOnWall) {
                 if (!wasOnWall) {
                     bodyComponent.setVelocityX(0f);
@@ -225,22 +189,6 @@ public class TestSuctionRoller extends Entity implements Damager, Damageable, Fa
         right.setOffset(.375f * PPM, 0f);
         bodyComponent.addFixture(right);
         return bodyComponent;
-    }
-
-    private DebugRectComponent defineDebugRectComponent() {
-        DebugRectComponent debugRectComponent = new DebugRectComponent();
-        getComponent(BodyComponent.class).getFixtures().forEach(fixture ->
-           debugRectComponent.addDebugHandle(fixture::getFixtureBox, () -> {
-               if (equalsAny(fixture.getFixtureType(), LEFT, RIGHT)) {
-                   return GREEN;
-               }
-               return BLUE;
-           }));
-        return debugRectComponent;
-    }
-
-    private DebugLinesComponent defineDebugLinesComponent() {
-        return new DebugLinesComponent(() -> getComponent(PathfindingComponent.class).getPathPoints(), () -> RED);
     }
 
 }

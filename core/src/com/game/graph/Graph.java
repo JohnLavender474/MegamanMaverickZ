@@ -38,7 +38,7 @@ public class Graph {
         Set<Node> neighbors = new HashSet<>();
         for (int i = x - 1; i <= x + 1; i++) {
             for (int j = y - 1; j <= y + 1; j++) {
-                if ((i == x && j == y) || i < 0 || i >= nodes.length || j < 0 || j >= nodes[0].length) {
+                if ((i == x && j == y) || isOutOfBounds(i, y)) {
                     continue;
                 }
                 if (!allowDiagonal && (i == x - 1 || i == x + 1) && (j == y - 1 || j == y + 1)) {
@@ -51,7 +51,14 @@ public class Graph {
     }
 
     public Node getNode(int row, int col) {
+        if (isOutOfBounds(row, col)) {
+            return null;
+        }
         return nodes[row][col];
+    }
+
+    public boolean isOutOfBounds(int row, int col) {
+        return row < 0 || col < 0 || row >= nodes.length || col >= nodes[0].length;
     }
 
     public Node getNodeOfPos(float x, float y) {

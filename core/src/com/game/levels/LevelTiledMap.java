@@ -128,6 +128,9 @@ public class LevelTiledMap implements Disposable {
             }
         }
 
+        @Override
+        public void dispose() {}
+
     }
 
 }

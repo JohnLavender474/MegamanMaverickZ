@@ -12,8 +12,8 @@ import com.game.Component;
 import com.game.System;
 import com.game.core.IEntitiesAndSystemsManager;
 import com.game.core.IEntity;
-import com.game.debugging.DebugComponent;
-import com.game.debugging.DebugSystem;
+import com.game.debugging.DebugRectComponent;
+import com.game.debugging.DebugRectSystem;
 import com.game.trajectories.TrajectoryComponent;
 import com.game.trajectories.TrajectorySystem;
 import com.game.world.BodyComponent;
@@ -37,8 +37,7 @@ public class TestTrajectoriesScreen extends ScreenAdapter {
         entitiesAndSystemsManager = new EntitiesAndSystemsManager();
         entitiesAndSystemsManager.addSystem(new WorldSystem(null, new Vector2(), 1f / 120f));
         entitiesAndSystemsManager.addSystem(new TrajectorySystem());
-        entitiesAndSystemsManager.addSystem(new DebugSystem(new ShapeRenderer(),
-                (OrthographicCamera) viewport.getCamera()));
+        entitiesAndSystemsManager.addSystem(new DebugRectSystem(viewport.getCamera(), new ShapeRenderer()));
         entitiesAndSystemsManager.addEntity(new TestTrajectoryEntity(new Rectangle(0f, 0f, PPM, PPM)));
     }
 
@@ -83,10 +82,10 @@ public class TestTrajectoriesScreen extends ScreenAdapter {
             return trajectoryComponent;
         }
 
-        private DebugComponent defineDebugComponent() {
-            DebugComponent debugComponent = new DebugComponent();
-            debugComponent.addDebugHandle(() -> getComponent(BodyComponent.class).getCollisionBox(), () -> Color.RED);
-            return debugComponent;
+        private DebugRectComponent defineDebugComponent() {
+            DebugRectComponent debugRectComponent = new DebugRectComponent();
+            debugRectComponent.addDebugHandle(() -> getComponent(BodyComponent.class).getCollisionBox(), () -> Color.RED);
+            return debugRectComponent;
         }
 
     }

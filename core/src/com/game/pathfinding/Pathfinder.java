@@ -1,6 +1,6 @@
 package com.game.pathfinding;
 
-import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Rectangle;
 import com.game.graph.Graph;
 import com.game.graph.Node;
 import lombok.AllArgsConstructor;
@@ -12,16 +12,17 @@ import java.util.*;
 import java.util.concurrent.Callable;
 
 /**
- * <a href="https://www.happycoders.eu/algorithms/dijkstras-algorithm-java/#Dijkstras_Algorithm_-_Java_Source_Code_With_PriorityQueue">...</a>
+ * <a href="https://www.happycoders.eu/algorithms/dijkstras-algorithm-java/
+ * #Dijkstras_Algorithm_-_Java_Source_Code_With_PriorityQueue">...</a>
  */
 @RequiredArgsConstructor
-public class Pathfinder implements Callable<Deque<Vector2>> {
+public class Pathfinder implements Callable<Deque<Rectangle>> {
 
     private final Graph graph;
     private final PathfindingComponent pathfindingComponent;
 
     @Override
-    public Deque<Vector2> call() {
+    public Deque<Rectangle> call() {
         PriorityQueue<NodeHandle> open = new PriorityQueue<>();
         Map<Node, NodeHandle> nodeHandleMap = new HashMap<>();
         Set<Node> closed = new HashSet<>();
@@ -33,16 +34,16 @@ public class Pathfinder implements Callable<Deque<Vector2>> {
             Node currentNode = currentNodeHandle.getNode();
             closed.add(currentNode);
             if (currentNode.equals(targetNode)) {
-                Deque<Vector2> path = new ArrayDeque<>();
+                Deque<Rectangle> path = new ArrayDeque<>();
                 while (currentNodeHandle != null) {
-                    path.addFirst(currentNodeHandle.getNode().getCenter());
+                    path.addFirst(currentNodeHandle.getNode().getBounds());
                     currentNodeHandle = currentNodeHandle.getPredecessor();
                 }
                 return path;
             }
             Set<Node> neighbors = graph.getNeighbors(currentNode, pathfindingComponent.allowDiagonal());
             for (Node neighbor : neighbors) {
-                if (closed.contains(neighbor) || pathfindingComponent.doAvoid(neighbor)) {
+                if (closed.contains(neighbor) || !pathfindingComponent.doAccept(neighbor)) {
                     continue;
                 }
                 int totalDistance = currentNodeHandle.getDistance() + graph.getCost(currentNode, neighbor);
@@ -59,7 +60,7 @@ public class Pathfinder implements Callable<Deque<Vector2>> {
                 }
             }
         }
-        return new ArrayDeque<>();
+        return null;
     }
 
     @Getter

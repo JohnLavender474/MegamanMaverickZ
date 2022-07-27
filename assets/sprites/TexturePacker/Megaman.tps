@@ -50,7 +50,7 @@
         <key>dxtCompressionMode</key>
         <enum type="SettingsBase::DxtCompressionMode">DXT_PERCEPTUAL</enum>
         <key>ditherType</key>
-        <enum type="SettingsBase::DitherType">NearestNeighbour</enum>
+        <enum type="SettingsBase::DitherType">PngQuantLow</enum>
         <key>backgroundColor</key>
         <uint>0</uint>
         <key>libGdx</key>
@@ -210,6 +210,7 @@
             <key type="filename">../Frames/Megaman/FinishClimbCharging.png</key>
             <key type="filename">../Frames/Megaman/GroundSlideCharging.png</key>
             <key type="filename">../Frames/Megaman/JumpCharging.png</key>
+            <key type="filename">../Frames/Megaman/SlipSlideCharging.png</key>
             <key type="filename">../Frames/Megaman/Stand.png</key>
             <key type="filename">../Frames/Megaman/StandCharging.png</key>
             <key type="filename">../Frames/Megaman/WallSlideCharging.png</key>

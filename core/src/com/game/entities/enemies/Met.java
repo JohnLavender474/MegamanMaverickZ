@@ -1,25 +1,17 @@
-package com.game.tests.entities;
+package com.game.entities.enemies;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.Entity;
+import com.game.GameContext2d;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
-import com.game.core.IAssetLoader;
-import com.game.core.IEntitiesAndSystemsManager;
-import com.game.cull.CullOnCamTransComponent;
-import com.game.cull.CullOutOfCamBoundsComponent;
-import com.game.debugging.DebugRectComponent;
-import com.game.entities.contracts.Damageable;
-import com.game.entities.contracts.Damager;
 import com.game.entities.contracts.Faceable;
 import com.game.entities.contracts.Facing;
-import com.game.health.HealthComponent;
+import com.game.entities.megaman.Megaman;
+import com.game.entities.projectiles.Bullet;
 import com.game.sprites.SpriteAdapter;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
@@ -27,7 +19,6 @@ import com.game.utils.enums.Position;
 import com.game.utils.objects.Timer;
 import com.game.utils.objects.Wrapper;
 import com.game.world.BodyComponent;
-import com.game.world.BodyType;
 import com.game.world.Fixture;
 import com.game.world.FixtureType;
 import lombok.Getter;
@@ -36,19 +27,20 @@ import lombok.Setter;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Supplier;
 
+import static com.game.ConstVals.SoundAssets.*;
 import static com.game.ConstVals.TextureAssets.MET_TEXTURE_ATLAS;
-import static com.game.ConstVals.TextureAssets.OBJECTS_TEXTURE_ATLAS;
 import static com.game.ConstVals.ViewVals.PPM;
 import static com.game.utils.UtilMethods.setBottomCenterToPoint;
 import static com.game.world.BodySense.TOUCHING_HITBOX_LEFT;
 import static com.game.world.BodySense.TOUCHING_HITBOX_RIGHT;
+import static com.game.world.BodyType.*;
+import static com.game.world.FixtureType.*;
 
 @Getter
 @Setter
-public class TestMet extends Entity implements Faceable, Damager, Damageable {
+public class Met extends AbstractEnemy implements Faceable {
 
     private enum MetBehavior {
         SHIELDING, POP_UP, RUNNING, PANIC
@@ -60,46 +52,17 @@ public class TestMet extends Entity implements Faceable, Damager, Damageable {
         put(MetBehavior.RUNNING, new Timer(.5f));
         put(MetBehavior.PANIC, new Timer(1f));
     }};
-    private final IAssetLoader assetLoader;
-    private final Supplier<TestPlayer> megamanSupplier;
-    private final IEntitiesAndSystemsManager entitiesAndSystemsManager;
-    private final Set<Class<? extends Damager>> damagerMaskSet = Set.of(TestBullet.class);
-    private final Timer damageTimer = new Timer(.25f);
-    private final Timer blinkTimer = new Timer(.05f);
 
     private MetBehavior metBehavior;
     private Facing facing;
 
-    public TestMet(IEntitiesAndSystemsManager entitiesAndSystemsManager, IAssetLoader assetLoader,
-                   Supplier<TestPlayer> megamanSupplier, Vector2 spawn) {
-        this.entitiesAndSystemsManager = entitiesAndSystemsManager;
-        this.megamanSupplier = megamanSupplier;
-        this.assetLoader = assetLoader;
-        addComponent(new CullOnCamTransComponent());
-        addComponent(new CullOutOfCamBoundsComponent(
-                () -> getComponent(BodyComponent.class).getCollisionBox(), 1.5f));
-        addComponent(new HealthComponent(30, this::disintegrate));
-        addComponent(defineUpdatableComponent(megamanSupplier));
-        addComponent(defineBodyComponent(spawn));
-        addComponent(defineDebugComponent());
+    public Met(GameContext2d gameContext, Supplier<Megaman> megamanSupplier, Vector2 spawn) {
+        super(gameContext, megamanSupplier);
+        damageNegotiation.put(Bullet.class, 10);
         addComponent(defineSpriteComponent());
-        addComponent(defineAnimationComponent(assetLoader.getAsset(MET_TEXTURE_ATLAS, TextureAtlas.class)));
-        setMetBehavior(MetBehavior.SHIELDING);
-        damageTimer.setToEnd();
-    }
-
-    @Override
-    public void takeDamageFrom(Damager damager) {
-        if (damager instanceof TestBullet) {
-            damageTimer.reset();
-            getComponent(HealthComponent.class).sub(10);
-            Gdx.audio.newSound(Gdx.files.internal("sounds/EnemyDamage.mp3")).play();
-        }
-    }
-
-    @Override
-    public boolean isInvincible() {
-        return !damageTimer.isFinished();
+        addComponent(defineUpdatableComponent());
+        addComponent(defineAnimationComponent());
+        addComponent(defineBodyComponent(spawn));
     }
 
     public void setMetBehavior(MetBehavior metBehavior) {
@@ -112,37 +75,27 @@ public class TestMet extends Entity implements Faceable, Damager, Damageable {
         BodyComponent bodyComponent = getComponent(BodyComponent.class);
         Vector2 trajectory = new Vector2((isFacing(Facing.F_RIGHT) ? 10f : -10f) * PPM, .5f * PPM);
         Vector2 spawn = bodyComponent.getCenter().cpy().add(isFacing(Facing.F_RIGHT) ? .5f : -.5f, -4f);
-        TextureRegion yellowBullet = assetLoader.getAsset(OBJECTS_TEXTURE_ATLAS, TextureAtlas.class)
-                .findRegion("YellowBullet");
-        TestBullet bullet = new TestBullet(this, trajectory, spawn, yellowBullet,
-                assetLoader, entitiesAndSystemsManager);
-        entitiesAndSystemsManager.addEntity(bullet);
-        Gdx.audio.newSound(Gdx.files.internal("sounds/EnemyShoot.mp3")).play();
+        gameContext.addEntity(new Bullet(gameContext, this, trajectory, spawn));
+        gameContext.getAsset(ENEMY_BULLET_SOUND, Sound.class).play();
     }
 
-    private void disintegrate() {
-        entitiesAndSystemsManager.addEntity(new TestDisintegration(assetLoader,
-                getComponent(BodyComponent.class).getCenter(), new Vector2(2f * PPM, 2f * PPM)));
-        Gdx.audio.newSound(Gdx.files.internal("sounds/EnemyDamage.mp3")).play();
-    }
-
-    private UpdatableComponent defineUpdatableComponent(Supplier<TestPlayer> megamanSupplier) {
+    private UpdatableComponent defineUpdatableComponent() {
         return new UpdatableComponent(delta -> {
             if (megamanSupplier.get().isDead()) {
                 return;
             }
             damageTimer.update(delta);
             BodyComponent bodyComponent = getComponent(BodyComponent.class);
-            bodyComponent.getFirstMatchingFixture(FixtureType.SHIELD).ifPresentOrElse(
+            bodyComponent.getFirstMatchingFixture(SHIELD).ifPresentOrElse(
                     shield -> shield.setActive(metBehavior == MetBehavior.SHIELDING),
                     () -> {throw new IllegalStateException();});
-            bodyComponent.getFirstMatchingFixture(FixtureType.DAMAGEABLE_BOX).ifPresentOrElse(
+            bodyComponent.getFirstMatchingFixture(DAMAGEABLE_BOX).ifPresentOrElse(
                     hitBox -> hitBox.setActive(metBehavior != MetBehavior.SHIELDING),
                     () -> {throw new IllegalStateException();});
             switch (metBehavior) {
                 case SHIELDING -> {
                     Timer shieldingTimer = metBehaviorTimers.get(MetBehavior.SHIELDING);
-                    if (!playerIsAttacking(megamanSupplier.get())) {
+                    if (!playerIsAttacking()) {
                         shieldingTimer.update(delta);
                     }
                     if (shieldingTimer.isFinished()) {
@@ -183,16 +136,8 @@ public class TestMet extends Entity implements Faceable, Damager, Damageable {
         });
     }
 
-    private boolean playerIsAttacking(TestPlayer player) {
-        BodyComponent metBody = getComponent(BodyComponent.class);
-        BodyComponent playerBody = player.getComponent(BodyComponent.class);
-        return player.isShooting() &&
-                ((metBody.getPosition().x < playerBody.getPosition().x && player.isFacing(Facing.F_LEFT)) ||
-                        (metBody.getPosition().x > playerBody.getPosition().x && player.isFacing(Facing.F_RIGHT)));
-    }
-
     private BodyComponent defineBodyComponent(Vector2 spawn) {
-        BodyComponent bodyComponent = new BodyComponent(BodyType.DYNAMIC);
+        BodyComponent bodyComponent = new BodyComponent(DYNAMIC);
         bodyComponent.setSize(.75f * PPM, .75f * PPM);
         setBottomCenterToPoint(bodyComponent.getCollisionBox(), spawn);
         bodyComponent.setGravity(-50f * PPM);
@@ -222,12 +167,6 @@ public class TestMet extends Entity implements Faceable, Damager, Damageable {
         return bodyComponent;
     }
 
-    private DebugRectComponent defineDebugComponent() {
-        DebugRectComponent debugRectComponent = new DebugRectComponent();
-        debugRectComponent.addDebugHandle(() -> getComponent(BodyComponent.class).getCollisionBox(), () -> Color.GREEN);
-        return debugRectComponent;
-    }
-
     private SpriteComponent defineSpriteComponent() {
         Sprite sprite = new Sprite();
         sprite.setSize(1.5f * PPM, 1.5f * PPM);
@@ -248,13 +187,14 @@ public class TestMet extends Entity implements Faceable, Damager, Damageable {
         });
     }
 
-    private AnimationComponent defineAnimationComponent(TextureAtlas textureAtlas) {
+    private AnimationComponent defineAnimationComponent() {
         Supplier<String> keySupplier = () -> switch (metBehavior) {
             case RUNNING -> "Run";
             case POP_UP -> "PopUp";
             case PANIC -> "RunNaked";
             case SHIELDING -> "LayDown";
         };
+        TextureAtlas textureAtlas = gameContext.getAsset(MET_TEXTURE_ATLAS, TextureAtlas.class);
         Map<String, TimedAnimation> timedAnimations = new HashMap<>() {{
             put("Run", new TimedAnimation(textureAtlas.findRegion("Run"), 2, .125f));
             put("PopUp", new TimedAnimation(textureAtlas.findRegion("PopUp")));

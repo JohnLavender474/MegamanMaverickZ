@@ -21,4 +21,8 @@ public class SpriteComponent implements Component {
         this.sprite = sprite;
     }
 
+    public SpriteComponent(SpriteAdapter spriteAdapter) {
+        this.spriteAdapter = spriteAdapter;
+    }
+
 }

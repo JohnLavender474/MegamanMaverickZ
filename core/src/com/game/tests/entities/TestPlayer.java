@@ -2,6 +2,7 @@ package com.game.tests.entities;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -9,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
+import com.game.ConstVals;
 import com.game.Message;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
@@ -19,7 +21,7 @@ import com.game.controllers.ControllerAdapter;
 import com.game.controllers.ControllerButton;
 import com.game.controllers.ControllerComponent;
 import com.game.core.*;
-import com.game.debugging.DebugComponent;
+import com.game.debugging.DebugRectComponent;
 import com.game.entities.contracts.Damageable;
 import com.game.entities.contracts.Damager;
 import com.game.entities.contracts.Faceable;
@@ -43,6 +45,7 @@ import lombok.Setter;
 import java.util.*;
 import java.util.function.Supplier;
 
+import static com.game.ConstVals.SoundAssets.*;
 import static com.game.ConstVals.TextureAssets.MEGAMAN_TEXTURE_ATLAS;
 import static com.game.ConstVals.TextureAssets.OBJECTS_TEXTURE_ATLAS;
 import static com.game.ConstVals.ViewVals.PPM;
@@ -68,7 +71,7 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
     private final IEntitiesAndSystemsManager entitiesAndSystemsManager;
     private final Map<Class<? extends Component>, Component> components = new HashMap<>();
     private final Set<Class<? extends Damager>> damagerMaskSet = Set.of(
-            TestDamager.class, TestBullet.class, TestMet.class, TestSniperJoe.class);
+            TestDamager.class, TestBullet.class, TestMet.class, TestSniperJoe.class, TestSuctionRoller.class);
     private final Timer airDashTimer = new Timer(.25f);
     private final Timer groundSlideTimer = new Timer(.35f);
     private final Timer wallJumpImpetusTimer = new Timer(.2f);
@@ -78,6 +81,7 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
     private final Timer damageRecoveryTimer = new Timer(1.5f);
     private final Timer damageRecoveryBlinkTimer = new Timer(.05f);
     private final Timer damageTimer = new Timer(.75f);
+    private final Sound chargingSound;
     private final Music music;
     private boolean dead;
     private boolean isCharging;
@@ -87,6 +91,7 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
 
     public TestPlayer(Vector2 spawn, Music music, IController controller, IAssetLoader assetLoader,
                       IMessageDispatcher messageDispatcher, IEntitiesAndSystemsManager entitiesAndSystemsManager) {
+        chargingSound = assetLoader.getAsset(MEGA_BUSTER_CHARGING_SOUND, Sound.class);
         this.music = music;
         this.controller = controller;
         this.assetLoader = assetLoader;
@@ -132,8 +137,13 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
         return !shootAnimationTimer.isFinished();
     }
 
+    public boolean isCharging() {
+        return megaBusterChargingTimer.isFinished();
+    }
+
     public void shoot() {
         if (isDamaged()) {
+            chargingSound.stop();
             return;
         }
         Vector2 trajectory = new Vector2(15f * (facing == F_LEFT ? -PPM : PPM), 0f);
@@ -144,11 +154,19 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
         } else if (!getComponent(BodyComponent.class).is(BodySense.FEET_ON_GROUND)) {
             spawn.y += 4.5f;
         }
-        TextureRegion yellowBullet = assetLoader.getAsset(OBJECTS_TEXTURE_ATLAS, TextureAtlas.class)
-                .findRegion("YellowBullet");
-        TestBullet bullet = new TestBullet(this, trajectory, spawn, yellowBullet,
-                assetLoader, entitiesAndSystemsManager);
-        entitiesAndSystemsManager.addEntity(bullet);
+        if (megaBusterChargingTimer.isFinished()) {
+            // megaBusterChargingTimer.reset();
+            chargingSound.stop();
+            TestChargedShot testChargedShot = new TestChargedShot(
+                    this, trajectory, spawn, facing, assetLoader, entitiesAndSystemsManager);
+            entitiesAndSystemsManager.addEntity(testChargedShot);
+        } else {
+            TextureRegion yellowBullet = assetLoader.getAsset(OBJECTS_TEXTURE_ATLAS, TextureAtlas.class)
+                    .findRegion("YellowBullet");
+            TestBullet bullet = new TestBullet(this, trajectory, spawn, yellowBullet,
+                    assetLoader, entitiesAndSystemsManager);
+            entitiesAndSystemsManager.addEntity(bullet);
+        }
         shootCoolDownTimer.reset();
         shootAnimationTimer.reset();
         Gdx.audio.newSound(Gdx.files.internal("sounds/MegaBusterBulletShot.mp3")).play();
@@ -176,8 +194,14 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
 
     private UpdatableComponent defineUpdatableComponent() {
         return new UpdatableComponent(delta -> {
+            if (megaBusterChargingTimer.isJustFinished()) {
+                long id = chargingSound.loop();
+                chargingSound.setVolume(id, .5f);
+            }
             damageTimer.update(delta);
             if (isDamaged()) {
+                chargingSound.stop();
+                megaBusterChargingTimer.reset();
                 getComponent(BodyComponent.class).applyImpulse((isFacing(F_LEFT) ? .15f : -.15f) * PPM, 0f);
             }
             if (damageTimer.isJustFinished()) {
@@ -508,13 +532,13 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
         return bodyComponent;
     }
 
-    private DebugComponent defineDebugComponent() {
+    private DebugRectComponent defineDebugComponent() {
         BodyComponent bodyComponent = getComponent(BodyComponent.class);
-        DebugComponent debugComponent = new DebugComponent();
-        debugComponent.addDebugHandle(bodyComponent::getCollisionBox, () -> Color.GREEN);
-        bodyComponent.getFixtures().forEach(fixture -> debugComponent.addDebugHandle(
+        DebugRectComponent debugRectComponent = new DebugRectComponent();
+        debugRectComponent.addDebugHandle(bodyComponent::getCollisionBox, () -> Color.GREEN);
+        bodyComponent.getFixtures().forEach(fixture -> debugRectComponent.addDebugHandle(
                 fixture::getFixtureBox, fixture::getDebugColor));
-        return debugComponent;
+        return debugRectComponent;
     }
 
     private SpriteComponent defineSpriteComponent() {
@@ -555,39 +579,84 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
             if (isDamaged()) {
                 return behaviorComponent.is(GROUND_SLIDING) ? "LayDownDamaged" : "Damaged";
             } else if (behaviorComponent.is(AIR_DASHING)) {
-                return "AirDash";
+                return isCharging() ? "AirDashCharging" : "AirDash";
             } else if (behaviorComponent.is(GROUND_SLIDING)) {
-                return "GroundSlide";
+                return isCharging() ? "GroundSlideCharging" : "GroundSlide";
             } else if (behaviorComponent.is(WALL_SLIDING)) {
-                return isShooting() ? "WallSlideShoot" : "WallSlide";
+                if (isShooting()) {
+                    return "WallSlideShoot";
+                } else if (isCharging()) {
+                    return "WallSlideCharging";
+                } else {
+                    return "WallSlide";
+                }
             } else if (behaviorComponent.is(JUMPING) || !bodyComponent.is(BodySense.FEET_ON_GROUND)) {
-                return isShooting() ? "JumpShoot" : "Jump";
+                if (isShooting()) {
+                    return "JumpShoot";
+                } else if (isCharging()) {
+                    return "JumpCharging";
+                } else {
+                    return "Jump";
+                }
             } else if (bodyComponent.is(BodySense.FEET_ON_GROUND) && behaviorComponent.is(RUNNING)) {
-                return isShooting() ? "RunShoot" : "Run";
+                if (isShooting()) {
+                    return "RunShoot";
+                } else if (isCharging()) {
+                    return "RunCharging";
+                } else {
+                    return "Run";
+                }
             } else if (behaviorComponent.is(CLIMBING)) {
-                return isShooting() ? "ClimbShoot" : "Climb";
+                if (isShooting()) {
+                    return "ClimbShoot";
+                } else if (isCharging()) {
+                    return "ClimbCharging";
+                } else {
+                    return "Climb";
+                }
             } else if (bodyComponent.is(BodySense.FEET_ON_GROUND) && Math.abs(bodyComponent.getVelocity().x) > 3f) {
-                return isShooting() ? "SlipSlideShoot" : "SlipSlide";
+                if (isShooting()) {
+                    return "SlipSlideShoot";
+                } else if (isCharging()) {
+                    return "SlipSlideCharging";
+                } else {
+                    return "SlipSlide";
+                }
             } else {
-                return isShooting() ? "StandShoot" : "Stand";
+                if (isShooting()) {
+                    return "StandShoot";
+                } else if (isCharging()) {
+                    return "StandCharging";
+                } else {
+                    return "Stand";
+                }
             }
         };
         Map<String, TimedAnimation> animations = new HashMap<>();
         animations.put("Climb", new TimedAnimation(textureAtlas.findRegion("Climb"), 2, .125f));
         animations.put("ClimbShoot", new TimedAnimation(textureAtlas.findRegion("ClimbShoot")));
+        animations.put("ClimbCharging", new TimedAnimation(textureAtlas.findRegion("ClimbCharging"), 2, .125f));
         animations.put("Stand", new TimedAnimation(textureAtlas.findRegion("Stand"), new float[]{1.5f, .15f}));
+        animations.put("StandCharging", new TimedAnimation(textureAtlas.findRegion("StandCharging"), 2, .125f));
         animations.put("StandShoot", new TimedAnimation(textureAtlas.findRegion("StandShoot")));
         animations.put("Damaged", new TimedAnimation(textureAtlas.findRegion("Damaged"), 3, .05f));
         animations.put("LayDownDamaged", new TimedAnimation(textureAtlas.findRegion("LayDownDamaged"), 3, .05f));
         animations.put("Run", new TimedAnimation(textureAtlas.findRegion("Run"), 4, .125f));
+        animations.put("RunCharging", new TimedAnimation(textureAtlas.findRegion("RunCharging"), 4, .125f));
         animations.put("RunShoot", new TimedAnimation(textureAtlas.findRegion("RunShoot"), 4, .125f));
         animations.put("Jump", new TimedAnimation(textureAtlas.findRegion("Jump")));
+        animations.put("JumpCharging", new TimedAnimation(textureAtlas.findRegion("JumpCharging"), 2, .125f));
         animations.put("JumpShoot", new TimedAnimation(textureAtlas.findRegion("JumpShoot")));
         animations.put("WallSlide", new TimedAnimation(textureAtlas.findRegion("WallSlide")));
+        animations.put("WallSlideCharging", new TimedAnimation(textureAtlas.findRegion("WallSlideCharging"), 2, .125f));
         animations.put("WallSlideShoot", new TimedAnimation(textureAtlas.findRegion("WallSlideShoot")));
         animations.put("GroundSlide", new TimedAnimation(textureAtlas.findRegion("GroundSlide")));
+        animations.put("GroundSlideCharging", new TimedAnimation(
+                textureAtlas.findRegion("GroundSlideCharging"), 2, .125f));
         animations.put("AirDash", new TimedAnimation(textureAtlas.findRegion("AirDash")));
+        animations.put("AirDashCharging", new TimedAnimation(textureAtlas.findRegion("AirDashCharging"), 2, .125f));
         animations.put("SlipSlide", new TimedAnimation(textureAtlas.findRegion("SlipSlide")));
+        animations.put("SlipSlideCharging", new TimedAnimation(textureAtlas.findRegion("SlipSlideCharging"), 2, .125f));
         animations.put("SlipSlideShoot", new TimedAnimation(textureAtlas.findRegion("SlipSlideShoot")));
         return new AnimationComponent(keySupplier, animations);
     }

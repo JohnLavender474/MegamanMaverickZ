@@ -24,8 +24,10 @@ public class GraphSystem extends System {
     @Override
     protected void processEntity(IEntity entity, float delta) {
         GraphComponent graphComponent = entity.getComponent(GraphComponent.class);
-        List<Node> nodes = graph.getNodesOverlapping(graphComponent.getBounds());
-        nodes.forEach(node -> node.add(entity));
+        graphComponent.getSuppliers().forEach((boundsSupplier, objsSupplier) -> {
+            List<Node> nodes = graph.getNodesOverlapping(boundsSupplier.get());
+            nodes.forEach(node -> node.addAll(objsSupplier.get()));
+        });
     }
 
 }

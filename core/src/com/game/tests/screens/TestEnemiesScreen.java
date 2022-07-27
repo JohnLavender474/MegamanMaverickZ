@@ -24,8 +24,9 @@ import com.game.controllers.ControllerSystem;
 import com.game.core.IEntity;
 import com.game.cull.CullOnCamTransSystem;
 import com.game.cull.CullOnOutOfCamBoundsSystem;
-import com.game.debugging.DebugComponent;
-import com.game.debugging.DebugSystem;
+import com.game.debugging.DebugLinesSystem;
+import com.game.debugging.DebugRectComponent;
+import com.game.debugging.DebugRectSystem;
 import com.game.graph.Graph;
 import com.game.graph.GraphSystem;
 import com.game.health.HealthComponent;
@@ -34,6 +35,7 @@ import com.game.levels.CullOnLevelCamTrans;
 import com.game.levels.CullOnOutOfCamBounds;
 import com.game.levels.LevelCameraManager;
 import com.game.levels.LevelTiledMap;
+import com.game.pathfinding.PathfindingSystem;
 import com.game.sprites.SpriteSystem;
 import com.game.tests.core.*;
 import com.game.tests.entities.*;
@@ -47,6 +49,7 @@ import com.game.utils.objects.Timer;
 import com.game.world.BodyComponent;
 import com.game.world.WorldSystem;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,6 +82,7 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
 
     private final Timer deathTimer = new Timer(4f);
     private final Timer blackTimer = new Timer(.3f);
+    private final List<Runnable> runOnShutdown = new ArrayList<>();
     private final Map<String, FontHandle> messages = new HashMap<>();
 
     private LevelTiledMap levelTiledMap;
@@ -127,6 +131,7 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
                 WorldVals.AIR_RESISTANCE, WorldVals.FIXED_TIME_STEP));
         entitiesAndSystemsManager.addSystem(new CullOnCamTransSystem(() -> levelCameraManager.getTransitionState()));
         entitiesAndSystemsManager.addSystem(new CullOnOutOfCamBoundsSystem(playgroundViewport.getCamera()));
+        entitiesAndSystemsManager.addSystem(new PathfindingSystem(runOnShutdown));
         entitiesAndSystemsManager.addSystem(new UpdatableSystem());
         entitiesAndSystemsManager.addSystem(new GraphSystem());
         entitiesAndSystemsManager.addSystem(new ControllerSystem(testController));
@@ -136,8 +141,8 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
         entitiesAndSystemsManager.addSystem(new SpriteSystem(
                 (OrthographicCamera) playgroundViewport.getCamera(), spriteBatch));
         entitiesAndSystemsManager.addSystem(new AnimationSystem());
-        entitiesAndSystemsManager.addSystem(new DebugSystem(shapeRenderer,
-                (OrthographicCamera) playgroundViewport.getCamera()));
+        entitiesAndSystemsManager.addSystem(new DebugRectSystem(playgroundViewport.getCamera(), shapeRenderer));
+        entitiesAndSystemsManager.addSystem(new DebugLinesSystem(playgroundViewport.getCamera(), shapeRenderer));
         levelTiledMap = new LevelTiledMap("tiledmaps/tmx/test1.tmx");
         // define enemySpawns
         Rectangle startPlayerSpawn = new Rectangle();
@@ -151,8 +156,8 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
         List<TestEntitySpawn> enemySpawns = levelTiledMap.getObjectsOfLayer(ENEMY_SPAWNS).stream().map(
                 enemySpawnObj -> new TestEntitySpawn(entitiesAndSystemsManager, getEntitySpawnSupplier(enemySpawnObj),
                         enemySpawnObj.getRectangle())).toList();
-        entitySpawnManager = new TestEntitySpawnManager(playgroundViewport.getCamera(), shapeRenderer,
-                playerSpawns, enemySpawns);
+        entitySpawnManager = new TestEntitySpawnManager(
+                playgroundViewport.getCamera(), shapeRenderer, playerSpawns, enemySpawns);
         entitySpawnManager.setCurrentPlayerSpawn(startPlayerSpawn);
         // define player
         player = new TestPlayer(getPoint(entitySpawnManager.getCurrentPlayerSpawn(), Position.BOTTOM_CENTER), music,
@@ -177,14 +182,14 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
             }
             testMovingBlock.addComponent(trajectoryComponent);
             BodyComponent bodyComponent = testMovingBlock.getComponent(BodyComponent.class);
-            DebugComponent debugComponent = new DebugComponent();
-            debugComponent.addDebugHandle(bodyComponent::getCollisionBox, () -> Color.BLUE);
+            DebugRectComponent debugRectComponent = new DebugRectComponent();
+            debugRectComponent.addDebugHandle(bodyComponent::getCollisionBox, () -> Color.BLUE);
             bodyComponent.getFixtures().forEach(fixture -> {
                 if (fixture.getFixtureType() != BLOCK) {
-                    debugComponent.addDebugHandle(fixture::getFixtureBox, () -> Color.GREEN);
+                    debugRectComponent.addDebugHandle(fixture::getFixtureBox, () -> Color.GREEN);
                 }
             });
-            testMovingBlock.addComponent(debugComponent);
+            testMovingBlock.addComponent(debugRectComponent);
             entitiesAndSystemsManager.addEntity(testMovingBlock);
         });
         // define wall slide sensors
@@ -201,6 +206,7 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
         levelGraph = new Graph(new Vector2(PPM, PPM),
                 levelTiledMap.getWidthInTiles(), levelTiledMap.getHeightInTiles());
         entitiesAndSystemsManager.getSystem(GraphSystem.class).setGraph(levelGraph);
+        entitiesAndSystemsManager.getSystem(PathfindingSystem.class).setGraph(levelGraph);
         // level camera manager
         Timer transitionTimer = new Timer(1f);
         levelCameraManager = new LevelCameraManager(playgroundViewport.getCamera(), transitionTimer, gameRooms, player);
@@ -304,7 +310,7 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
         HealthComponent health = player.getComponent(HealthComponent.class);
         messages.get("Health").setText("Health: " + health.getCurrentHealth() + "/" + health.getMaxHealth());
         messages.get("Health").draw(spriteBatch);
-        messages.get("AmountInCamBounds").setText("Enemy spawns in cam bounds: " +
+        messages.get("AmountInCamBounds").setText("AbstractEnemy spawns in cam bounds: " +
                 entitySpawnManager.amountOfEnemySpawnsInCamBounds());
         messages.get("AmountInCamBounds").draw(spriteBatch);
         messages.get("EntityCount").setText("Entity count: " + entitiesAndSystemsManager.getEntities().size());
@@ -333,9 +339,10 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
     @Override
     public void dispose() {
         spriteBatch.dispose();
+        assetLoader.dispose();
         shapeRenderer.dispose();
         levelTiledMap.dispose();
-        assetLoader.dispose();
+        runOnShutdown.forEach(Runnable::run);
     }
 
     private Supplier<IEntity> getEntitySpawnSupplier(RectangleMapObject spawnObj) {
@@ -352,8 +359,8 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
                         getPoint(spawnObj.getRectangle(), Position.BOTTOM_CENTER));
             }
             case "suction_roller" -> {
-                return () -> new TestSuctionRoller(assetLoader, () -> player, getPoint(
-                        spawnObj.getRectangle(), Position.BOTTOM_CENTER));
+                return () -> new TestSuctionRoller(entitiesAndSystemsManager, assetLoader, () -> player,
+                        getPoint(spawnObj.getRectangle(), Position.BOTTOM_CENTER));
             }
             default -> throw new IllegalStateException("Cannot find matching entity for <" + spawnObj.getName() + ">");
         }

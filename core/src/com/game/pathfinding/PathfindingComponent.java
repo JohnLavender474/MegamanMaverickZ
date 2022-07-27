@@ -1,8 +1,10 @@
 package com.game.pathfinding;
 
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
 import com.game.graph.Node;
+import com.game.utils.UtilMethods;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -10,8 +12,9 @@ import lombok.Setter;
 
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 @Setter
 @RequiredArgsConstructor
@@ -19,24 +22,34 @@ public class PathfindingComponent implements Component {
 
     private final Supplier<Vector2> startSupplier;
     private final Supplier<Vector2> targetSupplier;
-    private final Consumer<Vector2> targetConsumer;
-    private final Function<Vector2, Boolean> hasReachedTarget;
+    private final Consumer<Rectangle> targetConsumer;
+    private final Predicate<Rectangle> hasReachedTarget;
 
+    private Supplier<Boolean> persistOldPath = () -> true;
     private Supplier<Boolean> doAllowDiagonal = () -> true;
-    private Function<Node, Boolean> doAvoidFunc = node -> false;
-    private Function<Float, Boolean> doUpdateFunc = delta -> true;
+    private Predicate<Node> doAcceptPredicate = objs -> false;
+    private Predicate<Float> doUpdatePredicate = delta -> true;
 
     @Getter(AccessLevel.PACKAGE)
     @Setter(AccessLevel.PACKAGE)
-    private Deque<Vector2> currentPath;
+    private Deque<Rectangle> currentPath;
 
     /**
      * Returns a list copy of the current path. Modifications to the returned list are NOT reflected in the original.
      *
      * @return list copy of the current path
      */
-    public List<Vector2> getCurrentPathCpy() {
+    public List<Rectangle> getPathCpy() {
         return currentPath != null ? new ArrayList<>(currentPath) : new ArrayList<>();
+    }
+
+    public List<Vector2> getPathPoints() {
+        return currentPath != null ? currentPath.stream().map(UtilMethods::centerPoint)
+                .collect(Collectors.toList()) : new ArrayList<>();
+    }
+
+    boolean persistOldPath() {
+        return persistOldPath.get();
     }
 
     Vector2 getStart() {
@@ -47,20 +60,20 @@ public class PathfindingComponent implements Component {
         return targetSupplier.get();
     }
 
-    boolean doAvoid(Node node) {
-        return doAvoidFunc.apply(node);
+    boolean doAccept(Node node) {
+        return doAcceptPredicate.test(node);
     }
 
-    void consumeTarget(Vector2 target) {
+    void consumeTarget(Rectangle target) {
         targetConsumer.accept(target);
     }
 
     boolean doUpdate(float delta) {
-        return doUpdateFunc.apply(delta);
+        return doUpdatePredicate.test(delta);
     }
 
-    boolean hasReachedTarget(Vector2 target) {
-        return hasReachedTarget.apply(target);
+    boolean hasReachedTarget(Rectangle target) {
+        return hasReachedTarget.test(target);
     }
 
     boolean allowDiagonal() {

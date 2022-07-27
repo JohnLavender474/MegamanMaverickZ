@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Rectangle;
 import com.game.Component;
 import com.game.core.IEntity;
-import com.game.debugging.DebugComponent;
+import com.game.debugging.DebugRectComponent;
 import com.game.entities.contracts.Damageable;
 import com.game.entities.contracts.Damager;
 import com.game.health.HealthComponent;
@@ -77,11 +77,11 @@ public class TestDamager implements IEntity, Damager, Damageable, CullOnOutOfCam
         return bodyComponent;
     }
 
-    private DebugComponent defineDebugComponent() {
-        DebugComponent debugComponent = new DebugComponent();
-        debugComponent.addDebugHandle(() -> getComponent(BodyComponent.class).getCollisionBox(),
+    private DebugRectComponent defineDebugComponent() {
+        DebugRectComponent debugRectComponent = new DebugRectComponent();
+        debugRectComponent.addDebugHandle(() -> getComponent(BodyComponent.class).getCollisionBox(),
                 () -> damageTimer.isFinished() ? Color.PURPLE : Color.RED);
-        return debugComponent;
+        return debugRectComponent;
     }
 
     private UpdatableComponent defineUpdatableComponent() {
