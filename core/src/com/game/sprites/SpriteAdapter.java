@@ -6,6 +6,8 @@ import com.game.utils.objects.Wrapper;
 
 public interface SpriteAdapter {
 
+    default void update(float delta) {}
+
     default boolean setPositioning(Wrapper<Rectangle> bounds, Wrapper<Position> position) {
         return false;
     }

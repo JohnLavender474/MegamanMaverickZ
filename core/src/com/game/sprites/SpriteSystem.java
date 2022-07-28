@@ -66,6 +66,7 @@ public class SpriteSystem extends System {
             sprite.setAlpha(spriteAdapter.isHidden() ? 0f : spriteAdapter.getAlpha());
             sprite.setFlip(spriteAdapter.isFlipX(), spriteAdapter.isFlipY());
             sprite.setRotation(spriteAdapter.getRotation());
+            spriteAdapter.update(delta);
         }
         Texture texture = sprite.getTexture();
         if (texture != null) {

@@ -70,8 +70,8 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
     private final IEntitiesAndSystemsManager entitiesAndSystemsManager;
     private final Map<Class<? extends Component>, Component> components = new HashMap<>();
     private final Set<Class<? extends Damager>> damagerMaskSet = Set.of(
-            TestDamager.class, TestBullet.class, TestChargedShot.class,
-            TestMet.class, TestSniperJoe.class, TestSuctionRoller.class);
+            TestDamager.class, TestBullet.class, TestChargedShot.class, TestMet.class, TestSniperJoe.class,
+            TestSuctionRoller.class, TestFloatingCan.class);
     private final Timer airDashTimer = new Timer(.25f);
     private final Timer groundSlideTimer = new Timer(.35f);
     private final Timer wallJumpImpetusTimer = new Timer(.2f);
@@ -142,8 +142,8 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
     }
 
     public void shoot() {
+        chargingSound.stop();
         if (isDamaged()) {
-            chargingSound.stop();
             return;
         }
         Vector2 trajectory = new Vector2(15f * (facing == F_LEFT ? -PPM : PPM), 0f);
@@ -159,16 +159,17 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
             TestChargedShot testChargedShot = new TestChargedShot(
                     this, trajectory, spawn, facing, assetLoader, entitiesAndSystemsManager);
             entitiesAndSystemsManager.addEntity(testChargedShot);
+            Gdx.audio.newSound(Gdx.files.internal("sounds/MegaBusterChargedShot.mp3")).play();
         } else {
             TextureRegion yellowBullet = assetLoader.getAsset(OBJECTS_TEXTURE_ATLAS, TextureAtlas.class)
                     .findRegion("YellowBullet");
             TestBullet bullet = new TestBullet(this, trajectory, spawn, yellowBullet,
                     assetLoader, entitiesAndSystemsManager);
             entitiesAndSystemsManager.addEntity(bullet);
+            Gdx.audio.newSound(Gdx.files.internal("sounds/MegaBusterBulletShot.mp3")).play();
         }
         shootCoolDownTimer.reset();
         shootAnimationTimer.reset();
-        Gdx.audio.newSound(Gdx.files.internal("sounds/MegaBusterBulletShot.mp3")).play();
     }
 
     private HealthComponent defineHealthComponent() {

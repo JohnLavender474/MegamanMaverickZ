@@ -49,6 +49,7 @@ public class ConstVals {
     }
 
     public static class TextureAssets {
+        public static final String CUSTOM_TILES_TEXTURE_ATLAS = "sprites/SpriteSheets/CustomTiles.txt";
         public static final String OBJECTS_TEXTURE_ATLAS = "sprites/SpriteSheets/Objects.txt";
         public static final String MET_TEXTURE_ATLAS = "sprites/SpriteSheets/Met.txt";
         public static final String ENEMIES_TEXTURE_ATLAS = "sprites/SpriteSheets/Enemies.txt";

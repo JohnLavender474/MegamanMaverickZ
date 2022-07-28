@@ -1,9 +1,12 @@
 package com.game.tests.entities;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
+import com.game.Entity;
 import com.game.core.IEntity;
 import com.game.debugging.DebugRectComponent;
 import com.game.graph.GraphComponent;
@@ -14,9 +17,11 @@ import com.game.world.Fixture;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import static com.game.ConstVals.ViewVals.PPM;
 import static com.game.utils.UtilMethods.*;
@@ -24,10 +29,7 @@ import static com.game.world.FixtureType.*;
 
 @Getter
 @Setter
-public class TestBlock implements IEntity {
-
-    private final Map<Class<? extends Component>, Component> components = new HashMap<>();
-    private boolean dead;
+public class TestBlock extends Entity {
 
     public TestBlock(Rectangle bounds, Vector2 friction) {
         this(bounds, friction, false, false, false, false, false);
@@ -39,6 +41,19 @@ public class TestBlock implements IEntity {
         addComponent(defineBodyComponent(bounds, friction, resistance, gravityOn,
                 wallSlideLeft, wallSlideRight, feetSticky));
         addComponent(defineDebugRectComponent());
+    }
+
+    public List<TestDecorativeSprite> generateDecorativeBlocks(TextureRegion textureRegion) {
+        List<TestDecorativeSprite> decorativeSprites = new ArrayList<>();
+        Vector2 size = getComponent(BodyComponent.class).getSize().scl(1f / PPM);
+        for (int i = 0; i < (int) size.x; i++) {
+            for (int j = 0; j < (int) size.y; j++) {
+                final int finalI = i; final int finalJ = j;
+                decorativeSprites.add(new TestDecorativeSprite(textureRegion, new Vector2(PPM, PPM),
+                        () -> getComponent(BodyComponent.class).getPosition().add(finalI * PPM, finalJ * PPM)));
+            }
+        }
+        return decorativeSprites;
     }
 
     private DebugRectComponent defineDebugRectComponent() {

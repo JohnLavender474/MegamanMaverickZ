@@ -26,8 +26,10 @@
 </data>
  </layer>
  <objectgroup id="7" name="MovingBlocks">
-  <object id="27" x="128" y="160" width="32" height="4">
+  <object id="27" x="128" y="160" width="32" height="16">
    <properties>
+    <property name="DecorativeRegion" value="PurpleTile"/>
+    <property name="DecorativeSrc" value="sprites/SpriteSheets/CustomTiles.txt"/>
     <property name="Trajectory" value="4,0,2;0,0,1;-4,0,2;0,0,1"/>
    </properties>
   </object>
@@ -46,7 +48,7 @@
   <object id="60" x="656" y="64" width="32" height="104"/>
  </objectgroup>
  <objectgroup id="5" name="PlayerSpawns">
-  <object id="13" name="start" x="556" y="152" width="4" height="8"/>
+  <object id="13" name="start" x="52" y="184" width="4" height="8"/>
  </objectgroup>
  <objectgroup id="6" name="WallSlideSensors">
   <object id="17" x="124" y="192" width="4" height="44"/>
@@ -77,6 +79,6 @@
   <object id="49" name="met" x="1320" y="184" width="4" height="8"/>
   <object id="50" name="sniper_joe" x="1240" y="184" width="4" height="8"/>
   <object id="56" name="suction_roller" x="736" y="152" width="4" height="8"/>
-  <object id="63" name="floating_can" x="792" y="68" width="4" height="8"/>
+  <object id="63" name="floating_can" x="784" y="64" width="16" height="16"/>
  </objectgroup>
 </map>

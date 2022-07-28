@@ -9,7 +9,9 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -44,15 +46,11 @@ import com.game.trajectories.TrajectorySystem;
 import com.game.updatables.UpdatableSystem;
 import com.game.utils.enums.Direction;
 import com.game.utils.objects.FontHandle;
-import com.game.utils.enums.Position;
 import com.game.utils.objects.Timer;
 import com.game.world.BodyComponent;
 import com.game.world.WorldSystem;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Supplier;
 
 import static com.game.ConstVals.TextureAssets.DECORATIONS_TEXTURE_ATLAS;
@@ -172,6 +170,17 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
         levelTiledMap.getObjectsOfLayer(MOVING_BLOCKS).forEach(movingBlockObj -> {
             testMovingBlock = new TestBlock(movingBlockObj.getRectangle(), new Vector2(.035f, 0f),
                     false, false, true, true, true);
+            // decorative sprites (if applicable)
+            MapProperties properties = movingBlockObj.getProperties();
+            if (properties.containsKey("DecorativeSrc") && properties.containsKey("DecorativeRegion")) {
+                String decorativeSrc = properties.get("DecorativeSrc", String.class);
+                String decorativeRegion = properties.get("DecorativeRegion", String.class);
+                TextureRegion textureRegion = assetLoader.getAsset(decorativeSrc, TextureAtlas.class)
+                        .findRegion(decorativeRegion);
+                List<TestDecorativeSprite> decorativeSprites = testMovingBlock.generateDecorativeBlocks(textureRegion);
+                entitiesAndSystemsManager.addEntities(decorativeSprites);
+            }
+            // trajectory
             TrajectoryComponent trajectoryComponent = new TrajectoryComponent();
             String[] trajectories = movingBlockObj.getProperties().get("Trajectory", String.class).split(";");
             for (String trajectory : trajectories) {
@@ -182,6 +191,7 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
                 trajectoryComponent.addTrajectory(new Vector2(x * PPM, y * PPM), time);
             }
             testMovingBlock.addComponent(trajectoryComponent);
+            // debug rect
             BodyComponent bodyComponent = testMovingBlock.getComponent(BodyComponent.class);
             DebugRectComponent debugRectComponent = new DebugRectComponent();
             debugRectComponent.addDebugHandle(bodyComponent::getCollisionBox, () -> Color.BLUE);
@@ -341,8 +351,10 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
                         getPoint(spawnObj.getRectangle(), BOTTOM_CENTER));
             }
             case "floating_can" -> {
-                return () -> new TestFloatingCan(assetLoader, () -> player,
-                        getPoint(spawnObj.getRectangle(), BOTTOM_CENTER));
+                return () ->  new TestSpawnLocation(entitiesAndSystemsManager,
+                        playgroundViewport.getCamera(), spawnObj.getRectangle(), 4, 3f,
+                        () -> new TestFloatingCan(assetLoader, () -> player,
+                                getPoint(spawnObj.getRectangle(), BOTTOM_CENTER)));
             }
             default -> throw new IllegalStateException("Cannot find matching entity for <" + spawnObj.getName() + ">");
         }

@@ -40,9 +40,18 @@ public interface IEntitiesAndSystemsManager {
      * Add {@link IEntity}. To remove the entity, {@link IEntity#isDead()} ishould be set to true.
      * The entity should be purged from all {@link System} instances on the following update cycle.
      *
-     * @param entity the entity
+     * @param entity the entity to be added
      */
     void addEntity(IEntity entity);
+
+    /**
+     * Adds each entity. See {@link #addEntity(IEntity)}.
+     *
+     * @param entities the entities to be added
+     */
+    default void addEntities(Collection<? extends IEntity> entities) {
+        entities.forEach(this::addEntity);
+    }
 
     /**
      * View of entities collection.
