@@ -63,7 +63,7 @@ public class TestMet extends Entity implements Faceable, Damager, Damageable {
     private final IAssetLoader assetLoader;
     private final Supplier<TestPlayer> megamanSupplier;
     private final IEntitiesAndSystemsManager entitiesAndSystemsManager;
-    private final Set<Class<? extends Damager>> damagerMaskSet = Set.of(TestBullet.class);
+    private final Set<Class<? extends Damager>> damagerMaskSet = Set.of(TestBullet.class, TestChargedShot.class);
     private final Timer damageTimer = new Timer(.25f);
     private final Timer blinkTimer = new Timer(.05f);
 
@@ -90,10 +90,12 @@ public class TestMet extends Entity implements Faceable, Damager, Damageable {
 
     @Override
     public void takeDamageFrom(Damager damager) {
+        damageTimer.reset();
+        Gdx.audio.newSound(Gdx.files.internal("sounds/EnemyDamage.mp3")).play();
         if (damager instanceof TestBullet) {
-            damageTimer.reset();
             getComponent(HealthComponent.class).sub(10);
-            Gdx.audio.newSound(Gdx.files.internal("sounds/EnemyDamage.mp3")).play();
+        } else if (damager instanceof TestChargedShot) {
+            getComponent(HealthComponent.class).sub(30);
         }
     }
 

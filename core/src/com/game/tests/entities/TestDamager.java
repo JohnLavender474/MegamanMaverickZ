@@ -9,8 +9,6 @@ import com.game.debugging.DebugRectComponent;
 import com.game.entities.contracts.Damageable;
 import com.game.entities.contracts.Damager;
 import com.game.health.HealthComponent;
-import com.game.levels.CullOnLevelCamTrans;
-import com.game.levels.CullOnOutOfCamBounds;
 import com.game.updatables.UpdatableComponent;
 import com.game.utils.objects.Timer;
 import com.game.utils.UtilMethods;
@@ -30,7 +28,7 @@ import static com.game.world.FixtureType.DAMAGEABLE_BOX;
 
 @Getter
 @Setter
-public class TestDamager implements IEntity, Damager, Damageable, CullOnOutOfCamBounds, CullOnLevelCamTrans {
+public class TestDamager implements IEntity, Damager, Damageable {
 
     private final Map<Class<? extends Component>, Component> components = new HashMap<>();
     private final Set<Class<? extends Damager>> damagerMaskSet = new HashSet<>() {{
@@ -90,11 +88,6 @@ public class TestDamager implements IEntity, Damager, Damageable, CullOnOutOfCam
                 damageTimer.update(delta);
             }
         });
-    }
-
-    @Override
-    public Rectangle getCullBoundingBox() {
-        return getComponent(BodyComponent.class).getCollisionBox();
     }
 
 }

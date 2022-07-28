@@ -22,8 +22,10 @@ import com.game.behaviors.BehaviorComponent;
 import com.game.behaviors.BehaviorSystem;
 import com.game.controllers.ControllerSystem;
 import com.game.core.IEntity;
+import com.game.cull.CullOnCamTransComponent;
 import com.game.cull.CullOnCamTransSystem;
 import com.game.cull.CullOnOutOfCamBoundsSystem;
+import com.game.cull.CullOutOfCamBoundsComponent;
 import com.game.debugging.DebugLinesSystem;
 import com.game.debugging.DebugRectComponent;
 import com.game.debugging.DebugRectSystem;
@@ -31,8 +33,6 @@ import com.game.graph.Graph;
 import com.game.graph.GraphSystem;
 import com.game.health.HealthComponent;
 import com.game.health.HealthSystem;
-import com.game.levels.CullOnLevelCamTrans;
-import com.game.levels.CullOnOutOfCamBounds;
 import com.game.levels.LevelCameraManager;
 import com.game.levels.LevelTiledMap;
 import com.game.pathfinding.PathfindingSystem;
@@ -60,6 +60,7 @@ import static com.game.ConstVals.ViewVals.*;
 import static com.game.levels.LevelScreen.LEVEL_CAM_TRANS_DURATION;
 import static com.game.levels.LevelScreen.MEGAMAN_DELTA_ON_CAM_TRANS;
 import static com.game.utils.UtilMethods.*;
+import static com.game.utils.enums.Position.*;
 import static com.game.world.FixtureType.BLOCK;
 
 /**
@@ -160,7 +161,7 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
                 playgroundViewport.getCamera(), shapeRenderer, playerSpawns, enemySpawns);
         entitySpawnManager.setCurrentPlayerSpawn(startPlayerSpawn);
         // define player
-        player = new TestPlayer(getPoint(entitySpawnManager.getCurrentPlayerSpawn(), Position.BOTTOM_CENTER), music,
+        player = new TestPlayer(getPoint(entitySpawnManager.getCurrentPlayerSpawn(), BOTTOM_CENTER), music,
                 testController, assetLoader, messageDispatcher, entitiesAndSystemsManager);
         entitiesAndSystemsManager.addEntity(player);
         // define static blocks
@@ -230,38 +231,6 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
         entitiesAndSystemsManager.updateSystems(delta);
         levelGraph.draw(shapeRenderer, Color.BLUE);
         messageDispatcher.updateMessageDispatcher(delta);
-        entitiesAndSystemsManager.getEntities().stream()
-                .filter(entity -> entity instanceof CullOnOutOfCamBounds)
-                .map(entity -> (CullOnOutOfCamBounds) entity)
-                .forEach(cull -> {
-                    if (!playgroundViewport.getCamera().frustum.boundsInFrustum(
-                            rectToBBox(cull.getCullBoundingBox()))) {
-                        cull.getCullTimer().update(delta);
-                    } else if (deathTimer.isFinished()) {
-                        cull.getCullTimer().reset();
-                    }
-                    if (cull.getCullTimer().isFinished()) {
-                        ((IEntity) cull).setDead(true);
-                    }
-                });
-        deathTimer.update(delta);
-        if (deathTimer.isJustFinished()) {
-            music.play();
-            player = new TestPlayer(bottomCenterPoint(entitySpawnManager.getCurrentPlayerSpawn()),
-                    music, testController, assetLoader, messageDispatcher, entitiesAndSystemsManager);
-            levelCameraManager.setFocusable(player);
-            entitiesAndSystemsManager.addEntity(player);
-            entitySpawnManager.reset();
-            entitiesAndSystemsManager.getEntities().forEach(entity -> {
-                if (entity instanceof CullOnLevelCamTrans || entity instanceof CullOnOutOfCamBounds) {
-                    entity.setDead(true);
-                    if (entity instanceof CullOnOutOfCamBounds cull) {
-                        cull.getCullTimer().setToEnd();
-                    }
-                }
-            });
-            blackTimer.reset();
-        }
         if (levelCameraManager.getTransitionState() != null) {
             BodyComponent bodyComponent = player.getComponent(BodyComponent.class);
             switch (levelCameraManager.getTransitionState()) {
@@ -272,18 +241,8 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
                     entitiesAndSystemsManager.getSystem(UpdatableSystem.class).setOn(false);
                     entitiesAndSystemsManager.getSystem(BehaviorSystem.class).setOn(false);
                     entitiesAndSystemsManager.getSystem(WorldSystem.class).setOn(false);
-                    entitiesAndSystemsManager.getEntities().forEach(entity -> {
-                        if (entity instanceof CullOnLevelCamTrans) {
-                            entity.setDead(true);
-                        }
-                    });
                 }
                 case CONTINUE -> {
-                    entitiesAndSystemsManager.getEntities().forEach(entity -> {
-                        if (entity instanceof CullOnLevelCamTrans) {
-                            entity.setDead(true);
-                        }
-                    });
                     Direction direction = levelCameraManager.getTransitionDirection();
                     switch (direction) {
                         case DIR_UP -> bodyComponent.getCollisionBox().y +=
@@ -304,6 +263,23 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
                     entitiesAndSystemsManager.getSystem(WorldSystem.class).setOn(true);
                 }
             }
+        }
+        deathTimer.update(delta);
+        if (deathTimer.isJustFinished()) {
+            music.play();
+            Vector2 spawn = bottomCenterPoint(entitySpawnManager.getCurrentPlayerSpawn());
+            player = new TestPlayer(spawn, music, testController, assetLoader,
+                    messageDispatcher, entitiesAndSystemsManager);
+            levelCameraManager.setFocusable(player);
+            entitiesAndSystemsManager.addEntity(player);
+            entitySpawnManager.reset();
+            entitiesAndSystemsManager.getEntities().forEach(entity -> {
+                if (entity.hasComponent(CullOnCamTransComponent.class) ||
+                        entity.hasComponent(CullOutOfCamBoundsComponent.class)) {
+                    entity.setDead(true);
+                }
+            });
+            blackTimer.reset();
         }
         spriteBatch.setProjectionMatrix(uiViewport.getCamera().combined);
         spriteBatch.begin();
@@ -352,15 +328,19 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
             }
             case "met" -> {
                 return () -> new TestMet(entitiesAndSystemsManager, assetLoader, () -> player,
-                        getPoint(spawnObj.getRectangle(), Position.BOTTOM_CENTER));
+                        getPoint(spawnObj.getRectangle(), BOTTOM_CENTER));
             }
             case "sniper_joe" -> {
                 return () -> new TestSniperJoe(entitiesAndSystemsManager, assetLoader, () -> player,
-                        getPoint(spawnObj.getRectangle(), Position.BOTTOM_CENTER));
+                        getPoint(spawnObj.getRectangle(), BOTTOM_CENTER));
             }
             case "suction_roller" -> {
                 return () -> new TestSuctionRoller(entitiesAndSystemsManager, assetLoader, () -> player,
-                        getPoint(spawnObj.getRectangle(), Position.BOTTOM_CENTER));
+                        getPoint(spawnObj.getRectangle(), BOTTOM_CENTER));
+            }
+            case "floating_can" -> {
+                return () -> new TestFloatingCan(assetLoader, () -> player,
+                        getPoint(spawnObj.getRectangle(), BOTTOM_CENTER));
             }
             default -> throw new IllegalStateException("Cannot find matching entity for <" + spawnObj.getName() + ">");
         }

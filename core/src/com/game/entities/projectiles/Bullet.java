@@ -16,8 +16,6 @@ import com.game.entities.contracts.Damager;
 import com.game.entities.contracts.Hitter;
 import com.game.entities.decorations.Disintegration;
 import com.game.entities.enemies.AbstractEnemy;
-import com.game.levels.CullOnLevelCamTrans;
-import com.game.levels.CullOnOutOfCamBounds;
 import com.game.sprites.SpriteAdapter;
 import com.game.sprites.SpriteComponent;
 import com.game.utils.enums.Position;
@@ -38,7 +36,7 @@ import static com.game.world.FixtureType.SHIELD;
 
 @Getter
 @Setter
-public class Bullet extends Entity implements Hitter, Damager, CullOnOutOfCamBounds, CullOnLevelCamTrans {
+public class Bullet extends Entity implements Hitter, Damager {
 
     private final GameContext2d gameContext;
     private final Timer cullTimer = new Timer(.15f);
@@ -55,11 +53,6 @@ public class Bullet extends Entity implements Hitter, Damager, CullOnOutOfCamBou
         addComponent(new CullOnCamTransComponent());
         addComponent(defineBodyComponent(spawn));
         addComponent(defineSpriteComponent());
-    }
-
-    @Override
-    public Rectangle getCullBoundingBox() {
-        return getComponent(BodyComponent.class).getCollisionBox();
     }
 
     @Override
@@ -104,7 +97,7 @@ public class Bullet extends Entity implements Hitter, Damager, CullOnOutOfCamBou
         return new SpriteComponent(sprite, new SpriteAdapter() {
             @Override
             public boolean setPositioning(Wrapper<Rectangle> bounds, Wrapper<Position> position) {
-                bounds.setData(getCullBoundingBox());
+                bounds.setData(getComponent(BodyComponent.class).getCollisionBox());
                 position.setData(Position.CENTER);
                 return true;
             }

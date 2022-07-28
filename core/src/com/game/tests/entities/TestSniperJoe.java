@@ -52,9 +52,9 @@ public class TestSniperJoe extends Entity implements Faceable, Damager, Damageab
     private final IAssetLoader assetLoader;
     private final Supplier<TestPlayer> playerSupplier;
     private final IEntitiesAndSystemsManager entitiesAndSystemsManager;
-    private final Set<Class<? extends Damager>> damagerMaskSet = Set.of(TestBullet.class);
+    private final Set<Class<? extends Damager>> damagerMaskSet = Set.of(TestBullet.class, TestChargedShot.class);
 
-    private final Timer recoveryTimer = new Timer(1f);
+    private final Timer damageTimer = new Timer(1f);
     private final Timer shieldedTimer = new Timer(1.75f);
     private final Timer shootingTimer = new Timer(1.5f, new TimeMarkedRunnable(.15f, this::shoot),
             new TimeMarkedRunnable(.75f, this::shoot), new TimeMarkedRunnable(1.35f, this::shoot));
@@ -77,7 +77,7 @@ public class TestSniperJoe extends Entity implements Faceable, Damager, Damageab
         addComponent(defineBodyComponent(spawn));
         addComponent(defineHealthComponent());
         addComponent(defineDebugComponent());
-        recoveryTimer.setToEnd();
+        damageTimer.setToEnd();
         shieldedTimer.setToEnd();
         shootingTimer.setToEnd();
     }
@@ -108,16 +108,18 @@ public class TestSniperJoe extends Entity implements Faceable, Damager, Damageab
 
     @Override
     public void takeDamageFrom(Damager damager) {
+        damageTimer.reset();
+        Gdx.audio.newSound(Gdx.files.internal("sounds/EnemyDamage.mp3")).play();
         if (damager instanceof TestBullet) {
-            recoveryTimer.reset();
             getComponent(HealthComponent.class).sub(10);
-            Gdx.audio.newSound(Gdx.files.internal("sounds/EnemyDamage.mp3")).play();
+        } else if (damager instanceof TestChargedShot) {
+            getComponent(HealthComponent.class).sub(30);
         }
     }
 
     @Override
     public boolean isInvincible() {
-        return !recoveryTimer.isFinished();
+        return !damageTimer.isFinished();
     }
 
     private HealthComponent defineHealthComponent() {
@@ -127,7 +129,7 @@ public class TestSniperJoe extends Entity implements Faceable, Damager, Damageab
     private UpdatableComponent defineUpdatableComponent(Supplier<TestPlayer> playerSupplier) {
         return new UpdatableComponent(delta -> {
             // recovery
-            recoveryTimer.update(delta);
+            damageTimer.update(delta);
             // facing
             setFacing(Math.round(playerSupplier.get().getComponent(BodyComponent.class).getPosition().x) <
                     Math.round(getComponent(BodyComponent.class).getPosition().x) ? Facing.F_LEFT : Facing.F_RIGHT);

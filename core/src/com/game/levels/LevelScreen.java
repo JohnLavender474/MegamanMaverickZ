@@ -30,7 +30,6 @@ import com.game.trajectories.TrajectoryComponent;
 import com.game.updatables.UpdatableSystem;
 import com.game.utils.enums.Direction;
 import com.game.utils.objects.Timer;
-import com.game.utils.UtilMethods;
 import com.game.world.BodyComponent;
 import com.game.world.Fixture;
 import com.game.world.WorldSystem;
@@ -188,20 +187,12 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
         }
     }
 
-    private boolean cullableOutOfBounds(CullOnOutOfCamBounds cull) {
-        return !gameContext.getViewport(PLAYGROUND).getCamera().frustum.boundsInFrustum(
-                UtilMethods.rectToBBox(cull.getCullBoundingBox()));
-    }
-
     private void onGameRunning(float delta) {
         levelTiledMap.draw((OrthographicCamera) gameContext.getViewport(PLAYGROUND).getCamera(),
                 gameContext.getSpriteBatch());
         levelCameraManager.update(delta);
         gameContext.updateSystems(delta);
         healthBar.draw();
-        gameContext.getEntities()
-                .stream().filter(entity -> entity instanceof CullOnOutOfCamBounds cull && cullableOutOfBounds(cull))
-                .forEach(entity -> entity.setDead(true));
         if (!deathTimer.isFinished()) {
             deathTimer.update(delta);
         }
@@ -220,11 +211,6 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
                     gameContext.getSystem(UpdatableSystem.class).setOn(false);
                 }
                 case CONTINUE -> {
-                    gameContext.getEntities().forEach(entity -> {
-                        if (entity instanceof CullOnLevelCamTrans) {
-                            entity.setDead(true);
-                        }
-                    });
                     Direction direction = levelCameraManager.getTransitionDirection();
                     switch (direction) {
                         case DIR_UP -> bodyComponent.getCollisionBox().y +=

@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
-import com.game.ConstVals;
 import com.game.Message;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
@@ -71,7 +70,8 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
     private final IEntitiesAndSystemsManager entitiesAndSystemsManager;
     private final Map<Class<? extends Component>, Component> components = new HashMap<>();
     private final Set<Class<? extends Damager>> damagerMaskSet = Set.of(
-            TestDamager.class, TestBullet.class, TestMet.class, TestSniperJoe.class, TestSuctionRoller.class);
+            TestDamager.class, TestBullet.class, TestChargedShot.class,
+            TestMet.class, TestSniperJoe.class, TestSuctionRoller.class);
     private final Timer airDashTimer = new Timer(.25f);
     private final Timer groundSlideTimer = new Timer(.35f);
     private final Timer wallJumpImpetusTimer = new Timer(.2f);
@@ -105,10 +105,10 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
         addComponent(defineDebugComponent());
         addComponent(defineSpriteComponent());
         addComponent(defineAnimationComponent(assetLoader.getAsset(MEGAMAN_TEXTURE_ATLAS, TextureAtlas.class)));
+        damageTimer.setToEnd();
         shootCoolDownTimer.setToEnd();
         shootAnimationTimer.setToEnd();
         wallJumpImpetusTimer.setToEnd();
-        damageTimer.setToEnd();
         damageRecoveryTimer.setToEnd();
     }
 
@@ -155,7 +155,6 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
             spawn.y += 4.5f;
         }
         if (megaBusterChargingTimer.isFinished()) {
-            // megaBusterChargingTimer.reset();
             chargingSound.stop();
             TestChargedShot testChargedShot = new TestChargedShot(
                     this, trajectory, spawn, facing, assetLoader, entitiesAndSystemsManager);
@@ -349,7 +348,7 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
                 }
                 return behaviorComponent.is(JUMPING) ?
                         // case 1
-                        bodyComponent.getVelocity().y >= 0f && controller.isPressed(ControllerButton.A) :
+                        bodyComponent.getVelocity().y > 0f && controller.isPressed(ControllerButton.A) :
                         // case 2
                         aButtonTask == AButtonTask.JUMP && controller.isJustPressed(ControllerButton.A) &&
                                 (bodyComponent.is(BodySense.FEET_ON_GROUND) || behaviorComponent.is(WALL_SLIDING));
@@ -368,8 +367,7 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
             }
 
             @Override
-            protected void act(float delta) {
-            }
+            protected void act(float delta) {}
 
             @Override
             protected void end() {

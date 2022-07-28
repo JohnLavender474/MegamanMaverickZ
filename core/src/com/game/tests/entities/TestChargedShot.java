@@ -33,7 +33,7 @@ import static com.game.world.FixtureType.*;
 
 @Getter
 @Setter
-public class TestChargedShot extends Entity implements Faceable, Damager, Hitter {
+public class TestChargedShot extends Entity implements Faceable, Hitter, Damager {
 
     private final IEntitiesAndSystemsManager entitiesAndSystemsManager;
     private final Vector2 trajectory = new Vector2();
@@ -81,6 +81,7 @@ public class TestChargedShot extends Entity implements Faceable, Damager, Hitter
                     assetLoader, getComponent(BodyComponent.class).getCenter(), isFacing(F_LEFT)));
         } else if (fixture.getFixtureType() == SHIELD) {
             setOwner(fixture.getEntity());
+            swapFacing();
             trajectory.x *= -1f;
             String reflectDir = fixture.getUserData("reflectDir", String.class);
             if (reflectDir == null || reflectDir.equals("straight")) {

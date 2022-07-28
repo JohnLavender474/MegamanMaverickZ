@@ -47,7 +47,7 @@ import static com.game.world.FixtureType.*;
 @Setter
 public class TestSuctionRoller extends Entity implements Damager, Damageable, Faceable {
 
-    private final Set<Class<? extends Damager>> damagerMaskSet = Set.of(TestBullet.class);
+    private final Set<Class<? extends Damager>> damagerMaskSet = Set.of(TestBullet.class, TestChargedShot.class);
     private final IEntitiesAndSystemsManager entitiesAndSystemsManager;
     private final IAssetLoader assetLoader;
     private final Rectangle nextTarget = new Rectangle();
@@ -79,10 +79,12 @@ public class TestSuctionRoller extends Entity implements Damager, Damageable, Fa
     @Override
     public void takeDamageFrom(Damager damager) {
         if (damager instanceof TestBullet) {
-            damageTimer.reset();
-            getComponent(HealthComponent.class).sub(5);
-            Gdx.audio.newSound(Gdx.files.internal("sounds/EnemyDamage.mp3")).play();
+            getComponent(HealthComponent.class).sub(10);
+        } else if (damager instanceof TestChargedShot) {
+            getComponent(HealthComponent.class).sub(30);
         }
+        damageTimer.reset();
+        Gdx.audio.newSound(Gdx.files.internal("sounds/EnemyDamage.mp3")).play();
     }
 
     @Override
