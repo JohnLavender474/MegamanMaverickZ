@@ -20,9 +20,9 @@ import static com.game.utils.UtilMethods.objName;
 public abstract class System implements Updatable {
 
     private final Set<IEntity> entities = new HashSet<>();
+    private final Set<Class<? extends Component>> componentMask;
     private final Queue<IEntity> entitiesToAddQueue = new LinkedList<>();
     private final Queue<IEntity> entitiesToRemoveQueue = new LinkedList<>();
-    private final Set<Class<? extends Component>> componentMask;
     @Setter
     @Getter
     private boolean isOn = true;

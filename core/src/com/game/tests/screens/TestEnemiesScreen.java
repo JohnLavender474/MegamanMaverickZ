@@ -224,18 +224,13 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
         }
         levelCameraManager.update(delta);
         levelTiledMap.draw((OrthographicCamera) playgroundViewport.getCamera(), spriteBatch);
-        if (levelCameraManager.getTransitionState() == null) {
-            entitySpawnManager.update();
-            testController.updateController();
-        }
-        entitiesAndSystemsManager.updateSystems(delta);
-        levelGraph.draw(shapeRenderer, Color.BLUE);
-        messageDispatcher.updateMessageDispatcher(delta);
         if (levelCameraManager.getTransitionState() != null) {
             BodyComponent bodyComponent = player.getComponent(BodyComponent.class);
             switch (levelCameraManager.getTransitionState()) {
                 case BEGIN -> {
+                    player.getChargingSound().stop();
                     bodyComponent.getVelocity().setZero();
+                    player.getMegaBusterChargingTimer().reset();
                     entitiesAndSystemsManager.getSystem(ControllerSystem.class).setOn(false);
                     entitiesAndSystemsManager.getSystem(TrajectorySystem.class).setOn(false);
                     entitiesAndSystemsManager.getSystem(UpdatableSystem.class).setOn(false);
@@ -264,6 +259,13 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
                 }
             }
         }
+        if (levelCameraManager.getTransitionState() == null) {
+            entitySpawnManager.update();
+            testController.updateController();
+        }
+        entitiesAndSystemsManager.updateSystems(delta);
+        levelGraph.draw(shapeRenderer, Color.BLUE);
+        messageDispatcher.updateMessageDispatcher(delta);
         deathTimer.update(delta);
         if (deathTimer.isJustFinished()) {
             music.play();

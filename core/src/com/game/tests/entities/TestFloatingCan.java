@@ -1,6 +1,7 @@
 package com.game.tests.entities;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.MathUtils;
@@ -10,6 +11,9 @@ import com.game.Entity;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
 import com.game.core.IAssetLoader;
+import com.game.cull.CullOnCamTransComponent;
+import com.game.cull.CullOutOfCamBoundsComponent;
+import com.game.debugging.DebugLinesComponent;
 import com.game.entities.contracts.Damageable;
 import com.game.entities.contracts.Damager;
 import com.game.graph.GraphComponent;
@@ -17,6 +21,7 @@ import com.game.health.HealthComponent;
 import com.game.pathfinding.PathfindingComponent;
 import com.game.sprites.SpriteAdapter;
 import com.game.sprites.SpriteComponent;
+import com.game.utils.UtilMethods;
 import com.game.utils.enums.Position;
 import com.game.utils.objects.Timer;
 import com.game.utils.objects.Wrapper;
@@ -31,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static com.game.ConstVals.TextureAssets.*;
 import static com.game.ConstVals.ViewVals.PPM;
@@ -40,7 +46,7 @@ import static com.game.utils.UtilMethods.setBottomCenterToPoint;
 @Getter
 public class TestFloatingCan extends Entity implements Damager, Damageable {
 
-    private static final float SPEED = 3f;
+    private static final float SPEED = 1.5f;
 
     private final Vector2 trajectory = new Vector2();
     private final Timer damageTimer = new Timer(.25f);
@@ -49,8 +55,12 @@ public class TestFloatingCan extends Entity implements Damager, Damageable {
     public TestFloatingCan(IAssetLoader assetLoader, Supplier<TestPlayer> testPlayerSupplier, Vector2 spawn) {
         damageNegotiation.put(TestBullet.class, 10);
         damageNegotiation.put(TestChargedShot.class, 30);
+        addComponent(new CullOnCamTransComponent());
+        addComponent(new CullOutOfCamBoundsComponent(
+                () -> getComponent(BodyComponent.class).getCollisionBox(), 1.5f));
         addComponent(definePathfindingComponent(testPlayerSupplier));
         addComponent(defineAnimationComponent(assetLoader));
+        addComponent(defineDebugLinesComponent());
         addComponent(defineBodyComponent(spawn));
         addComponent(defineSpriteComponent());
         addComponent(new HealthComponent(30));
@@ -74,7 +84,7 @@ public class TestFloatingCan extends Entity implements Damager, Damageable {
     }
 
     private BodyComponent defineBodyComponent(Vector2 spawn) {
-        BodyComponent bodyComponent = new BodyComponent(BodyType.DYNAMIC);
+        BodyComponent bodyComponent = new BodyComponent(BodyType.ABSTRACT);
         bodyComponent.setSize(.75f * PPM, .75f * PPM);
         setBottomCenterToPoint(bodyComponent.getCollisionBox(), spawn);
         bodyComponent.setPreProcess(delta -> bodyComponent.setVelocity(trajectory));
@@ -98,10 +108,16 @@ public class TestFloatingCan extends Entity implements Damager, Damageable {
                     float angle = MathUtils.atan2(targetCenter.y - thisCenter.y, targetCenter.x - thisCenter.x);
                     trajectory.set(MathUtils.cos(angle), MathUtils.sin(angle)).scl(SPEED * PPM);
                 },
-                target -> getComponent(BodyComponent.class).getCollisionBox().contains(centerPoint(target)));
+                target -> getComponent(BodyComponent.class).getCollisionBox().overlaps(target));
         pathfindingComponent.setDoAcceptPredicate(node ->
                 node.getObjects().stream().noneMatch(o -> o instanceof TestBlock));
+        pathfindingComponent.setDoAllowDiagonal(() -> false);
         return pathfindingComponent;
+    }
+
+    private DebugLinesComponent defineDebugLinesComponent() {
+        return new DebugLinesComponent(() -> getComponent(PathfindingComponent.class).getPathCpy().stream().map(
+                UtilMethods::centerPoint).collect(Collectors.toList()), () -> Color.RED);
     }
 
     private SpriteComponent defineSpriteComponent() {
