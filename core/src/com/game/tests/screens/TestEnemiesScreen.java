@@ -38,6 +38,7 @@ import com.game.health.HealthSystem;
 import com.game.levels.LevelCameraManager;
 import com.game.levels.LevelTiledMap;
 import com.game.pathfinding.PathfindingSystem;
+import com.game.sounds.SoundSystem;
 import com.game.sprites.SpriteSystem;
 import com.game.tests.core.*;
 import com.game.tests.entities.*;
@@ -140,6 +141,7 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
         entitiesAndSystemsManager.addSystem(new SpriteSystem(
                 (OrthographicCamera) playgroundViewport.getCamera(), spriteBatch));
         entitiesAndSystemsManager.addSystem(new AnimationSystem());
+        entitiesAndSystemsManager.addSystem(new SoundSystem(assetLoader));
         entitiesAndSystemsManager.addSystem(new DebugRectSystem(playgroundViewport.getCamera(), shapeRenderer));
         entitiesAndSystemsManager.addSystem(new DebugLinesSystem(playgroundViewport.getCamera(), shapeRenderer));
         levelTiledMap = new LevelTiledMap("tiledmaps/tmx/test1.tmx");
@@ -238,7 +240,6 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
             BodyComponent bodyComponent = player.getComponent(BodyComponent.class);
             switch (levelCameraManager.getTransitionState()) {
                 case BEGIN -> {
-                    player.getChargingSound().stop();
                     bodyComponent.getVelocity().setZero();
                     player.getMegaBusterChargingTimer().reset();
                     entitiesAndSystemsManager.getSystem(ControllerSystem.class).setOn(false);
@@ -364,6 +365,7 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
     public void listenToMessage(Object owner, Object message, float delta) {
         if (owner.equals(player) && message.equals("DEAD")) {
             deathTimer.reset();
+            entitiesAndSystemsManager.getSystem(SoundSystem.class).requestToStopAllLoopingSounds();
         }
     }
 

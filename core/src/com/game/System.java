@@ -63,6 +63,9 @@ public abstract class System implements Updatable {
         if (!isOn) {
             return;
         }
+        preProcess(delta);
+        entities.forEach(entity -> processEntity(entity, delta));
+        postProcess(delta);
         while (!entitiesToAddQueue.isEmpty()) {
             entities.add(entitiesToAddQueue.poll());
         }
@@ -70,9 +73,6 @@ public abstract class System implements Updatable {
             entities.remove(entitiesToRemoveQueue.poll());
         }
         entities.removeIf(entity -> !qualifiesMembership(entity) || entity.isDead());
-        preProcess(delta);
-        entities.forEach(entity -> processEntity(entity, delta));
-        postProcess(delta);
     }
 
     /**

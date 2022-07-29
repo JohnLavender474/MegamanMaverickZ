@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
+import com.game.ConstVals;
 import com.game.Message;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
@@ -27,6 +28,8 @@ import com.game.entities.contracts.Faceable;
 import com.game.entities.contracts.Facing;
 import com.game.health.HealthComponent;
 import com.game.levels.CameraFocusable;
+import com.game.sounds.SoundComponent;
+import com.game.sounds.SoundSystem;
 import com.game.sprites.SpriteAdapter;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
@@ -81,7 +84,6 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
     private final Timer damageRecoveryTimer = new Timer(1.5f);
     private final Timer damageRecoveryBlinkTimer = new Timer(.05f);
     private final Timer damageTimer = new Timer(.75f);
-    private final Sound chargingSound;
     private final Music music;
     private boolean dead;
     private boolean isCharging;
@@ -91,12 +93,12 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
 
     public TestPlayer(Vector2 spawn, Music music, IController controller, IAssetLoader assetLoader,
                       IMessageDispatcher messageDispatcher, IEntitiesAndSystemsManager entitiesAndSystemsManager) {
-        chargingSound = assetLoader.getAsset(MEGA_BUSTER_CHARGING_SOUND, Sound.class);
         this.music = music;
         this.controller = controller;
         this.assetLoader = assetLoader;
         this.messageDispatcher = messageDispatcher;
         this.entitiesAndSystemsManager = entitiesAndSystemsManager;
+        addComponent(new SoundComponent());
         addComponent(defineHealthComponent());
         addComponent(defineUpdatableComponent());
         addComponent(defineControllerComponent());
@@ -142,7 +144,7 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
     }
 
     public void shoot() {
-        chargingSound.stop();
+        getComponent(SoundComponent.class).stopLoopingSound(MEGA_BUSTER_CHARGING_SOUND);
         if (isDamaged()) {
             return;
         }
@@ -155,7 +157,6 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
             spawn.y += 4.5f;
         }
         if (megaBusterChargingTimer.isFinished()) {
-            chargingSound.stop();
             TestChargedShot testChargedShot = new TestChargedShot(
                     this, trajectory, spawn, facing, assetLoader, entitiesAndSystemsManager);
             entitiesAndSystemsManager.addEntity(testChargedShot);
@@ -188,20 +189,17 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
             trajectories.forEach(trajectory -> entitiesAndSystemsManager.addEntity(new TestExplosionOrb(
                     assetLoader, getComponent(BodyComponent.class).getCenter(), trajectory)));
             Gdx.audio.newSound(Gdx.files.internal("sounds/MegamanDefeat.mp3")).play();
+            getComponent(SoundComponent.class).stopLoopingSound(MEGA_BUSTER_CHARGING_SOUND);
             music.stop();
         });
     }
 
     private UpdatableComponent defineUpdatableComponent() {
         return new UpdatableComponent(delta -> {
-            if (megaBusterChargingTimer.isJustFinished()) {
-                long id = chargingSound.loop();
-                chargingSound.setVolume(id, .5f);
-            }
             damageTimer.update(delta);
             if (isDamaged()) {
-                chargingSound.stop();
                 megaBusterChargingTimer.reset();
+                getComponent(SoundComponent.class).stopLoopingSound(MEGA_BUSTER_CHARGING_SOUND);
                 getComponent(BodyComponent.class).applyImpulse((isFacing(F_LEFT) ? .15f : -.15f) * PPM, 0f);
             }
             if (damageTimer.isJustFinished()) {
@@ -285,6 +283,9 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
                     return;
                 }
                 megaBusterChargingTimer.update(delta);
+                if (megaBusterChargingTimer.isJustFinished()) {
+                    getComponent(SoundComponent.class).requestSound(MEGA_BUSTER_CHARGING_SOUND, true);
+                }
             }
 
             @Override
