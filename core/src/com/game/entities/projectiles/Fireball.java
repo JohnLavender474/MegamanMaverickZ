@@ -3,8 +3,8 @@ package com.game.entities.projectiles;
 import com.badlogic.gdx.math.Vector2;
 import com.game.GameContext2d;
 import com.game.core.IEntity;
-import com.game.entities.contracts.Facing;
 import com.game.entities.enemies.AbstractEnemy;
+import com.game.updatables.UpdatableComponent;
 import com.game.utils.objects.Timer;
 import com.game.world.BodyComponent;
 import com.game.world.BodyType;
@@ -19,9 +19,10 @@ public class Fireball extends AbstractProjectile {
 
     private boolean isLanded;
 
-    public Fireball(GameContext2d gameContext, IEntity owner, Vector2 spawn, boolean isRight) {
+    public Fireball(GameContext2d gameContext, IEntity owner, Vector2 impulse, Vector2 spawn) {
         super(gameContext, owner, .25f);
-
+        addComponent(defineUpdatableComponent());
+        addComponent(defineBodyComponent(spawn, impulse));
     }
 
     @Override
@@ -35,9 +36,23 @@ public class Fireball extends AbstractProjectile {
         }
     }
 
-    private BodyComponent defineBodyComponent(Vector2 spawn, boolean isRight) {
+    private UpdatableComponent defineUpdatableComponent() {
+        return new UpdatableComponent(delta -> {
+           if (isLanded) {
+               burnTimer.update(delta);
+           }
+           setDead(burnTimer.isFinished());
+        });
+    }
+
+    private BodyComponent defineBodyComponent(Vector2 spawn, Vector2 impulse) {
         BodyComponent bodyComponent = new BodyComponent(BodyType.DYNAMIC);
-        bodyComponent.applyImpulse((isRight ? 15f : -15f) * PPM, 0f);
+        bodyComponent.setPreProcess(delta -> {
+            if (isLanded) {
+                bodyComponent.setGravity(0f);
+            }
+        });
+        bodyComponent.applyImpulse(impulse);
         bodyComponent.setGravity(-10f * PPM);
         bodyComponent.setSize(.1f * PPM, .1f * PPM);
         bodyComponent.setCenter(spawn.x, spawn.y);

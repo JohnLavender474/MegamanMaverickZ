@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Entity;
@@ -15,6 +14,7 @@ import com.game.core.IAssetLoader;
 import com.game.core.IEntitiesAndSystemsManager;
 import com.game.cull.CullOnCamTransComponent;
 import com.game.cull.CullOutOfCamBoundsComponent;
+import com.game.damage.DamageNegotiation;
 import com.game.debugging.DebugRectComponent;
 import com.game.damage.Damageable;
 import com.game.damage.Damager;
@@ -40,10 +40,10 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import static com.game.ConstVals.TextureAssets.ENEMIES_TEXTURE_ATLAS;
-import static com.game.ConstVals.TextureAssets.OBJECTS_TEXTURE_ATLAS;
 import static com.game.ConstVals.ViewVals.PPM;
 import static com.game.utils.UtilMethods.*;
 
+@Setter
 @Getter
 public class TestSniperJoe extends Entity implements Faceable, Damager, Damageable {
 
@@ -52,7 +52,7 @@ public class TestSniperJoe extends Entity implements Faceable, Damager, Damageab
     private final IAssetLoader assetLoader;
     private final Supplier<TestPlayer> playerSupplier;
     private final IEntitiesAndSystemsManager entitiesAndSystemsManager;
-    private final Set<Class<? extends Damager>> damagerMaskSet = Set.of(TestBullet.class, TestChargedShot.class);
+    private final Map<Class<? extends Damager>, DamageNegotiation> damageNegotiations = new HashMap<>();
 
     private final Timer damageTimer = new Timer(1f);
     private final Timer shieldedTimer = new Timer(1.75f);
@@ -60,7 +60,6 @@ public class TestSniperJoe extends Entity implements Faceable, Damager, Damageab
             new TimeMarkedRunnable(.75f, this::shoot), new TimeMarkedRunnable(1.35f, this::shoot));
 
     private boolean isShielded = true;
-    @Setter
     private Facing facing;
 
     public TestSniperJoe(IEntitiesAndSystemsManager entitiesAndSystemsManager, IAssetLoader assetLoader,
@@ -68,6 +67,7 @@ public class TestSniperJoe extends Entity implements Faceable, Damager, Damageab
         this.assetLoader = assetLoader;
         this.playerSupplier = playerSupplier;
         this.entitiesAndSystemsManager = entitiesAndSystemsManager;
+        defineDamageNegotiations();
         addComponent(new CullOnCamTransComponent());
         addComponent(new CullOutOfCamBoundsComponent(
                 () -> getComponent(BodyComponent.class).getCollisionBox(), 1.5f));
@@ -86,10 +86,7 @@ public class TestSniperJoe extends Entity implements Faceable, Damager, Damageab
         Vector2 trajectory = new Vector2(PPM * (isFacing(Facing.F_LEFT) ? -BULLET_SPEED : BULLET_SPEED), 0f);
         Vector2 spawn = getComponent(BodyComponent.class).getCenter().cpy().add(
                 (isFacing(Facing.F_LEFT) ? -5f : 5f), -3.25f);
-        TextureRegion textureRegion = assetLoader.getAsset(OBJECTS_TEXTURE_ATLAS, TextureAtlas.class)
-                .findRegion("YellowBullet");
-        TestBullet bullet = new TestBullet(this, trajectory, spawn, textureRegion,
-                assetLoader, entitiesAndSystemsManager);
+        TestBullet bullet = new TestBullet(this, trajectory, spawn, assetLoader, entitiesAndSystemsManager);
         entitiesAndSystemsManager.addEntity(bullet);
         Gdx.audio.newSound(Gdx.files.internal("sounds/EnemyShoot.mp3")).play();
     }
@@ -107,19 +104,27 @@ public class TestSniperJoe extends Entity implements Faceable, Damager, Damageab
     }
 
     @Override
+    public Set<Class<? extends Damager>> getDamagerMaskSet() {
+        return damageNegotiations.keySet();
+    }
+
+    @Override
     public void takeDamageFrom(Damager damager) {
+        DamageNegotiation damageNegotiation = damageNegotiations.get(damager.getClass());
         damageTimer.reset();
+        damageNegotiation.runOnDamage();
+        getComponent(HealthComponent.class).sub(damageNegotiation.damage());
         Gdx.audio.newSound(Gdx.files.internal("sounds/EnemyDamage.mp3")).play();
-        if (damager instanceof TestBullet) {
-            getComponent(HealthComponent.class).sub(10);
-        } else if (damager instanceof TestChargedShot) {
-            getComponent(HealthComponent.class).sub(30);
-        }
     }
 
     @Override
     public boolean isInvincible() {
         return !damageTimer.isFinished();
+    }
+
+    private void defineDamageNegotiations() {
+        damageNegotiations.put(TestBullet.class, new DamageNegotiation(5));
+        damageNegotiations.put(TestFireball.class, new DamageNegotiation(15));
     }
 
     private HealthComponent defineHealthComponent() {

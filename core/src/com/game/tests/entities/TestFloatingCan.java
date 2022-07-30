@@ -50,14 +50,12 @@ public class TestFloatingCan extends Entity implements Damager, Damageable {
 
     private final Vector2 trajectory = new Vector2();
     private final Timer damageTimer = new Timer(.25f);
-    private final Map<Class<? extends Damager>, Integer> damageNegotiation = new HashMap<>();
+    private final Map<Class<? extends Damager>, Integer> damageNegotiations = new HashMap<>();
 
     public TestFloatingCan(IAssetLoader assetLoader, Supplier<TestPlayer> testPlayerSupplier, Vector2 spawn) {
-        damageNegotiation.put(TestBullet.class, 10);
-        damageNegotiation.put(TestChargedShot.class, 30);
+        defineDamageNegotiations();
         addComponent(new CullOnCamTransComponent());
-        addComponent(new CullOutOfCamBoundsComponent(
-                () -> getComponent(BodyComponent.class).getCollisionBox(), 1.5f));
+        addComponent(new CullOutOfCamBoundsComponent(() -> getComponent(BodyComponent.class).getCollisionBox(), 1.5f));
         addComponent(definePathfindingComponent(testPlayerSupplier));
         addComponent(defineAnimationComponent(assetLoader));
         addComponent(defineDebugLinesComponent());
@@ -67,16 +65,22 @@ public class TestFloatingCan extends Entity implements Damager, Damageable {
         addComponent(defineGraphComponent());
     }
 
+    private void defineDamageNegotiations() {
+        damageNegotiations.put(TestBullet.class, 10);
+        damageNegotiations.put(TestFireball.class, 30);
+        damageNegotiations.put(TestChargedShot.class, 30);
+    }
+
     @Override
     public void takeDamageFrom(Damager damager) {
         damageTimer.reset();
-        getComponent(HealthComponent.class).sub(damageNegotiation.get(damager.getClass()));
+        getComponent(HealthComponent.class).sub(damageNegotiations.get(damager.getClass()));
         Gdx.audio.newSound(Gdx.files.internal("sounds/EnemyDamage.mp3")).play();
     }
 
     @Override
     public Set<Class<? extends Damager>> getDamagerMaskSet() {
-        return damageNegotiation.keySet();
+        return damageNegotiations.keySet();
     }
 
     private GraphComponent defineGraphComponent() {

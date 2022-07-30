@@ -28,6 +28,7 @@ import com.game.entities.enemies.Met;
 import com.game.entities.enemies.SniperJoe;
 import com.game.entities.enemies.SuctionRoller;
 import com.game.entities.projectiles.Bullet;
+import com.game.entities.projectiles.Fireball;
 import com.game.health.HealthComponent;
 import com.game.levels.CameraFocusable;
 import com.game.sounds.SoundComponent;
@@ -102,6 +103,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         megamanWeaponsAttained.addAll(megamanStats.getMegamanWeapons());
         defineWeapons();
         defineDamageNegotiations();
+        setCurrentWeapon(MEGA_BUSTER);
         addComponent(defineHealthComponent(MEGAMAN_MAX_HEALTH));
         addComponent(defineControllerComponent());
         addComponent(defineUpdatableComponent());
@@ -112,8 +114,8 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         addComponent(new SoundComponent());
         damageTimer.setToEnd();
         shootAnimationTimer.setToEnd();
-        wallJumpImpetusTimer.setToEnd();
         damageRecoveryTimer.setToEnd();
+        wallJumpImpetusTimer.setToEnd();
     }
 
     @Override
@@ -124,16 +126,10 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
     @Override
     public void takeDamageFrom(Damager damager) {
         DamageNegotiation damageNegotiation = damageNegotiations.get(damager.getClass());
-        if (damageNegotiation == null) {
-            return;
-        }
         damageTimer.reset();
-        getComponent(SoundComponent.class).requestSound(MEGAMAN_DAMAGE_SOUND);
+        damageNegotiation.runOnDamage();
         getComponent(HealthComponent.class).sub(damageNegotiation.damage());
-        Runnable runnable = damageNegotiation.runnable();
-        if (runnable != null) {
-            runnable.run();
-        }
+        getComponent(SoundComponent.class).requestSound(MEGAMAN_DAMAGE_SOUND);
     }
 
     @Override
@@ -176,19 +172,21 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
     }
 
     private void defineWeapons() {
-        megamanWeapons.put(MEGA_BUSTER, new WeaponDef(() -> {
-            Vector2 trajectory = new Vector2(15f * (facing == F_LEFT ? -PPM : PPM), 0f);
-            Vector2 spawn = getComponent(BodyComponent.class).getCenter().add(facing == F_LEFT ? -15f : 15f, 1f);
+        Supplier<Vector2> spawn = () -> {
+            Vector2 spawnPos = getComponent(BodyComponent.class).getCenter().add(facing == F_LEFT ? -15f : 15f, 1f);
             if (getComponent(BehaviorComponent.class).is(WALL_SLIDING)) {
-                spawn.y += 3.5f;
+                spawnPos.y += 3.5f;
             } else if (!getComponent(BodyComponent.class).is(FEET_ON_GROUND)) {
-                spawn.y += 4.5f;
+                spawnPos.y += 4.5f;
             }
-            return new Bullet(gameContext, this, trajectory, spawn);
-        }, .1f, () -> gameContext.getAsset(MEGA_BUSTER_BULLET_SHOT_SOUND, Sound.class).play()));
-        megamanWeapons.put(FLAME_BUSTER, new WeaponDef(() -> {
-            return null;
-        }, .75f));
+            return spawnPos;
+        };
+        megamanWeapons.put(MEGA_BUSTER, new WeaponDef(() ->
+                new Bullet(gameContext, this, new Vector2(15f * (isFacing(F_LEFT) ? -PPM : PPM), 0f), spawn.get()),
+                .1f, () -> getComponent(SoundComponent.class).requestSound(MEGA_BUSTER_BULLET_SHOT_SOUND, false)));
+        megamanWeapons.put(FLAME_BUSTER, new WeaponDef(() ->
+                new Fireball(gameContext, this, new Vector2(25f * (isFacing(F_LEFT) ? -PPM : PPM), 0f), spawn.get()),
+                .1f, () -> getComponent(SoundComponent.class).requestSound(CRASH_BOMBER_SOUND, false)));
     }
 
     private void defineDamageNegotiations() {
@@ -222,7 +220,9 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
             }
             damageTimer.update(delta);
             if (isDamaged()) {
-                stopCharging();
+                chargingTimer.reset();
+                getComponent(SoundComponent.class).stopLoopingSound(MEGA_BUSTER_CHARGING_SOUND);
+                getComponent(BodyComponent.class).applyImpulse((isFacing(F_LEFT) ? .15f : -.15f) * PPM, 0f);
             }
             if (damageTimer.isJustFinished()) {
                 damageRecoveryTimer.reset();
@@ -238,11 +238,9 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
             if (damageRecoveryTimer.isJustFinished()) {
                 recoveryBlink = false;
             }
-            wallJumpImpetusTimer.update(delta);
             shootAnimationTimer.update(delta);
-            if (currentWeapon != null && megamanWeapons.containsKey(currentWeapon)) {
-                megamanWeapons.get(currentWeapon).updateCooldownTimer(delta);
-            }
+            wallJumpImpetusTimer.update(delta);
+            megamanWeapons.get(currentWeapon).updateCooldownTimer(delta);
         });
     }
 

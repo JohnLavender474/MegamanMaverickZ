@@ -1,0 +1,222 @@
+MegamanFire.png
+size: 1760, 32
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+AirDash
+  rotate: false
+  xy: 0, 0
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+AirDashCharging
+  rotate: false
+  xy: 32, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+AirDashShoot
+  rotate: false
+  xy: 96, 0
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+Beam
+  rotate: false
+  xy: 128, 0
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+BeamLand
+  rotate: false
+  xy: 160, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+Climb
+  rotate: false
+  xy: 224, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+ClimbCharging
+  rotate: false
+  xy: 288, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+ClimbShoot
+  rotate: false
+  xy: 352, 0
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+Damaged
+  rotate: false
+  xy: 384, 0
+  size: 96, 32
+  orig: 96, 32
+  offset: 0, 0
+  index: -1
+FinishClimb
+  rotate: false
+  xy: 480, 0
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+FinishClimbCharging
+  rotate: false
+  xy: 512, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+GroundSlide
+  rotate: false
+  xy: 576, 0
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+GroundSlideCharging
+  rotate: false
+  xy: 608, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+InitRun
+  rotate: false
+  xy: 672, 0
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+InitRunCharging
+  rotate: false
+  xy: 704, 0
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+Jump
+  rotate: false
+  xy: 736, 0
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+JumpCharging
+  rotate: false
+  xy: 768, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+JumpShoot
+  rotate: false
+  xy: 832, 0
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+LayDownDamaged
+  rotate: false
+  xy: 864, 0
+  size: 96, 32
+  orig: 96, 32
+  offset: 0, 0
+  index: -1
+Run
+  rotate: false
+  xy: 960, 0
+  size: 128, 32
+  orig: 128, 32
+  offset: 0, 0
+  index: -1
+RunCharging
+  rotate: false
+  xy: 1088, 0
+  size: 128, 32
+  orig: 128, 32
+  offset: 0, 0
+  index: -1
+RunShoot
+  rotate: false
+  xy: 1216, 0
+  size: 128, 32
+  orig: 128, 32
+  offset: 0, 0
+  index: -1
+SlipSlide
+  rotate: false
+  xy: 1344, 0
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+SlipSlideCharging
+  rotate: false
+  xy: 1376, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+SlipSlideShoot
+  rotate: false
+  xy: 1440, 0
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+Stand
+  rotate: false
+  xy: 1472, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+StandCharging
+  rotate: false
+  xy: 1536, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+StandShoot
+  rotate: false
+  xy: 1600, 0
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+WallSlide
+  rotate: false
+  xy: 1632, 0
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+WallSlideCharging
+  rotate: false
+  xy: 1664, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+WallSlideShoot
+  rotate: false
+  xy: 1728, 0
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1

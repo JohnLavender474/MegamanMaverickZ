@@ -26,13 +26,19 @@ public class TestAssetLoader implements IAssetLoader, Disposable {
                 MEGAMAN_LAND_SOUND,
                 MEGAMAN_DEFEAT_SOUND,
                 WHOOSH_SOUND,
-                THUMP_SOUND);
+                THUMP_SOUND,
+                ACID_SOUND,
+                AIR_SHOOTER_SOUND,
+                ATOMIC_FIRE_SOUND,
+                CRASH_BOMBER_SOUND);
         loadAssets(TextureAtlas.class,
                 CUSTOM_TILES_TEXTURE_ATLAS,
+                FIRE_TEXTURE_ATLAS,
                 MET_TEXTURE_ATLAS,
                 ENEMIES_TEXTURE_ATLAS,
                 OBJECTS_TEXTURE_ATLAS,
                 MEGAMAN_TEXTURE_ATLAS,
+                MEGAMAN_FIRE_TEXTURE_ATLAS,
                 DECORATIONS_TEXTURE_ATLAS,
                 MEGAMAN_CHARGED_SHOT_TEXTURE_ATLAS);
         assetManager.finishLoading();

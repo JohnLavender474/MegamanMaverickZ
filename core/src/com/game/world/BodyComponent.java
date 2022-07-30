@@ -263,11 +263,20 @@ public class BodyComponent implements Component {
     /**
      * Apply impulse.
      *
-     * @param x the x
-     * @param y the y
+     * @param x the x impulse to apply
+     * @param y the y impulse to apply
      */
     public void applyImpulse(float x, float y) {
         velocity.add(x, y);
+    }
+
+    /**
+     * Apply impulse.
+     *
+     * @param impulse the impulse to apply
+     */
+    public void applyImpulse(Vector2 impulse) {
+        applyImpulse(impulse.x, impulse.y);
     }
 
     /**

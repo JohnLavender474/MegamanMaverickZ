@@ -241,7 +241,7 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
             switch (levelCameraManager.getTransitionState()) {
                 case BEGIN -> {
                     bodyComponent.getVelocity().setZero();
-                    player.getMegaBusterChargingTimer().reset();
+                    player.getChargingTimer().reset();
                     entitiesAndSystemsManager.getSystem(ControllerSystem.class).setOn(false);
                     entitiesAndSystemsManager.getSystem(TrajectorySystem.class).setOn(false);
                     entitiesAndSystemsManager.getSystem(UpdatableSystem.class).setOn(false);

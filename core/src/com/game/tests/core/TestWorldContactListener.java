@@ -77,8 +77,7 @@ public class TestWorldContactListener implements WorldContactListener {
             if (entity instanceof TestPlayer testPlayer) {
                 testPlayer.setAButtonTask(TestPlayer.AButtonTask.JUMP);
             }
-        } else if (contact.acceptMask(FEET, FEET_STICKER) && contact.mask1stEntity() instanceof TestPlayer &&
-                contact.mask2ndEntity() instanceof TestBlock) {
+        } else if (contact.acceptMask(FEET, FEET_STICKER)) {
             contact.mask1stBody().translate(contact.mask2ndBody().getPosDelta());
         } else if (contact.acceptMask(HEAD, BLOCK)) {
             contact.mask1stEntity().getComponent(BodyComponent.class).setIs(HEAD_TOUCHING_BLOCK);

@@ -51,6 +51,7 @@ public class ConstVals {
         public static final String CUSTOM_TILES_TEXTURE_ATLAS = "sprites/SpriteSheets/CustomTiles.txt";
         public static final String OBJECTS_TEXTURE_ATLAS = "sprites/SpriteSheets/Objects.txt";
         public static final String MET_TEXTURE_ATLAS = "sprites/SpriteSheets/Met.txt";
+        public static final String FIRE_TEXTURE_ATLAS = "sprites/SpriteSheets/Fire.txt";
         public static final String ENEMIES_TEXTURE_ATLAS = "sprites/SpriteSheets/Enemies.txt";
         public static final String ITEMS_TEXTURE_ATLAS = "sprites/SpriteSheets/Items.txt";
         public static final String BACKGROUNDS_1_TEXTURE_ATLAS = "sprites/SpriteSheets/Backgrounds1.txt";
@@ -77,18 +78,22 @@ public class ConstVals {
         public static final String SELECT_PING_SOUND = "sounds/SelectPing.mp3";
         public static final String DINK_SOUND = "sounds/Dink.mp3";
         public static final String EXPLOSION_SOUND = "sounds/Explosion.mp3";
-        public static final String ENEMY_DAMAGE_SOUND = "sounds/EnemyDamage.mp3";
         public static final String ENEMY_BULLET_SOUND = "sounds/EnemyShoot.mp3";
-        public static final String MEGA_BUSTER_BULLET_SHOT_SOUND = "sounds/MegaBusterBulletShot.mp3";
+        public static final String ENEMY_DAMAGE_SOUND = "sounds/EnemyDamage.mp3";
         public static final String MEGA_BUSTER_CHARGING_SOUND = "sounds/MegaBusterCharging.mp3";
+        public static final String MEGA_BUSTER_BULLET_SHOT_SOUND = "sounds/MegaBusterBulletShot.mp3";
         public static final String MEGA_BUSTER_CHARGED_SHOT_SOUND = "sounds/MegaBusterChargedShot.mp3";
         public static final String MEGAMAN_DAMAGE_SOUND = "sounds/MegamanDamage.mp3";
         public static final String MEGAMAN_DEFEAT_SOUND = "sounds/MegamanDefeat.mp3";
         public static final String MEGAMAN_LAND_SOUND = "sounds/MegamanLand.mp3";
-        public static final String WHOOSH_SOUND = "sounds/Whoosh.mp3";
         public static final String THUMP_SOUND = "sounds/Thump.mp3";
-        public static final String ENERGY_FILL_SOUND = "sounds/EnergyFill.mp3";
+        public static final String WHOOSH_SOUND = "sounds/Whoosh.mp3";
         public static final String PAUSE_SOUND = "sounds/PauseMenu.mp3";
+        public static final String ENERGY_FILL_SOUND = "sounds/EnergyFill.mp3";
+        public static final String ACID_SOUND = "sounds/Megaman_2_Sounds/acid.wav";
+        public static final String AIR_SHOOTER_SOUND = "sounds/Megaman_2_Sounds/air_shooter.wav";
+        public static final String ATOMIC_FIRE_SOUND = "sounds/Megaman_2_Sounds/atomic_fire.wav";
+        public static final String CRASH_BOMBER_SOUND = "sounds/Megaman_2_Sounds/crash_bomber.wav";
     }
 
 }

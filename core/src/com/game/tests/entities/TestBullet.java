@@ -3,9 +3,11 @@ package com.game.tests.entities;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.game.ConstVals;
 import com.game.Entity;
 import com.game.core.IAssetLoader;
 import com.game.core.IEntitiesAndSystemsManager;
@@ -26,6 +28,7 @@ import com.game.world.Fixture;
 import lombok.Getter;
 import lombok.Setter;
 
+import static com.game.ConstVals.TextureAssets.*;
 import static com.game.ConstVals.ViewVals.PPM;
 import static com.game.world.FixtureType.*;
 
@@ -39,17 +42,17 @@ public class TestBullet extends Entity implements Hitter, Damager {
 
     private IEntity owner;
 
-    public TestBullet(IEntity owner, Vector2 trajectory, Vector2 spawn, TextureRegion textureRegion,
-                      IAssetLoader assetLoader, IEntitiesAndSystemsManager entitiesAndSystemsManager) {
+    public TestBullet(IEntity owner, Vector2 trajectory, Vector2 spawn, IAssetLoader assetLoader,
+                      IEntitiesAndSystemsManager entitiesAndSystemsManager) {
         this.owner = owner;
         this.trajectory.set(trajectory);
         this.assetLoader = assetLoader;
         this.entitiesAndSystemsManager = entitiesAndSystemsManager;
         addComponent(new CullOutOfCamBoundsComponent(() -> getComponent(BodyComponent.class).getCollisionBox(), .15f));
         addComponent(new CullOnCamTransComponent());
-        addComponent(defineSpriteComponent(textureRegion));
+        addComponent(defineSpriteComponent(assetLoader));
         addComponent(defineBodyComponent(spawn));
-        addComponent(defineDebugComponent());
+        addComponent(defineDebugRectComponent());
     }
 
     public void disintegrate() {
@@ -93,8 +96,10 @@ public class TestBullet extends Entity implements Hitter, Damager {
     }
 
 
-    private SpriteComponent defineSpriteComponent(TextureRegion textureRegion) {
+    private SpriteComponent defineSpriteComponent(IAssetLoader assetLoader) {
         Sprite sprite = new Sprite();
+        TextureRegion textureRegion = assetLoader.getAsset(OBJECTS_TEXTURE_ATLAS, TextureAtlas.class)
+                        .findRegion("YellowBullet");
         sprite.setRegion(textureRegion);
         sprite.setSize(PPM * 1.25f, PPM * 1.25f);
         return new SpriteComponent(sprite, new SpriteAdapter() {
@@ -121,7 +126,7 @@ public class TestBullet extends Entity implements Hitter, Damager {
         return bodyComponent;
     }
 
-    private DebugRectComponent defineDebugComponent() {
+    private DebugRectComponent defineDebugRectComponent() {
         DebugRectComponent debugRectComponent = new DebugRectComponent();
         getComponent(BodyComponent.class).getFixtures().forEach(fixture ->
                 debugRectComponent.addDebugHandle(fixture::getFixtureBox, () -> switch (fixture.getFixtureType()) {

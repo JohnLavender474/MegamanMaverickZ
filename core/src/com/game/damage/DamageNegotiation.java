@@ -6,4 +6,8 @@ public record DamageNegotiation(Integer damage, Runnable runnable) {
         this(damage, () -> {});
     }
 
+    public void runOnDamage() {
+        runnable().run();
+    }
+
 }

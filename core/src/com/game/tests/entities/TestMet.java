@@ -34,13 +34,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
 import static com.game.ConstVals.TextureAssets.MET_TEXTURE_ATLAS;
-import static com.game.ConstVals.TextureAssets.OBJECTS_TEXTURE_ATLAS;
 import static com.game.ConstVals.ViewVals.PPM;
 import static com.game.utils.UtilMethods.setBottomCenterToPoint;
 import static com.game.world.BodySense.TOUCHING_HITBOX_LEFT;
@@ -63,7 +61,8 @@ public class TestMet extends Entity implements Faceable, Damager, Damageable {
     private final IAssetLoader assetLoader;
     private final Supplier<TestPlayer> megamanSupplier;
     private final IEntitiesAndSystemsManager entitiesAndSystemsManager;
-    private final Set<Class<? extends Damager>> damagerMaskSet = Set.of(TestBullet.class, TestChargedShot.class);
+    private final Set<Class<? extends Damager>> damagerMaskSet = Set.of(
+            TestBullet.class, TestChargedShot.class, TestFireball.class);
     private final Timer damageTimer = new Timer(.25f);
     private final Timer blinkTimer = new Timer(.05f);
 
@@ -96,6 +95,8 @@ public class TestMet extends Entity implements Faceable, Damager, Damageable {
             getComponent(HealthComponent.class).sub(10);
         } else if (damager instanceof TestChargedShot) {
             getComponent(HealthComponent.class).sub(30);
+        } else if (damager instanceof TestFireball) {
+            getComponent(HealthComponent.class).sub(20);
         }
     }
 
@@ -114,10 +115,7 @@ public class TestMet extends Entity implements Faceable, Damager, Damageable {
         BodyComponent bodyComponent = getComponent(BodyComponent.class);
         Vector2 trajectory = new Vector2((isFacing(Facing.F_RIGHT) ? 10f : -10f) * PPM, .5f * PPM);
         Vector2 spawn = bodyComponent.getCenter().cpy().add(isFacing(Facing.F_RIGHT) ? .5f : -.5f, -4f);
-        TextureRegion yellowBullet = assetLoader.getAsset(OBJECTS_TEXTURE_ATLAS, TextureAtlas.class)
-                .findRegion("YellowBullet");
-        TestBullet bullet = new TestBullet(this, trajectory, spawn, yellowBullet,
-                assetLoader, entitiesAndSystemsManager);
+        TestBullet bullet = new TestBullet(this, trajectory, spawn, assetLoader, entitiesAndSystemsManager);
         entitiesAndSystemsManager.addEntity(bullet);
         Gdx.audio.newSound(Gdx.files.internal("sounds/EnemyShoot.mp3")).play();
     }
@@ -257,12 +255,11 @@ public class TestMet extends Entity implements Faceable, Damager, Damageable {
             case PANIC -> "RunNaked";
             case SHIELDING -> "LayDown";
         };
-        Map<String, TimedAnimation> timedAnimations = new HashMap<>() {{
-            put("Run", new TimedAnimation(textureAtlas.findRegion("Run"), 2, .125f));
-            put("PopUp", new TimedAnimation(textureAtlas.findRegion("PopUp")));
-            put("RunNaked", new TimedAnimation(textureAtlas.findRegion("RunNaked"), 2, .1f));
-            put("LayDown", new TimedAnimation(textureAtlas.findRegion("LayDown")));
-        }};
+        Map<String, TimedAnimation> timedAnimations = Map.of(
+                "Run", new TimedAnimation(textureAtlas.findRegion("Run"), 2, .125f),
+                "PopUp", new TimedAnimation(textureAtlas.findRegion("PopUp")),
+                "RunNaked", new TimedAnimation(textureAtlas.findRegion("RunNaked"), 2, .1f),
+                "LayDown", new TimedAnimation(textureAtlas.findRegion("LayDown")));
         return new AnimationComponent(keySupplier, timedAnimations::get);
     }
 

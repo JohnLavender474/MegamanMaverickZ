@@ -12,6 +12,7 @@ import com.game.core.IAssetLoader;
 import com.game.core.IEntitiesAndSystemsManager;
 import com.game.cull.CullOnCamTransComponent;
 import com.game.cull.CullOutOfCamBoundsComponent;
+import com.game.damage.DamageNegotiation;
 import com.game.debugging.DebugLinesComponent;
 import com.game.debugging.DebugRectComponent;
 import com.game.damage.Damageable;
@@ -30,6 +31,8 @@ import com.game.world.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -47,9 +50,9 @@ import static com.game.world.FixtureType.*;
 @Setter
 public class TestSuctionRoller extends Entity implements Damager, Damageable, Faceable {
 
-    private final Set<Class<? extends Damager>> damagerMaskSet = Set.of(TestBullet.class, TestChargedShot.class);
-    private final IEntitiesAndSystemsManager entitiesAndSystemsManager;
     private final IAssetLoader assetLoader;
+    private final IEntitiesAndSystemsManager entitiesAndSystemsManager;
+    private final Map<Class<? extends Damager>, DamageNegotiation> damageNegotiations = new HashMap<>();
     private final Rectangle nextTarget = new Rectangle();
     private final Timer offWallGrace = new Timer(.15f);
     private final Timer damageTimer = new Timer(.25f);
@@ -64,6 +67,7 @@ public class TestSuctionRoller extends Entity implements Damager, Damageable, Fa
         this.assetLoader = assetLoader;
         damageTimer.setToEnd();
         offWallGrace.setToEnd();
+        defineDamageNegotiations();
         addComponent(defineSpriteComponent());
         addComponent(new HealthComponent(30, this::disintegrate));
         addComponent(defineUpdatableComponent(testPlayerSupplier));
@@ -76,15 +80,24 @@ public class TestSuctionRoller extends Entity implements Damager, Damageable, Fa
         addComponent(defineDebugLinesComponent());
     }
 
+    private void defineDamageNegotiations() {
+        damageNegotiations.put(TestBullet.class, new DamageNegotiation(10));
+        damageNegotiations.put(TestFireball.class, new DamageNegotiation(10));
+        damageNegotiations.put(TestChargedShot.class, new DamageNegotiation(30));
+    }
+
+    @Override
+    public Set<Class<? extends Damager>> getDamagerMaskSet() {
+        return damageNegotiations.keySet();
+    }
+
     @Override
     public void takeDamageFrom(Damager damager) {
-        if (damager instanceof TestBullet) {
-            getComponent(HealthComponent.class).sub(10);
-        } else if (damager instanceof TestChargedShot) {
-            getComponent(HealthComponent.class).sub(30);
-        }
-        damageTimer.reset();
+        DamageNegotiation damageNegotiation = damageNegotiations.get(damager.getClass());
         Gdx.audio.newSound(Gdx.files.internal("sounds/EnemyDamage.mp3")).play();
+        getComponent(HealthComponent.class).sub(damageNegotiation.damage());
+        damageNegotiation.runOnDamage();
+        damageTimer.reset();
     }
 
     @Override

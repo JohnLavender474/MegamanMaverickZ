@@ -5,7 +5,6 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Entity;
@@ -17,6 +16,7 @@ import com.game.behaviors.BehaviorComponent;
 import com.game.controllers.ControllerAdapter;
 import com.game.controllers.ControllerComponent;
 import com.game.core.*;
+import com.game.damage.DamageNegotiation;
 import com.game.debugging.DebugRectComponent;
 import com.game.damage.Damageable;
 import com.game.damage.Damager;
@@ -32,6 +32,7 @@ import com.game.utils.enums.Position;
 import com.game.utils.objects.Timer;
 import com.game.utils.UtilMethods;
 import com.game.utils.objects.Wrapper;
+import com.game.weapons.WeaponDef;
 import com.game.world.BodyComponent;
 import com.game.world.BodyType;
 import com.game.world.Fixture;
@@ -66,53 +67,53 @@ public class TestPlayer extends Entity implements Damageable, Faceable, CameraFo
 
     public enum TestPlayerWeapon {
         MEGA_BUSTER,
-        FIRE
+        FLAME_BUSTER
     }
 
     private static final float EXPLOSION_ORB_SPEED = 3.5f;
 
+    private final Music music;
     private final IController controller;
     private final IAssetLoader assetLoader;
     private final IMessageDispatcher messageDispatcher;
-    private final IEntitiesAndSystemsManager entitiesAndSystemsManager;
-    private final Set<Class<? extends Damager>> damagerMaskSet = Set.of(
-            TestDamager.class, TestBullet.class, TestChargedShot.class, TestMet.class, TestSniperJoe.class,
-            TestSuctionRoller.class, TestFloatingCan.class);
+    private final IEntitiesAndSystemsManager esManager;
+
+    private final Map<Class<? extends Damager>, DamageNegotiation> damageNegotiations = new HashMap<>();
+
+    private final Timer damageTimer = new Timer(.75f);
+    private final Timer chargingTimer = new Timer(.5f);
     private final Timer airDashTimer = new Timer(.25f);
     private final Timer groundSlideTimer = new Timer(.35f);
-    private final Timer wallJumpImpetusTimer = new Timer(.2f);
-    private final Timer megaBusterChargingTimer = new Timer(.5f);
     private final Timer shootCoolDownTimer = new Timer(.1f);
     private final Timer shootAnimationTimer = new Timer(.5f);
     private final Timer damageRecoveryTimer = new Timer(1.5f);
+    private final Timer wallJumpImpetusTimer = new Timer(.2f);
     private final Timer damageRecoveryBlinkTimer = new Timer(.05f);
-    private final Timer damageTimer = new Timer(.75f);
-    private final Music music;
 
-    private final Map<TestPlayerWeapon, Map<String, TimedAnimation>> weaponToAnimationsMap =
-            new EnumMap<>(TestPlayerWeapon.class);
+    private final Map<TestPlayerWeapon, WeaponDef> testPlayerWeapons = new EnumMap<>(TestPlayerWeapon.class);
     private TestPlayerWeapon currentWeapon;
 
-    private boolean isCharging;
     private boolean recoveryBlink;
     private Facing facing = F_RIGHT;
     private AButtonTask aButtonTask = JUMP;
 
     public TestPlayer(Vector2 spawn, Music music, IController controller, IAssetLoader assetLoader,
-                      IMessageDispatcher messageDispatcher, IEntitiesAndSystemsManager entitiesAndSystemsManager) {
-        this.currentWeapon = MEGA_BUSTER;
+                      IMessageDispatcher messageDispatcher, IEntitiesAndSystemsManager esManager) {
         this.music = music;
+        this.esManager = esManager;
         this.controller = controller;
         this.assetLoader = assetLoader;
         this.messageDispatcher = messageDispatcher;
-        this.entitiesAndSystemsManager = entitiesAndSystemsManager;
+        defineWeapons();
+        defineDamageNegotiations();
+        setCurrentWeapon(FLAME_BUSTER);
         addComponent(new SoundComponent());
         addComponent(defineHealthComponent());
         addComponent(defineUpdatableComponent());
         addComponent(defineControllerComponent());
         addComponent(defineBehaviorComponent());
         addComponent(defineBodyComponent(spawn));
-        addComponent(defineDebugComponent());
+        addComponent(defineDebugRectComponent());
         addComponent(defineSpriteComponent());
         addComponent(defineAnimationComponent());
         damageTimer.setToEnd();
@@ -123,9 +124,16 @@ public class TestPlayer extends Entity implements Damageable, Faceable, CameraFo
     }
 
     @Override
+    public Set<Class<? extends Damager>> getDamagerMaskSet() {
+        return damageNegotiations.keySet();
+    }
+
+    @Override
     public void takeDamageFrom(Damager damager) {
+        DamageNegotiation damageNegotiation = damageNegotiations.get(damager.getClass());
         damageTimer.reset();
-        getComponent(HealthComponent.class).sub(20);
+        damageNegotiation.runOnDamage();
+        getComponent(HealthComponent.class).sub(damageNegotiation.damage());
         Gdx.audio.newSound(Gdx.files.internal("sounds/MegamanDamage.mp3")).play();
     }
 
@@ -148,37 +156,65 @@ public class TestPlayer extends Entity implements Damageable, Faceable, CameraFo
     }
 
     public boolean isCharging() {
-        return megaBusterChargingTimer.isFinished();
+        return chargingTimer.isFinished();
     }
 
-    public void shoot() {
+    private void stopCharging() {
+        chargingTimer.reset();
         getComponent(SoundComponent.class).stopLoopingSound(MEGA_BUSTER_CHARGING_SOUND);
-        if (isDamaged()) {
+    }
+
+    private void defineDamageNegotiations() {
+        damageNegotiations.put(TestMet.class, new DamageNegotiation(5));
+        damageNegotiations.put(TestBullet.class, new DamageNegotiation(10));
+        damageNegotiations.put(TestFireball.class, new DamageNegotiation(3));
+        damageNegotiations.put(TestSniperJoe.class, new DamageNegotiation(5));
+        damageNegotiations.put(TestFloatingCan.class, new DamageNegotiation(5));
+        damageNegotiations.put(TestSuctionRoller.class, new DamageNegotiation(10));
+    }
+
+    private void defineWeapons() {
+        Supplier<Vector2> spawn = () -> {
+            Vector2 spawnPos = getComponent(BodyComponent.class).getCenter().add(facing == F_LEFT ? -15f : 15f, 1f);
+            if (getComponent(BehaviorComponent.class).is(WALL_SLIDING)) {
+                spawnPos.y += 3.5f;
+            } else if (!getComponent(BodyComponent.class).is(FEET_ON_GROUND)) {
+                spawnPos.y += 4.5f;
+            }
+            return spawnPos;
+        };
+        testPlayerWeapons.put(MEGA_BUSTER, new WeaponDef(() -> {
+            Vector2 trajectory = new Vector2(15f * (facing == F_LEFT ? -PPM : PPM), 0f);
+            if (isCharging()) {
+                return new TestChargedShot(this, trajectory, spawn.get(), facing, assetLoader, esManager);
+            } else {
+                return new TestBullet(this, trajectory, spawn.get(), assetLoader, esManager);
+            }
+        }, .1f, () -> getComponent(SoundComponent.class).requestSound(MEGA_BUSTER_BULLET_SHOT_SOUND)));
+        testPlayerWeapons.put(FLAME_BUSTER, new WeaponDef(() -> {
+            Vector2 impulse = new Vector2(35f * (isFacing(F_LEFT) ? -PPM : PPM), 10f * PPM);
+            if (isCharging()) {
+                // TODO: return charging fireball
+            } else {
+                // TODO: return normal fireball
+            }
+            return new TestFireball(assetLoader, this, impulse, spawn.get());
+        }, .75f, () -> getComponent(SoundComponent.class).requestSound(CRASH_BOMBER_SOUND)));
+    }
+
+    private void shoot() {
+        WeaponDef weaponDef = testPlayerWeapons.get(currentWeapon);
+        if (weaponDef == null) {
+            throw new IllegalStateException();
+        }
+        if (isDamaged() || getComponent(BehaviorComponent.class).is(GROUND_SLIDING, AIR_DASHING) ||
+                weaponDef.isDepleted() || !weaponDef.isCooldownTimerFinished()) {
             return;
         }
-        Vector2 trajectory = new Vector2(15f * (facing == F_LEFT ? -PPM : PPM), 0f);
-        Vector2 spawn = getComponent(BodyComponent.class).getCenter().add(
-                facing == F_LEFT ? -12.5f : 12.5f, 1f);
-        if (getComponent(BehaviorComponent.class).is(WALL_SLIDING)) {
-            spawn.y += 3.5f;
-        } else if (!getComponent(BodyComponent.class).is(FEET_ON_GROUND)) {
-            spawn.y += 4.5f;
-        }
-        if (megaBusterChargingTimer.isFinished()) {
-            TestChargedShot testChargedShot = new TestChargedShot(
-                    this, trajectory, spawn, facing, assetLoader, entitiesAndSystemsManager);
-            entitiesAndSystemsManager.addEntity(testChargedShot);
-            Gdx.audio.newSound(Gdx.files.internal("sounds/MegaBusterChargedShot.mp3")).play();
-        } else {
-            TextureRegion yellowBullet = assetLoader.getAsset(OBJECTS_TEXTURE_ATLAS, TextureAtlas.class)
-                    .findRegion("YellowBullet");
-            TestBullet bullet = new TestBullet(this, trajectory, spawn, yellowBullet,
-                    assetLoader, entitiesAndSystemsManager);
-            entitiesAndSystemsManager.addEntity(bullet);
-            Gdx.audio.newSound(Gdx.files.internal("sounds/MegaBusterBulletShot.mp3")).play();
-        }
-        shootCoolDownTimer.reset();
+        esManager.addEntity(weaponDef.getWeaponInstance());
+        weaponDef.resetCooldownTimer();
         shootAnimationTimer.reset();
+        weaponDef.runOnShoot();
     }
 
     private HealthComponent defineHealthComponent() {
@@ -194,7 +230,7 @@ public class TestPlayer extends Entity implements Damageable, Faceable, CameraFo
                 add(new Vector2(0f, -EXPLOSION_ORB_SPEED));
                 add(new Vector2(-EXPLOSION_ORB_SPEED, -EXPLOSION_ORB_SPEED));
             }};
-            trajectories.forEach(trajectory -> entitiesAndSystemsManager.addEntity(new TestExplosionOrb(
+            trajectories.forEach(trajectory -> esManager.addEntity(new TestExplosionOrb(
                     assetLoader, getComponent(BodyComponent.class).getCenter(), trajectory)));
             Gdx.audio.newSound(Gdx.files.internal("sounds/MegamanDefeat.mp3")).play();
             getComponent(SoundComponent.class).stopLoopingSound(MEGA_BUSTER_CHARGING_SOUND);
@@ -204,12 +240,12 @@ public class TestPlayer extends Entity implements Damageable, Faceable, CameraFo
 
     private UpdatableComponent defineUpdatableComponent() {
         return new UpdatableComponent(delta -> {
-            if (megaBusterChargingTimer.isJustFinished()) {
+            if (chargingTimer.isJustFinished()) {
                 getComponent(SoundComponent.class).requestSound(MEGA_BUSTER_CHARGING_SOUND, true, .5f);
             }
             damageTimer.update(delta);
             if (isDamaged()) {
-                megaBusterChargingTimer.reset();
+                chargingTimer.reset();
                 getComponent(SoundComponent.class).stopLoopingSound(MEGA_BUSTER_CHARGING_SOUND);
                 getComponent(BodyComponent.class).applyImpulse((isFacing(F_LEFT) ? .15f : -.15f) * PPM, 0f);
             }
@@ -227,10 +263,9 @@ public class TestPlayer extends Entity implements Damageable, Faceable, CameraFo
             if (damageRecoveryTimer.isJustFinished()) {
                 recoveryBlink = false;
             }
-            wallJumpImpetusTimer.update(delta);
-            shootCoolDownTimer.update(delta);
             shootAnimationTimer.update(delta);
-            setCharging(megaBusterChargingTimer.isFinished());
+            wallJumpImpetusTimer.update(delta);
+            testPlayerWeapons.get(currentWeapon).updateCooldownTimer(delta);
         });
     }
 
@@ -290,20 +325,16 @@ public class TestPlayer extends Entity implements Damageable, Faceable, CameraFo
             @Override
             public void onPressContinued(float delta) {
                 if (isDamaged()) {
-                    megaBusterChargingTimer.reset();
+                    chargingTimer.reset();
                     return;
                 }
-                megaBusterChargingTimer.update(delta);
+                chargingTimer.update(delta);
             }
 
             @Override
             public void onJustReleased() {
-                BehaviorComponent behaviorComponent = getComponent(BehaviorComponent.class);
-                if (shootCoolDownTimer.isFinished() && !behaviorComponent.is(GROUND_SLIDING) &&
-                        !behaviorComponent.is(AIR_DASHING)) {
-                    shoot();
-                }
-                megaBusterChargingTimer.reset();
+                shoot();
+                stopCharging();
             }
 
         });
@@ -536,7 +567,7 @@ public class TestPlayer extends Entity implements Damageable, Faceable, CameraFo
         return bodyComponent;
     }
 
-    private DebugRectComponent defineDebugComponent() {
+    private DebugRectComponent defineDebugRectComponent() {
         BodyComponent bodyComponent = getComponent(BodyComponent.class);
         DebugRectComponent debugRectComponent = new DebugRectComponent();
         debugRectComponent.addDebugHandle(bodyComponent::getCollisionBox, () -> Color.GREEN);
@@ -635,11 +666,12 @@ public class TestPlayer extends Entity implements Damageable, Faceable, CameraFo
                 }
             }
         };
+        Map<TestPlayerWeapon, Map<String, TimedAnimation>> weaponToAnimMap = new EnumMap<>(TestPlayerWeapon.class);
         for (TestPlayerWeapon weapon : TestPlayerWeapon.values()) {
             String textureAtlasKey;
             switch (weapon) {
                 case MEGA_BUSTER -> textureAtlasKey = MEGAMAN_TEXTURE_ATLAS;
-                case FIRE -> textureAtlasKey = MEGAMAN_FIRE_TEXTURE_ATLAS;
+                case FLAME_BUSTER -> textureAtlasKey = MEGAMAN_FIRE_TEXTURE_ATLAS;
                 default -> throw new IllegalStateException();
             }
             TextureAtlas textureAtlas = assetLoader.getAsset(textureAtlasKey, TextureAtlas.class);
@@ -671,9 +703,9 @@ public class TestPlayer extends Entity implements Damageable, Faceable, CameraFo
             animations.put("SlipSlideCharging", new TimedAnimation(
                     textureAtlas.findRegion("SlipSlideCharging"), 2, .125f));
             animations.put("SlipSlideShoot", new TimedAnimation(textureAtlas.findRegion("SlipSlideShoot")));
-            weaponToAnimationsMap.put(weapon, animations);
+            weaponToAnimMap.put(weapon, animations);
         }
-        return new AnimationComponent(keySupplier, key -> weaponToAnimationsMap.get(currentWeapon).get(key));
+        return new AnimationComponent(keySupplier, key -> weaponToAnimMap.get(currentWeapon).get(key));
     }
 
 }
