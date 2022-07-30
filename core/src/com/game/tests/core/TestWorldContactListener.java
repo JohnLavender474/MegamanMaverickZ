@@ -2,8 +2,8 @@ package com.game.tests.core;
 
 import com.badlogic.gdx.Gdx;
 import com.game.core.IEntity;
-import com.game.entities.contracts.Damageable;
-import com.game.entities.contracts.Damager;
+import com.game.damage.Damageable;
+import com.game.damage.Damager;
 import com.game.entities.contracts.Hitter;
 import com.game.health.HealthComponent;
 import com.game.tests.entities.TestBlock;

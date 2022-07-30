@@ -4,19 +4,24 @@ import com.game.Component;
 import lombok.AccessLevel;
 import lombok.Getter;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Getter(AccessLevel.PACKAGE)
 public class SoundComponent implements Component {
 
-    private final Map<String, Boolean> soundRequests = new HashMap<>();
-    private final Set<String> stopLoopingSoundRequests = new HashSet<>();
+    private final Queue<SoundRequest> soundRequests = new LinkedList<>();
+    private final Queue<String> stopLoopingSoundRequests = new LinkedList<>();
+
+    public void requestSound(String sound) {
+        requestSound(sound, false);
+    }
 
     public void requestSound(String sound, boolean loop) {
-        soundRequests.put(sound, loop);
+        requestSound(sound, loop, 1f);
+    }
+
+    public void requestSound(String sound, boolean loop, float volume) {
+        soundRequests.add(new SoundRequest(sound, loop, volume));
     }
 
     public void stopLoopingSound(String sound) {

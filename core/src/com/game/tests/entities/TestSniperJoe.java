@@ -16,8 +16,8 @@ import com.game.core.IEntitiesAndSystemsManager;
 import com.game.cull.CullOnCamTransComponent;
 import com.game.cull.CullOutOfCamBoundsComponent;
 import com.game.debugging.DebugRectComponent;
-import com.game.entities.contracts.Damageable;
-import com.game.entities.contracts.Damager;
+import com.game.damage.Damageable;
+import com.game.damage.Damager;
 import com.game.entities.contracts.Faceable;
 import com.game.entities.contracts.Facing;
 import com.game.health.HealthComponent;
@@ -168,7 +168,7 @@ public class TestSniperJoe extends Entity implements Faceable, Damager, Damageab
             put("Shooting", new TimedAnimation(textureAtlas.findRegion("SniperJoe/SniperJoeShooting")));
             put("Shielded", new TimedAnimation(textureAtlas.findRegion("SniperJoe/SniperJoeShielded")));
         }};
-        return new AnimationComponent(keySupplier, timedAnimations);
+        return new AnimationComponent(keySupplier, timedAnimations::get);
     }
 
     private BodyComponent defineBodyComponent(Vector2 spawn) {

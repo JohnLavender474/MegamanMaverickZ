@@ -11,8 +11,8 @@ import com.game.GameContext2d;
 import com.game.core.IEntity;
 import com.game.cull.CullOnCamTransComponent;
 import com.game.cull.CullOutOfCamBoundsComponent;
-import com.game.entities.contracts.Damageable;
-import com.game.entities.contracts.Damager;
+import com.game.damage.Damageable;
+import com.game.damage.Damager;
 import com.game.entities.contracts.Hitter;
 import com.game.entities.decorations.Disintegration;
 import com.game.entities.enemies.AbstractEnemy;
@@ -36,28 +36,15 @@ import static com.game.world.FixtureType.SHIELD;
 
 @Getter
 @Setter
-public class Bullet extends Entity implements Hitter, Damager {
+public class Bullet extends AbstractProjectile {
 
-    private final GameContext2d gameContext;
-    private final Timer cullTimer = new Timer(.15f);
     private final Vector2 trajectory = new Vector2();
 
-    private IEntity owner;
-    private int damage;
-
     public Bullet(GameContext2d gameContext, IEntity owner, Vector2 spawn, Vector2 trajectory) {
-        this.owner = owner;
-        this.gameContext = gameContext;
+        super(gameContext, owner, .15f);
         this.trajectory.set(trajectory);
-        addComponent(new CullOutOfCamBoundsComponent(() -> getComponent(BodyComponent.class).getCollisionBox(), .15f));
-        addComponent(new CullOnCamTransComponent());
         addComponent(defineBodyComponent(spawn));
         addComponent(defineSpriteComponent());
-    }
-
-    @Override
-    public boolean canDamage(Damageable damageable) {
-        return !owner.equals(damageable) && !(owner instanceof AbstractEnemy && damageable instanceof AbstractEnemy);
     }
 
     public void disintegrate() {

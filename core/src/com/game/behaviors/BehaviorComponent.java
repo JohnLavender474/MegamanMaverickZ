@@ -17,8 +17,8 @@ import java.util.Set;
 @Setter
 public class BehaviorComponent implements Component {
 
-    private final List<Behavior> behaviors = new ArrayList<>();
     private final Set<BehaviorType> activeBehaviors = EnumSet.noneOf(BehaviorType.class);
+    private final List<Behavior> behaviors = new ArrayList<>();
     private Updatable preProcess;
     private Updatable postProcess;
 
@@ -32,17 +32,22 @@ public class BehaviorComponent implements Component {
     }
 
     /**
-     * Is boolean.
+     * Return if performing any of the provided behaviors.
      *
-     * @param behaviorType the behavior type
-     * @return the boolean
+     * @param behaviorTypes the behavior types
+     * @return if performing any of the provided behaviors
      */
-    public boolean is(BehaviorType behaviorType) {
-        return activeBehaviors.contains(behaviorType);
+    public boolean is(BehaviorType... behaviorTypes) {
+        for (BehaviorType behaviorType : behaviorTypes) {
+            if (activeBehaviors.contains(behaviorType)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
-     * Set.
+     * Set is performing behavior.
      *
      * @param behaviorType the behavior type
      * @param isBehavior   the is behavior
@@ -56,7 +61,7 @@ public class BehaviorComponent implements Component {
     }
 
     /**
-     * Set is.
+     * Set is performing behavior.
      *
      * @param behaviorType the behavior type
      */
@@ -65,7 +70,7 @@ public class BehaviorComponent implements Component {
     }
 
     /**
-     * Set is not.
+     * Set is not performing behavior.
      *
      * @param behaviorType the behavior type
      */

@@ -2,34 +2,29 @@ package com.game.tests.entities;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.Component;
-import com.game.ConstVals;
+import com.game.Entity;
 import com.game.Message;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
 import com.game.behaviors.Behavior;
 import com.game.behaviors.BehaviorComponent;
-import com.game.behaviors.BehaviorType;
 import com.game.controllers.ControllerAdapter;
-import com.game.controllers.ControllerButton;
 import com.game.controllers.ControllerComponent;
 import com.game.core.*;
 import com.game.debugging.DebugRectComponent;
-import com.game.entities.contracts.Damageable;
-import com.game.entities.contracts.Damager;
+import com.game.damage.Damageable;
+import com.game.damage.Damager;
 import com.game.entities.contracts.Faceable;
 import com.game.entities.contracts.Facing;
 import com.game.health.HealthComponent;
 import com.game.levels.CameraFocusable;
 import com.game.sounds.SoundComponent;
-import com.game.sounds.SoundSystem;
 import com.game.sprites.SpriteAdapter;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
@@ -38,7 +33,6 @@ import com.game.utils.objects.Timer;
 import com.game.utils.UtilMethods;
 import com.game.utils.objects.Wrapper;
 import com.game.world.BodyComponent;
-import com.game.world.BodySense;
 import com.game.world.BodyType;
 import com.game.world.Fixture;
 import lombok.Getter;
@@ -48,21 +42,31 @@ import java.util.*;
 import java.util.function.Supplier;
 
 import static com.game.ConstVals.SoundAssets.*;
-import static com.game.ConstVals.TextureAssets.MEGAMAN_TEXTURE_ATLAS;
-import static com.game.ConstVals.TextureAssets.OBJECTS_TEXTURE_ATLAS;
+import static com.game.ConstVals.TextureAssets.*;
 import static com.game.ConstVals.ViewVals.PPM;
 import static com.game.behaviors.BehaviorType.*;
+import static com.game.controllers.ControllerButton.*;
 import static com.game.entities.contracts.Facing.*;
+import static com.game.tests.entities.TestPlayer.AButtonTask.*;
+import static com.game.tests.entities.TestPlayer.TestPlayerWeapon.*;
 import static com.game.utils.enums.Position.*;
+import static com.game.world.BodySense.*;
 import static com.game.world.FixtureType.*;
+import static com.game.world.FixtureType.LEFT;
+import static com.game.world.FixtureType.RIGHT;
 
 @Getter
 @Setter
-public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusable {
+public class TestPlayer extends Entity implements Damageable, Faceable, CameraFocusable {
 
     public enum AButtonTask {
         JUMP,
         AIR_DASH
+    }
+
+    public enum TestPlayerWeapon {
+        MEGA_BUSTER,
+        FIRE
     }
 
     private static final float EXPLOSION_ORB_SPEED = 3.5f;
@@ -71,7 +75,6 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
     private final IAssetLoader assetLoader;
     private final IMessageDispatcher messageDispatcher;
     private final IEntitiesAndSystemsManager entitiesAndSystemsManager;
-    private final Map<Class<? extends Component>, Component> components = new HashMap<>();
     private final Set<Class<? extends Damager>> damagerMaskSet = Set.of(
             TestDamager.class, TestBullet.class, TestChargedShot.class, TestMet.class, TestSniperJoe.class,
             TestSuctionRoller.class, TestFloatingCan.class);
@@ -85,14 +88,19 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
     private final Timer damageRecoveryBlinkTimer = new Timer(.05f);
     private final Timer damageTimer = new Timer(.75f);
     private final Music music;
-    private boolean dead;
+
+    private final Map<TestPlayerWeapon, Map<String, TimedAnimation>> weaponToAnimationsMap =
+            new EnumMap<>(TestPlayerWeapon.class);
+    private TestPlayerWeapon currentWeapon;
+
     private boolean isCharging;
     private boolean recoveryBlink;
     private Facing facing = F_RIGHT;
-    private AButtonTask aButtonTask = AButtonTask.JUMP;
+    private AButtonTask aButtonTask = JUMP;
 
     public TestPlayer(Vector2 spawn, Music music, IController controller, IAssetLoader assetLoader,
                       IMessageDispatcher messageDispatcher, IEntitiesAndSystemsManager entitiesAndSystemsManager) {
+        this.currentWeapon = MEGA_BUSTER;
         this.music = music;
         this.controller = controller;
         this.assetLoader = assetLoader;
@@ -106,7 +114,7 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
         addComponent(defineBodyComponent(spawn));
         addComponent(defineDebugComponent());
         addComponent(defineSpriteComponent());
-        addComponent(defineAnimationComponent(assetLoader.getAsset(MEGAMAN_TEXTURE_ATLAS, TextureAtlas.class)));
+        addComponent(defineAnimationComponent());
         damageTimer.setToEnd();
         shootCoolDownTimer.setToEnd();
         shootAnimationTimer.setToEnd();
@@ -153,7 +161,7 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
                 facing == F_LEFT ? -12.5f : 12.5f, 1f);
         if (getComponent(BehaviorComponent.class).is(WALL_SLIDING)) {
             spawn.y += 3.5f;
-        } else if (!getComponent(BodyComponent.class).is(BodySense.FEET_ON_GROUND)) {
+        } else if (!getComponent(BodyComponent.class).is(FEET_ON_GROUND)) {
             spawn.y += 4.5f;
         }
         if (megaBusterChargingTimer.isFinished()) {
@@ -196,6 +204,9 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
 
     private UpdatableComponent defineUpdatableComponent() {
         return new UpdatableComponent(delta -> {
+            if (megaBusterChargingTimer.isJustFinished()) {
+                getComponent(SoundComponent.class).requestSound(MEGA_BUSTER_CHARGING_SOUND, true, .5f);
+            }
             damageTimer.update(delta);
             if (isDamaged()) {
                 megaBusterChargingTimer.reset();
@@ -225,7 +236,7 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
 
     private ControllerComponent defineControllerComponent() {
         ControllerComponent controllerComponent = new ControllerComponent();
-        controllerComponent.addControllerAdapter(ControllerButton.LEFT, new ControllerAdapter() {
+        controllerComponent.addControllerAdapter(DPAD_LEFT, new ControllerAdapter() {
 
             @Override
             public void onPressContinued(float delta) {
@@ -249,7 +260,7 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
             }
 
         });
-        controllerComponent.addControllerAdapter(ControllerButton.RIGHT, new ControllerAdapter() {
+        controllerComponent.addControllerAdapter(DPAD_RIGHT, new ControllerAdapter() {
 
             @Override
             public void onPressContinued(float delta) {
@@ -274,7 +285,7 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
 
 
         });
-        controllerComponent.addControllerAdapter(ControllerButton.X, new ControllerAdapter() {
+        controllerComponent.addControllerAdapter(X, new ControllerAdapter() {
 
             @Override
             public void onPressContinued(float delta) {
@@ -283,9 +294,6 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
                     return;
                 }
                 megaBusterChargingTimer.update(delta);
-                if (megaBusterChargingTimer.isJustFinished()) {
-                    getComponent(SoundComponent.class).requestSound(MEGA_BUSTER_CHARGING_SOUND, true);
-                }
             }
 
             @Override
@@ -312,17 +320,15 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
                     return false;
                 }
                 BodyComponent bodyComponent = getComponent(BodyComponent.class);
-                return wallJumpImpetusTimer.isFinished() && !bodyComponent.is(BodySense.FEET_ON_GROUND) &&
-                        ((bodyComponent.is(BodySense.TOUCHING_WALL_SLIDE_LEFT) &&
-                                controller.isPressed(ControllerButton.LEFT)) ||
-                                (bodyComponent.is(BodySense.TOUCHING_WALL_SLIDE_RIGHT) &&
-                                        controller.isPressed(ControllerButton.RIGHT)));
+                return wallJumpImpetusTimer.isFinished() && !bodyComponent.is(FEET_ON_GROUND) &&
+                        ((bodyComponent.is(TOUCHING_WALL_SLIDE_LEFT) && controller.isPressed(DPAD_LEFT)) ||
+                                (bodyComponent.is(TOUCHING_WALL_SLIDE_RIGHT) && controller.isPressed(DPAD_RIGHT)));
             }
 
             @Override
             protected void init() {
                 behaviorComponent.setIs(WALL_SLIDING);
-                setAButtonTask(AButtonTask.JUMP);
+                setAButtonTask(JUMP);
             }
 
             @Override
@@ -333,7 +339,7 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
             @Override
             protected void end() {
                 behaviorComponent.setIsNot(WALL_SLIDING);
-                setAButtonTask(AButtonTask.AIR_DASH);
+                setAButtonTask(AIR_DASH);
             }
 
         };
@@ -344,16 +350,16 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
             @Override
             protected boolean evaluate(float delta) {
                 BodyComponent bodyComponent = getComponent(BodyComponent.class);
-                if (isDamaged() || controller.isPressed(ControllerButton.DOWN) ||
-                        bodyComponent.is(BodySense.HEAD_TOUCHING_BLOCK)) {
+                if (isDamaged() || controller.isPressed(DPAD_DOWN) ||
+                        bodyComponent.is(HEAD_TOUCHING_BLOCK)) {
                     return false;
                 }
                 return behaviorComponent.is(JUMPING) ?
                         // case 1
-                        bodyComponent.getVelocity().y > 0f && controller.isPressed(ControllerButton.A) :
+                        bodyComponent.getVelocity().y > 0f && controller.isPressed(A) :
                         // case 2
-                        aButtonTask == AButtonTask.JUMP && controller.isJustPressed(ControllerButton.A) &&
-                                (bodyComponent.is(BodySense.FEET_ON_GROUND) || behaviorComponent.is(WALL_SLIDING));
+                        aButtonTask == JUMP && controller.isJustPressed(A) &&
+                                (bodyComponent.is(FEET_ON_GROUND) || behaviorComponent.is(WALL_SLIDING));
             }
 
             @Override
@@ -385,20 +391,20 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
             @Override
             protected boolean evaluate(float delta) {
                 if (isDamaged() || behaviorComponent.is(WALL_SLIDING) ||
-                        getComponent(BodyComponent.class).is(BodySense.FEET_ON_GROUND) ||
+                        getComponent(BodyComponent.class).is(FEET_ON_GROUND) ||
                         airDashTimer.isFinished()) {
                     return false;
                 }
-                return behaviorComponent.is(AIR_DASHING) ? controller.isPressed(ControllerButton.A) :
-                        controller.isJustPressed(ControllerButton.A) && getAButtonTask() == AButtonTask.AIR_DASH;
+                return behaviorComponent.is(AIR_DASHING) ? controller.isPressed(A) :
+                        controller.isJustPressed(A) && getAButtonTask() == AIR_DASH;
             }
 
             @Override
             protected void init() {
-                Gdx.audio.newSound(Gdx.files.internal("sounds/Whoosh.mp3")).play();
+                getComponent(SoundComponent.class).requestSound(WHOOSH_SOUND, false);
                 getComponent(BodyComponent.class).setGravityOn(false);
-                behaviorComponent.setIs(BehaviorType.AIR_DASHING);
-                setAButtonTask(AButtonTask.JUMP);
+                behaviorComponent.setIs(AIR_DASHING);
+                setAButtonTask(JUMP);
             }
 
             @Override
@@ -406,8 +412,8 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
                 BodyComponent bodyComponent = getComponent(BodyComponent.class);
                 airDashTimer.update(delta);
                 bodyComponent.setVelocityY(0f);
-                if ((isFacing(F_LEFT) && bodyComponent.is(BodySense.TOUCHING_BLOCK_LEFT)) ||
-                        (isFacing(F_RIGHT) && bodyComponent.is(BodySense.TOUCHING_BLOCK_RIGHT))) {
+                if ((isFacing(F_LEFT) && bodyComponent.is(TOUCHING_BLOCK_LEFT)) ||
+                        (isFacing(F_RIGHT) && bodyComponent.is(TOUCHING_BLOCK_RIGHT))) {
                     return;
                 }
                 float x = 12f * PPM;
@@ -422,7 +428,7 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
                 BodyComponent bodyComponent = getComponent(BodyComponent.class);
                 airDashTimer.reset();
                 bodyComponent.setGravityOn(true);
-                behaviorComponent.setIsNot(BehaviorType.AIR_DASHING);
+                behaviorComponent.setIsNot(AIR_DASHING);
                 if (isFacing(F_LEFT)) {
                     bodyComponent.applyImpulse(-5f * PPM, 0f);
                 } else {
@@ -437,34 +443,32 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
             @Override
             protected boolean evaluate(float delta) {
                 BodyComponent bodyComponent = getComponent(BodyComponent.class);
-                if (behaviorComponent.is(BehaviorType.GROUND_SLIDING) &&
-                        bodyComponent.is(BodySense.HEAD_TOUCHING_BLOCK)) {
+                if (behaviorComponent.is(GROUND_SLIDING) && bodyComponent.is(HEAD_TOUCHING_BLOCK)) {
                     return true;
                 }
-                if (isDamaged() || !bodyComponent.is(BodySense.FEET_ON_GROUND) || groundSlideTimer.isFinished()) {
+                if (isDamaged() || !bodyComponent.is(FEET_ON_GROUND) || groundSlideTimer.isFinished()) {
                     return false;
                 }
-                if (!behaviorComponent.is(BehaviorType.GROUND_SLIDING)) {
-                    return controller.isPressed(ControllerButton.DOWN) &&
-                            controller.isJustPressed(ControllerButton.A);
+                if (!behaviorComponent.is(GROUND_SLIDING)) {
+                    return controller.isPressed(DPAD_DOWN) &&
+                            controller.isJustPressed(A);
                 } else {
-                    return controller.isPressed(ControllerButton.DOWN) &&
-                            controller.isPressed(ControllerButton.A);
+                    return controller.isPressed(DPAD_DOWN) &&
+                            controller.isPressed(A);
                 }
             }
 
             @Override
             protected void init() {
-                behaviorComponent.setIs(BehaviorType.GROUND_SLIDING);
+                behaviorComponent.setIs(GROUND_SLIDING);
             }
 
             @Override
             protected void act(float delta) {
                 BodyComponent bodyComponent = getComponent(BodyComponent.class);
                 groundSlideTimer.update(delta);
-                if (isDamaged() ||
-                        (isFacing(F_LEFT) && bodyComponent.is(BodySense.TOUCHING_BLOCK_LEFT)) ||
-                        (isFacing(F_RIGHT) && bodyComponent.is(BodySense.TOUCHING_BLOCK_RIGHT))) {
+                if (isDamaged() || (isFacing(F_LEFT) && bodyComponent.is(TOUCHING_BLOCK_LEFT)) ||
+                        (isFacing(F_RIGHT) && bodyComponent.is(TOUCHING_BLOCK_RIGHT))) {
                     return;
                 }
                 float x = 12f * PPM;
@@ -478,7 +482,7 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
             protected void end() {
                 BodyComponent bodyComponent = getComponent(BodyComponent.class);
                 groundSlideTimer.reset();
-                behaviorComponent.setIsNot(BehaviorType.GROUND_SLIDING);
+                behaviorComponent.setIsNot(GROUND_SLIDING);
                 if (isFacing(F_LEFT)) {
                     bodyComponent.applyImpulse(-5f * PPM, 0f);
                 } else {
@@ -514,7 +518,7 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
         hitBox.setDebugColor(Color.RED);
         bodyComponent.addFixture(hitBox);
         bodyComponent.setPreProcess(delta -> {
-            hitBox.setOffset(0f, bodyComponent.is(BodySense.FEET_ON_GROUND) ? 0f : 4f);
+            hitBox.setOffset(0f, bodyComponent.is(FEET_ON_GROUND) ? 0f : 4f);
             BehaviorComponent behaviorComponent = getComponent(BehaviorComponent.class);
             if (behaviorComponent.is(GROUND_SLIDING)) {
                 bodyComponent.setHeight(.45f * PPM);
@@ -546,7 +550,6 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
         sprite.setSize(1.65f * PPM, 1.35f * PPM);
         return new SpriteComponent(sprite, new SpriteAdapter() {
 
-
             @Override
             public boolean setPositioning(Wrapper<Rectangle> bounds, Wrapper<Position> position) {
                 bounds.setData(getComponent(BodyComponent.class).getCollisionBox());
@@ -572,7 +575,7 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
         });
     }
 
-    private AnimationComponent defineAnimationComponent(TextureAtlas textureAtlas) {
+    private AnimationComponent defineAnimationComponent() {
         Supplier<String> keySupplier = () -> {
             BodyComponent bodyComponent = getComponent(BodyComponent.class);
             BehaviorComponent behaviorComponent = getComponent(BehaviorComponent.class);
@@ -590,7 +593,7 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
                 } else {
                     return "WallSlide";
                 }
-            } else if (behaviorComponent.is(JUMPING) || !bodyComponent.is(BodySense.FEET_ON_GROUND)) {
+            } else if (behaviorComponent.is(JUMPING) || !bodyComponent.is(FEET_ON_GROUND)) {
                 if (isShooting()) {
                     return "JumpShoot";
                 } else if (isCharging()) {
@@ -598,7 +601,7 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
                 } else {
                     return "Jump";
                 }
-            } else if (bodyComponent.is(BodySense.FEET_ON_GROUND) && behaviorComponent.is(RUNNING)) {
+            } else if (bodyComponent.is(FEET_ON_GROUND) && behaviorComponent.is(RUNNING)) {
                 if (isShooting()) {
                     return "RunShoot";
                 } else if (isCharging()) {
@@ -614,7 +617,7 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
                 } else {
                     return "Climb";
                 }
-            } else if (bodyComponent.is(BodySense.FEET_ON_GROUND) && Math.abs(bodyComponent.getVelocity().x) > 3f) {
+            } else if (bodyComponent.is(FEET_ON_GROUND) && Math.abs(bodyComponent.getVelocity().x) > 3f) {
                 if (isShooting()) {
                     return "SlipSlideShoot";
                 } else if (isCharging()) {
@@ -632,33 +635,45 @@ public class TestPlayer implements IEntity, Damageable, Faceable, CameraFocusabl
                 }
             }
         };
-        Map<String, TimedAnimation> animations = new HashMap<>();
-        animations.put("Climb", new TimedAnimation(textureAtlas.findRegion("Climb"), 2, .125f));
-        animations.put("ClimbShoot", new TimedAnimation(textureAtlas.findRegion("ClimbShoot")));
-        animations.put("ClimbCharging", new TimedAnimation(textureAtlas.findRegion("ClimbCharging"), 2, .125f));
-        animations.put("Stand", new TimedAnimation(textureAtlas.findRegion("Stand"), new float[]{1.5f, .15f}));
-        animations.put("StandCharging", new TimedAnimation(textureAtlas.findRegion("StandCharging"), 2, .125f));
-        animations.put("StandShoot", new TimedAnimation(textureAtlas.findRegion("StandShoot")));
-        animations.put("Damaged", new TimedAnimation(textureAtlas.findRegion("Damaged"), 3, .05f));
-        animations.put("LayDownDamaged", new TimedAnimation(textureAtlas.findRegion("LayDownDamaged"), 3, .05f));
-        animations.put("Run", new TimedAnimation(textureAtlas.findRegion("Run"), 4, .125f));
-        animations.put("RunCharging", new TimedAnimation(textureAtlas.findRegion("RunCharging"), 4, .125f));
-        animations.put("RunShoot", new TimedAnimation(textureAtlas.findRegion("RunShoot"), 4, .125f));
-        animations.put("Jump", new TimedAnimation(textureAtlas.findRegion("Jump")));
-        animations.put("JumpCharging", new TimedAnimation(textureAtlas.findRegion("JumpCharging"), 2, .125f));
-        animations.put("JumpShoot", new TimedAnimation(textureAtlas.findRegion("JumpShoot")));
-        animations.put("WallSlide", new TimedAnimation(textureAtlas.findRegion("WallSlide")));
-        animations.put("WallSlideCharging", new TimedAnimation(textureAtlas.findRegion("WallSlideCharging"), 2, .125f));
-        animations.put("WallSlideShoot", new TimedAnimation(textureAtlas.findRegion("WallSlideShoot")));
-        animations.put("GroundSlide", new TimedAnimation(textureAtlas.findRegion("GroundSlide")));
-        animations.put("GroundSlideCharging", new TimedAnimation(
-                textureAtlas.findRegion("GroundSlideCharging"), 2, .125f));
-        animations.put("AirDash", new TimedAnimation(textureAtlas.findRegion("AirDash")));
-        animations.put("AirDashCharging", new TimedAnimation(textureAtlas.findRegion("AirDashCharging"), 2, .125f));
-        animations.put("SlipSlide", new TimedAnimation(textureAtlas.findRegion("SlipSlide")));
-        animations.put("SlipSlideCharging", new TimedAnimation(textureAtlas.findRegion("SlipSlideCharging"), 2, .125f));
-        animations.put("SlipSlideShoot", new TimedAnimation(textureAtlas.findRegion("SlipSlideShoot")));
-        return new AnimationComponent(keySupplier, animations);
+        for (TestPlayerWeapon weapon : TestPlayerWeapon.values()) {
+            String textureAtlasKey;
+            switch (weapon) {
+                case MEGA_BUSTER -> textureAtlasKey = MEGAMAN_TEXTURE_ATLAS;
+                case FIRE -> textureAtlasKey = MEGAMAN_FIRE_TEXTURE_ATLAS;
+                default -> throw new IllegalStateException();
+            }
+            TextureAtlas textureAtlas = assetLoader.getAsset(textureAtlasKey, TextureAtlas.class);
+            Map<String, TimedAnimation> animations = new HashMap<>();
+            animations.put("Climb", new TimedAnimation(textureAtlas.findRegion("Climb"), 2, .125f));
+            animations.put("ClimbShoot", new TimedAnimation(textureAtlas.findRegion("ClimbShoot")));
+            animations.put("ClimbCharging", new TimedAnimation(textureAtlas.findRegion("ClimbCharging"), 2, .125f));
+            animations.put("Stand", new TimedAnimation(textureAtlas.findRegion("Stand"), new float[]{1.5f, .15f}));
+            animations.put("StandCharging", new TimedAnimation(textureAtlas.findRegion("StandCharging"), 2, .125f));
+            animations.put("StandShoot", new TimedAnimation(textureAtlas.findRegion("StandShoot")));
+            animations.put("Damaged", new TimedAnimation(textureAtlas.findRegion("Damaged"), 3, .05f));
+            animations.put("LayDownDamaged", new TimedAnimation(textureAtlas.findRegion("LayDownDamaged"), 3, .05f));
+            animations.put("Run", new TimedAnimation(textureAtlas.findRegion("Run"), 4, .125f));
+            animations.put("RunCharging", new TimedAnimation(textureAtlas.findRegion("RunCharging"), 4, .125f));
+            animations.put("RunShoot", new TimedAnimation(textureAtlas.findRegion("RunShoot"), 4, .125f));
+            animations.put("Jump", new TimedAnimation(textureAtlas.findRegion("Jump")));
+            animations.put("JumpCharging", new TimedAnimation(textureAtlas.findRegion("JumpCharging"), 2, .125f));
+            animations.put("JumpShoot", new TimedAnimation(textureAtlas.findRegion("JumpShoot")));
+            animations.put("WallSlide", new TimedAnimation(textureAtlas.findRegion("WallSlide")));
+            animations.put("WallSlideCharging", new TimedAnimation(
+                    textureAtlas.findRegion("WallSlideCharging"), 2, .125f));
+            animations.put("WallSlideShoot", new TimedAnimation(textureAtlas.findRegion("WallSlideShoot")));
+            animations.put("GroundSlide", new TimedAnimation(textureAtlas.findRegion("GroundSlide")));
+            animations.put("GroundSlideCharging", new TimedAnimation(
+                    textureAtlas.findRegion("GroundSlideCharging"), 2, .125f));
+            animations.put("AirDash", new TimedAnimation(textureAtlas.findRegion("AirDash")));
+            animations.put("AirDashCharging", new TimedAnimation(textureAtlas.findRegion("AirDashCharging"), 2, .125f));
+            animations.put("SlipSlide", new TimedAnimation(textureAtlas.findRegion("SlipSlide")));
+            animations.put("SlipSlideCharging", new TimedAnimation(
+                    textureAtlas.findRegion("SlipSlideCharging"), 2, .125f));
+            animations.put("SlipSlideShoot", new TimedAnimation(textureAtlas.findRegion("SlipSlideShoot")));
+            weaponToAnimationsMap.put(weapon, animations);
+        }
+        return new AnimationComponent(keySupplier, key -> weaponToAnimationsMap.get(currentWeapon).get(key));
     }
 
 }

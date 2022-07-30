@@ -15,6 +15,24 @@ import com.game.utils.interfaces.Positional;
 public class UtilMethods {
 
     /**
+     * Returns the number bounded between min and max.
+     *
+     * @param number the number
+     * @param min the min
+     * @param max the max
+     * @return the bounded number
+     * @param <T> the number type
+     */
+    public static <T extends Number & Comparable<T>> T boundNumber(T number, T min, T max) {
+        if (number.compareTo(min) < 0) {
+            number = min;
+        } else if (number.compareTo(max) > 0) {
+            number = max;
+        }
+        return number;
+    }
+
+    /**
      * Returns true if the test object is equal to any of the following supplied objects.
      *
      * @param test the test object

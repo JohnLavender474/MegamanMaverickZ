@@ -67,13 +67,13 @@ public abstract class MenuScreen extends ScreenAdapter {
                     gameContext.isJustPressed(ControllerButton.START)) {
                 menuButton.onSelect(delta);
             }
-            if (gameContext.isJustPressed(ControllerButton.UP)) {
+            if (gameContext.isJustPressed(ControllerButton.DPAD_UP)) {
                 menuButton.onNavigate(Direction.DIR_UP, delta);
-            } else if (gameContext.isJustPressed(ControllerButton.DOWN)) {
+            } else if (gameContext.isJustPressed(ControllerButton.DPAD_DOWN)) {
                 menuButton.onNavigate(Direction.DIR_DOWN, delta);
-            } else if (gameContext.isJustPressed(ControllerButton.LEFT)) {
+            } else if (gameContext.isJustPressed(ControllerButton.DPAD_LEFT)) {
                 menuButton.onNavigate(Direction.DIR_LEFT, delta);
-            } else if (gameContext.isJustPressed(ControllerButton.RIGHT)) {
+            } else if (gameContext.isJustPressed(ControllerButton.DPAD_RIGHT)) {
                 menuButton.onNavigate(Direction.DIR_RIGHT, delta);
             }
         }

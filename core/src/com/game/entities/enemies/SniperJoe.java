@@ -111,7 +111,7 @@ public class SniperJoe extends AbstractEnemy implements Faceable {
         Map<String, TimedAnimation> timedAnimations = Map.of(
             "Shooting", new TimedAnimation(textureAtlas.findRegion("SniperJoe/SniperJoeShooting")),
             "Shielded", new TimedAnimation(textureAtlas.findRegion("SniperJoe/SniperJoeShielded")));
-        return new AnimationComponent(keySupplier, timedAnimations);
+        return new AnimationComponent(keySupplier, timedAnimations::get);
     }
 
     private BodyComponent defineBodyComponent(Vector2 spawn) {

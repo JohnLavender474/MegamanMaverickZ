@@ -10,10 +10,10 @@ import static com.game.controllers.ControllerUtils.isControllerConnected;
  * <p>
  * The default equivalent keyboard bindings:
  * {@link #START}: Space bar
- * {@link #UP}: W
- * {@link #DOWN}: S
- * {@link #LEFT}: A
- * {@link #RIGHT}: D
+ * {@link #DPAD_UP}: W
+ * {@link #DPAD_DOWN}: S
+ * {@link #DPAD_LEFT}: A
+ * {@link #DPAD_RIGHT}: D
  * {@link #A}: K
  * {@link #X}: J
  */
@@ -32,7 +32,7 @@ public enum ControllerButton {
         }
     },
 
-    UP {
+    DPAD_UP {
         @Override
         public Integer getKeyboardBindingCode() {
             return Keys.UP;
@@ -44,7 +44,7 @@ public enum ControllerButton {
         }
     },
 
-    DOWN {
+    DPAD_DOWN {
         @Override
         public Integer getKeyboardBindingCode() {
             return Keys.DOWN;
@@ -56,7 +56,7 @@ public enum ControllerButton {
         }
     },
 
-    LEFT {
+    DPAD_LEFT {
         @Override
         public Integer getKeyboardBindingCode() {
             return Keys.LEFT;
@@ -68,7 +68,7 @@ public enum ControllerButton {
         }
     },
 
-    RIGHT {
+    DPAD_RIGHT {
         @Override
         public Integer getKeyboardBindingCode() {
             return Keys.RIGHT;

@@ -14,6 +14,8 @@ import com.game.core.IEntitiesAndSystemsManager;
 import com.game.core.IEntity;
 import com.game.cull.CullOnCamTransComponent;
 import com.game.cull.CullOutOfCamBoundsComponent;
+import com.game.damage.Damageable;
+import com.game.damage.Damager;
 import com.game.debugging.DebugRectComponent;
 import com.game.entities.contracts.*;
 import com.game.sprites.SpriteAdapter;

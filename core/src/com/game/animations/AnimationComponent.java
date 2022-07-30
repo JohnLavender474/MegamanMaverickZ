@@ -5,14 +5,15 @@ import com.game.Component;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 @RequiredArgsConstructor
 public class AnimationComponent implements Component {
 
     private final Supplier<String> animationKeySupplier;
-    private final Map<String, TimedAnimation> animations;
+    private final Function<String, TimedAnimation> animationFunction;
+    // private final Map<String, TimedAnimation> animations;
 
     @Getter
     private String currentAnimationKey;
@@ -23,8 +24,9 @@ public class AnimationComponent implements Component {
      * @param timedAnimation the timed animation
      */
     public AnimationComponent(TimedAnimation timedAnimation) {
-        this.animations = Map.of("", timedAnimation);
+        // this.animations = Map.of("", timedAnimation);
         this.animationKeySupplier = () -> "";
+        this.animationFunction = key -> timedAnimation;
     }
 
     /**
@@ -36,14 +38,14 @@ public class AnimationComponent implements Component {
     public void animate(Sprite sprite, float delta) {
         String priorAnimationKey = currentAnimationKey;
         currentAnimationKey = animationKeySupplier.get();
-        TimedAnimation timedAnimation = animations.get(currentAnimationKey);
+        TimedAnimation timedAnimation = animationFunction.apply(currentAnimationKey); // animations.get(currentAnimationKey);
         if (timedAnimation == null) {
             return;
         }
         timedAnimation.update(delta);
         sprite.setRegion(timedAnimation.getCurrentT());
         if (priorAnimationKey != null && !currentAnimationKey.equals(priorAnimationKey)) {
-            TimedAnimation priorAnimation = animations.get(priorAnimationKey);
+            TimedAnimation priorAnimation = animationFunction.apply(priorAnimationKey); // animations.get(priorAnimationKey);
             priorAnimation.reset();
         }
     }

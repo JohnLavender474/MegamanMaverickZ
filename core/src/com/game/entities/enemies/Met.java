@@ -201,7 +201,7 @@ public class Met extends AbstractEnemy implements Faceable {
             put("RunNaked", new TimedAnimation(textureAtlas.findRegion("RunNaked"), 2, .1f));
             put("LayDown", new TimedAnimation(textureAtlas.findRegion("LayDown")));
         }};
-        return new AnimationComponent(keySupplier, timedAnimations);
+        return new AnimationComponent(keySupplier, timedAnimations::get);
     }
 
 }

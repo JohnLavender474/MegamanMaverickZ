@@ -6,10 +6,7 @@ import com.game.System;
 import com.game.core.IAssetLoader;
 import com.game.core.IEntity;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class SoundSystem extends System {
 
@@ -30,26 +27,26 @@ public class SoundSystem extends System {
     @Override
     protected void processEntity(IEntity entity, float delta) {
         SoundComponent soundComponent = entity.getComponent(SoundComponent.class);
-        Iterator<Map.Entry<String, Boolean>> soundRequestIter = soundComponent.getSoundRequests().entrySet().iterator();
-        while (soundRequestIter.hasNext()) {
-            Map.Entry<String, Boolean> soundRequest = soundRequestIter.next();
-            Sound sound = assetLoader.getAsset(soundRequest.getKey(), Sound.class);
-            if (soundRequest.getValue() && !loopingSounds.containsKey(soundRequest.getKey())) {
-                sound.loop();
-                loopingSounds.put(soundRequest.getKey(), sound);
+        Queue<SoundRequest> soundRequests = soundComponent.getSoundRequests();
+        while (!soundRequests.isEmpty()) {
+            SoundRequest soundRequest = soundRequests.poll();
+            Sound sound = assetLoader.getAsset(soundRequest.request(), Sound.class);
+            long id;
+            if (soundRequest.loop() && !loopingSounds.containsKey(soundRequest.request())) {
+                id = sound.loop();
+                loopingSounds.put(soundRequest.request(), sound);
             } else {
-                sound.play();
+                id = sound.play();
             }
-            soundRequestIter.remove();
+            sound.setVolume(id, soundRequest.volume());
         }
-        Iterator<String> stopLoopingSoundRequestIter = soundComponent.getStopLoopingSoundRequests().iterator();
-        while (stopLoopingSoundRequestIter.hasNext()) {
-            String stopLoopingSoundRequest = stopLoopingSoundRequestIter.next();
+        Queue<String> stopLoopingSoundRequests = soundComponent.getStopLoopingSoundRequests();
+        while (!stopLoopingSoundRequests.isEmpty()) {
+            String stopLoopingSoundRequest = stopLoopingSoundRequests.poll();
             Sound sound = loopingSounds.remove(stopLoopingSoundRequest);
             if (sound != null) {
                 sound.stop();
             }
-            stopLoopingSoundRequestIter.remove();
         }
         if (stopAllLoopingSounds) {
             loopingSounds.values().forEach(Sound::stop);

@@ -33,6 +33,7 @@ public class ConstVals {
 
     public static class MegamanVals {
         public static final String MEGAMAN_STATS = "MegamanStats";
+        public static final Integer MEGAMAN_MAX_HEALTH = 30;
     }
 
     public static class WorldVals {
@@ -54,6 +55,7 @@ public class ConstVals {
         public static final String ITEMS_TEXTURE_ATLAS = "sprites/SpriteSheets/Items.txt";
         public static final String BACKGROUNDS_1_TEXTURE_ATLAS = "sprites/SpriteSheets/Backgrounds1.txt";
         public static final String MEGAMAN_TEXTURE_ATLAS = "sprites/SpriteSheets/Megaman.txt";
+        public static final String MEGAMAN_FIRE_TEXTURE_ATLAS = "sprites/SpriteSheets/MegamanFire.txt";
         public static final String CHARGE_ORBS_TEXTURE_ATLAS = "sprites/SpriteSheets/ChargeOrbs.txt";
         public static final String MEGAMAN_CHARGED_SHOT_TEXTURE_ATLAS = "sprites/SpriteSheets/MegamanChargedShot.txt";
         public static final String ELECTRIC_BALL_TEXTURE_ATLAS = "sprites/SpriteSheets/ElectricBall.txt";
