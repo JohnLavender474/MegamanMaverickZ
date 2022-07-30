@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.game.GameContext2d;
 import com.game.core.IEntity;
 import com.game.entities.contracts.Facing;
+import com.game.entities.enemies.AbstractEnemy;
 import com.game.utils.objects.Timer;
 import com.game.world.BodyComponent;
 import com.game.world.BodyType;
@@ -25,7 +26,13 @@ public class Fireball extends AbstractProjectile {
 
     @Override
     public void hit(Fixture fixture) {
-
+        if (fixture.getEntity().equals(owner) || (owner instanceof AbstractEnemy &&
+                fixture.getEntity() instanceof AbstractEnemy)) {
+            return;
+        }
+        if (fixture.getFixtureType().equals(FixtureType.BLOCK)) {
+            isLanded = true;
+        }
     }
 
     private BodyComponent defineBodyComponent(Vector2 spawn, boolean isRight) {
