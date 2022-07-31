@@ -12,20 +12,23 @@ import java.util.function.Supplier;
 @Setter
 public class CullOnCamTransSystem extends System {
 
-    private final Supplier<ProcessState> transitionState;
-
+    private Supplier<ProcessState> transitionStateSupplier;
     private Updatable onContinue;
     private Runnable onBegin;
     private Runnable onEnd;
 
-    public CullOnCamTransSystem(Supplier<ProcessState> transitionState) {
+    public CullOnCamTransSystem() {
+        this(null);
+    }
+
+    public CullOnCamTransSystem(Supplier<ProcessState> transitionStateSupplier) {
         super(Set.of(CullOnCamTransComponent.class));
-        this.transitionState = transitionState;
+        this.transitionStateSupplier = transitionStateSupplier;
     }
 
     @Override
     public void update(float delta) {
-        if (transitionState.get() == null) {
+        if (transitionStateSupplier.get() == null) {
             return;
         }
         super.update(delta);
@@ -38,7 +41,7 @@ public class CullOnCamTransSystem extends System {
 
     @Override
     public void postProcess(float delta) {
-        switch (transitionState.get()) {
+        switch (transitionStateSupplier.get()) {
             case CONTINUE -> {
                 if (onContinue != null) {
                     onContinue.update(delta);

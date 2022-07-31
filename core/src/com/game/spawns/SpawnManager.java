@@ -12,17 +12,17 @@ import static com.game.utils.UtilMethods.rectToBBox;
 
 @Getter
 @RequiredArgsConstructor
-public class EntitySpawnManager {
+public class SpawnManager {
 
     private final Camera camera;
     private final Collection<Rectangle> playerSpawns;
-    private final Collection<EntitySpawn> entitySpawns;
+    private final Collection<Spawn> spawns;
 
     @Setter
     private Rectangle currentPlayerSpawn;
 
     public void update() {
-        entitySpawns.forEach(spawn -> spawn.update(camera));
+        spawns.forEach(spawn -> spawn.update(camera));
         playerSpawns.stream().filter(playerSpawn -> camera.frustum.boundsInFrustum(rectToBBox(playerSpawn)))
                 .findFirst().ifPresent(this::setCurrentPlayerSpawn);
     }

@@ -20,18 +20,22 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.game.ConstVals.GameScreen;
 import com.game.ConstVals.MegamanVals;
 import com.game.ConstVals.RenderingGround;
-import com.game.ConstVals.WorldVals;
 import com.game.animations.AnimationSystem;
 import com.game.behaviors.BehaviorSystem;
 import com.game.controllers.ButtonStatus;
 import com.game.controllers.ControllerButton;
 import com.game.controllers.ControllerSystem;
 import com.game.core.IEntity;
+import com.game.cull.CullOnCamTransSystem;
+import com.game.cull.CullOnOutOfCamBoundsSystem;
 import com.game.debugging.DebugRectSystem;
 import com.game.entities.megaman.MegamanStats;
+import com.game.graph.GraphSystem;
 import com.game.health.HealthSystem;
 import com.game.levels.LevelScreen;
 import com.game.menus.impl.MainMenuScreen;
+import com.game.pathfinding.PathfindingSystem;
+import com.game.sounds.SoundSystem;
 import com.game.sprites.SpriteSystem;
 import com.game.trajectories.TrajectorySystem;
 import com.game.updatables.UpdatableSystem;
@@ -43,11 +47,14 @@ import lombok.Setter;
 
 import java.util.*;
 
+import static com.game.ConstVals.GameScreen.*;
 import static com.game.ConstVals.MusicAssets.*;
 import static com.game.ConstVals.RenderingGround.PLAYGROUND;
 import static com.game.ConstVals.SoundAssets.*;
 import static com.game.ConstVals.TextureAssets.*;
 import static com.game.ConstVals.ViewVals.*;
+import static com.game.ConstVals.WorldVals.*;
+import static com.game.controllers.ButtonStatus.*;
 import static com.game.controllers.ControllerUtils.*;
 
 /**
@@ -67,12 +74,14 @@ public class MegamanMaverick extends Game implements GameContext2d {
     private final Queue<Message> messageQueue = new ArrayDeque<>();
     private final List<Disposable> disposables = new ArrayList<>();
     private final Map<String, Object> blackBoard = new HashMap<>();
+    private final List<Runnable> runOnShutdown = new ArrayList<>();
     private final Set<IEntity> entities = new HashSet<>();
     private ShapeRenderer shapeRenderer;
-    private SpriteBatch spriteBatch;
     private AssetManager assetManager;
+    private SpriteBatch spriteBatch;
+
     @Setter
-    private int volume;
+    private boolean doUpdateController;
 
     @Override
     public void create() {
@@ -82,7 +91,7 @@ public class MegamanMaverick extends Game implements GameContext2d {
         }
         // controller buttons
         for (ControllerButton controllerButton : ControllerButton.values()) {
-            controllerButtons.put(controllerButton, ButtonStatus.IS_RELEASED);
+            controllerButtons.put(controllerButton, IS_RELEASED);
         }
         // rendering
         shapeRenderer = new ShapeRenderer();
@@ -93,31 +102,35 @@ public class MegamanMaverick extends Game implements GameContext2d {
         loadAssets(Music.class, MMX3_INTRO_STAGE_MUSIC, MMZ_NEO_ARCADIA_MUSIC, XENOBLADE_GAUR_PLAINS_MUSIC,
                 MMX_LEVEL_SELECT_SCREEN_MUSIC, STAGE_SELECT_MM3_MUSIC);
         loadAssets(Sound.class, SELECT_PING_SOUND, MARIO_JUMP_SOUND, CURSOR_MOVE_BLOOP_SOUND, DINK_SOUND,
-                ENEMY_BULLET_SOUND, ENEMY_DAMAGE_SOUND, MEGA_BUSTER_BULLET_SHOT_SOUND, MEGA_BUSTER_CHARGED_SHOT_SOUND
-                , ENERGY_FILL_SOUND, MEGA_BUSTER_CHARGING_SOUND, MEGAMAN_DAMAGE_SOUND, MEGAMAN_LAND_SOUND,
+                ENEMY_BULLET_SOUND, ENEMY_DAMAGE_SOUND, MEGA_BUSTER_BULLET_SHOT_SOUND, MEGA_BUSTER_CHARGED_SHOT_SOUND,
+                ENERGY_FILL_SOUND, MEGA_BUSTER_CHARGING_SOUND, MEGAMAN_DAMAGE_SOUND, MEGAMAN_LAND_SOUND,
                 MEGAMAN_DEFEAT_SOUND, WHOOSH_SOUND, THUMP_SOUND, EXPLOSION_SOUND, PAUSE_SOUND);
         loadAssets(TextureAtlas.class, CHARGE_ORBS_TEXTURE_ATLAS, OBJECTS_TEXTURE_ATLAS, MET_TEXTURE_ATLAS,
                 ENEMIES_TEXTURE_ATLAS, ITEMS_TEXTURE_ATLAS, BACKGROUNDS_1_TEXTURE_ATLAS, MEGAMAN_TEXTURE_ATLAS,
-                MEGAMAN_CHARGED_SHOT_TEXTURE_ATLAS, ELECTRIC_BALL_TEXTURE_ATLAS, DECORATIONS_TEXTURE_ATLAS,
-                BITS_ATLAS);
+                MEGAMAN_CHARGED_SHOT_TEXTURE_ATLAS, ELECTRIC_BALL_TEXTURE_ATLAS, DECORATIONS_TEXTURE_ATLAS, BITS_ATLAS);
         assetManager.finishLoading();
         // systems
+        addSystem(new GraphSystem());
         addSystem(new HealthSystem());
-        addSystem(new UpdatableSystem());
-        addSystem(new ControllerSystem(this));
-        addSystem(new WorldSystem(new WorldContactListenerImpl(), WorldVals.AIR_RESISTANCE, WorldVals.FIXED_TIME_STEP));
         addSystem(new BehaviorSystem());
-        addSystem(new TrajectorySystem());
+        addSystem(new UpdatableSystem());
         addSystem(new AnimationSystem());
-        addSystem(new SpriteSystem((OrthographicCamera) viewports.get(PLAYGROUND).getCamera(), getSpriteBatch()));
+        addSystem(new SoundSystem(this));
+        addSystem(new TrajectorySystem());
+        addSystem(new ControllerSystem(this));
+        addSystem(new CullOnCamTransSystem());
+        addSystem(new PathfindingSystem(runOnShutdown));
+        addSystem(new CullOnOutOfCamBoundsSystem(getViewport(PLAYGROUND).getCamera()));
         addSystem(new DebugRectSystem(viewports.get(PLAYGROUND).getCamera(), getShapeRenderer()));
+        addSystem(new WorldSystem(new WorldContactListenerImpl(), AIR_RESISTANCE, FIXED_TIME_STEP));
+        addSystem(new SpriteSystem((OrthographicCamera) viewports.get(PLAYGROUND).getCamera(), getSpriteBatch()));
         // blackboard
         putBlackboardObject(MegamanVals.MEGAMAN_STATS, new MegamanStats());
         // define screens
-        putScreen(GameScreen.MAIN_MENU, new MainMenuScreen(this));
-        putScreen(GameScreen.TEST_LEVEL_1, new LevelScreen(this, "tiledmaps/tmx/test1.tmx", MMX3_INTRO_STAGE_MUSIC));
+        screens.put(MAIN_MENU, new MainMenuScreen(this));
+        screens.put(TEST_LEVEL_1, new LevelScreen(this, "tiledmaps/tmx/test1.tmx", MMX3_INTRO_STAGE_MUSIC));
         // set screen
-        setScreen(GameScreen.TEST_LEVEL_1);
+        setScreen(MAIN_MENU);
     }
 
     private <S> void loadAssets(Class<S> sClass, String... sources) {
@@ -213,25 +226,32 @@ public class MegamanMaverick extends Game implements GameContext2d {
     }
 
     @Override
-    public void putScreen(GameScreen key, Screen screen) {
-        screens.put(key, screen);
+    public void setScreen(Screen screen) {
+        if (this.screen != null) {
+            this.screen.dispose();
+        }
+        this.screen = screen;
+        if (this.screen != null) {
+            this.screen.show();
+            this.screen.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        }
     }
 
     @Override
     public boolean isJustPressed(ControllerButton controllerButton) {
-        return controllerButtons.get(controllerButton) == ButtonStatus.IS_JUST_PRESSED;
+        return controllerButtons.get(controllerButton) == IS_JUST_PRESSED;
     }
 
     @Override
     public boolean isPressed(ControllerButton controllerButton) {
         ButtonStatus buttonStatus = controllerButtons.get(controllerButton);
-        return buttonStatus == ButtonStatus.IS_JUST_PRESSED ||
-                buttonStatus == ButtonStatus.IS_PRESSED;
+        return buttonStatus == IS_JUST_PRESSED ||
+                buttonStatus == IS_PRESSED;
     }
 
     @Override
     public boolean isJustReleased(ControllerButton controllerButton) {
-        return controllerButtons.get(controllerButton) == ButtonStatus.IS_JUST_RELEASED;
+        return controllerButtons.get(controllerButton) == IS_JUST_RELEASED;
     }
 
     @Override
@@ -242,19 +262,22 @@ public class MegamanMaverick extends Game implements GameContext2d {
                     isControllerButtonPressed(controllerButton.getControllerBindingCode()) :
                     isKeyboardButtonPressed(controllerButton.getKeyboardBindingCode());
             if (isControllerButtonPressed) {
-                if (status == ButtonStatus.IS_RELEASED ||
-                        status == ButtonStatus.IS_JUST_RELEASED) {
-                    controllerButtons.replace(controllerButton, ButtonStatus.IS_JUST_PRESSED);
+                if (status == IS_RELEASED || status == IS_JUST_RELEASED) {
+                    controllerButtons.replace(controllerButton, IS_JUST_PRESSED);
                 } else {
-                    controllerButtons.replace(controllerButton, ButtonStatus.IS_PRESSED);
+                    controllerButtons.replace(controllerButton, IS_PRESSED);
                 }
-            } else if (status == ButtonStatus.IS_JUST_RELEASED ||
-                    status == ButtonStatus.IS_RELEASED) {
-                controllerButtons.replace(controllerButton, ButtonStatus.IS_RELEASED);
+            } else if (status == IS_JUST_RELEASED || status == IS_RELEASED) {
+                controllerButtons.replace(controllerButton, IS_RELEASED);
             } else {
-                controllerButtons.replace(controllerButton, ButtonStatus.IS_JUST_RELEASED);
+                controllerButtons.replace(controllerButton, IS_JUST_RELEASED);
             }
         }
+    }
+
+    @Override
+    public boolean doUpdateController() {
+        return doUpdateController;
     }
 
     @Override
@@ -276,8 +299,7 @@ public class MegamanMaverick extends Game implements GameContext2d {
     public void updateMessageDispatcher(float delta) {
         while (!messageQueue.isEmpty()) {
             Message message = messageQueue.poll();
-            messageListeners.forEach(listener -> listener.listenToMessage(
-                    message.owner(), message.contents(), delta));
+            messageListeners.forEach(listener -> listener.listenToMessage(message.owner(), message.contents(), delta));
         }
     }
 
@@ -288,7 +310,9 @@ public class MegamanMaverick extends Game implements GameContext2d {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             Gdx.app.exit();
         }
-        updateController();
+        if (doUpdateController()) {
+            updateController();
+        }
         updateMessageDispatcher(Gdx.graphics.getDeltaTime());
         super.render();
         viewports.values().forEach(Viewport::apply);
@@ -298,6 +322,7 @@ public class MegamanMaverick extends Game implements GameContext2d {
     public void dispose() {
         super.dispose();
         screen.dispose();
+        runOnShutdown.forEach(Runnable::run);
         disposables.forEach(Disposable::dispose);
     }
 

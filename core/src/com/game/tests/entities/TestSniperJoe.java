@@ -54,7 +54,7 @@ public class TestSniperJoe extends Entity implements Faceable, Damager, Damageab
     private final IEntitiesAndSystemsManager entitiesAndSystemsManager;
     private final Map<Class<? extends Damager>, DamageNegotiation> damageNegotiations = new HashMap<>();
 
-    private final Timer damageTimer = new Timer(1f);
+    private final Timer damageTimer = new Timer(.25f);
     private final Timer shieldedTimer = new Timer(1.75f);
     private final Timer shootingTimer = new Timer(1.5f, new TimeMarkedRunnable(.15f, this::shoot),
             new TimeMarkedRunnable(.75f, this::shoot), new TimeMarkedRunnable(1.35f, this::shoot));

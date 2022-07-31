@@ -36,4 +36,18 @@ public interface IController {
      */
     void updateController();
 
+    /**
+     * Returns if the controller should be updated.
+     *
+     * @return if the controller should be updated
+     */
+    boolean doUpdateController();
+
+    /**
+     * Set if the controller should be updated.
+     *
+     * @param doUpdateController if the controller should be updated
+     */
+    void setDoUpdateController(boolean doUpdateController);
+
 }

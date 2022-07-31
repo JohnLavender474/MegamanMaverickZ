@@ -1,13 +1,16 @@
 package com.game.entities.blocks;
 
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Entity;
+import com.game.entities.decorations.DecorativeSprite;
 import com.game.graph.GraphComponent;
 import com.game.world.BodyComponent;
 import com.game.world.BodyType;
 import com.game.world.Fixture;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.game.ConstVals.ViewVals.PPM;
@@ -20,11 +23,24 @@ public class Block extends Entity {
         this(bounds, friction, false, false, false, false, false);
     }
 
-    public Block(Rectangle bounds, Vector2 friction, boolean resistance, boolean gravityOn, boolean wallSlideLeft,
-                 boolean wallSlideRight, boolean feetSticky) {
+    public Block(Rectangle bounds, Vector2 friction, boolean resistance, boolean gravityOn,
+                 boolean wallSlideLeft, boolean wallSlideRight, boolean feetSticky) {
         addComponent(defineGraphComponent());
         addComponent(defineBodyComponent(bounds, friction, resistance, gravityOn,
                 wallSlideLeft, wallSlideRight, feetSticky));
+    }
+
+    public List<DecorativeSprite> generateDecorativeBlocks(TextureRegion textureRegion) {
+        List<DecorativeSprite> decorativeSprites = new ArrayList<>();
+        Vector2 size = getComponent(BodyComponent.class).getSize().scl(1f / PPM);
+        for (int i = 0; i < (int) size.x; i++) {
+            for (int j = 0; j < (int) size.y; j++) {
+                final int finalI = i; final int finalJ = j;
+                decorativeSprites.add(new DecorativeSprite(textureRegion, new Vector2(PPM, PPM),
+                        () -> getComponent(BodyComponent.class).getPosition().add(finalI * PPM, finalJ * PPM)));
+            }
+        }
+        return decorativeSprites;
     }
 
     private BodyComponent defineBodyComponent(Rectangle bounds, Vector2 friction, boolean resistance, boolean gravityOn,

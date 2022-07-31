@@ -45,16 +45,6 @@ public class PathfindingSystem extends System {
                 pathfindingComponent.consumeTarget(path.peek());
             }
         }
-        /*
-        if (path != null && !path.isEmpty()) {
-            if (pathfindingComponent.hasReachedTarget(path.peek())) {
-                path.poll();
-            }
-            if (path.peek() != null) {
-                pathfindingComponent.consumeTarget(path.peek());
-            }
-        }
-         */
         if (pathfindingComponent.doUpdate(delta)) {
             pathfindingComponents.add(pathfindingComponent);
             pathfinders.add(new Pathfinder(graph, pathfindingComponent));

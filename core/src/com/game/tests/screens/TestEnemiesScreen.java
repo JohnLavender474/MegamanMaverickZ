@@ -232,8 +232,17 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
             isPaused = !isPaused;
         }
         if (isPaused) {
-            return;
+            onGamePaused(delta);
+        } else {
+            onGameRunning(delta);
         }
+    }
+
+    private void onGamePaused(float delta) {
+
+    }
+
+    private void onGameRunning(float delta) {
         levelCameraManager.update(delta);
         levelTiledMap.draw((OrthographicCamera) playgroundViewport.getCamera(), spriteBatch);
         if (levelCameraManager.getTransitionState() != null) {

@@ -32,6 +32,7 @@ public class MainMenuScreen extends MenuScreen {
     private final Timer arrowBlinkTimer = new Timer(0.2f);
     private final Map<MainMenuButton, FontHandle> fonts = new EnumMap<>(MainMenuButton.class);
     private final Map<MainMenuButton, Vector2> arrowCenters = new EnumMap<>(MainMenuButton.class);
+
     private boolean arrowIsVisible;
 
     /**
