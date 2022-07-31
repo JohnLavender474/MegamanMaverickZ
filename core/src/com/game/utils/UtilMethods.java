@@ -9,6 +9,8 @@ import com.game.utils.enums.Direction;
 import com.game.utils.enums.Position;
 import com.game.utils.interfaces.Positional;
 
+import java.util.function.Predicate;
+
 /**
  * Global utility methods.
  */

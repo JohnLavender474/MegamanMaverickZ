@@ -20,6 +20,7 @@ import com.game.controllers.ControllerButton;
 import com.game.controllers.ControllerSystem;
 import com.game.core.IEntity;
 import com.game.cull.CullOnCamTransComponent;
+import com.game.cull.CullOnCamTransSystem;
 import com.game.cull.CullOutOfCamBoundsComponent;
 import com.game.entities.blocks.Block;
 import com.game.entities.decorations.DecorativeSprite;
@@ -167,6 +168,8 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
         // define level cam manager
         levelCameraManager = new LevelCameraManager(gameContext.getViewport(PLAYGROUND).getCamera(),
                 new Timer(1f), gameRooms, megaman);
+        gameContext.getSystem(CullOnCamTransSystem.class).setTransitionStateSupplier(
+                () -> levelCameraManager.getTransitionState());
         // spawn Megaman
         spawnMegaman();
         // health bar ui
@@ -245,6 +248,22 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
         // TODO: Handle fading in and out when level starts or player dies
     }
 
+    @Override
+    public void listenToMessage(Object owner, Object message, float delta) {
+        if (owner.equals(megaman) && message.equals(PLAYER_DEAD)) {
+            gameContext.getSystem(SoundSystem.class).requestToStopAllLoopingSounds();
+            gameContext.getAsset(MEGAMAN_DEFEAT_SOUND, Sound.class).play();
+            deathTimer.reset();
+            levelMusic.stop();
+        }
+    }
+
+    @Override
+    public void dispose() {
+        levelMap.dispose();
+        gameContext.purgeAllEntities();
+    }
+
     private void onGamePaused(float delta) {
 
     }
@@ -283,22 +302,6 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
             }
             default -> throw new IllegalStateException("Cannot find matching entity for <" + spawnObj.getName() + ">");
         }
-    }
-
-    @Override
-    public void listenToMessage(Object owner, Object message, float delta) {
-        if (owner.equals(megaman) && message.equals(PLAYER_DEAD)) {
-            gameContext.getSystem(SoundSystem.class).requestToStopAllLoopingSounds();
-            gameContext.getAsset(MEGAMAN_DEFEAT_SOUND, Sound.class).play();
-            deathTimer.reset();
-            levelMusic.stop();
-        }
-    }
-
-    @Override
-    public void dispose() {
-        levelMap.dispose();
-        gameContext.purgeAllEntities();
     }
 
     private void fadeIn(float delta) {

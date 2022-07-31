@@ -1,6 +1,7 @@
 package com.game.entities.projectiles;
 
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -13,11 +14,14 @@ import com.game.cull.CullOnCamTransComponent;
 import com.game.cull.CullOutOfCamBoundsComponent;
 import com.game.damage.Damageable;
 import com.game.damage.Damager;
+import com.game.debugging.DebugRectComponent;
 import com.game.entities.contracts.Hitter;
 import com.game.entities.decorations.Disintegration;
 import com.game.entities.enemies.AbstractEnemy;
+import com.game.sounds.SoundComponent;
 import com.game.sprites.SpriteAdapter;
 import com.game.sprites.SpriteComponent;
+import com.game.utils.UtilMethods;
 import com.game.utils.enums.Position;
 import com.game.utils.objects.Timer;
 import com.game.utils.objects.Wrapper;
@@ -28,6 +32,7 @@ import com.game.world.FixtureType;
 import lombok.Getter;
 import lombok.Setter;
 
+import static com.badlogic.gdx.graphics.Color.*;
 import static com.game.ConstVals.SoundAssets.*;
 import static com.game.ConstVals.TextureAssets.*;
 import static com.game.ConstVals.ViewVals.PPM;
@@ -43,14 +48,15 @@ public class Bullet extends AbstractProjectile {
     public Bullet(GameContext2d gameContext, IEntity owner, Vector2 spawn, Vector2 trajectory) {
         super(gameContext, owner, .15f);
         this.trajectory.set(trajectory);
-        addComponent(defineBodyComponent(spawn));
+        addComponent(new SoundComponent());
         addComponent(defineSpriteComponent());
+        addComponent(defineBodyComponent(spawn));
+        addComponent(defineDebugRectComponent());
     }
 
     public void disintegrate() {
-        Disintegration disintegration = new Disintegration(gameContext, getComponent(BodyComponent.class).getCenter());
-        gameContext.addEntity(disintegration);
-        gameContext.getAsset(THUMP_SOUND, Sound.class).play();
+        gameContext.addEntity(new Disintegration(gameContext, getComponent(BodyComponent.class).getCenter()));
+        getComponent(SoundComponent.class).requestSound(THUMP_SOUND);
     }
 
     @Override
@@ -105,6 +111,17 @@ public class Bullet extends AbstractProjectile {
         damageBox.setCenter(spawn.x, spawn.y);
         bodyComponent.addFixture(damageBox);
         return bodyComponent;
+    }
+
+    private DebugRectComponent defineDebugRectComponent() {
+        DebugRectComponent debugRectComponent = new DebugRectComponent();
+        getComponent(BodyComponent.class).getFixtures().forEach(fixture ->
+                debugRectComponent.addDebugHandle(fixture::getFixtureBox, () -> switch (fixture.getFixtureType()) {
+                    case HITTER_BOX -> BLUE;
+                    case DAMAGER_BOX -> RED;
+                    default -> GREEN;
+                }));
+        return debugRectComponent;
     }
 
 }

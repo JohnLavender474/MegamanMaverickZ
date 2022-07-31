@@ -1,7 +1,6 @@
 package com.game.entities.megaman;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Rectangle;
@@ -28,6 +27,7 @@ import com.game.entities.enemies.Met;
 import com.game.entities.enemies.SniperJoe;
 import com.game.entities.enemies.SuctionRoller;
 import com.game.entities.projectiles.Bullet;
+import com.game.entities.projectiles.ChargedShot;
 import com.game.entities.projectiles.Fireball;
 import com.game.health.HealthComponent;
 import com.game.levels.CameraFocusable;
@@ -133,13 +133,13 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
     }
 
     @Override
-    public boolean isInvincible() {
-        return !damageTimer.isFinished() || !damageRecoveryTimer.isFinished();
+    public Vector2 getFocus() {
+        return bottomCenterPoint(getComponent(BodyComponent.class).getCollisionBox());
     }
 
     @Override
-    public Vector2 getFocus() {
-        return bottomCenterPoint(getComponent(BodyComponent.class).getCollisionBox());
+    public boolean isInvincible() {
+        return !damageTimer.isFinished() || !damageRecoveryTimer.isFinished();
     }
 
     public boolean isDamaged() {
@@ -173,7 +173,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
 
     private void defineWeapons() {
         Supplier<Vector2> spawn = () -> {
-            Vector2 spawnPos = getComponent(BodyComponent.class).getCenter().add(facing == F_LEFT ? -15f : 15f, 1f);
+            Vector2 spawnPos = getComponent(BodyComponent.class).getCenter().add(isFacing(F_LEFT) ? -15f : 15f, 1f);
             if (getComponent(BehaviorComponent.class).is(WALL_SLIDING)) {
                 spawnPos.y += 3.5f;
             } else if (!getComponent(BodyComponent.class).is(FEET_ON_GROUND)) {
@@ -181,18 +181,32 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
             }
             return spawnPos;
         };
-        megamanWeapons.put(MEGA_BUSTER, new WeaponDef(() ->
-                new Bullet(gameContext, this, new Vector2(15f * (isFacing(F_LEFT) ? -PPM : PPM), 0f), spawn.get()),
-                .1f, () -> getComponent(SoundComponent.class).requestSound(MEGA_BUSTER_BULLET_SHOT_SOUND, false)));
-        megamanWeapons.put(FLAME_BUSTER, new WeaponDef(() ->
-                new Fireball(gameContext, this, new Vector2(25f * (isFacing(F_LEFT) ? -PPM : PPM), 0f), spawn.get()),
-                .1f, () -> getComponent(SoundComponent.class).requestSound(CRASH_BOMBER_SOUND, false)));
+        megamanWeapons.put(MEGA_BUSTER, new WeaponDef(() -> {
+            Vector2 trajectory = new Vector2(15f * (isFacing(F_LEFT) ? -PPM : PPM), 0f);
+            if (isCharging()) {
+                return new ChargedShot(gameContext, this, trajectory, spawn.get(), facing);
+            } else {
+                return new Bullet(gameContext, this, trajectory, spawn.get());
+            }
+        }, .1f, () -> getComponent(SoundComponent.class).requestSound(MEGA_BUSTER_BULLET_SHOT_SOUND)));
+        megamanWeapons.put(FLAME_BUSTER, new WeaponDef(() -> {
+            Vector2 impulse = new Vector2(35f * (isFacing(F_LEFT) ? -PPM : PPM), 10f * PPM);
+            if (isCharging()) {
+                // TODO: return charging fireball
+            } else {
+                // TODO: return normal fireball
+            }
+            return new Fireball(gameContext, this, impulse, spawn.get());
+        }, .75f, () -> getComponent(SoundComponent.class).requestSound(CRASH_BOMBER_SOUND)));
     }
 
     private void defineDamageNegotiations() {
-        damageNegotiations.put(Met.class, new DamageNegotiation(3));
-        damageNegotiations.put(SniperJoe.class, new DamageNegotiation(5));
-        damageNegotiations.put(SuctionRoller.class, new DamageNegotiation(5));
+        damageNegotiations.put(Met.class, new DamageNegotiation(5));
+        damageNegotiations.put(Bullet.class, new DamageNegotiation(10));
+        damageNegotiations.put(Fireball.class, new DamageNegotiation(5));
+        damageNegotiations.put(SniperJoe.class, new DamageNegotiation(10));
+        damageNegotiations.put(SuctionRoller.class, new DamageNegotiation(10));
+        // TODO: add fireball and floating can
     }
 
     private HealthComponent defineHealthComponent(int maxHealth) {
@@ -568,8 +582,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
 
             @Override
             public boolean isFlipX() {
-                return getComponent(BehaviorComponent.class).is(WALL_SLIDING) ?
-                        isFacing(F_RIGHT) : isFacing(F_LEFT);
+                return getComponent(BehaviorComponent.class).is(WALL_SLIDING) ? isFacing(F_RIGHT) : isFacing(F_LEFT);
             }
 
             @Override
@@ -640,7 +653,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
                 }
             }
         };
-        Map<MegamanWeapon, Map<String, TimedAnimation>> weaponToAnimationsMap = new EnumMap<>(MegamanWeapon.class);
+        Map<MegamanWeapon, Map<String, TimedAnimation>> weaponToAnimMap = new EnumMap<>(MegamanWeapon.class);
         for (MegamanWeapon megamanWeapon : MegamanWeapon.values()) {
             String textureAtlasKey;
             switch (megamanWeapon) {
@@ -652,23 +665,34 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
             Map<String, TimedAnimation> animations = new HashMap<>();
             animations.put("Climb", new TimedAnimation(textureAtlas.findRegion("Climb"), 2, .125f));
             animations.put("ClimbShoot", new TimedAnimation(textureAtlas.findRegion("ClimbShoot")));
+            animations.put("ClimbCharging", new TimedAnimation(textureAtlas.findRegion("ClimbCharging"), 2, .125f));
             animations.put("Stand", new TimedAnimation(textureAtlas.findRegion("Stand"), new float[]{1.5f, .15f}));
+            animations.put("StandCharging", new TimedAnimation(textureAtlas.findRegion("StandCharging"), 2, .125f));
             animations.put("StandShoot", new TimedAnimation(textureAtlas.findRegion("StandShoot")));
             animations.put("Damaged", new TimedAnimation(textureAtlas.findRegion("Damaged"), 3, .05f));
             animations.put("LayDownDamaged", new TimedAnimation(textureAtlas.findRegion("LayDownDamaged"), 3, .05f));
             animations.put("Run", new TimedAnimation(textureAtlas.findRegion("Run"), 4, .125f));
+            animations.put("RunCharging", new TimedAnimation(textureAtlas.findRegion("RunCharging"), 4, .125f));
             animations.put("RunShoot", new TimedAnimation(textureAtlas.findRegion("RunShoot"), 4, .125f));
             animations.put("Jump", new TimedAnimation(textureAtlas.findRegion("Jump")));
+            animations.put("JumpCharging", new TimedAnimation(textureAtlas.findRegion("JumpCharging"), 2, .125f));
             animations.put("JumpShoot", new TimedAnimation(textureAtlas.findRegion("JumpShoot")));
             animations.put("WallSlide", new TimedAnimation(textureAtlas.findRegion("WallSlide")));
+            animations.put("WallSlideCharging", new TimedAnimation(
+                    textureAtlas.findRegion("WallSlideCharging"), 2, .125f));
             animations.put("WallSlideShoot", new TimedAnimation(textureAtlas.findRegion("WallSlideShoot")));
             animations.put("GroundSlide", new TimedAnimation(textureAtlas.findRegion("GroundSlide")));
+            animations.put("GroundSlideCharging", new TimedAnimation(
+                    textureAtlas.findRegion("GroundSlideCharging"), 2, .125f));
             animations.put("AirDash", new TimedAnimation(textureAtlas.findRegion("AirDash")));
+            animations.put("AirDashCharging", new TimedAnimation(textureAtlas.findRegion("AirDashCharging"), 2, .125f));
             animations.put("SlipSlide", new TimedAnimation(textureAtlas.findRegion("SlipSlide")));
+            animations.put("SlipSlideCharging", new TimedAnimation(
+                    textureAtlas.findRegion("SlipSlideCharging"), 2, .125f));
             animations.put("SlipSlideShoot", new TimedAnimation(textureAtlas.findRegion("SlipSlideShoot")));
-            weaponToAnimationsMap.put(megamanWeapon, animations);
+            weaponToAnimMap.put(megamanWeapon, animations);
         }
-        return new AnimationComponent(keySupplier, key -> weaponToAnimationsMap.get(currentWeapon).get(key));
+        return new AnimationComponent(keySupplier, key -> weaponToAnimMap.get(currentWeapon).get(key));
     }
 
 }

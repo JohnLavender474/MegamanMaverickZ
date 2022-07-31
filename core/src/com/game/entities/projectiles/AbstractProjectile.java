@@ -1,6 +1,5 @@
 package com.game.entities.projectiles;
 
-import com.badlogic.gdx.math.Vector2;
 import com.game.Entity;
 import com.game.GameContext2d;
 import com.game.core.IEntity;
@@ -14,14 +13,11 @@ import com.game.world.BodyComponent;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.function.Supplier;
-
 @Getter
 @Setter
 public abstract class AbstractProjectile extends Entity implements Hitter, Damager {
 
     protected final GameContext2d gameContext;
-
     protected IEntity owner;
 
     public AbstractProjectile(GameContext2d gameContext, IEntity owner, float cullDuration) {

@@ -14,7 +14,7 @@ public class BossSelectScreen extends MenuScreen {
      * @param gameContext2d the {@link GameContext2d}
      */
     public BossSelectScreen(GameContext2d gameContext2d) {
-        super(gameContext2d);
+        super(gameContext2d, null);
     }
 
     @Override

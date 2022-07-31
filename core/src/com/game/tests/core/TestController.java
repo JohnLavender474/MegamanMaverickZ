@@ -12,6 +12,8 @@ import static com.game.controllers.ControllerUtils.*;
 
 public class TestController implements IController {
 
+    private boolean doUpdateController;
+
     private final Map<ControllerButton, ButtonStatus> controllerButtons = new HashMap<>() {{
         for (ControllerButton controllerButton : ControllerButton.values()) {
             put(controllerButton, IS_RELEASED);
@@ -53,6 +55,16 @@ public class TestController implements IController {
                 controllerButtons.replace(controllerButton, IS_JUST_RELEASED);
             }
         }
+    }
+
+    @Override
+    public boolean doUpdateController() {
+        return doUpdateController;
+    }
+
+    @Override
+    public void setDoUpdateController(boolean doUpdateController) {
+        this.doUpdateController = doUpdateController;
     }
 
 }

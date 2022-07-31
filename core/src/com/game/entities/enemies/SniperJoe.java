@@ -5,14 +5,20 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.game.ConstVals;
 import com.game.GameContext2d;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimeMarkedRunnable;
 import com.game.animations.TimedAnimation;
+import com.game.cull.CullOnCamTransComponent;
+import com.game.cull.CullOutOfCamBoundsComponent;
 import com.game.entities.contracts.Faceable;
 import com.game.entities.contracts.Facing;
+import com.game.entities.decorations.Explosion;
 import com.game.entities.megaman.Megaman;
 import com.game.entities.projectiles.Bullet;
+import com.game.health.HealthComponent;
+import com.game.sounds.SoundComponent;
 import com.game.sprites.SpriteAdapter;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
@@ -52,6 +58,9 @@ public class SniperJoe extends AbstractEnemy implements Faceable {
         shieldedTimer.setToEnd();
         shootingTimer.setToEnd();
         damageNegotiation.put(Bullet.class, 10);
+        addComponent(new CullOutOfCamBoundsComponent(() -> getComponent(BodyComponent.class).getCollisionBox(), 1.5f));
+        addComponent(new HealthComponent(30, this::explode));
+        addComponent(new CullOnCamTransComponent());
         addComponent(defineAnimationComponent());
         addComponent(defineUpdatableComponent());
         addComponent(defineBodyComponent(spawn));
@@ -62,9 +71,13 @@ public class SniperJoe extends AbstractEnemy implements Faceable {
         Vector2 trajectory = new Vector2(PPM * (isFacing(Facing.F_LEFT) ? -BULLET_SPEED : BULLET_SPEED), 0f);
         Vector2 spawn = getComponent(BodyComponent.class).getCenter().cpy().add(
                 (isFacing(Facing.F_LEFT) ? -5f : 5f), -3.25f);
-        Bullet bullet = new Bullet(gameContext, this, trajectory, spawn);
-        gameContext.addEntity(bullet);
+        gameContext.addEntity(new Bullet(gameContext, this, trajectory, spawn));
         gameContext.getAsset(ENEMY_BULLET_SOUND, Sound.class).play();
+    }
+
+    private void explode() {
+        gameContext.addEntity(new Explosion(gameContext, getComponent(BodyComponent.class).getCenter()));
+        getComponent(SoundComponent.class).requestSound(EXPLOSION_SOUND);
     }
 
     private void setShielded(boolean isShielded) {

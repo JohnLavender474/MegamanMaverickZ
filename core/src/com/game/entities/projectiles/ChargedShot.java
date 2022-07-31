@@ -39,9 +39,8 @@ public class ChargedShot extends AbstractProjectile implements Faceable {
 
     private Facing facing;
 
-    public ChargedShot(GameContext2d gameContext, IEntity owner, float cullDuration,
-                       Vector2 spawn, Vector2 trajectory, Facing facing) {
-        super(gameContext, owner, cullDuration);
+    public ChargedShot(GameContext2d gameContext, IEntity owner, Vector2 trajectory, Vector2 spawn, Facing facing) {
+        super(gameContext, owner, .15f);
         this.trajectory.set(trajectory);
         setFacing(facing);
         addComponent(new CullOutOfCamBoundsComponent(() -> getComponent(BodyComponent.class).getCollisionBox(), .15f));

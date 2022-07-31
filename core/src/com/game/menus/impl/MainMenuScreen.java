@@ -1,9 +1,13 @@
 package com.game.menus.impl;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
+import com.game.ConstVals;
+import com.game.ConstVals.MusicAssets;
 import com.game.ConstVals.TextureAssets;
 import com.game.GameContext2d;
 import com.game.menus.MenuButton;
@@ -18,6 +22,9 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.game.ConstVals.GameScreen.*;
+import static com.game.ConstVals.MusicAssets.*;
+import static com.game.ConstVals.TextureAssets.*;
 import static com.game.ConstVals.ViewVals.PPM;
 
 /**
@@ -41,7 +48,7 @@ public class MainMenuScreen extends MenuScreen {
      * @param gameContext the game context 2 d
      */
     public MainMenuScreen(GameContext2d gameContext) {
-        super(gameContext);
+        super(gameContext, MMX3_INTRO_STAGE_MUSIC);
     }
 
     @Override
@@ -58,7 +65,7 @@ public class MainMenuScreen extends MenuScreen {
             row -= 0.75f;
         }
         setMenuButton(MainMenuButton.GAME_START.name());
-        TextureAtlas textureAtlas = gameContext.getAsset(TextureAssets.DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class);
+        TextureAtlas textureAtlas = gameContext.getAsset(DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class);
         arrow.setRegion(textureAtlas.findRegion("Arrow"));
         arrow.setSize(0.5f * PPM, 0.5f * PPM);
         Vector2 arrowCenter = arrowCenters.get(MainMenuButton.GAME_START);
@@ -83,8 +90,8 @@ public class MainMenuScreen extends MenuScreen {
         spriteBatch.setProjectionMatrix(uiViewport.getCamera().combined);
         spriteBatch.begin();
         title.draw(spriteBatch);
-        subtitle.draw(spriteBatch);
         helmet.draw(spriteBatch);
+        subtitle.draw(spriteBatch);
         if (arrowIsVisible) {
             arrow.draw(spriteBatch);
         }
@@ -93,13 +100,19 @@ public class MainMenuScreen extends MenuScreen {
     }
 
     @Override
+    protected void onMovement() {
+        gameContext.getAsset(ConstVals.SoundAssets.CURSOR_MOVE_BLOOP_SOUND, Sound.class).play();
+    }
+
+    @Override
     protected Map<String, MenuButton> defineMenuButtons() {
         return new HashMap<>() {{
             put(MainMenuButton.GAME_START.name(), new MenuButton() {
+
                 @Override
                 public void onSelect(float delta) {
+                    gameContext.setScreen(TEST_LEVEL_1);
                     // TODO: Set to boss menu screen
-                    // gameContext.setScreen("");
                 }
 
                 @Override
@@ -110,6 +123,7 @@ public class MainMenuScreen extends MenuScreen {
                         arrow.setCenter(center.x, center.y);
                     }
                 }
+
             });
             put(MainMenuButton.PASS_WORD.name(), new MenuButton() {
                 @Override
@@ -135,8 +149,10 @@ public class MainMenuScreen extends MenuScreen {
                 }
             });
             put(MainMenuButton.SETTINGS.name(), new MenuButton() {
+
                 @Override
                 public void onSelect(float delta) {
+
                     // TODO: Set to settings screen
                     // gameContext.setScreen("");
                 }
@@ -156,12 +172,13 @@ public class MainMenuScreen extends MenuScreen {
                         }
                     }
                 }
+
             });
             put(MainMenuButton.EXIT.name(), new MenuButton() {
+
                 @Override
                 public void onSelect(float delta) {
-                    // TODO: Set to exit screen
-                    // gameContext.setScreen("");
+                    Gdx.app.exit();
                 }
 
                 @Override
@@ -172,6 +189,7 @@ public class MainMenuScreen extends MenuScreen {
                         arrow.setCenter(center.x, center.y);
                     }
                 }
+
             });
         }};
     }

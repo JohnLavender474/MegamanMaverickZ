@@ -39,6 +39,7 @@ import com.game.sounds.SoundSystem;
 import com.game.sprites.SpriteSystem;
 import com.game.trajectories.TrajectorySystem;
 import com.game.updatables.UpdatableSystem;
+import com.game.utils.UtilMethods;
 import com.game.utils.objects.KeyValuePair;
 import com.game.world.WorldContactListenerImpl;
 import com.game.world.WorldSystem;
@@ -46,6 +47,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 import static com.game.ConstVals.GameScreen.*;
 import static com.game.ConstVals.MusicAssets.*;
@@ -56,6 +58,7 @@ import static com.game.ConstVals.ViewVals.*;
 import static com.game.ConstVals.WorldVals.*;
 import static com.game.controllers.ButtonStatus.*;
 import static com.game.controllers.ControllerUtils.*;
+import static com.game.utils.UtilMethods.*;
 
 /**
  * The entry point into the Megaman game. Initializes all assets and classes that need to be initialized before gameplay
@@ -67,9 +70,9 @@ public class MegamanMaverick extends Game implements GameContext2d {
 
     private final Map<ControllerButton, ButtonStatus> controllerButtons = new EnumMap<>(ControllerButton.class);
     private final Map<RenderingGround, Viewport> viewports = new EnumMap<>(RenderingGround.class);
+    private final Map<GameScreen, Supplier<Screen>> screens = new EnumMap<>(GameScreen.class);
     private final Queue<KeyValuePair<Rectangle, Color>> debugQueue = new ArrayDeque<>();
     private final Map<Class<? extends System>, System> systems = new LinkedHashMap<>();
-    private final Map<GameScreen, Screen> screens = new EnumMap<>(GameScreen.class);
     private final Set<MessageListener> messageListeners = new HashSet<>();
     private final Queue<Message> messageQueue = new ArrayDeque<>();
     private final List<Disposable> disposables = new ArrayList<>();
@@ -106,8 +109,9 @@ public class MegamanMaverick extends Game implements GameContext2d {
                 ENERGY_FILL_SOUND, MEGA_BUSTER_CHARGING_SOUND, MEGAMAN_DAMAGE_SOUND, MEGAMAN_LAND_SOUND,
                 MEGAMAN_DEFEAT_SOUND, WHOOSH_SOUND, THUMP_SOUND, EXPLOSION_SOUND, PAUSE_SOUND);
         loadAssets(TextureAtlas.class, CHARGE_ORBS_TEXTURE_ATLAS, OBJECTS_TEXTURE_ATLAS, MET_TEXTURE_ATLAS,
-                ENEMIES_TEXTURE_ATLAS, ITEMS_TEXTURE_ATLAS, BACKGROUNDS_1_TEXTURE_ATLAS, MEGAMAN_TEXTURE_ATLAS,
-                MEGAMAN_CHARGED_SHOT_TEXTURE_ATLAS, ELECTRIC_BALL_TEXTURE_ATLAS, DECORATIONS_TEXTURE_ATLAS, BITS_ATLAS);
+                CUSTOM_TILES_TEXTURE_ATLAS, ENEMIES_TEXTURE_ATLAS, ITEMS_TEXTURE_ATLAS, BACKGROUNDS_1_TEXTURE_ATLAS,
+                MEGAMAN_TEXTURE_ATLAS, MEGAMAN_FIRE_TEXTURE_ATLAS, MEGAMAN_CHARGED_SHOT_TEXTURE_ATLAS,
+                ELECTRIC_BALL_TEXTURE_ATLAS, DECORATIONS_TEXTURE_ATLAS, BITS_ATLAS);
         assetManager.finishLoading();
         // systems
         addSystem(new GraphSystem());
@@ -127,8 +131,8 @@ public class MegamanMaverick extends Game implements GameContext2d {
         // blackboard
         putBlackboardObject(MegamanVals.MEGAMAN_STATS, new MegamanStats());
         // define screens
-        screens.put(MAIN_MENU, new MainMenuScreen(this));
-        screens.put(TEST_LEVEL_1, new LevelScreen(this, "tiledmaps/tmx/test1.tmx", MMX3_INTRO_STAGE_MUSIC));
+        screens.put(MAIN_MENU, () -> new MainMenuScreen(this));
+        screens.put(TEST_LEVEL_1, () -> new LevelScreen(this, "tiledmaps/tmx/test1.tmx", XENOBLADE_GAUR_PLAINS_MUSIC));
         // set screen
         setScreen(MAIN_MENU);
     }
@@ -218,7 +222,7 @@ public class MegamanMaverick extends Game implements GameContext2d {
 
     @Override
     public void setScreen(GameScreen key) throws NoSuchElementException {
-        Screen screen = screens.get(key);
+        Screen screen = screens.get(key).get();
         if (screen == null) {
             throw new NoSuchElementException("No screen found associated with key " + key);
         }
@@ -245,8 +249,7 @@ public class MegamanMaverick extends Game implements GameContext2d {
     @Override
     public boolean isPressed(ControllerButton controllerButton) {
         ButtonStatus buttonStatus = controllerButtons.get(controllerButton);
-        return buttonStatus == IS_JUST_PRESSED ||
-                buttonStatus == IS_PRESSED;
+        return equalsAny(buttonStatus, IS_JUST_PRESSED, IS_PRESSED);
     }
 
     @Override
@@ -262,12 +265,12 @@ public class MegamanMaverick extends Game implements GameContext2d {
                     isControllerButtonPressed(controllerButton.getControllerBindingCode()) :
                     isKeyboardButtonPressed(controllerButton.getKeyboardBindingCode());
             if (isControllerButtonPressed) {
-                if (status == IS_RELEASED || status == IS_JUST_RELEASED) {
+                if (equalsAny(status, IS_RELEASED, IS_JUST_RELEASED)) {
                     controllerButtons.replace(controllerButton, IS_JUST_PRESSED);
                 } else {
                     controllerButtons.replace(controllerButton, IS_PRESSED);
                 }
-            } else if (status == IS_JUST_RELEASED || status == IS_RELEASED) {
+            } else if (equalsAny(status, IS_RELEASED, IS_JUST_RELEASED)) {
                 controllerButtons.replace(controllerButton, IS_RELEASED);
             } else {
                 controllerButtons.replace(controllerButton, IS_JUST_RELEASED);

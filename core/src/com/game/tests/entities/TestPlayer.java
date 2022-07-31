@@ -50,6 +50,7 @@ import static com.game.controllers.ControllerButton.*;
 import static com.game.entities.contracts.Facing.*;
 import static com.game.tests.entities.TestPlayer.AButtonTask.*;
 import static com.game.tests.entities.TestPlayer.TestPlayerWeapon.*;
+import static com.game.utils.UtilMethods.*;
 import static com.game.utils.enums.Position.*;
 import static com.game.world.BodySense.*;
 import static com.game.world.FixtureType.*;
@@ -139,7 +140,7 @@ public class TestPlayer extends Entity implements Damageable, Faceable, CameraFo
 
     @Override
     public Vector2 getFocus() {
-        return UtilMethods.bottomCenterPoint(getComponent(BodyComponent.class).getCollisionBox());
+        return bottomCenterPoint(getComponent(BodyComponent.class).getCollisionBox());
     }
 
     @Override

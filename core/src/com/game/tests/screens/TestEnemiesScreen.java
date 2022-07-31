@@ -313,11 +313,10 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
         messages.get("AmountInCamBounds").draw(spriteBatch);
         messages.get("EntityCount").setText("Entity count: " + entitiesAndSystemsManager.getEntities().size());
         messages.get("EntityCount").draw(spriteBatch);
-        messages.get("Behaviors").setText("Behaviors: " + player.getComponent(
-                BehaviorComponent.class).getActiveBehaviors());
+        messages.get("Behaviors").setText("Behaviors: " +
+                player.getComponent(BehaviorComponent.class).getActiveBehaviors());
         messages.get("Behaviors").draw(spriteBatch);
-        messages.get("BodySenses").setText("Body senses: " + player.getComponent(
-                BodyComponent.class).getBodySenses());
+        messages.get("BodySenses").setText("Body senses: " + player.getComponent(BodyComponent.class).getBodySenses());
         messages.get("BodySenses").draw(spriteBatch);
         if (!blackTimer.isFinished()) {
             blackTimer.update(delta);
