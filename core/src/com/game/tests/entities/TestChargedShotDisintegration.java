@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Entity;
 import com.game.animations.AnimationComponent;
@@ -13,11 +12,9 @@ import com.game.core.IAssetLoader;
 import com.game.sprites.SpriteAdapter;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
-import com.game.utils.enums.Position;
 import com.game.utils.objects.Timer;
-import com.game.utils.objects.Wrapper;
 
-import static com.game.ConstVals.TextureAssets.*;
+import static com.game.ConstVals.TextureAsset.MEGAMAN_CHARGED_SHOT_TEXTURE_ATLAS;
 import static com.game.ConstVals.ViewVals.PPM;
 
 public class TestChargedShotDisintegration extends Entity {
@@ -58,7 +55,8 @@ public class TestChargedShotDisintegration extends Entity {
     }
 
     private AnimationComponent defineAnimationComponent(IAssetLoader assetLoader) {
-        TextureRegion textureRegion = assetLoader.getAsset(MEGAMAN_CHARGED_SHOT_TEXTURE_ATLAS, TextureAtlas.class)
+        TextureRegion textureRegion = assetLoader.getAsset(
+                        MEGAMAN_CHARGED_SHOT_TEXTURE_ATLAS.getSrc(), TextureAtlas.class)
                 .findRegion("MegamanChargedShotCollision");
         return new AnimationComponent(new TimedAnimation(textureRegion, 3, .05f));
     }

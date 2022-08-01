@@ -28,7 +28,7 @@ import com.game.world.Fixture;
 import lombok.Getter;
 import lombok.Setter;
 
-import static com.game.ConstVals.TextureAssets.*;
+import static com.game.ConstVals.TextureAsset.MEGAMAN_CHARGED_SHOT_TEXTURE_ATLAS;
 import static com.game.ConstVals.ViewVals.PPM;
 import static com.game.entities.contracts.Facing.*;
 import static com.game.world.FixtureType.*;
@@ -65,7 +65,7 @@ public class TestChargedShot extends Entity implements Faceable, Hitter, Damager
     }
 
     @Override
-    public void onDamageInflictedTo(Class<? extends Damageable> damageableClass) {
+    public void onDamageInflictedTo(Damageable damageable) {
         setDead(true);
         entitiesAndSystemsManager.addEntity(new TestChargedShotDisintegration(
                 assetLoader, getComponent(BodyComponent.class).getCenter(), isFacing(F_LEFT)));
@@ -96,7 +96,8 @@ public class TestChargedShot extends Entity implements Faceable, Hitter, Damager
     }
 
     private AnimationComponent defineAnimationComponent() {
-        TextureAtlas textureAtlas = assetLoader.getAsset(MEGAMAN_CHARGED_SHOT_TEXTURE_ATLAS, TextureAtlas.class);
+        TextureAtlas textureAtlas = assetLoader.getAsset(
+                MEGAMAN_CHARGED_SHOT_TEXTURE_ATLAS.getSrc(), TextureAtlas.class);
         return new AnimationComponent(new TimedAnimation(textureAtlas.findRegion("MegamanChargedShot"), 2, .05f));
     }
 

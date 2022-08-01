@@ -6,12 +6,14 @@ import com.badlogic.gdx.math.Vector2;
 import com.game.System;
 import com.game.core.IEntity;
 import com.game.updatables.Updatable;
-import com.game.utils.UtilMethods;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static com.game.utils.UtilMethods.*;
+import static java.lang.Math.*;
 
 /**
  * {@link System} implementation that handles the logic of the "game world physics", i.e. gravity, collision handling,
@@ -56,33 +58,21 @@ public class WorldSystem extends System {
 
     @Override
     protected void postProcess(float delta) {
-        // ImpulseMovement and collision handling is time-stepped
         accumulator += delta;
         while (accumulator >= fixedTimeStep) {
             accumulator -= fixedTimeStep;
-            // Apply forces
             bodies.forEach(bodyComponent -> {
-                // If below .25 speed, then set to 0
-                if (Math.abs(bodyComponent.getVelocity().x) < .25f) {
-                    bodyComponent.setVelocityX(0f);
-                }
-                if (Math.abs(bodyComponent.getVelocity().y) < .25f) {
-                    bodyComponent.setVelocityY(0f);
-                }
+                roundedVector2(bodyComponent.getVelocity(), 3);
                 // Apply resistance
                 if (bodyComponent.isAffectedByResistance()) {
-                    bodyComponent.getVelocity().x /= Math.max(1f, bodyComponent.getResistance().x);
-                    bodyComponent.getVelocity().y /= Math.max(1f, bodyComponent.getResistance().y);
+                    bodyComponent.getVelocity().x /= max(1f, bodyComponent.getResistance().x);
+                    bodyComponent.getVelocity().y /= max(1f, bodyComponent.getResistance().y);
                 }
                 // Reset resistance
                 bodyComponent.setResistance(airResistance);
-                // If gravity on: if colliding down, minimum gravity is -5f, otherwise apply gravity
-                // If gravity off: set to zero
+                // If gravity on, apply gravity
                 if (bodyComponent.isGravityOn()) {
                     bodyComponent.applyImpulse(0f, bodyComponent.getGravity() * fixedTimeStep);
-                    if (bodyComponent.is(BodySense.FEET_ON_GROUND)) {
-                        bodyComponent.setVelocityY(Math.max(-5f, bodyComponent.getVelocity().y));
-                    }
                 }
                 // Translate
                 bodyComponent.translate(bodyComponent.getVelocity().x * fixedTimeStep,
@@ -111,7 +101,7 @@ public class WorldSystem extends System {
                         if (f1.isActive() && !f1.getEntity().isDead()) {
                             for (Fixture f2 : bodies.get(j).getFixtures()) {
                                 if (f2.isActive() && !f2.getEntity().isDead()) {
-                                    if (UtilMethods.overlaps(f1.getFixtureBox(), f2.getFixtureBox())) {
+                                    if (overlaps(f1.getFixtureBox(), f2.getFixtureBox())) {
                                         currentContacts.add(new Contact(f1, f2));
                                     }
                                 }
@@ -154,10 +144,10 @@ public class WorldSystem extends System {
     private void handleCollision(BodyComponent bc1, BodyComponent bc2, Rectangle overlap) {
         if (overlap.getWidth() > overlap.getHeight()) {
             if (bc1.getCollisionBox().getY() > bc2.getCollisionBox().getY()) {
-                if (Math.ceil(bc1.getVelocity().y) < -1f) {
+                if (ceil(bc1.getVelocity().y) < -1f) {
                     bc1.applyResistanceX(bc2.getFriction().x);
                 }
-                if (Math.floor(bc2.getVelocity().y) > 1f) {
+                if (floor(bc2.getVelocity().y) > 1f) {
                     bc2.applyResistanceX(bc1.getFriction().x);
                 }
                 // If one is dynamic and the other static, handle collision
@@ -167,10 +157,10 @@ public class WorldSystem extends System {
                     bc2.getCollisionBox().y -= overlap.getHeight();
                 }
             } else {
-                if (Math.floor(bc1.getVelocity().y) > 1f) {
+                if (floor(bc1.getVelocity().y) > 1f) {
                     bc1.applyResistanceX(bc2.getFriction().x);
                 }
-                if (Math.ceil(bc2.getVelocity().y) < -1f) {
+                if (ceil(bc2.getVelocity().y) < -1f) {
                     bc2.applyResistanceX(bc1.getFriction().x);
                 }
                 // If one is dynamic and the other static, handle collision

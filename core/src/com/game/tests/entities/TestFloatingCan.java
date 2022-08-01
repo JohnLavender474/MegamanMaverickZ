@@ -38,7 +38,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static com.game.ConstVals.TextureAssets.*;
+import static com.game.ConstVals.TextureAsset.ENEMIES_TEXTURE_ATLAS;
 import static com.game.ConstVals.ViewVals.PPM;
 import static com.game.utils.UtilMethods.centerPoint;
 import static com.game.utils.UtilMethods.setBottomCenterToPoint;
@@ -145,7 +145,7 @@ public class TestFloatingCan extends Entity implements Damager, Damageable {
     }
 
     private AnimationComponent defineAnimationComponent(IAssetLoader assetLoader) {
-        TextureAtlas textureAtlas = assetLoader.getAsset(ENEMIES_TEXTURE_ATLAS, TextureAtlas.class);
+        TextureAtlas textureAtlas = assetLoader.getAsset(ENEMIES_TEXTURE_ATLAS.getSrc(), TextureAtlas.class);
         return new AnimationComponent(new TimedAnimation(textureAtlas.findRegion("FloatingCan"), 4, .15f));
     }
 

@@ -14,6 +14,10 @@ import lombok.Setter;
 
 import java.util.function.Supplier;
 
+import static com.badlogic.gdx.graphics.Color.*;
+import static com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.*;
+import static com.game.ConstVals.RenderingGround.*;
+
 /**
  * Container class for ui gameplay bits bar for health or weapon energy.
  */
@@ -28,15 +32,15 @@ public class BitsBarUi {
     private final Rectangle bounds;
 
     public void draw() {
-        Camera camera = gameContext.getViewport(ConstVals.RenderingGround.UI).getCamera();
+        Camera camera = gameContext.getViewport(UI).getCamera();
         // bounds
         ShapeRenderer shapeRenderer = gameContext.getShapeRenderer();
         shapeRenderer.setProjectionMatrix(camera.combined);
         boolean shapeRendererIsDrawing = shapeRenderer.isDrawing();
         if (!shapeRendererIsDrawing) {
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            shapeRenderer.begin(Filled);
         }
-        shapeRenderer.setColor(Color.BLACK);
+        shapeRenderer.setColor(BLACK);
         shapeRenderer.rect(bounds.x, bounds.y, bounds.width, bounds.height);
         if (!shapeRendererIsDrawing) {
             shapeRenderer.end();

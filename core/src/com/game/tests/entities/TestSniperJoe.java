@@ -1,7 +1,6 @@
 package com.game.tests.entities;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Rectangle;
@@ -28,9 +27,7 @@ import com.game.utils.enums.Position;
 import com.game.utils.objects.Timer;
 import com.game.utils.objects.Wrapper;
 import com.game.world.BodyComponent;
-import com.game.world.BodyType;
 import com.game.world.Fixture;
-import com.game.world.FixtureType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -39,9 +36,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import static com.game.ConstVals.TextureAssets.ENEMIES_TEXTURE_ATLAS;
+import static com.badlogic.gdx.graphics.Color.*;
+import static com.game.ConstVals.TextureAsset.ENEMIES_TEXTURE_ATLAS;
 import static com.game.ConstVals.ViewVals.PPM;
+import static com.game.entities.contracts.Facing.*;
 import static com.game.utils.UtilMethods.*;
+import static com.game.world.BodyType.*;
+import static com.game.world.FixtureType.*;
 
 @Setter
 @Getter
@@ -73,7 +74,7 @@ public class TestSniperJoe extends Entity implements Faceable, Damager, Damageab
                 () -> getComponent(BodyComponent.class).getCollisionBox(), 1.5f));
         addComponent(defineUpdatableComponent(playerSupplier));
         addComponent(defineSpriteComponent());
-        addComponent(defineAnimationComponent(assetLoader.getAsset(ENEMIES_TEXTURE_ATLAS, TextureAtlas.class)));
+        addComponent(defineAnimationComponent(assetLoader.getAsset(ENEMIES_TEXTURE_ATLAS.getSrc(), TextureAtlas.class)));
         addComponent(defineBodyComponent(spawn));
         addComponent(defineHealthComponent());
         addComponent(defineDebugComponent());
@@ -83,9 +84,9 @@ public class TestSniperJoe extends Entity implements Faceable, Damager, Damageab
     }
 
     private void shoot() {
-        Vector2 trajectory = new Vector2(PPM * (isFacing(Facing.F_LEFT) ? -BULLET_SPEED : BULLET_SPEED), 0f);
+        Vector2 trajectory = new Vector2(PPM * (isFacing(F_LEFT) ? -BULLET_SPEED : BULLET_SPEED), 0f);
         Vector2 spawn = getComponent(BodyComponent.class).getCenter().cpy().add(
-                (isFacing(Facing.F_LEFT) ? -5f : 5f), -3.25f);
+                (isFacing(F_LEFT) ? -5f : 5f), -3.25f);
         TestBullet bullet = new TestBullet(this, trajectory, spawn, assetLoader, entitiesAndSystemsManager);
         entitiesAndSystemsManager.addEntity(bullet);
         Gdx.audio.newSound(Gdx.files.internal("sounds/EnemyShoot.mp3")).play();
@@ -137,7 +138,7 @@ public class TestSniperJoe extends Entity implements Faceable, Damager, Damageab
             damageTimer.update(delta);
             // facing
             setFacing(Math.round(playerSupplier.get().getComponent(BodyComponent.class).getPosition().x) <
-                    Math.round(getComponent(BodyComponent.class).getPosition().x) ? Facing.F_LEFT : Facing.F_RIGHT);
+                    Math.round(getComponent(BodyComponent.class).getPosition().x) ? F_LEFT : F_RIGHT);
             // behavior timer
             Timer behaviorTimer = isShielded ? shieldedTimer : shootingTimer;
             behaviorTimer.update(delta);
@@ -161,7 +162,7 @@ public class TestSniperJoe extends Entity implements Faceable, Damager, Damageab
 
             @Override
             public boolean isFlipX() {
-                return isFacing(Facing.F_RIGHT);
+                return isFacing(F_RIGHT);
             }
 
         });
@@ -177,28 +178,28 @@ public class TestSniperJoe extends Entity implements Faceable, Damager, Damageab
     }
 
     private BodyComponent defineBodyComponent(Vector2 spawn) {
-        BodyComponent bodyComponent = new BodyComponent(BodyType.DYNAMIC);
+        BodyComponent bodyComponent = new BodyComponent(DYNAMIC);
+        bodyComponent.setGravity(-50f * PPM);
         bodyComponent.setSize(PPM, 1.5f * PPM);
         setBottomCenterToPoint(bodyComponent.getCollisionBox(), spawn);
-        bodyComponent.setGravity(-50f * PPM);
         // hit box
-        Fixture hitBox = new Fixture(this, FixtureType.DAMAGEABLE_BOX);
+        Fixture hitBox = new Fixture(this, DAMAGEABLE_BOX);
         hitBox.setSize(.75f * PPM, 1.15f * PPM);
         bodyComponent.addFixture(hitBox);
         // damage Box
-        Fixture damageBox = new Fixture(this, FixtureType.DAMAGER_BOX);
+        Fixture damageBox = new Fixture(this, DAMAGER_BOX);
         damageBox.setCenter(.75f * PPM, 1.25f * PPM);
         bodyComponent.addFixture(damageBox);
         // shield
-        Fixture shield = new Fixture(this, FixtureType.SHIELD);
+        Fixture shield = new Fixture(this, SHIELD);
         shield.putUserData("reflectDir", "straight");
         shield.setSize(.15f * PPM, .85f * PPM);
         bodyComponent.addFixture(shield);
         // body pre-process
         bodyComponent.setPreProcess(delta -> {
             if (isShielded) {
-                hitBox.setOffset(isFacing(Facing.F_LEFT) ? 3f : -3f, 0f);
-                shield.setOffset(isFacing(Facing.F_LEFT) ? -5f : 5f, 0f);
+                hitBox.setOffset(isFacing(F_LEFT) ? 3f : -3f, 0f);
+                shield.setOffset(isFacing(F_LEFT) ? -5f : 5f, 0f);
             } else {
                 hitBox.setOffset(0f, 0f);
             }
@@ -211,10 +212,10 @@ public class TestSniperJoe extends Entity implements Faceable, Damager, Damageab
         DebugRectComponent debugRectComponent = new DebugRectComponent();
         getComponent(BodyComponent.class).getFixtures().forEach(fixture ->
                 debugRectComponent.addDebugHandle(fixture::getFixtureBox, () -> {
-                    if (fixture.getFixtureType() == FixtureType.SHIELD) {
-                        return fixture.isActive() ? Color.GREEN : Color.GRAY;
+                    if (fixture.getFixtureType() == SHIELD) {
+                        return fixture.isActive() ? GREEN : GRAY;
                     }
-                    return Color.BLUE;
+                    return BLUE;
                 }));
         return debugRectComponent;
     }

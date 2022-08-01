@@ -64,7 +64,7 @@ public class PathfindingSystem extends System {
                 pathfindingComponent.setCurrentPath(pathFindingResult);
             }
         } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 

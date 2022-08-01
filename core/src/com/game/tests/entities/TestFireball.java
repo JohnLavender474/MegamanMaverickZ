@@ -15,12 +15,10 @@ import com.game.cull.CullOutOfCamBoundsComponent;
 import com.game.damage.Damager;
 import com.game.debugging.DebugRectComponent;
 import com.game.entities.contracts.Hitter;
-import com.game.entities.enemies.AbstractEnemy;
 import com.game.sounds.SoundComponent;
 import com.game.sprites.SpriteAdapter;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
-import com.game.utils.UtilMethods;
 import com.game.utils.enums.Position;
 import com.game.utils.objects.Timer;
 import com.game.utils.objects.Wrapper;
@@ -33,8 +31,8 @@ import lombok.Setter;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import static com.game.ConstVals.SoundAssets.*;
-import static com.game.ConstVals.TextureAssets.*;
+import static com.game.ConstVals.SoundAsset.*;
+import static com.game.ConstVals.TextureAsset.FIRE_TEXTURE_ATLAS;
 import static com.game.ConstVals.ViewVals.PPM;
 import static com.game.utils.UtilMethods.*;
 import static com.game.world.FixtureType.*;
@@ -63,12 +61,6 @@ public class TestFireball extends Entity implements Hitter, Damager {
 
     @Override
     public void hit(Fixture fixture) {
-        /*
-        if (fixture.getEntity().equals(owner) || (owner instanceof AbstractEnemy &&
-                fixture.getEntity() instanceof AbstractEnemy)) {
-            return;
-        }
-         */
         if (equalsAny(fixture.getFixtureType(), BLOCK, DAMAGEABLE_BOX, SHIELD)) {
             setLanded(true);
         }
@@ -121,7 +113,7 @@ public class TestFireball extends Entity implements Hitter, Damager {
     }
 
     private AnimationComponent defineAnimationComponent(IAssetLoader assetLoader) {
-        TextureAtlas textureAtlas = assetLoader.getAsset(FIRE_TEXTURE_ATLAS, TextureAtlas.class);
+        TextureAtlas textureAtlas = assetLoader.getAsset(FIRE_TEXTURE_ATLAS.getSrc(), TextureAtlas.class);
         Supplier<String> keySupplier = () -> isLanded() ? "Flame" : "Fireball";
         Map<String, TimedAnimation> timedAnimations = Map.of(
                 "Flame", new TimedAnimation(textureAtlas.findRegion("Flame"), 4, .1f),

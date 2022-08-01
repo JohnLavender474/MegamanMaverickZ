@@ -30,7 +30,6 @@ import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
 import com.game.utils.enums.Position;
 import com.game.utils.objects.Timer;
-import com.game.utils.UtilMethods;
 import com.game.utils.objects.Wrapper;
 import com.game.weapons.WeaponDef;
 import com.game.world.BodyComponent;
@@ -42,8 +41,9 @@ import lombok.Setter;
 import java.util.*;
 import java.util.function.Supplier;
 
-import static com.game.ConstVals.SoundAssets.*;
-import static com.game.ConstVals.TextureAssets.*;
+import static com.game.ConstVals.SoundAsset.*;
+import static com.game.ConstVals.TextureAsset.MEGAMAN_FIRE_TEXTURE_ATLAS;
+import static com.game.ConstVals.TextureAsset.MEGAMAN_TEXTURE_ATLAS;
 import static com.game.ConstVals.ViewVals.PPM;
 import static com.game.behaviors.BehaviorType.*;
 import static com.game.controllers.ControllerButton.*;
@@ -107,7 +107,7 @@ public class TestPlayer extends Entity implements Damageable, Faceable, CameraFo
         this.messageDispatcher = messageDispatcher;
         defineWeapons();
         defineDamageNegotiations();
-        setCurrentWeapon(FLAME_BUSTER);
+        setCurrentWeapon(MEGA_BUSTER);
         addComponent(new SoundComponent());
         addComponent(defineHealthComponent());
         addComponent(defineUpdatableComponent());
@@ -671,8 +671,8 @@ public class TestPlayer extends Entity implements Damageable, Faceable, CameraFo
         for (TestPlayerWeapon weapon : TestPlayerWeapon.values()) {
             String textureAtlasKey;
             switch (weapon) {
-                case MEGA_BUSTER -> textureAtlasKey = MEGAMAN_TEXTURE_ATLAS;
-                case FLAME_BUSTER -> textureAtlasKey = MEGAMAN_FIRE_TEXTURE_ATLAS;
+                case MEGA_BUSTER -> textureAtlasKey = MEGAMAN_TEXTURE_ATLAS.getSrc();
+                case FLAME_BUSTER -> textureAtlasKey = MEGAMAN_FIRE_TEXTURE_ATLAS.getSrc();
                 default -> throw new IllegalStateException();
             }
             TextureAtlas textureAtlas = assetLoader.getAsset(textureAtlasKey, TextureAtlas.class);

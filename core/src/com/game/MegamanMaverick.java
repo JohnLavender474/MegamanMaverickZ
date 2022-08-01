@@ -39,7 +39,6 @@ import com.game.sounds.SoundSystem;
 import com.game.sprites.SpriteSystem;
 import com.game.trajectories.TrajectorySystem;
 import com.game.updatables.UpdatableSystem;
-import com.game.utils.UtilMethods;
 import com.game.utils.objects.KeyValuePair;
 import com.game.world.WorldContactListenerImpl;
 import com.game.world.WorldSystem;
@@ -49,11 +48,10 @@ import lombok.Setter;
 import java.util.*;
 import java.util.function.Supplier;
 
+import static com.game.ConstVals.*;
 import static com.game.ConstVals.GameScreen.*;
-import static com.game.ConstVals.MusicAssets.*;
+import static com.game.ConstVals.MusicAsset.XENOBLADE_GAUR_PLAINS_MUSIC;
 import static com.game.ConstVals.RenderingGround.PLAYGROUND;
-import static com.game.ConstVals.SoundAssets.*;
-import static com.game.ConstVals.TextureAssets.*;
 import static com.game.ConstVals.ViewVals.*;
 import static com.game.ConstVals.WorldVals.*;
 import static com.game.controllers.ButtonStatus.*;
@@ -102,45 +100,39 @@ public class MegamanMaverick extends Game implements GameContext2d {
         spriteBatch = new SpriteBatch();
         disposables.addAll(List.of(assetManager, spriteBatch, shapeRenderer));
         // assets
-        loadAssets(Music.class, MMX3_INTRO_STAGE_MUSIC, MMZ_NEO_ARCADIA_MUSIC, XENOBLADE_GAUR_PLAINS_MUSIC,
-                MMX_LEVEL_SELECT_SCREEN_MUSIC, STAGE_SELECT_MM3_MUSIC);
-        loadAssets(Sound.class, SELECT_PING_SOUND, MARIO_JUMP_SOUND, CURSOR_MOVE_BLOOP_SOUND, DINK_SOUND,
-                ENEMY_BULLET_SOUND, ENEMY_DAMAGE_SOUND, MEGA_BUSTER_BULLET_SHOT_SOUND, MEGA_BUSTER_CHARGED_SHOT_SOUND,
-                ENERGY_FILL_SOUND, MEGA_BUSTER_CHARGING_SOUND, MEGAMAN_DAMAGE_SOUND, MEGAMAN_LAND_SOUND,
-                MEGAMAN_DEFEAT_SOUND, WHOOSH_SOUND, THUMP_SOUND, EXPLOSION_SOUND, PAUSE_SOUND);
-        loadAssets(TextureAtlas.class, CHARGE_ORBS_TEXTURE_ATLAS, OBJECTS_TEXTURE_ATLAS, MET_TEXTURE_ATLAS,
-                CUSTOM_TILES_TEXTURE_ATLAS, ENEMIES_TEXTURE_ATLAS, ITEMS_TEXTURE_ATLAS, BACKGROUNDS_1_TEXTURE_ATLAS,
-                MEGAMAN_TEXTURE_ATLAS, MEGAMAN_FIRE_TEXTURE_ATLAS, MEGAMAN_CHARGED_SHOT_TEXTURE_ATLAS,
-                ELECTRIC_BALL_TEXTURE_ATLAS, DECORATIONS_TEXTURE_ATLAS, BITS_ATLAS);
+        for (MusicAsset musicAsset : MusicAsset.values()) {
+            assetManager.load(musicAsset.getSrc(), Music.class);
+        }
+        for (SoundAsset soundAsset : SoundAsset.values()) {
+            assetManager.load(soundAsset.getSrc(), Sound.class);
+        }
+        for (TextureAsset textureAsset : TextureAsset.values()) {
+            assetManager.load(textureAsset.getSrc(), TextureAtlas.class);
+        }
         assetManager.finishLoading();
         // systems
-        addSystem(new GraphSystem());
-        addSystem(new HealthSystem());
-        addSystem(new BehaviorSystem());
-        addSystem(new UpdatableSystem());
-        addSystem(new AnimationSystem());
-        addSystem(new SoundSystem(this));
-        addSystem(new TrajectorySystem());
         addSystem(new ControllerSystem(this));
         addSystem(new CullOnCamTransSystem());
-        addSystem(new PathfindingSystem(runOnShutdown));
         addSystem(new CullOnOutOfCamBoundsSystem(getViewport(PLAYGROUND).getCamera()));
-        addSystem(new DebugRectSystem(viewports.get(PLAYGROUND).getCamera(), getShapeRenderer()));
+        addSystem(new HealthSystem());
+        addSystem(new TrajectorySystem());
         addSystem(new WorldSystem(new WorldContactListenerImpl(), AIR_RESISTANCE, FIXED_TIME_STEP));
+        addSystem(new PathfindingSystem(runOnShutdown));
+        addSystem(new UpdatableSystem());
+        addSystem(new BehaviorSystem());
+        addSystem(new GraphSystem());
         addSystem(new SpriteSystem((OrthographicCamera) viewports.get(PLAYGROUND).getCamera(), getSpriteBatch()));
+        addSystem(new AnimationSystem());
+        addSystem(new DebugRectSystem(viewports.get(PLAYGROUND).getCamera(), getShapeRenderer()));
+        addSystem(new SoundSystem(this));
         // blackboard
         putBlackboardObject(MegamanVals.MEGAMAN_STATS, new MegamanStats());
         // define screens
         screens.put(MAIN_MENU, () -> new MainMenuScreen(this));
-        screens.put(TEST_LEVEL_1, () -> new LevelScreen(this, "tiledmaps/tmx/test1.tmx", XENOBLADE_GAUR_PLAINS_MUSIC));
+        screens.put(TEST_LEVEL_1, () -> new LevelScreen(
+                this, "tiledmaps/tmx/test1.tmx", XENOBLADE_GAUR_PLAINS_MUSIC.getSrc()));
         // set screen
         setScreen(MAIN_MENU);
-    }
-
-    private <S> void loadAssets(Class<S> sClass, String... sources) {
-        for (String source : sources) {
-            assetManager.load(source, sClass);
-        }
     }
 
     @Override
@@ -284,12 +276,12 @@ public class MegamanMaverick extends Game implements GameContext2d {
     }
 
     @Override
-    public void addListener(MessageListener messageListener) {
+    public void addMessageListener(MessageListener messageListener) {
         messageListeners.add(messageListener);
     }
 
     @Override
-    public void removeListener(MessageListener messageListener) {
+    public void removeMessageListener(MessageListener messageListener) {
         messageListeners.remove(messageListener);
     }
 

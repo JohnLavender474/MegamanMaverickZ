@@ -87,6 +87,14 @@ public class Block extends Entity {
         }, () -> List.of("Ground"));
         graphComponent.addSupplier(() -> {
             Rectangle bodyBounds = getComponent(BodyComponent.class).getCollisionBox();
+            Rectangle ceilingBounds = new Rectangle();
+            ceilingBounds.setSize(bodyBounds.width + 5f, 1f);
+            Vector2 center = centerPoint(bodyBounds).sub(0f, (bodyBounds.height / 2f) + (PPM / 2f));
+            ceilingBounds.setCenter(center);
+            return ceilingBounds;
+        }, () -> List.of("Ceiling"));
+        graphComponent.addSupplier(() -> {
+            Rectangle bodyBounds = getComponent(BodyComponent.class).getCollisionBox();
             Rectangle leftBounds = new Rectangle();
             leftBounds.setSize(1f, bodyBounds.height + 5f);
             Vector2 center = centerPoint(bodyBounds).sub((bodyBounds.width / 2f) + (PPM / 2f), 0f);

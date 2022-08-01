@@ -13,14 +13,14 @@ public interface IMessageDispatcher {
      *
      * @param messageListener the message listener
      */
-    void addListener(MessageListener messageListener);
+    void addMessageListener(MessageListener messageListener);
 
     /**
      * Remove listener.
      *
      * @param messageListener the message listener
      */
-    void removeListener(MessageListener messageListener);
+    void removeMessageListener(MessageListener messageListener);
 
     /**
      * Add message.

@@ -11,10 +11,11 @@ import java.util.*;
  * Timer that ticks up from 0 to {@link #duration}. Can be injected with {@link TimeMarkedRunnable} instances.
  */
 @Getter
-public class Timer implements Updatable, Resettable {
+public class Timer {
 
     private final Set<TimeMarkedRunnable> timeMarkedRunnables = new TreeSet<>();
     private final Queue<TimeMarkedRunnable> timeMarkedRunnableQueue = new PriorityQueue<>();
+
     private float time;
     private float duration;
     private boolean justFinished;
@@ -118,8 +119,13 @@ public class Timer implements Updatable, Resettable {
         time = duration;
     }
 
-    @Override
-    public void update(float delta) {
+    /**
+     * Updates this timer. Returns if this timer has finished in this update cycle.
+     *
+     * @param delta the delta time
+     * @return if this timer has finished in this update cycle
+     */
+    public boolean update(float delta) {
         boolean finishedBefore = isFinished();
         time = Math.min(duration, time + delta);
         while (!timeMarkedRunnableQueue.isEmpty() && timeMarkedRunnableQueue.peek().time() <= time) {
@@ -130,13 +136,20 @@ public class Timer implements Updatable, Resettable {
             timeMarkedRunnable.runnable().run();
         }
         justFinished = !finishedBefore && isFinished();
+        return isFinished();
     }
 
-    @Override
-    public void reset() {
+    /**
+     * Resets the timer back to zero and refills the queue for {@link TimeMarkedRunnable} instances.
+     *
+     * @return if this timer was finished before being reset
+     */
+    public boolean reset() {
+        boolean isFinished = isFinished();
         time = 0f;
         timeMarkedRunnableQueue.clear();
         timeMarkedRunnableQueue.addAll(timeMarkedRunnables);
+        return isFinished;
     }
 
 }

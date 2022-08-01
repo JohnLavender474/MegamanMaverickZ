@@ -9,6 +9,7 @@ import com.game.damage.Damageable;
 import com.game.damage.Damager;
 import com.game.entities.contracts.Hitter;
 import com.game.entities.enemies.AbstractEnemy;
+import com.game.sounds.SoundComponent;
 import com.game.world.BodyComponent;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,11 +19,13 @@ import lombok.Setter;
 public abstract class AbstractProjectile extends Entity implements Hitter, Damager {
 
     protected final GameContext2d gameContext;
+
     protected IEntity owner;
 
     public AbstractProjectile(GameContext2d gameContext, IEntity owner, float cullDuration) {
+        this.owner = owner;
         this.gameContext = gameContext;
-        setOwner(owner);
+        addComponent(new SoundComponent());
         addComponent(new CullOnCamTransComponent());
         addComponent(defineCullOutOfCamBoundsComponent(cullDuration));
     }

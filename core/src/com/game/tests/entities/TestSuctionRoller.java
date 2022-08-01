@@ -37,7 +37,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import static com.badlogic.gdx.graphics.Color.*;
-import static com.game.ConstVals.TextureAssets.*;
+import static com.game.ConstVals.TextureAsset.ENEMIES_TEXTURE_ATLAS;
 import static com.game.ConstVals.ViewVals.PPM;
 import static com.game.entities.contracts.Facing.*;
 import static com.game.utils.enums.Position.*;
@@ -69,11 +69,11 @@ public class TestSuctionRoller extends Entity implements Damager, Damageable, Fa
         offWallGrace.setToEnd();
         defineDamageNegotiations();
         addComponent(defineSpriteComponent());
+        addComponent(defineBodyComponent(spawn));
         addComponent(new HealthComponent(30, this::disintegrate));
         addComponent(defineUpdatableComponent(testPlayerSupplier));
-        addComponent(defineBodyComponent(spawn, testPlayerSupplier));
         addComponent(definePathfindingComponent(testPlayerSupplier));
-        addComponent(defineAnimationComponent(assetLoader.getAsset(ENEMIES_TEXTURE_ATLAS, TextureAtlas.class)));
+        addComponent(defineAnimationComponent(assetLoader.getAsset(ENEMIES_TEXTURE_ATLAS.getSrc(), TextureAtlas.class)));
         addComponent(new CullOutOfCamBoundsComponent(() -> getComponent(BodyComponent.class).getCollisionBox(), 2f));
         addComponent(new CullOnCamTransComponent());
         addComponent(defineDebugRectComponent());
@@ -142,9 +142,9 @@ public class TestSuctionRoller extends Entity implements Damager, Damageable, Fa
                 nextTarget::set,
                 target -> getComponent(BodyComponent.class).getCollisionBox().contains(centerPoint(target)));
         pathfindingComponent.setDoAcceptPredicate(node ->
-            node.getObjects().stream().noneMatch(o -> o instanceof TestBlock) &&
-                    (node.getObjects().contains("Ground") || node.getObjects().contains("LeftWall") ||
-                            node.getObjects().contains("RightWall")));
+                node.getObjects().stream().noneMatch(o -> o instanceof TestBlock) &&
+                        (node.getObjects().contains("Ground") || node.getObjects().contains("LeftWall") ||
+                                node.getObjects().contains("RightWall")));
         pathfindingComponent.setDoAllowDiagonal(() -> false);
         Timer timer = new Timer(.25f);
         pathfindingComponent.setDoUpdatePredicate(delta -> {
@@ -191,23 +191,18 @@ public class TestSuctionRoller extends Entity implements Damager, Damageable, Fa
         return new AnimationComponent(new TimedAnimation(textureAtlas.findRegion("SuctionRoller"), 5, .1f));
     }
 
-    private BodyComponent defineBodyComponent(Vector2 spawn, Supplier<TestPlayer> testPlayerSupplier) {
+    private BodyComponent defineBodyComponent(Vector2 spawn) {
         BodyComponent bodyComponent = new BodyComponent(DYNAMIC);
         bodyComponent.setGravity(-35f * PPM);
         bodyComponent.setSize(.75f * PPM, PPM);
         setBottomCenterToPoint(bodyComponent.getCollisionBox(), spawn);
         bodyComponent.setPreProcess(delta -> {
-            BodyComponent thisBody = getComponent(BodyComponent.class);
-            BodyComponent testPlayerBody = testPlayerSupplier.get().getComponent(BodyComponent.class);
             if (isOnWall) {
                 if (!wasOnWall) {
                     bodyComponent.setVelocityX(0f);
                 }
-                boolean moveUp = centerPoint(nextTarget).y > thisBody.getCenter().y;
+                boolean moveUp = centerPoint(nextTarget).y > bodyComponent.getCenter().y;
                 bodyComponent.setVelocityY((moveUp ? 2.5f : -2.5f) * PPM);
-                if (!moveUp && testPlayerBody.is(FEET_ON_GROUND)) {
-                    isOnWall = false;
-                }
             }
             if (!isOnWall) {
                 if (wasOnWall) {

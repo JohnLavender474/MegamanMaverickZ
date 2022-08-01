@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.ConstVals;
 import com.game.Entity;
 import com.game.core.IAssetLoader;
 import com.game.core.IEntitiesAndSystemsManager;
@@ -23,13 +22,14 @@ import com.game.sprites.SpriteComponent;
 import com.game.utils.enums.Position;
 import com.game.utils.objects.Wrapper;
 import com.game.world.BodyComponent;
-import com.game.world.BodyType;
 import com.game.world.Fixture;
 import lombok.Getter;
 import lombok.Setter;
 
-import static com.game.ConstVals.TextureAssets.*;
+import static com.game.ConstVals.TextureAsset.OBJECTS_TEXTURE_ATLAS;
 import static com.game.ConstVals.ViewVals.PPM;
+import static com.game.utils.enums.Position.*;
+import static com.game.world.BodyType.*;
 import static com.game.world.FixtureType.*;
 
 @Getter
@@ -68,7 +68,7 @@ public class TestBullet extends Entity implements Hitter, Damager {
     }
 
     @Override
-    public void onDamageInflictedTo(Class<? extends Damageable> damageableClass) {
+    public void onDamageInflictedTo(Damageable damageable) {
         setDead(true);
         disintegrate();
     }
@@ -98,22 +98,22 @@ public class TestBullet extends Entity implements Hitter, Damager {
 
     private SpriteComponent defineSpriteComponent(IAssetLoader assetLoader) {
         Sprite sprite = new Sprite();
-        TextureRegion textureRegion = assetLoader.getAsset(OBJECTS_TEXTURE_ATLAS, TextureAtlas.class)
-                        .findRegion("YellowBullet");
+        TextureRegion textureRegion = assetLoader.getAsset(OBJECTS_TEXTURE_ATLAS.getSrc(), TextureAtlas.class)
+                .findRegion("YellowBullet");
         sprite.setRegion(textureRegion);
         sprite.setSize(PPM * 1.25f, PPM * 1.25f);
         return new SpriteComponent(sprite, new SpriteAdapter() {
             @Override
             public boolean setPositioning(Wrapper<Rectangle> bounds, Wrapper<Position> position) {
                 bounds.setData(getComponent(BodyComponent.class).getCollisionBox());
-                position.setData(Position.CENTER);
+                position.setData(CENTER);
                 return true;
             }
         });
     }
 
     private BodyComponent defineBodyComponent(Vector2 spawn) {
-        BodyComponent bodyComponent = new BodyComponent(BodyType.DYNAMIC);
+        BodyComponent bodyComponent = new BodyComponent(DYNAMIC);
         bodyComponent.setPreProcess(delta -> bodyComponent.setVelocity(trajectory));
         bodyComponent.setSize(.1f * PPM, .1f * PPM);
         bodyComponent.setCenter(spawn.x, spawn.y);

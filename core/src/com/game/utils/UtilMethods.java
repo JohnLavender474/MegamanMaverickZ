@@ -11,6 +11,8 @@ import com.game.utils.interfaces.Positional;
 
 import java.util.function.Predicate;
 
+import static java.lang.Math.*;
+
 /**
  * Global utility methods.
  */
@@ -75,21 +77,33 @@ public class UtilMethods {
     public static Vector2 normalizedTrajectory(Vector2 start, Vector2 end, float speed) {
         float x = end.x - start.x;
         float y = end.y - start.y;
-        float length = (float) Math.sqrt(x * x + y * y);
+        float length = (float) sqrt(x * x + y * y);
         x /= length;
         y /= length;
         return new Vector2(x * speed, y * speed);
     }
 
     /**
-     * Rounded float.
+     * Rounds the provided float to the number of decimal places specified.
      *
-     * @param num   the num
-     * @param scale the scale
-     * @return the float
+     * @param num the provided float
+     * @param decimals the number of decimal places
+     * @return the rounded float
      */
-    public static float roundedFloat(float num, float scale) {
-        return Math.round(num * scale) / scale;
+    public static float roundedFloat(float num, int decimals) {
+        float scale = (float) pow(10, decimals);
+        return round(num * scale) / scale;
+    }
+
+    /**
+     * Rounds the provided {@link Vector2} to the number of decimal places specified.
+     *
+     * @param vector2 the vector2
+     * @param decimals the number of decimal places
+     */
+    public static void roundedVector2(Vector2 vector2, int decimals) {
+        vector2.x = roundedFloat(vector2.x, decimals);
+        vector2.y = roundedFloat(vector2.y, decimals);
     }
 
     /**

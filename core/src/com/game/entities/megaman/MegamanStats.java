@@ -5,14 +5,16 @@ import lombok.Getter;
 
 import java.util.*;
 
+import static com.game.entities.megaman.MegamanWeapon.*;
 import static com.game.utils.UtilMethods.*;
 
 @Getter
 public class MegamanStats {
 
-    private int credits;
+    private final Set<MegamanWeapon> megamanWeapons = EnumSet.of(MEGA_BUSTER);
     private final Map<Integer, Integer> healthTanks = new HashMap<>();
-    private final Set<MegamanWeapon> megamanWeapons = EnumSet.noneOf(MegamanWeapon.class);
+
+    private int credits;
 
     public void setCredits(int credits) {
         this.credits = boundNumber(credits, 0, 99);

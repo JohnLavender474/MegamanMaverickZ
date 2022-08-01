@@ -9,33 +9,28 @@ import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
 import com.game.cull.CullOnCamTransComponent;
 import com.game.cull.CullOutOfCamBoundsComponent;
-import com.game.damage.Damager;
+import com.game.damage.DamageNegotiation;
 import com.game.entities.blocks.Block;
 import com.game.entities.megaman.Megaman;
 import com.game.entities.projectiles.Bullet;
 import com.game.entities.projectiles.ChargedShot;
+import com.game.entities.projectiles.ChargedShotDisintegration;
 import com.game.entities.projectiles.Fireball;
 import com.game.graph.GraphComponent;
 import com.game.health.HealthComponent;
 import com.game.pathfinding.PathfindingComponent;
-import com.game.sounds.SoundComponent;
-import com.game.sprites.SpriteAdapter;
 import com.game.sprites.SpriteComponent;
+import com.game.updatables.UpdatableComponent;
 import com.game.utils.enums.Position;
-import com.game.utils.objects.Timer;
 import com.game.utils.objects.Wrapper;
 import com.game.world.BodyComponent;
 import com.game.world.Fixture;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.function.Supplier;
 
 import static com.badlogic.gdx.math.MathUtils.*;
-import static com.game.ConstVals.SoundAssets.*;
-import static com.game.ConstVals.TextureAssets.ENEMIES_TEXTURE_ATLAS;
+import static com.game.ConstVals.TextureAsset.ENEMIES_TEXTURE_ATLAS;
 import static com.game.ConstVals.ViewVals.PPM;
 import static com.game.utils.UtilMethods.centerPoint;
 import static com.game.utils.UtilMethods.setBottomCenterToPoint;
@@ -48,38 +43,26 @@ public class FloatingCan extends AbstractEnemy {
     private static final float SPEED = 1.5f;
 
     private final Vector2 trajectory = new Vector2();
-    private final Timer damageTimer = new Timer(.25f);
-    private final Map<Class<? extends Damager>, Integer> damageNegotiations = new HashMap<>();
 
     public FloatingCan(GameContext2d gameContext, Supplier<Megaman> megamanSupplier, Vector2 spawn) {
-        super(gameContext, megamanSupplier);
+        super(gameContext, megamanSupplier, 0.05f);
         defineDamageNegotiations();
         addComponent(new CullOnCamTransComponent());
+        addComponent(new UpdatableComponent(new StandardEnemyUpdater()));
         addComponent(new CullOutOfCamBoundsComponent(() -> getComponent(BodyComponent.class).getCollisionBox(), 1.5f));
+        addComponent(new HealthComponent(30, this::disintegrate));
         addComponent(definePathfindingComponent());
         addComponent(defineAnimationComponent());
         addComponent(defineBodyComponent(spawn));
         addComponent(defineSpriteComponent());
-        addComponent(new HealthComponent(30));
         addComponent(defineGraphComponent());
     }
 
     private void defineDamageNegotiations() {
-        damageNegotiations.put(Bullet.class, 10);
-        damageNegotiations.put(Fireball.class, 30);
-        damageNegotiations.put(ChargedShot.class, 30);
-    }
-
-    @Override
-    public void takeDamageFrom(Damager damager) {
-        damageTimer.reset();
-        getComponent(SoundComponent.class).requestSound(ENEMY_DAMAGE_SOUND);
-        getComponent(HealthComponent.class).sub(damageNegotiations.get(damager.getClass()));
-    }
-
-    @Override
-    public Set<Class<? extends Damager>> getDamagerMaskSet() {
-        return damageNegotiations.keySet();
+        damageNegotiations.put(Bullet.class, new DamageNegotiation(10));
+        damageNegotiations.put(Fireball.class, new DamageNegotiation(30));
+        damageNegotiations.put(ChargedShot.class, new DamageNegotiation(30));
+        damageNegotiations.put(ChargedShotDisintegration.class, new DamageNegotiation(15));
     }
 
     private GraphComponent defineGraphComponent() {
@@ -121,7 +104,7 @@ public class FloatingCan extends AbstractEnemy {
     private SpriteComponent defineSpriteComponent() {
         Sprite sprite = new Sprite();
         sprite.setSize(1.5f * PPM, 1.5f * PPM);
-        return new SpriteComponent(sprite, new SpriteAdapter() {
+        return new SpriteComponent(sprite, new StandardEnemySpriteAdapter() {
 
             @Override
             public boolean setPositioning(Wrapper<Rectangle> bounds, Wrapper<Position> position) {
@@ -139,7 +122,7 @@ public class FloatingCan extends AbstractEnemy {
     }
 
     private AnimationComponent defineAnimationComponent() {
-        TextureAtlas textureAtlas = gameContext.getAsset(ENEMIES_TEXTURE_ATLAS, TextureAtlas.class);
+        TextureAtlas textureAtlas = gameContext.getAsset(ENEMIES_TEXTURE_ATLAS.getSrc(), TextureAtlas.class);
         return new AnimationComponent(new TimedAnimation(textureAtlas.findRegion("FloatingCan"), 4, .15f));
     }
 

@@ -1,3 +1,5 @@
 package com.game.sounds;
 
-public record SoundRequest(String request, Boolean loop, Float volume) {}
+import static com.game.ConstVals.*;
+
+public record SoundRequest(SoundAsset request, Boolean loop, Float volume) {}

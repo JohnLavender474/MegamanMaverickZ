@@ -7,6 +7,8 @@ import com.game.utils.UtilMethods;
 
 import java.util.Set;
 
+import static com.game.utils.UtilMethods.*;
+
 public class CullOnOutOfCamBoundsSystem extends System {
 
     private final Camera camera;
@@ -19,7 +21,7 @@ public class CullOnOutOfCamBoundsSystem extends System {
     @Override
     protected void processEntity(IEntity entity, float delta) {
         CullOutOfCamBoundsComponent cullComponent = entity.getComponent(CullOutOfCamBoundsComponent.class);
-        if (camera.frustum.boundsInFrustum(UtilMethods.rectToBBox(cullComponent.getBounds()))) {
+        if (camera.frustum.boundsInFrustum(rectToBBox(cullComponent.getBounds()))) {
             cullComponent.resetCullTimer();
             return;
         }

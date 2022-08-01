@@ -54,7 +54,7 @@ import com.game.world.WorldSystem;
 import java.util.*;
 import java.util.function.Supplier;
 
-import static com.game.ConstVals.TextureAssets.DECORATIONS_TEXTURE_ATLAS;
+import static com.game.ConstVals.TextureAsset.DECORATIONS_TEXTURE_ATLAS;
 import static com.game.ConstVals.ViewVals.*;
 import static com.game.levels.LevelScreen.LEVEL_CAM_TRANS_DURATION;
 import static com.game.levels.LevelScreen.MEGAMAN_DELTA_ON_CAM_TRANS;
@@ -115,7 +115,7 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
         deathTimer.setToEnd();
         testController = new TestController();
         messageDispatcher = new TestMessageDispatcher();
-        messageDispatcher.addListener(this);
+        messageDispatcher.addMessageListener(this);
         entitiesAndSystemsManager = new TestEntitiesAndSystemsManager();
         spriteBatch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
@@ -124,7 +124,8 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
         uiViewport.getCamera().position.y = 0f;
         playgroundViewport = new FitViewport(VIEW_WIDTH * PPM, VIEW_HEIGHT * PPM);
         assetLoader = new TestAssetLoader();
-        black = new Sprite(assetLoader.getAsset(DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class).findRegion("Black"));
+        black = new Sprite(assetLoader.getAsset(DECORATIONS_TEXTURE_ATLAS.getSrc(), TextureAtlas.class)
+                .findRegion("Black"));
         black.setSize(1920f, 1080f);
         black.setCenter(0f, 0f);
         entitiesAndSystemsManager.addSystem(new WorldSystem(new TestWorldContactListener(),

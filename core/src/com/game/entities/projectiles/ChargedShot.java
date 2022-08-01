@@ -8,8 +8,6 @@ import com.game.GameContext2d;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
 import com.game.core.IEntity;
-import com.game.cull.CullOnCamTransComponent;
-import com.game.cull.CullOutOfCamBoundsComponent;
 import com.game.damage.Damageable;
 import com.game.damage.Damager;
 import com.game.entities.contracts.Faceable;
@@ -24,8 +22,8 @@ import com.game.world.Fixture;
 import lombok.Getter;
 import lombok.Setter;
 
-import static com.game.ConstVals.SoundAssets.*;
-import static com.game.ConstVals.TextureAssets.MEGAMAN_CHARGED_SHOT_TEXTURE_ATLAS;
+import static com.game.ConstVals.SoundAsset.*;
+import static com.game.ConstVals.TextureAsset.MEGAMAN_CHARGED_SHOT_TEXTURE_ATLAS;
 import static com.game.ConstVals.ViewVals.PPM;
 import static com.game.entities.contracts.Facing.F_LEFT;
 import static com.game.world.BodyType.*;
@@ -43,8 +41,6 @@ public class ChargedShot extends AbstractProjectile implements Faceable {
         super(gameContext, owner, .15f);
         this.trajectory.set(trajectory);
         setFacing(facing);
-        addComponent(new CullOutOfCamBoundsComponent(() -> getComponent(BodyComponent.class).getCollisionBox(), .15f));
-        addComponent(new CullOnCamTransComponent());
         addComponent(defineAnimationComponent());
         addComponent(defineBodyComponent(spawn));
         addComponent(defineSpriteComponent());
@@ -57,7 +53,7 @@ public class ChargedShot extends AbstractProjectile implements Faceable {
     }
 
     @Override
-    public void onDamageInflictedTo(Class<? extends Damageable> damageableClass) {
+    public void onDamageInflictedTo(Damageable damageable) {
         setDead(true);
         gameContext.addEntity(new ChargedShotDisintegration(
                 gameContext, getComponent(BodyComponent.class).getCenter(), isFacing(F_LEFT)));
@@ -88,7 +84,8 @@ public class ChargedShot extends AbstractProjectile implements Faceable {
     }
 
     private AnimationComponent defineAnimationComponent() {
-        TextureAtlas textureAtlas = gameContext.getAsset(MEGAMAN_CHARGED_SHOT_TEXTURE_ATLAS, TextureAtlas.class);
+        TextureAtlas textureAtlas = gameContext.getAsset(
+                MEGAMAN_CHARGED_SHOT_TEXTURE_ATLAS.getSrc(), TextureAtlas.class);
         return new AnimationComponent(new TimedAnimation(textureAtlas.findRegion("MegamanChargedShot"), 2, .05f));
     }
 

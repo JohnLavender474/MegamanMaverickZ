@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Entity;
@@ -33,12 +32,11 @@ import com.game.world.FixtureType;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.EnumMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import static com.game.ConstVals.TextureAssets.MET_TEXTURE_ATLAS;
+import static com.game.ConstVals.TextureAsset.MET_TEXTURE_ATLAS;
 import static com.game.ConstVals.ViewVals.PPM;
 import static com.game.utils.UtilMethods.setBottomCenterToPoint;
 import static com.game.world.BodySense.TOUCHING_HITBOX_LEFT;
@@ -52,17 +50,18 @@ public class TestMet extends Entity implements Faceable, Damager, Damageable {
         SHIELDING, POP_UP, RUNNING, PANIC
     }
 
-    private final Map<MetBehavior, Timer> metBehaviorTimers = new EnumMap<>(MetBehavior.class) {{
-        put(MetBehavior.SHIELDING, new Timer(1.15f));
-        put(MetBehavior.POP_UP, new Timer(.5f));
-        put(MetBehavior.RUNNING, new Timer(.5f));
-        put(MetBehavior.PANIC, new Timer(1f));
-    }};
+    private final Map<MetBehavior, Timer> metBehaviorTimers = Map.of(
+            MetBehavior.SHIELDING, new Timer(1.15f),
+            MetBehavior.RUNNING, new Timer(.5f),
+            MetBehavior.POP_UP, new Timer(.5f),
+            MetBehavior.PANIC, new Timer(1f));
+
     private final IAssetLoader assetLoader;
     private final Supplier<TestPlayer> megamanSupplier;
     private final IEntitiesAndSystemsManager entitiesAndSystemsManager;
     private final Set<Class<? extends Damager>> damagerMaskSet = Set.of(
             TestBullet.class, TestChargedShot.class, TestFireball.class);
+
     private final Timer damageTimer = new Timer(.25f);
     private final Timer blinkTimer = new Timer(.05f);
 
@@ -82,7 +81,7 @@ public class TestMet extends Entity implements Faceable, Damager, Damageable {
         addComponent(defineBodyComponent(spawn));
         addComponent(defineDebugComponent());
         addComponent(defineSpriteComponent());
-        addComponent(defineAnimationComponent(assetLoader.getAsset(MET_TEXTURE_ATLAS, TextureAtlas.class)));
+        addComponent(defineAnimationComponent(assetLoader.getAsset(MET_TEXTURE_ATLAS.getSrc(), TextureAtlas.class)));
         setMetBehavior(MetBehavior.SHIELDING);
         damageTimer.setToEnd();
     }

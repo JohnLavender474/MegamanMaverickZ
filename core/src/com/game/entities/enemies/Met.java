@@ -1,37 +1,37 @@
 package com.game.entities.enemies;
 
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.GameContext2d;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
+import com.game.damage.DamageNegotiation;
 import com.game.entities.contracts.Faceable;
 import com.game.entities.contracts.Facing;
 import com.game.entities.megaman.Megaman;
 import com.game.entities.projectiles.Bullet;
-import com.game.sprites.SpriteAdapter;
+import com.game.entities.projectiles.ChargedShot;
+import com.game.entities.projectiles.ChargedShotDisintegration;
+import com.game.entities.projectiles.Fireball;
+import com.game.sounds.SoundComponent;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
-import com.game.utils.enums.Position;
 import com.game.utils.objects.Timer;
-import com.game.utils.objects.Wrapper;
 import com.game.world.BodyComponent;
 import com.game.world.Fixture;
 import com.game.world.FixtureType;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import static com.game.ConstVals.SoundAssets.*;
-import static com.game.ConstVals.TextureAssets.MET_TEXTURE_ATLAS;
+import static com.game.ConstVals.SoundAsset.*;
+import static com.game.ConstVals.TextureAsset.MET_TEXTURE_ATLAS;
 import static com.game.ConstVals.ViewVals.PPM;
+import static com.game.entities.enemies.Met.MetBehavior.*;
 import static com.game.utils.UtilMethods.setBottomCenterToPoint;
 import static com.game.world.BodySense.TOUCHING_HITBOX_LEFT;
 import static com.game.world.BodySense.TOUCHING_HITBOX_RIGHT;
@@ -42,27 +42,34 @@ import static com.game.world.FixtureType.*;
 @Setter
 public class Met extends AbstractEnemy implements Faceable {
 
-    private enum MetBehavior {
+    public enum MetBehavior {
         SHIELDING, POP_UP, RUNNING, PANIC
     }
 
-    private final Map<MetBehavior, Timer> metBehaviorTimers = new EnumMap<>(MetBehavior.class) {{
-        put(MetBehavior.SHIELDING, new Timer(1.15f));
-        put(MetBehavior.POP_UP, new Timer(.5f));
-        put(MetBehavior.RUNNING, new Timer(.5f));
-        put(MetBehavior.PANIC, new Timer(1f));
-    }};
+    private final Map<MetBehavior, Timer> metBehaviorTimers = Map.of(
+            SHIELDING, new Timer(1.15f),
+            RUNNING, new Timer(.5f),
+            POP_UP, new Timer(.5f),
+            PANIC, new Timer(1f));
 
     private MetBehavior metBehavior;
     private Facing facing;
 
     public Met(GameContext2d gameContext, Supplier<Megaman> megamanSupplier, Vector2 spawn) {
-        super(gameContext, megamanSupplier);
-        damageNegotiation.put(Bullet.class, 10);
+        super(gameContext, megamanSupplier, .05f);
+        defineDamageNegotiations();
         addComponent(defineSpriteComponent());
         addComponent(defineUpdatableComponent());
         addComponent(defineAnimationComponent());
         addComponent(defineBodyComponent(spawn));
+        setMetBehavior(SHIELDING);
+    }
+
+    private void defineDamageNegotiations() {
+        damageNegotiations.put(Bullet.class, new DamageNegotiation(10));
+        damageNegotiations.put(Fireball.class, new DamageNegotiation(15));
+        damageNegotiations.put(ChargedShot.class, new DamageNegotiation(30));
+        damageNegotiations.put(ChargedShotDisintegration.class, new DamageNegotiation(15));
     }
 
     public void setMetBehavior(MetBehavior metBehavior) {
@@ -76,60 +83,63 @@ public class Met extends AbstractEnemy implements Faceable {
         Vector2 trajectory = new Vector2((isFacing(Facing.F_RIGHT) ? 10f : -10f) * PPM, .5f * PPM);
         Vector2 spawn = bodyComponent.getCenter().cpy().add(isFacing(Facing.F_RIGHT) ? .5f : -.5f, -4f);
         gameContext.addEntity(new Bullet(gameContext, this, trajectory, spawn));
-        gameContext.getAsset(ENEMY_BULLET_SOUND, Sound.class).play();
+        getComponent(SoundComponent.class).requestSound(ENEMY_BULLET_SOUND);
     }
 
     private UpdatableComponent defineUpdatableComponent() {
-        return new UpdatableComponent(delta -> {
-            if (megamanSupplier.get().isDead()) {
-                return;
-            }
-            damageTimer.update(delta);
-            BodyComponent bodyComponent = getComponent(BodyComponent.class);
-            bodyComponent.getFirstMatchingFixture(SHIELD).ifPresentOrElse(
-                    shield -> shield.setActive(metBehavior == MetBehavior.SHIELDING),
-                    () -> {throw new IllegalStateException();});
-            bodyComponent.getFirstMatchingFixture(DAMAGEABLE_BOX).ifPresentOrElse(
-                    hitBox -> hitBox.setActive(metBehavior != MetBehavior.SHIELDING),
-                    () -> {throw new IllegalStateException();});
-            switch (metBehavior) {
-                case SHIELDING -> {
-                    Timer shieldingTimer = metBehaviorTimers.get(MetBehavior.SHIELDING);
-                    if (!playerIsAttacking()) {
-                        shieldingTimer.update(delta);
-                    }
-                    if (shieldingTimer.isFinished()) {
-                        setMetBehavior(MetBehavior.POP_UP);
-                    }
+        return new UpdatableComponent(new StandardEnemyUpdater() {
+            @Override
+            public void update(float delta) {
+                super.update(delta);
+                if (getMegaman().isDead()) {
+                    return;
                 }
-                case POP_UP -> {
-                    setFacing(Math.round(megamanSupplier.get().getComponent(BodyComponent.class).getPosition().x) <
-                            Math.round(bodyComponent.getPosition().x) ? Facing.F_LEFT : Facing.F_RIGHT);
-                    Timer popUpTimer = metBehaviorTimers.get(MetBehavior.POP_UP);
-                    if (popUpTimer.isAtBeginning()) {
-                        shoot();
+                BodyComponent bodyComponent = getComponent(BodyComponent.class);
+                bodyComponent.getFirstMatchingFixture(SHIELD).ifPresentOrElse(
+                        shield -> shield.setActive(metBehavior == SHIELDING),
+                        () -> {throw new IllegalStateException();});
+                bodyComponent.getFirstMatchingFixture(DAMAGEABLE_BOX).ifPresentOrElse(
+                        hitBox -> hitBox.setActive(metBehavior != SHIELDING),
+                        () -> {throw new IllegalStateException();});
+                switch (metBehavior) {
+                    case SHIELDING -> {
+                        Timer shieldingTimer = metBehaviorTimers.get(SHIELDING);
+                        if (!playerIsAttacking()) {
+                            shieldingTimer.update(delta);
+                        }
+                        if (shieldingTimer.isFinished()) {
+                            setMetBehavior(POP_UP);
+                        }
                     }
-                    popUpTimer.update(delta);
-                    if (popUpTimer.isFinished()) {
-                        setMetBehavior(MetBehavior.RUNNING);
+                    case POP_UP -> {
+                        setFacing(Math.round(megamanSupplier.get().getComponent(BodyComponent.class).getPosition().x) <
+                                Math.round(bodyComponent.getPosition().x) ? Facing.F_LEFT : Facing.F_RIGHT);
+                        Timer popUpTimer = metBehaviorTimers.get(POP_UP);
+                        if (popUpTimer.isAtBeginning()) {
+                            shoot();
+                        }
+                        popUpTimer.update(delta);
+                        if (popUpTimer.isFinished()) {
+                            setMetBehavior(RUNNING);
+                        }
                     }
-                }
-                case RUNNING -> {
-                    Timer runningTimer = metBehaviorTimers.get(MetBehavior.RUNNING);
-                    runningTimer.update(delta);
-                    bodyComponent.setVelocity((isFacing(Facing.F_LEFT) ? -8f : 8f) * PPM, 0f);
-                    if (runningTimer.isFinished() ||
-                            (isFacing(Facing.F_LEFT) && bodyComponent.is(TOUCHING_HITBOX_LEFT)) ||
-                            (isFacing(Facing.F_RIGHT) && bodyComponent.is(TOUCHING_HITBOX_RIGHT))) {
-                        setMetBehavior(MetBehavior.SHIELDING);
+                    case RUNNING -> {
+                        Timer runningTimer = metBehaviorTimers.get(RUNNING);
+                        runningTimer.update(delta);
+                        bodyComponent.setVelocity((isFacing(Facing.F_LEFT) ? -8f : 8f) * PPM, 0f);
+                        if (runningTimer.isFinished() ||
+                                (isFacing(Facing.F_LEFT) && bodyComponent.is(TOUCHING_HITBOX_LEFT)) ||
+                                (isFacing(Facing.F_RIGHT) && bodyComponent.is(TOUCHING_HITBOX_RIGHT))) {
+                            setMetBehavior(SHIELDING);
+                        }
                     }
-                }
-                case PANIC -> {
-                    Timer panicTimer = metBehaviorTimers.get(MetBehavior.PANIC);
-                    metBehaviorTimers.get(MetBehavior.PANIC).update(delta);
-                    if (panicTimer.isFinished()) {
-                        disintegrate();
-                        setDead(true);
+                    case PANIC -> {
+                        Timer panicTimer = metBehaviorTimers.get(PANIC);
+                        metBehaviorTimers.get(PANIC).update(delta);
+                        if (panicTimer.isFinished()) {
+                            disintegrate();
+                            setDead(true);
+                        }
                     }
                 }
             }
@@ -170,20 +180,11 @@ public class Met extends AbstractEnemy implements Faceable {
     private SpriteComponent defineSpriteComponent() {
         Sprite sprite = new Sprite();
         sprite.setSize(1.5f * PPM, 1.5f * PPM);
-        return new SpriteComponent(sprite, new SpriteAdapter() {
-
-            @Override
-            public boolean setPositioning(Wrapper<Rectangle> bounds, Wrapper<Position> position) {
-                bounds.setData(getComponent(BodyComponent.class).getCollisionBox());
-                position.setData(Position.BOTTOM_CENTER);
-                return true;
-            }
-
+        return new SpriteComponent(sprite, new StandardEnemySpriteAdapter() {
             @Override
             public boolean isFlipX() {
                 return isFacing(Facing.F_LEFT);
             }
-
         });
     }
 
@@ -194,13 +195,12 @@ public class Met extends AbstractEnemy implements Faceable {
             case PANIC -> "RunNaked";
             case SHIELDING -> "LayDown";
         };
-        TextureAtlas textureAtlas = gameContext.getAsset(MET_TEXTURE_ATLAS, TextureAtlas.class);
-        Map<String, TimedAnimation> timedAnimations = new HashMap<>() {{
-            put("Run", new TimedAnimation(textureAtlas.findRegion("Run"), 2, .125f));
-            put("PopUp", new TimedAnimation(textureAtlas.findRegion("PopUp")));
-            put("RunNaked", new TimedAnimation(textureAtlas.findRegion("RunNaked"), 2, .1f));
-            put("LayDown", new TimedAnimation(textureAtlas.findRegion("LayDown")));
-        }};
+        TextureAtlas textureAtlas = gameContext.getAsset(MET_TEXTURE_ATLAS.getSrc(), TextureAtlas.class);
+        Map<String, TimedAnimation> timedAnimations = Map.of(
+            "Run", new TimedAnimation(textureAtlas.findRegion("Run"), 2, .125f),
+            "PopUp", new TimedAnimation(textureAtlas.findRegion("PopUp")),
+            "RunNaked", new TimedAnimation(textureAtlas.findRegion("RunNaked"), 2, .1f),
+            "LayDown", new TimedAnimation(textureAtlas.findRegion("LayDown")));
         return new AnimationComponent(keySupplier, timedAnimations::get);
     }
 

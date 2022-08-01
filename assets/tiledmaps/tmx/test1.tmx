@@ -96,12 +96,11 @@
   <object id="47" x="1652" y="16" width="140" height="220"/>
  </objectgroup>
  <objectgroup id="8" name="EnemySpawns">
-  <object id="44" name="met" x="860" y="152" width="4" height="8"/>
   <object id="46" name="sniper_joe" x="344" y="120" width="4" height="8"/>
   <object id="48" name="met" x="1140" y="184" width="4" height="8"/>
   <object id="49" name="met" x="1320" y="184" width="4" height="8"/>
   <object id="50" name="sniper_joe" x="1240" y="184" width="4" height="8"/>
   <object id="56" name="suction_roller" x="736" y="152" width="4" height="8"/>
-  <object id="63" name="floating_can" x="784" y="64" width="16" height="16"/>
+  <object id="63" name="floating_can" x="1088" y="64" width="16" height="16"/>
  </objectgroup>
 </map>

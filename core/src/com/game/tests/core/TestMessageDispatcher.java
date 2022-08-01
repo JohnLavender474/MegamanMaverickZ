@@ -15,12 +15,12 @@ public class TestMessageDispatcher implements IMessageDispatcher {
     private final Queue<Message> messageQueue = new ArrayDeque<>();
 
     @Override
-    public void addListener(MessageListener messageListener) {
+    public void addMessageListener(MessageListener messageListener) {
         messageListeners.add(messageListener);
     }
 
     @Override
-    public void removeListener(MessageListener messageListener) {
+    public void removeMessageListener(MessageListener messageListener) {
         messageListeners.remove(messageListener);
     }
 

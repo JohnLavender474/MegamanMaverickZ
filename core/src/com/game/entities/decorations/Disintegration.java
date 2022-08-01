@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
-import com.game.ConstVals.TextureAssets;
 import com.game.Entity;
 import com.game.GameContext2d;
 import com.game.animations.AnimationComponent;
@@ -13,20 +12,21 @@ import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
 import com.game.utils.objects.Timer;
 import com.game.world.BodyComponent;
-import com.game.world.BodyType;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.game.ConstVals.TextureAsset.DECORATIONS_TEXTURE_ATLAS;
 import static com.game.ConstVals.ViewVals.PPM;
+import static com.game.world.BodyType.*;
 
 @Getter
 @Setter
 public class Disintegration extends Entity {
 
-    public static final float DISINTEGRATION_DURATION = 1f;
+    public static final float DISINTEGRATION_DURATION = .5f;
 
     private final Map<Class<? extends Component>, Component> components = new HashMap<>();
     private final Timer timer = new Timer(DISINTEGRATION_DURATION);
@@ -40,11 +40,11 @@ public class Disintegration extends Entity {
     }
 
     private BodyComponent defineBodyComponent(Vector2 center) {
-        BodyComponent bodyComponent = new BodyComponent(BodyType.ABSTRACT);
+        BodyComponent bodyComponent = new BodyComponent(ABSTRACT);
         bodyComponent.setFriction(0f, 0f);
+        bodyComponent.setGravityOn(false);
         bodyComponent.setSize(PPM, PPM);
         bodyComponent.setCenter(center);
-        bodyComponent.setGravityOn(false);
         return bodyComponent;
     }
 
@@ -57,7 +57,7 @@ public class Disintegration extends Entity {
 
     private AnimationComponent defineAnimationComponent(GameContext2d gameContext) {
         return new AnimationComponent(new TimedAnimation(gameContext.getAsset(
-                TextureAssets.DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class).findRegion("Disintegration"), 3, 0.1f));
+                DECORATIONS_TEXTURE_ATLAS.getSrc(), TextureAtlas.class).findRegion("Disintegration"), 3, 0.1f));
     }
 
     private UpdatableComponent defineUpdatableComponent() {

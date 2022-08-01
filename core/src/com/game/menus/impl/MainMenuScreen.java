@@ -6,9 +6,6 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
-import com.game.ConstVals;
-import com.game.ConstVals.MusicAssets;
-import com.game.ConstVals.TextureAssets;
 import com.game.GameContext2d;
 import com.game.menus.MenuButton;
 import com.game.menus.MenuScreen;
@@ -23,8 +20,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.game.ConstVals.GameScreen.*;
-import static com.game.ConstVals.MusicAssets.*;
-import static com.game.ConstVals.TextureAssets.*;
+import static com.game.ConstVals.MusicAsset.MMX3_INTRO_STAGE_MUSIC;
+import static com.game.ConstVals.SoundAsset.*;
+import static com.game.ConstVals.TextureAsset.DECORATIONS_TEXTURE_ATLAS;
 import static com.game.ConstVals.ViewVals.PPM;
 
 /**
@@ -48,7 +46,7 @@ public class MainMenuScreen extends MenuScreen {
      * @param gameContext the game context 2 d
      */
     public MainMenuScreen(GameContext2d gameContext) {
-        super(gameContext, MMX3_INTRO_STAGE_MUSIC);
+        super(gameContext, MMX3_INTRO_STAGE_MUSIC.getSrc());
     }
 
     @Override
@@ -65,7 +63,7 @@ public class MainMenuScreen extends MenuScreen {
             row -= 0.75f;
         }
         setMenuButton(MainMenuButton.GAME_START.name());
-        TextureAtlas textureAtlas = gameContext.getAsset(DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class);
+        TextureAtlas textureAtlas = gameContext.getAsset(DECORATIONS_TEXTURE_ATLAS.getSrc(), TextureAtlas.class);
         arrow.setRegion(textureAtlas.findRegion("Arrow"));
         arrow.setSize(0.5f * PPM, 0.5f * PPM);
         Vector2 arrowCenter = arrowCenters.get(MainMenuButton.GAME_START);
@@ -101,7 +99,7 @@ public class MainMenuScreen extends MenuScreen {
 
     @Override
     protected void onMovement() {
-        gameContext.getAsset(ConstVals.SoundAssets.CURSOR_MOVE_BLOOP_SOUND, Sound.class).play();
+        gameContext.getAsset(CURSOR_MOVE_BLOOP_SOUND.getSrc(), Sound.class).play();
     }
 
     @Override

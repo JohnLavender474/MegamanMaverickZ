@@ -7,12 +7,14 @@ import com.game.Entity;
 import com.game.GameContext2d;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
+import com.game.cull.CullOnCamTransComponent;
+import com.game.cull.CullOutOfCamBoundsComponent;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
 import com.game.utils.objects.Timer;
 import lombok.Getter;
 
-import static com.game.ConstVals.TextureAssets.DECORATIONS_TEXTURE_ATLAS;
+import static com.game.ConstVals.TextureAsset.DECORATIONS_TEXTURE_ATLAS;
 import static com.game.ConstVals.ViewVals.PPM;
 
 @Getter
@@ -21,9 +23,12 @@ public class ExplosionOrb extends Entity {
     private final Timer cullTimer = new Timer(.5f);
 
     public ExplosionOrb(GameContext2d gameContext, Vector2 spawn, Vector2 trajectory) {
+        addComponent(defineSpriteComponent(spawn));
+        addComponent(new CullOnCamTransComponent());
         addComponent(defineUpdatableComponent(trajectory));
         addComponent(defineAnimationComponent(gameContext));
-        addComponent(defineSpriteComponent(spawn));
+        addComponent(new CullOutOfCamBoundsComponent(
+                () -> getComponent(SpriteComponent.class).getSprite().getBoundingRectangle(), .1f));
     }
 
     private UpdatableComponent defineUpdatableComponent(Vector2 trajectory) {
@@ -40,7 +45,7 @@ public class ExplosionOrb extends Entity {
 
     private AnimationComponent defineAnimationComponent(GameContext2d gameContext) {
         return new AnimationComponent(new TimedAnimation(gameContext.getAsset(
-                DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class).findRegion("PlayerExplosionOrbs"), 2, .075f));
+                DECORATIONS_TEXTURE_ATLAS.getSrc(), TextureAtlas.class).findRegion("PlayerExplosionOrbs"), 2, .075f));
     }
 
 }

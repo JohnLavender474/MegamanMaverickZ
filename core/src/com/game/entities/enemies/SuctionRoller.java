@@ -7,13 +7,16 @@ import com.badlogic.gdx.math.Vector2;
 import com.game.GameContext2d;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
+import com.game.damage.DamageNegotiation;
 import com.game.entities.blocks.Block;
 import com.game.entities.contracts.Faceable;
 import com.game.entities.contracts.Facing;
 import com.game.entities.megaman.Megaman;
 import com.game.entities.projectiles.Bullet;
+import com.game.entities.projectiles.ChargedShot;
+import com.game.entities.projectiles.ChargedShotDisintegration;
+import com.game.entities.projectiles.Fireball;
 import com.game.pathfinding.PathfindingComponent;
-import com.game.sprites.SpriteAdapter;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
 import com.game.utils.enums.Position;
@@ -26,7 +29,7 @@ import lombok.Setter;
 
 import java.util.function.Supplier;
 
-import static com.game.ConstVals.TextureAssets.*;
+import static com.game.ConstVals.TextureAsset.ENEMIES_TEXTURE_ATLAS;
 import static com.game.ConstVals.ViewVals.PPM;
 import static com.game.entities.contracts.Facing.F_LEFT;
 import static com.game.entities.contracts.Facing.F_RIGHT;
@@ -41,17 +44,14 @@ import static com.game.world.FixtureType.*;
 public class SuctionRoller extends AbstractEnemy implements Faceable {
 
     private final Rectangle nextTarget = new Rectangle();
-    private final Timer offWallGrace = new Timer(.15f);
 
     private Facing facing;
     private boolean isOnWall;
     private boolean wasOnWall;
 
     public SuctionRoller(GameContext2d gameContext, Supplier<Megaman> megamanSupplier, Vector2 spawn) {
-        super(gameContext, megamanSupplier);
-        damageTimer.setToEnd();
-        offWallGrace.setToEnd();
-        damageNegotiation.put(Bullet.class, 5);
+        super(gameContext, megamanSupplier, .05f);
+        defineDamageNegotiations();
         addComponent(definePathfindingComponent());
         addComponent(defineAnimationComponent());
         addComponent(defineUpdatableComponent());
@@ -59,35 +59,41 @@ public class SuctionRoller extends AbstractEnemy implements Faceable {
         addComponent(defineSpriteComponent());
     }
 
+    private void defineDamageNegotiations() {
+        damageNegotiations.put(Bullet.class, new DamageNegotiation(5));
+        damageNegotiations.put(Fireball.class, new DamageNegotiation(30));
+        damageNegotiations.put(ChargedShot.class, new DamageNegotiation(30));
+        damageNegotiations.put(ChargedShotDisintegration.class, new DamageNegotiation(15));
+    }
+
     private UpdatableComponent defineUpdatableComponent() {
-        return new UpdatableComponent(delta -> {
-            if (getMegaman().isDead()) {
-                return;
-            }
-            damageTimer.update(delta);
-            BodyComponent thisBody = getComponent(BodyComponent.class);
-            wasOnWall = isOnWall;
-            isOnWall = (isFacing(F_LEFT) && thisBody.is(TOUCHING_BLOCK_LEFT)) ||
-                    (isFacing(F_RIGHT) && thisBody.is(TOUCHING_BLOCK_RIGHT));
-            offWallGrace.update(delta);
-            if (wasOnWall && !isOnWall) {
-                offWallGrace.reset();
-            }
-            BodyComponent playerBody = getMegaman().getComponent(BodyComponent.class);
-            if (thisBody.is(FEET_ON_GROUND)) {
-                if (bottomRightPoint(playerBody.getCollisionBox()).x < thisBody.getPosition().x) {
-                    setFacing(F_LEFT);
-                } else if (playerBody.getPosition().x > bottomRightPoint(thisBody.getCollisionBox()).x) {
-                    setFacing(F_RIGHT);
-                }
-            }
+        return new UpdatableComponent(new StandardEnemyUpdater() {
+           @Override
+           public void update(float delta) {
+               super.update(delta);
+               if (getMegaman().isDead()) {
+                   return;
+               }
+               BodyComponent thisBody = getComponent(BodyComponent.class);
+               wasOnWall = isOnWall;
+               isOnWall = (isFacing(F_LEFT) && thisBody.is(TOUCHING_BLOCK_LEFT)) ||
+                       (isFacing(F_RIGHT) && thisBody.is(TOUCHING_BLOCK_RIGHT));
+               BodyComponent playerBody = getMegaman().getComponent(BodyComponent.class);
+               if (thisBody.is(FEET_ON_GROUND)) {
+                   if (bottomRightPoint(playerBody.getCollisionBox()).x < thisBody.getPosition().x) {
+                       setFacing(F_LEFT);
+                   } else if (playerBody.getPosition().x > bottomRightPoint(thisBody.getCollisionBox()).x) {
+                       setFacing(F_RIGHT);
+                   }
+               }
+           }
         });
     }
 
     private PathfindingComponent definePathfindingComponent() {
         PathfindingComponent pathfindingComponent = new PathfindingComponent(
-                () -> getComponent(BodyComponent.class).getCenter(), () -> getMegaman().getFocus(),
-                nextTarget::set,
+                () -> getComponent(BodyComponent.class).getCenter(),
+                () -> getMegaman().getFocus(), nextTarget::set,
                 target -> getComponent(BodyComponent.class).getCollisionBox().contains(centerPoint(target)));
         pathfindingComponent.setDoAcceptPredicate(node ->
                 node.getObjects().stream().noneMatch(o -> o instanceof Block) &&
@@ -109,7 +115,7 @@ public class SuctionRoller extends AbstractEnemy implements Faceable {
     private SpriteComponent defineSpriteComponent() {
         Sprite sprite = new Sprite();
         sprite.setSize(1.5f * PPM, 1.5f * PPM);
-        return new SpriteComponent(sprite, new SpriteAdapter() {
+        return new SpriteComponent(sprite, new StandardEnemySpriteAdapter() {
 
             @Override
             public boolean setPositioning(Wrapper<Rectangle> bounds, Wrapper<Position> position) {
@@ -125,7 +131,7 @@ public class SuctionRoller extends AbstractEnemy implements Faceable {
 
             @Override
             public boolean isFlipX() {
-                if (isOnWall || !offWallGrace.isFinished()) {
+                if (isOnWall) {
                     return isFacing(F_RIGHT) ? nextTarget.y >= getComponent(BodyComponent.class).getCenter().y :
                             nextTarget.y < getComponent(BodyComponent.class).getCenter().y;
                 }
@@ -136,27 +142,22 @@ public class SuctionRoller extends AbstractEnemy implements Faceable {
     }
 
     private AnimationComponent defineAnimationComponent() {
-        TextureAtlas textureAtlas = gameContext.getAsset(ENEMIES_TEXTURE_ATLAS, TextureAtlas.class);
+        TextureAtlas textureAtlas = gameContext.getAsset(ENEMIES_TEXTURE_ATLAS.getSrc(), TextureAtlas.class);
         return new AnimationComponent(new TimedAnimation(textureAtlas.findRegion("SuctionRoller"), 5, .1f));
     }
 
     private BodyComponent defineBodyComponent(Vector2 spawn) {
         BodyComponent bodyComponent = new BodyComponent(DYNAMIC);
-        bodyComponent.setGravity(-35f * PPM);
         bodyComponent.setSize(.75f * PPM, PPM);
         setBottomCenterToPoint(bodyComponent.getCollisionBox(), spawn);
         bodyComponent.setPreProcess(delta -> {
-            BodyComponent thisBody = getComponent(BodyComponent.class);
-            BodyComponent testPlayerBody = getMegaman().getComponent(BodyComponent.class);
+            bodyComponent.setGravity(bodyComponent.is(FEET_ON_GROUND) ? -PPM : -35f * PPM);
             if (isOnWall) {
                 if (!wasOnWall) {
                     bodyComponent.setVelocityX(0f);
                 }
-                boolean moveUp = centerPoint(nextTarget).y > thisBody.getCenter().y;
+                boolean moveUp = centerPoint(nextTarget).y > bodyComponent.getCenter().y;
                 bodyComponent.setVelocityY((moveUp ? 2.5f : -2.5f) * PPM);
-                if (!moveUp && testPlayerBody.is(FEET_ON_GROUND)) {
-                    isOnWall = false;
-                }
             }
             if (!isOnWall) {
                 if (wasOnWall) {

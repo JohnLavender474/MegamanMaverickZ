@@ -8,7 +8,7 @@ import com.game.entities.megaman.Megaman;
 import com.game.health.HealthComponent;
 import com.game.sounds.SoundComponent;
 
-import static com.game.ConstVals.SoundAssets.*;
+import static com.game.ConstVals.SoundAsset.*;
 import static com.game.entities.megaman.Megaman.*;
 import static com.game.entities.megaman.Megaman.AButtonTask.*;
 import static com.game.world.BodySense.*;
@@ -50,7 +50,7 @@ public class WorldContactListenerImpl implements WorldContactListener {
                 contact.mask2ndEntity() instanceof Damageable damageable &&
                 damageable.canBeDamagedBy(damager) && damager.canDamage(damageable)) {
             damageable.takeDamageFrom(damager);
-            damager.onDamageInflictedTo(damageable.getClass());
+            damager.onDamageInflictedTo(damageable);
         } else if (contact.acceptMask(HITTER_BOX) && contact.mask1stEntity() instanceof Hitter hitter) {
             hitter.hit(contact.getMask().getSecond());
         }
@@ -87,7 +87,7 @@ public class WorldContactListenerImpl implements WorldContactListener {
                 contact.mask2ndEntity() instanceof Damageable damageable &&
                 damageable.canBeDamagedBy(damager) && damager.canDamage(damageable)) {
             damageable.takeDamageFrom(damager);
-            damager.onDamageInflictedTo(damageable.getClass());
+            damager.onDamageInflictedTo(damageable);
         } else if (contact.acceptMask(HITTER_BOX) && contact.mask1stEntity() instanceof Hitter hitter) {
             hitter.hit(contact.getMask().getSecond());
         }

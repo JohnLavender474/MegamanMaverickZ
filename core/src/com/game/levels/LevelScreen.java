@@ -1,6 +1,7 @@
 package com.game.levels;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
@@ -54,9 +55,10 @@ import java.util.function.Supplier;
 
 import static com.game.ConstVals.Events.*;
 import static com.game.ConstVals.RenderingGround.PLAYGROUND;
-import static com.game.ConstVals.SoundAssets.*;
-import static com.game.ConstVals.TextureAssets.BITS_ATLAS;
+import static com.game.ConstVals.SoundAsset.*;
+import static com.game.ConstVals.TextureAsset.BITS_ATLAS;
 import static com.game.ConstVals.ViewVals.PPM;
+import static com.game.entities.megaman.MegamanWeapon.*;
 import static com.game.utils.UtilMethods.bottomCenterPoint;
 import static com.game.utils.UtilMethods.getPoint;
 import static com.game.utils.enums.Position.BOTTOM_CENTER;
@@ -100,6 +102,7 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
 
     @Override
     public void show() {
+        gameContext.addMessageListener(this);
         gameContext.setDoUpdateController(true);
         gameContext.getSystems().forEach(system -> system.setOn(true));
         levelMusic = gameContext.getAsset(musicSrc, Music.class);
@@ -173,9 +176,9 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
         // spawn Megaman
         spawnMegaman();
         // health bar ui
-        TextureRegion healthBit = gameContext.getAsset(BITS_ATLAS, TextureAtlas.class).findRegion("HealthBit");
+        TextureRegion healthBit = gameContext.getAsset(BITS_ATLAS.getSrc(), TextureAtlas.class).findRegion("HealthBit");
         healthBar = new BitsBarUi(gameContext, () -> megaman.getComponent(HealthComponent.class).getCurrentHealth(),
-                () -> healthBit, new Vector2(8f, 2f), new Rectangle(0f, 0f, 8f, 60f));
+                () -> healthBit, new Vector2(8f, 2f), new Rectangle(PPM, 9f * PPM, 8f, 60f));
     }
 
     @Override
@@ -194,7 +197,32 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
         }
     }
 
+    @Override
+    public void listenToMessage(Object owner, Object message, float delta) {
+        if (owner.equals(megaman) && message.equals(PLAYER_DEAD)) {
+            gameContext.getSystem(SoundSystem.class).requestToStopAllLoopingSounds();
+            gameContext.getAsset(MEGAMAN_DEFEAT_SOUND.getSrc(), Sound.class).play();
+            deathTimer.reset();
+            levelMusic.stop();
+        }
+    }
+
+    @Override
+    public void dispose() {
+        levelMap.dispose();
+        gameContext.purgeAllEntities();
+        gameContext.removeMessageListener(this);
+    }
+
     private void onGameRunning(float delta) {
+        // TODO: Allow megaman to change weapons from menu
+        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
+            if (megaman.getCurrentWeapon().equals(MEGA_BUSTER)) {
+                megaman.setCurrentWeapon(FLAME_BUSTER);
+            } else {
+                megaman.setCurrentWeapon(MEGA_BUSTER);
+            }
+        }
         levelCameraManager.update(delta);
         levelMap.draw((OrthographicCamera) gameContext.getViewport(PLAYGROUND).getCamera(),
                 gameContext.getSpriteBatch());
@@ -245,23 +273,8 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
             spawnMegaman();
         }
         healthBar.draw();
+
         // TODO: Handle fading in and out when level starts or player dies
-    }
-
-    @Override
-    public void listenToMessage(Object owner, Object message, float delta) {
-        if (owner.equals(megaman) && message.equals(PLAYER_DEAD)) {
-            gameContext.getSystem(SoundSystem.class).requestToStopAllLoopingSounds();
-            gameContext.getAsset(MEGAMAN_DEFEAT_SOUND, Sound.class).play();
-            deathTimer.reset();
-            levelMusic.stop();
-        }
-    }
-
-    @Override
-    public void dispose() {
-        levelMap.dispose();
-        gameContext.purgeAllEntities();
     }
 
     private void onGamePaused(float delta) {

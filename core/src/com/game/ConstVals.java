@@ -1,5 +1,8 @@
 package com.game;
 
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -47,53 +50,70 @@ public class ConstVals {
         public static final float PPM = 16f;
     }
 
-    public static class TextureAssets {
-        public static final String CUSTOM_TILES_TEXTURE_ATLAS = "sprites/SpriteSheets/CustomTiles.txt";
-        public static final String OBJECTS_TEXTURE_ATLAS = "sprites/SpriteSheets/Objects.txt";
-        public static final String MET_TEXTURE_ATLAS = "sprites/SpriteSheets/Met.txt";
-        public static final String FIRE_TEXTURE_ATLAS = "sprites/SpriteSheets/Fire.txt";
-        public static final String ENEMIES_TEXTURE_ATLAS = "sprites/SpriteSheets/Enemies.txt";
-        public static final String ITEMS_TEXTURE_ATLAS = "sprites/SpriteSheets/Items.txt";
-        public static final String BACKGROUNDS_1_TEXTURE_ATLAS = "sprites/SpriteSheets/Backgrounds1.txt";
-        public static final String MEGAMAN_TEXTURE_ATLAS = "sprites/SpriteSheets/Megaman.txt";
-        public static final String MEGAMAN_FIRE_TEXTURE_ATLAS = "sprites/SpriteSheets/MegamanFire.txt";
-        public static final String CHARGE_ORBS_TEXTURE_ATLAS = "sprites/SpriteSheets/ChargeOrbs.txt";
-        public static final String MEGAMAN_CHARGED_SHOT_TEXTURE_ATLAS = "sprites/SpriteSheets/MegamanChargedShot.txt";
-        public static final String ELECTRIC_BALL_TEXTURE_ATLAS = "sprites/SpriteSheets/ElectricBall.txt";
-        public static final String DECORATIONS_TEXTURE_ATLAS = "sprites/SpriteSheets/Decorations.txt";
-        public static final String BITS_ATLAS = "sprites/SpriteSheets/HealthAndWeaponBits.txt";
+    @Getter
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+    public enum TextureAsset {
+
+        MET_TEXTURE_ATLAS("sprites/SpriteSheets/Met.txt"),
+        FIRE_TEXTURE_ATLAS("sprites/SpriteSheets/Fire.txt"),
+        ITEMS_TEXTURE_ATLAS("sprites/SpriteSheets/Items.txt"),
+        ENEMIES_TEXTURE_ATLAS("sprites/SpriteSheets/Enemies.txt"),
+        OBJECTS_TEXTURE_ATLAS("sprites/SpriteSheets/Objects.txt"),
+        MEGAMAN_TEXTURE_ATLAS("sprites/SpriteSheets/Megaman.txt"),
+        BITS_ATLAS("sprites/SpriteSheets/HealthAndWeaponBits.txt"),
+        CHARGE_ORBS_TEXTURE_ATLAS("sprites/SpriteSheets/ChargeOrbs.txt"),
+        DECORATIONS_TEXTURE_ATLAS("sprites/SpriteSheets/Decorations.txt"),
+        MEGAMAN_FIRE_TEXTURE_ATLAS("sprites/SpriteSheets/MegamanFire.txt"),
+        CUSTOM_TILES_TEXTURE_ATLAS("sprites/SpriteSheets/CustomTiles.txt"),
+        BACKGROUNDS_1_TEXTURE_ATLAS("sprites/SpriteSheets/Backgrounds1.txt"),
+        ELECTRIC_BALL_TEXTURE_ATLAS("sprites/SpriteSheets/ElectricBall.txt"),
+        MEGAMAN_CHARGED_SHOT_TEXTURE_ATLAS("sprites/SpriteSheets/MegamanChargedShot.txt");
+
+        private final String src;
+
     }
 
-    public static class MusicAssets {
-        public static final String MMX3_INTRO_STAGE_MUSIC = "music/MMX3_IntroStage.ogg";
-        public static final String XENOBLADE_GAUR_PLAINS_MUSIC = "music/Xenoblade_GaurPlains.ogg";
-        public static final String MMZ_NEO_ARCADIA_MUSIC = "music/MMZ_NeoArcadia.mp3";
-        public static final String MMX_LEVEL_SELECT_SCREEN_MUSIC = "music/MMX_LevelSelectScreen.ogg";
-        public static final String STAGE_SELECT_MM3_MUSIC = "music/StageSelectMM3.mp3";
+    @Getter
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+    public enum MusicAsset {
+
+        MMZ_NEO_ARCADIA_MUSIC("music/MMZ_NeoArcadia.mp3"),
+        STAGE_SELECT_MM3_MUSIC("music/StageSelectMM3.mp3"),
+        MMX3_INTRO_STAGE_MUSIC("music/MMX3_IntroStage.ogg"),
+        XENOBLADE_GAUR_PLAINS_MUSIC("music/Xenoblade_GaurPlains.ogg"),
+        MMX_LEVEL_SELECT_SCREEN_MUSIC("music/MMX_LevelSelectScreen.ogg");
+
+        private final String src;
+
     }
 
-    public static class SoundAssets {
-        public static final String CURSOR_MOVE_BLOOP_SOUND = "sounds/CursorMoveBloop.mp3";
-        public static final String MARIO_JUMP_SOUND = "sounds/MarioJump.mp3";
-        public static final String SELECT_PING_SOUND = "sounds/SelectPing.mp3";
-        public static final String DINK_SOUND = "sounds/Dink.mp3";
-        public static final String EXPLOSION_SOUND = "sounds/Explosion.mp3";
-        public static final String ENEMY_BULLET_SOUND = "sounds/EnemyShoot.mp3";
-        public static final String ENEMY_DAMAGE_SOUND = "sounds/EnemyDamage.mp3";
-        public static final String MEGA_BUSTER_CHARGING_SOUND = "sounds/MegaBusterCharging.mp3";
-        public static final String MEGA_BUSTER_BULLET_SHOT_SOUND = "sounds/MegaBusterBulletShot.mp3";
-        public static final String MEGA_BUSTER_CHARGED_SHOT_SOUND = "sounds/MegaBusterChargedShot.mp3";
-        public static final String MEGAMAN_DAMAGE_SOUND = "sounds/MegamanDamage.mp3";
-        public static final String MEGAMAN_DEFEAT_SOUND = "sounds/MegamanDefeat.mp3";
-        public static final String MEGAMAN_LAND_SOUND = "sounds/MegamanLand.mp3";
-        public static final String THUMP_SOUND = "sounds/Thump.mp3";
-        public static final String WHOOSH_SOUND = "sounds/Whoosh.mp3";
-        public static final String PAUSE_SOUND = "sounds/PauseMenu.mp3";
-        public static final String ENERGY_FILL_SOUND = "sounds/EnergyFill.mp3";
-        public static final String ACID_SOUND = "sounds/Megaman_2_Sounds/acid.wav";
-        public static final String AIR_SHOOTER_SOUND = "sounds/Megaman_2_Sounds/air_shooter.wav";
-        public static final String ATOMIC_FIRE_SOUND = "sounds/Megaman_2_Sounds/atomic_fire.wav";
-        public static final String CRASH_BOMBER_SOUND = "sounds/Megaman_2_Sounds/crash_bomber.wav";
+    @Getter
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+    public enum SoundAsset {
+
+        DINK_SOUND("sounds/Dink.mp3"),
+        THUMP_SOUND("sounds/Thump.mp3"),
+        WHOOSH_SOUND("sounds/Whoosh.mp3"),
+        PAUSE_SOUND("sounds/PauseMenu.mp3"),
+        EXPLOSION_SOUND("sounds/Explosion.mp3"),
+        ENERGY_FILL_SOUND("sounds/EnergyFill.mp3"),
+        SELECT_PING_SOUND("sounds/SelectPing.mp3"),
+        ENEMY_BULLET_SOUND("sounds/EnemyShoot.mp3"),
+        ENEMY_DAMAGE_SOUND("sounds/EnemyDamage.mp3"),
+        MEGAMAN_LAND_SOUND("sounds/MegamanLand.mp3"),
+        ACID_SOUND("sounds/Megaman_2_Sounds/acid.wav"),
+        MEGAMAN_DAMAGE_SOUND("sounds/MegamanDamage.mp3"),
+        MEGAMAN_DEFEAT_SOUND("sounds/MegamanDefeat.mp3"),
+        CURSOR_MOVE_BLOOP_SOUND("sounds/CursorMoveBloop.mp3"),
+        MEGA_BUSTER_CHARGING_SOUND("sounds/MegaBusterCharging.mp3"),
+        AIR_SHOOTER_SOUND("sounds/Megaman_2_Sounds/air_shooter.wav"),
+        ATOMIC_FIRE_SOUND("sounds/Megaman_2_Sounds/atomic_fire.wav"),
+        CRASH_BOMBER_SOUND("sounds/Megaman_2_Sounds/crash_bomber.wav"),
+        MEGA_BUSTER_BULLET_SHOT_SOUND("sounds/MegaBusterBulletShot.mp3"),
+        MEGA_BUSTER_CHARGED_SHOT_SOUND("sounds/MegaBusterChargedShot.mp3");
+
+        private final String src;
+
     }
 
 }

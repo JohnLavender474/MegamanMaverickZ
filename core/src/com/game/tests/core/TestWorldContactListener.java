@@ -6,7 +6,6 @@ import com.game.damage.Damageable;
 import com.game.damage.Damager;
 import com.game.entities.contracts.Hitter;
 import com.game.health.HealthComponent;
-import com.game.tests.entities.TestBlock;
 import com.game.tests.entities.TestPlayer;
 import com.game.world.BodyComponent;
 import com.game.world.Contact;
@@ -49,7 +48,7 @@ public class TestWorldContactListener implements WorldContactListener {
                 contact.mask2ndEntity() instanceof Damageable damageable &&
                 damageable.canBeDamagedBy(damager) && damager.canDamage(damageable)) {
             damageable.takeDamageFrom(damager);
-            damager.onDamageInflictedTo(damageable.getClass());
+            damager.onDamageInflictedTo(damageable);
         } else if (contact.acceptMask(HITTER_BOX) && contact.mask1stEntity() instanceof Hitter hitter) {
             hitter.hit(contact.getMask().getSecond());
         }
@@ -86,7 +85,7 @@ public class TestWorldContactListener implements WorldContactListener {
                 contact.mask2ndEntity() instanceof Damageable damageable &&
                 damageable.canBeDamagedBy(damager) && damager.canDamage(damageable)) {
             damageable.takeDamageFrom(damager);
-            damager.onDamageInflictedTo(damageable.getClass());
+            damager.onDamageInflictedTo(damageable);
         } else if (contact.acceptMask(HITTER_BOX) && contact.mask1stEntity() instanceof Hitter hitter) {
             hitter.hit(contact.getMask().getSecond());
         }

@@ -4,7 +4,7 @@
         <key>fileFormatVersion</key>
         <int>5</int>
         <key>texturePackerVersion</key>
-        <string>6.0.0</string>
+        <string>6.0.2</string>
         <key>autoSDSettings</key>
         <array>
             <struct type="AutoSDSettings">
@@ -43,22 +43,12 @@
         <uint>2</uint>
         <key>basisUniversalQualityLevel</key>
         <uint>2</uint>
-        <key>atfCompressData</key>
-        <false/>
-        <key>mipMapMinSize</key>
-        <uint>32768</uint>
         <key>etc1QualityLevel</key>
         <uint>70</uint>
         <key>etc2QualityLevel</key>
         <uint>70</uint>
         <key>dxtCompressionMode</key>
         <enum type="SettingsBase::DxtCompressionMode">DXT_PERCEPTUAL</enum>
-        <key>jxrColorFormat</key>
-        <enum type="SettingsBase::JpegXrColorMode">JXR_YUV444</enum>
-        <key>jxrTrimFlexBits</key>
-        <uint>0</uint>
-        <key>jxrCompressionLevel</key>
-        <uint>0</uint>
         <key>ditherType</key>
         <enum type="SettingsBase::DitherType">NearestNeighbour</enum>
         <key>backgroundColor</key>
@@ -82,8 +72,6 @@
         <key>webpQualityLevel</key>
         <uint>101</uint>
         <key>textureSubPath</key>
-        <string></string>
-        <key>atfFormats</key>
         <string></string>
         <key>textureFormat</key>
         <enum type="SettingsBase::TextureFormat">png</enum>
@@ -194,9 +182,8 @@
             <key type="filename">../Frames/Enemies/HeliGrabber/HeliGrabberClosedClaws.png</key>
             <key type="filename">../Frames/Enemies/HeliGrabber/HeliGrabberOpenClaws.png</key>
             <key type="filename">../Frames/Enemies/MagneHeli.png</key>
-            <key type="filename">../Frames/Enemies/Met/MetDamage.png</key>
-            <key type="filename">../Frames/Enemies/Met/MetNaked.png</key>
-            <key type="filename">../Frames/Enemies/Met/MetRun.png</key>
+            <key type="filename">../Frames/Enemies/Met/Run.png</key>
+            <key type="filename">../Frames/Enemies/Met/RunNaked.png</key>
             <key type="filename">../Frames/Enemies/PropellerFish/PropellerFishClosedMouth.png</key>
             <key type="filename">../Frames/Enemies/PropellerFish/PropellerFishOpenMouth.png</key>
             <struct type="IndividualSpriteSettings">
@@ -214,9 +201,10 @@
                 <false/>
             </struct>
             <key type="filename">../Frames/Enemies/Bat/BatHang.png</key>
-            <key type="filename">../Frames/Enemies/Met/MetGetUp.png</key>
-            <key type="filename">../Frames/Enemies/Met/MetLayDown.png</key>
-            <key type="filename">../Frames/Enemies/Met/MetPeek.png</key>
+            <key type="filename">../Frames/Enemies/Met/GetUp.png</key>
+            <key type="filename">../Frames/Enemies/Met/LayDown.png</key>
+            <key type="filename">../Frames/Enemies/Met/PopUp.png</key>
+            <key type="filename">../Frames/Enemies/Met/StandNaked.png</key>
             <key type="filename">../Frames/Enemies/SniperJoe/SniperJoeShielded.png</key>
             <key type="filename">../Frames/Enemies/SniperJoe/SniperJoeShooting.png</key>
             <key type="filename">../Frames/Enemies/SpringLoadedHeli/SpringLoadedHeliBottomPart.png</key>
@@ -236,7 +224,6 @@
                 <false/>
             </struct>
             <key type="filename">../Frames/Enemies/FloatingCan.png</key>
-            <key type="filename">../Frames/Enemies/Met/MetAboutToExplode.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>

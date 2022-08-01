@@ -17,7 +17,7 @@ import lombok.Setter;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.game.ConstVals.TextureAssets.DECORATIONS_TEXTURE_ATLAS;
+import static com.game.ConstVals.TextureAsset.DECORATIONS_TEXTURE_ATLAS;
 import static com.game.ConstVals.ViewVals.PPM;
 
 @Getter
@@ -56,7 +56,7 @@ public class TestExplosionOrb implements IEntity {
 
     private AnimationComponent defineAnimationComponent(IAssetLoader assetLoader) {
         TimedAnimation timedAnimation = new TimedAnimation(assetLoader.getAsset(
-                DECORATIONS_TEXTURE_ATLAS, TextureAtlas.class).findRegion("PlayerExplosionOrbs"), 2, .075f);
+                DECORATIONS_TEXTURE_ATLAS.getSrc(), TextureAtlas.class).findRegion("PlayerExplosionOrbs"), 2, .075f);
         return new AnimationComponent(timedAnimation);
     }
 
