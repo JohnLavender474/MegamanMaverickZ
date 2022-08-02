@@ -6,7 +6,6 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.GameContext2d;
 import com.game.animations.AnimationComponent;
-import com.game.animations.TimeMarkedRunnable;
 import com.game.animations.TimedAnimation;
 import com.game.entities.blocks.Block;
 import com.game.entities.megaman.Megaman;
@@ -18,13 +17,17 @@ import com.game.utils.objects.Timer;
 import com.game.utils.objects.Wrapper;
 import com.game.world.BodyComponent;
 import com.game.world.Fixture;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.util.Map;
+import java.util.*;
 import java.util.function.Supplier;
 
 import static com.badlogic.gdx.math.MathUtils.*;
 import static com.game.ConstVals.TextureAsset.*;
 import static com.game.ConstVals.ViewVals.PPM;
+import static com.game.entities.enemies.Bat.BatStatus.*;
+import static com.game.utils.UtilMethods.*;
 import static com.game.utils.UtilMethods.centerPoint;
 import static com.game.utils.UtilMethods.setBottomCenterToPoint;
 import static com.game.utils.enums.Position.CENTER;
@@ -32,31 +35,30 @@ import static com.game.world.BodyType.*;
 import static com.game.world.FixtureType.DAMAGEABLE_BOX;
 import static com.game.world.FixtureType.DAMAGER_BOX;
 
+@Getter
+@Setter
 public class Bat extends AbstractEnemy {
 
-    private enum BatStatus {
-        FLYING, PERCHED, OPEN_EYES, OPEN_WINGS
+    public enum BatStatus {
+        HANGING, OPEN_EYES, OPEN_WINGS, FLYING
     }
 
     private static final float SPEED = 3f;
 
     private final Vector2 trajectory = new Vector2();
-    private final Timer perchTimer = new Timer(1.5f,
-            new TimeMarkedRunnable(1f, () -> batStatus = BatStatus.OPEN_EYES),
-            new TimeMarkedRunnable(1.25f, () -> batStatus = BatStatus.OPEN_WINGS));
+    private final Rectangle scannerBox = new Rectangle();
+    private final Timer releaseFromPerchTimer = new Timer(.25f);
 
-    private BatStatus batStatus = BatStatus.PERCHED;
+    private BatStatus currentStatus = HANGING;
 
     public Bat(GameContext2d gameContext, Supplier<Megaman> megamanSupplier, Vector2 spawn) {
         super(gameContext, megamanSupplier, .05f);
+        scannerBox.setSize(3f * PPM, 3f * PPM);
         addComponent(defineSpriteComponent());
+        addComponent(defineAnimationComponent());
         addComponent(defineUpdatableComponent());
         addComponent(defineBodyComponent(spawn));
         addComponent(definePathfindingComponent());
-    }
-
-    public boolean isPerched() {
-        return !perchTimer.isFinished();
     }
 
     private UpdatableComponent defineUpdatableComponent() {
@@ -64,7 +66,26 @@ public class Bat extends AbstractEnemy {
             @Override
             public void update(float delta) {
                 super.update(delta);
-                perchTimer.update(delta);
+                if (getCurrentStatus().equals(FLYING)) {
+                    return;
+                }
+                if (getCurrentStatus().equals(HANGING)) {
+                    scannerBox.setCenter(getComponent(BodyComponent.class).getCenter());
+                    if (scannerBox.contains(getMegaman().getFocus())) {
+                        setCurrentStatus(OPEN_EYES);
+                    }
+                }
+                if (equalsAny(getCurrentStatus(), OPEN_EYES, OPEN_WINGS)) {
+                    releaseFromPerchTimer.update(delta);
+                    if (releaseFromPerchTimer.isFinished()) {
+                        if (getCurrentStatus().equals(OPEN_EYES)) {
+                            setCurrentStatus(OPEN_WINGS);
+                            releaseFromPerchTimer.reset();
+                        } else {
+                            setCurrentStatus(FLYING);
+                        }
+                    }
+                }
             }
         });
     }
@@ -84,8 +105,12 @@ public class Bat extends AbstractEnemy {
 
     private AnimationComponent defineAnimationComponent() {
         TextureAtlas textureAtlas = gameContext.getAsset(ENEMIES_TEXTURE_ATLAS.getSrc(), TextureAtlas.class);
-        Supplier<String> keySupplier = () -> batStatus.toString();
-        Map<String, TimedAnimation> timedAnimations = Map.of();
+        Supplier<String> keySupplier = () -> currentStatus.toString();
+        Map<String, TimedAnimation> timedAnimations = Map.of(
+                HANGING.toString(), new TimedAnimation(textureAtlas.findRegion("BatHang")),
+                FLYING.toString(), new TimedAnimation(textureAtlas.findRegion("BatFly"), 2, .1f),
+                OPEN_EYES.toString(), new TimedAnimation(textureAtlas.findRegion("BatOpenEyes")),
+                OPEN_WINGS.toString(), new TimedAnimation(textureAtlas.findRegion("BatOpenWings")));
         return new AnimationComponent(keySupplier, timedAnimations::get);
     }
 
@@ -94,7 +119,7 @@ public class Bat extends AbstractEnemy {
         bodyComponent.setSize(.75f * PPM, .75f * PPM);
         setBottomCenterToPoint(bodyComponent.getCollisionBox(), spawn);
         bodyComponent.setPreProcess(delta -> {
-            if (!isPerched()) {
+            if (getCurrentStatus().equals(FLYING)) {
                 bodyComponent.setVelocity(trajectory);
             }
         });
@@ -119,6 +144,7 @@ public class Bat extends AbstractEnemy {
                     trajectory.set(cos(angle), sin(angle)).scl(SPEED * PPM);
                 },
                 target -> getComponent(BodyComponent.class).getCollisionBox().overlaps(target));
+        pathfindingComponent.setDoUpdatePredicate(delta -> getCurrentStatus().equals(FLYING));
         pathfindingComponent.setDoAcceptPredicate(node ->
                 node.getObjects().stream().noneMatch(o -> o instanceof Block));
         pathfindingComponent.setDoAllowDiagonal(() -> false);

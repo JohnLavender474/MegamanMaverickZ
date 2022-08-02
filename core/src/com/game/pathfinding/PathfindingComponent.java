@@ -29,6 +29,7 @@ public class PathfindingComponent implements Component {
     private Supplier<Boolean> doAllowDiagonal = () -> true;
     private Predicate<Node> doAcceptPredicate = objs -> false;
     private Predicate<Float> doUpdatePredicate = delta -> true;
+    private Predicate<Float> doRefreshPredicate = delta -> true;
 
     @Getter(AccessLevel.PACKAGE)
     @Setter(AccessLevel.PACKAGE)
@@ -60,6 +61,10 @@ public class PathfindingComponent implements Component {
         return targetSupplier.get();
     }
 
+    boolean doUpdate(float delta) {
+        return doUpdatePredicate.test(delta);
+    }
+
     boolean doAccept(Node node) {
         return doAcceptPredicate.test(node);
     }
@@ -68,8 +73,8 @@ public class PathfindingComponent implements Component {
         targetConsumer.accept(target);
     }
 
-    boolean doUpdate(float delta) {
-        return doUpdatePredicate.test(delta);
+    boolean doRefresh(float delta) {
+        return doRefreshPredicate.test(delta);
     }
 
     boolean hasReachedTarget(Rectangle target) {

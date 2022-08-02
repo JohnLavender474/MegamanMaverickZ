@@ -10,17 +10,24 @@ BatFly
   orig: 64, 32
   offset: 0, 0
   index: -1
-Hang
+BatHang
   rotate: false
   xy: 64, 0
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
-OpenEyes
+BatOpenEyes
   rotate: false
   xy: 96, 0
-  size: 64, 32
-  orig: 64, 32
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+BatOpenWings
+  rotate: false
+  xy: 128, 0
+  size: 32, 32
+  orig: 32, 32
   offset: 0, 0
   index: -1

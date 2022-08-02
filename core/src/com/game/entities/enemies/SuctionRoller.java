@@ -101,7 +101,7 @@ public class SuctionRoller extends AbstractEnemy implements Faceable {
                                 node.getObjects().contains("RightWall")));
         pathfindingComponent.setDoAllowDiagonal(() -> false);
         Timer timer = new Timer(.25f);
-        pathfindingComponent.setDoUpdatePredicate(delta -> {
+        pathfindingComponent.setDoRefreshPredicate(delta -> {
             timer.update(delta);
             boolean isFinished = timer.isFinished();
             if (isFinished) {

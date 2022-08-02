@@ -185,7 +185,7 @@ public class TestPathfindingScreen extends ScreenAdapter {
                     target -> getComponent(BodyComponent.class).getCollisionBox().contains(centerPoint(target)));
             pathfindingComponent.setDoAcceptPredicate(node -> node.getObjects().stream().noneMatch(
                     o -> o instanceof TestObstacleEntity));
-            pathfindingComponent.setDoUpdatePredicate(
+            pathfindingComponent.setDoRefreshPredicate(
                     delta -> {
                         updateTimer.update(delta);
                         boolean isFinished = updateTimer.isFinished();

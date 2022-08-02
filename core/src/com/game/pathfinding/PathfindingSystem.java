@@ -1,7 +1,6 @@
 package com.game.pathfinding;
 
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
 import com.game.System;
 import com.game.core.IEntity;
 import com.game.graph.Graph;
@@ -36,6 +35,9 @@ public class PathfindingSystem extends System {
     @Override
     protected void processEntity(IEntity entity, float delta) {
         PathfindingComponent pathfindingComponent = entity.getComponent(PathfindingComponent.class);
+        if (!pathfindingComponent.doUpdate(delta)) {
+            return;
+        }
         Deque<Rectangle> path = pathfindingComponent.getCurrentPath();
         if (path != null) {
             while (!path.isEmpty() && pathfindingComponent.hasReachedTarget(path.peek())) {
@@ -45,7 +47,7 @@ public class PathfindingSystem extends System {
                 pathfindingComponent.consumeTarget(path.peek());
             }
         }
-        if (pathfindingComponent.doUpdate(delta)) {
+        if (pathfindingComponent.doRefresh(delta)) {
             pathfindingComponents.add(pathfindingComponent);
             pathfinders.add(new Pathfinder(graph, pathfindingComponent));
         }

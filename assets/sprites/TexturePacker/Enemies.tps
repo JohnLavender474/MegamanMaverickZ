@@ -201,6 +201,7 @@
                 <false/>
             </struct>
             <key type="filename">../Frames/Enemies/Bat/BatHang.png</key>
+            <key type="filename">../Frames/Enemies/Bat/BatOpenWings.png</key>
             <key type="filename">../Frames/Enemies/Met/GetUp.png</key>
             <key type="filename">../Frames/Enemies/Met/LayDown.png</key>
             <key type="filename">../Frames/Enemies/Met/PopUp.png</key>
