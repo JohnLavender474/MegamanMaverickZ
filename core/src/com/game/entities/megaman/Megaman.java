@@ -20,10 +20,7 @@ import com.game.damage.Damager;
 import com.game.entities.contracts.Faceable;
 import com.game.entities.contracts.Facing;
 import com.game.entities.decorations.ExplosionOrb;
-import com.game.entities.enemies.FloatingCan;
-import com.game.entities.enemies.Met;
-import com.game.entities.enemies.SniperJoe;
-import com.game.entities.enemies.SuctionRoller;
+import com.game.entities.enemies.*;
 import com.game.entities.projectiles.Bullet;
 import com.game.entities.projectiles.ChargedShot;
 import com.game.entities.projectiles.Fireball;
@@ -117,6 +114,16 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         shootAnimationTimer.setToEnd();
         damageRecoveryTimer.setToEnd();
         wallJumpImpetusTimer.setToEnd();
+    }
+
+    private void defineDamageNegotiations() {
+        damageNegotiations.put(Bat.class, new DamageNegotiation(5));
+        damageNegotiations.put(Met.class, new DamageNegotiation(5));
+        damageNegotiations.put(Bullet.class, new DamageNegotiation(10));
+        damageNegotiations.put(Fireball.class, new DamageNegotiation(5));
+        damageNegotiations.put(SniperJoe.class, new DamageNegotiation(10));
+        damageNegotiations.put(FloatingCan.class, new DamageNegotiation(10));
+        damageNegotiations.put(SuctionRoller.class, new DamageNegotiation(10));
     }
 
     @Override
@@ -247,15 +254,6 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
              */
             return new Fireball(gameContext, this, impulse, spawn.get());
         }, .75f, () -> getComponent(SoundComponent.class).requestSound(CRASH_BOMBER_SOUND)));
-    }
-
-    private void defineDamageNegotiations() {
-        damageNegotiations.put(Met.class, new DamageNegotiation(5));
-        damageNegotiations.put(Bullet.class, new DamageNegotiation(10));
-        damageNegotiations.put(Fireball.class, new DamageNegotiation(5));
-        damageNegotiations.put(SniperJoe.class, new DamageNegotiation(10));
-        damageNegotiations.put(FloatingCan.class, new DamageNegotiation(10));
-        damageNegotiations.put(SuctionRoller.class, new DamageNegotiation(10));
     }
 
     private HealthComponent defineHealthComponent(int maxHealth) {

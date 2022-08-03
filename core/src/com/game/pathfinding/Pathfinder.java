@@ -12,6 +12,8 @@ import java.util.*;
 import java.util.concurrent.Callable;
 
 /**
+ * Pathfinder uses Djikstra's algorithm, based off of implementation in link below.
+ *
  * <a href="https://www.happycoders.eu/algorithms/dijkstras-algorithm-java/
  * #Dijkstras_Algorithm_-_Java_Source_Code_With_PriorityQueue">...</a>
  */
@@ -66,7 +68,7 @@ public class Pathfinder implements Callable<Deque<Rectangle>> {
     @Getter
     @Setter
     @AllArgsConstructor
-    private static class NodeHandle implements Comparable<NodeHandle> {
+    private static final class NodeHandle implements Comparable<NodeHandle> {
 
         private final Node node;
         private Integer distance;

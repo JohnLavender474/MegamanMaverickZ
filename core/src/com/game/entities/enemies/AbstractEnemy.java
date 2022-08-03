@@ -11,6 +11,7 @@ import com.game.damage.Damager;
 import com.game.entities.decorations.Disintegration;
 import com.game.entities.decorations.Explosion;
 import com.game.entities.megaman.Megaman;
+import com.game.graph.GraphComponent;
 import com.game.health.HealthComponent;
 import com.game.sounds.SoundComponent;
 import com.game.sprites.SpriteAdapter;
@@ -20,7 +21,8 @@ import com.game.utils.objects.Timer;
 import com.game.utils.objects.Wrapper;
 import com.game.world.BodyComponent;
 
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -34,22 +36,30 @@ public abstract class AbstractEnemy extends Entity implements Damager, Damageabl
     protected final GameContext2d gameContext;
     protected final Timer damageTimer = new Timer();
     protected final Supplier<Megaman> megamanSupplier;
-    protected final Map<Class<? extends Damager>, DamageNegotiation> damageNegotiations = new HashMap<>();
+    protected final Map<Class<? extends Damager>, DamageNegotiation> damageNegotiations;
 
     public AbstractEnemy(GameContext2d gameContext, Supplier<Megaman> megamanSupplier, float damageDuration) {
         this.gameContext = gameContext;
         this.megamanSupplier = megamanSupplier;
-        damageTimer.setDuration(damageDuration);
-        damageTimer.setToEnd();
+        this.damageNegotiations = defineDamageNegotiations();
         addComponent(new SoundComponent());
+        addComponent(defineGraphComponent());
         addComponent(new CullOnCamTransComponent());
         addComponent(new HealthComponent(30, this::disintegrate));
         addComponent(new CullOutOfCamBoundsComponent(() -> getComponent(BodyComponent.class).getCollisionBox(), 1.5f));
+        damageTimer.setToEnd();
+        damageTimer.setDuration(damageDuration);
+    }
+
+    protected abstract Map<Class<? extends Damager>, DamageNegotiation> defineDamageNegotiations();
+
+    protected GraphComponent defineGraphComponent() {
+        return new GraphComponent(() -> getComponent(BodyComponent.class).getCollisionBox(), () -> List.of(this));
     }
 
     @Override
     public Set<Class<? extends Damager>> getDamagerMaskSet() {
-        return damageNegotiations.keySet();
+        return Collections.unmodifiableSet(damageNegotiations.keySet());
     }
 
     @Override

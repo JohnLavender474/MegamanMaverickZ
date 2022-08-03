@@ -10,6 +10,13 @@ import java.util.Map;
 @Getter
 @Setter
 public class Entity implements IEntity {
+
     protected final Map<Class<? extends Component>, Component> components = new HashMap<>();
     protected boolean dead;
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "; dead=" + isDead() + "; components=" + components;
+    }
+
 }

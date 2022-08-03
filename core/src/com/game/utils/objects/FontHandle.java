@@ -33,6 +33,10 @@ public class FontHandle implements Drawable {
         setPosition(position);
     }
 
+    public void clearText() {
+        setText("");
+    }
+
     public void setColor(Color color) {
         font.setColor(color);
     }

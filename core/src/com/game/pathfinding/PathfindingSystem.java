@@ -35,9 +35,6 @@ public class PathfindingSystem extends System {
     @Override
     protected void processEntity(IEntity entity, float delta) {
         PathfindingComponent pathfindingComponent = entity.getComponent(PathfindingComponent.class);
-        if (!pathfindingComponent.doUpdate(delta)) {
-            return;
-        }
         Deque<Rectangle> path = pathfindingComponent.getCurrentPath();
         if (path != null) {
             while (!path.isEmpty() && pathfindingComponent.hasReachedTarget(path.peek())) {

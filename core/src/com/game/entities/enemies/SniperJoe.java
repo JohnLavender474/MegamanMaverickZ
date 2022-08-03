@@ -8,6 +8,7 @@ import com.game.animations.AnimationComponent;
 import com.game.animations.TimeMarkedRunnable;
 import com.game.animations.TimedAnimation;
 import com.game.damage.DamageNegotiation;
+import com.game.damage.Damager;
 import com.game.entities.contracts.Faceable;
 import com.game.entities.contracts.Facing;
 import com.game.entities.megaman.Megaman;
@@ -51,20 +52,21 @@ public class SniperJoe extends AbstractEnemy implements Faceable {
 
     public SniperJoe(GameContext2d gameContext, Supplier<Megaman> megamanSupplier, Vector2 spawn) {
         super(gameContext, megamanSupplier, .1f);
-        shieldedTimer.setToEnd();
-        shootingTimer.setToEnd();
-        defineDamageNegotiations();
         addComponent(defineSpriteComponent());
         addComponent(defineAnimationComponent());
         addComponent(defineUpdatableComponent());
         addComponent(defineBodyComponent(spawn));
+        shieldedTimer.setToEnd();
+        shootingTimer.setToEnd();
     }
 
-    private void defineDamageNegotiations() {
-        damageNegotiations.put(Bullet.class, new DamageNegotiation(10));
-        damageNegotiations.put(Fireball.class, new DamageNegotiation(15));
-        damageNegotiations.put(ChargedShot.class, new DamageNegotiation(30, this::explode));
-        damageNegotiations.put(ChargedShotDisintegration.class, new DamageNegotiation(15, this::explode));
+    @Override
+    protected Map<Class<? extends Damager>, DamageNegotiation> defineDamageNegotiations() {
+        return Map.of(
+                Bullet.class, new DamageNegotiation(10),
+                Fireball.class, new DamageNegotiation(15),
+                ChargedShot.class, new DamageNegotiation(30, this::explode),
+                ChargedShotDisintegration.class, new DamageNegotiation(15, this::explode));
     }
 
     private void shoot() {

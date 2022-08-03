@@ -8,6 +8,7 @@ import com.game.GameContext2d;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
 import com.game.damage.DamageNegotiation;
+import com.game.damage.Damager;
 import com.game.entities.blocks.Block;
 import com.game.entities.contracts.Faceable;
 import com.game.entities.contracts.Facing;
@@ -27,6 +28,7 @@ import com.game.world.Fixture;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Map;
 import java.util.function.Supplier;
 
 import static com.game.ConstVals.TextureAsset.ENEMIES_TEXTURE_ATLAS;
@@ -51,7 +53,6 @@ public class SuctionRoller extends AbstractEnemy implements Faceable {
 
     public SuctionRoller(GameContext2d gameContext, Supplier<Megaman> megamanSupplier, Vector2 spawn) {
         super(gameContext, megamanSupplier, .05f);
-        defineDamageNegotiations();
         addComponent(definePathfindingComponent());
         addComponent(defineAnimationComponent());
         addComponent(defineUpdatableComponent());
@@ -59,11 +60,12 @@ public class SuctionRoller extends AbstractEnemy implements Faceable {
         addComponent(defineSpriteComponent());
     }
 
-    private void defineDamageNegotiations() {
-        damageNegotiations.put(Bullet.class, new DamageNegotiation(5));
-        damageNegotiations.put(Fireball.class, new DamageNegotiation(30));
-        damageNegotiations.put(ChargedShot.class, new DamageNegotiation(30));
-        damageNegotiations.put(ChargedShotDisintegration.class, new DamageNegotiation(15));
+    protected Map<Class<? extends Damager>, DamageNegotiation> defineDamageNegotiations() {
+        return Map.of(
+                Bullet.class, new DamageNegotiation(5),
+                Fireball.class, new DamageNegotiation(30),
+                ChargedShot.class, new DamageNegotiation(30),
+                ChargedShotDisintegration.class, new DamageNegotiation(15));
     }
 
     private UpdatableComponent defineUpdatableComponent() {

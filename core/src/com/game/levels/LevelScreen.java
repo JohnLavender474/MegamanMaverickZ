@@ -25,10 +25,7 @@ import com.game.cull.CullOnCamTransSystem;
 import com.game.cull.CullOutOfCamBoundsComponent;
 import com.game.entities.blocks.Block;
 import com.game.entities.decorations.DecorativeSprite;
-import com.game.entities.enemies.FloatingCan;
-import com.game.entities.enemies.Met;
-import com.game.entities.enemies.SniperJoe;
-import com.game.entities.enemies.SuctionRoller;
+import com.game.entities.enemies.*;
 import com.game.entities.megaman.Megaman;
 import com.game.entities.sensors.DeathSensor;
 import com.game.entities.sensors.WallSlideSensor;
@@ -48,9 +45,7 @@ import com.game.utils.objects.Timer;
 import com.game.world.BodyComponent;
 import com.game.world.WorldSystem;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Supplier;
 
 import static com.game.ConstVals.Events.*;
@@ -62,6 +57,7 @@ import static com.game.entities.megaman.MegamanWeapon.*;
 import static com.game.utils.UtilMethods.bottomCenterPoint;
 import static com.game.utils.UtilMethods.getPoint;
 import static com.game.utils.enums.Position.BOTTOM_CENTER;
+import static com.game.utils.enums.Position.TOP_CENTER;
 
 public class LevelScreen extends ScreenAdapter implements MessageListener {
 
@@ -79,7 +75,7 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
     private final String tmxFile;
     private final String musicSrc;
     private final GameContext2d gameContext;
-    private final Timer fadeTimer = new Timer();
+    private final Timer fadeTimer = new Timer(3f);
     private final Timer deathTimer = new Timer(4f);
     private final Sprite blackBoxSprite = new Sprite();
 
@@ -102,6 +98,7 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
 
     @Override
     public void show() {
+        // init
         gameContext.addMessageListener(this);
         gameContext.setDoUpdateController(true);
         gameContext.getSystems().forEach(system -> system.setOn(true));
@@ -273,7 +270,6 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
             spawnMegaman();
         }
         healthBar.draw();
-
         // TODO: Handle fading in and out when level starts or player dies
     }
 
@@ -309,9 +305,12 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
                         getPoint(spawnObj.getRectangle(), BOTTOM_CENTER));
             }
             case "floating_can" -> {
-                return () ->  new SpawnLocation(gameContext, gameContext.getViewport(PLAYGROUND).getCamera(),
+                return () -> new SpawnLocation(gameContext, gameContext.getViewport(PLAYGROUND).getCamera(),
                         spawnObj.getRectangle(), 4, 3f, () -> new FloatingCan(gameContext, () -> megaman,
                         getPoint(spawnObj.getRectangle(), BOTTOM_CENTER)));
+            }
+            case "bat" -> {
+                return () -> new Bat(gameContext, () -> megaman, getPoint(spawnObj.getRectangle(), TOP_CENTER));
             }
             default -> throw new IllegalStateException("Cannot find matching entity for <" + spawnObj.getName() + ">");
         }

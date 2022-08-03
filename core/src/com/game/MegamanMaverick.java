@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -28,6 +29,8 @@ import com.game.controllers.ControllerSystem;
 import com.game.core.IEntity;
 import com.game.cull.CullOnCamTransSystem;
 import com.game.cull.CullOnOutOfCamBoundsSystem;
+import com.game.debugging.DebugLinesSystem;
+import com.game.debugging.DebugMessageSystem;
 import com.game.debugging.DebugRectSystem;
 import com.game.entities.megaman.MegamanStats;
 import com.game.graph.GraphSystem;
@@ -52,6 +55,7 @@ import static com.game.ConstVals.*;
 import static com.game.ConstVals.GameScreen.*;
 import static com.game.ConstVals.MusicAsset.XENOBLADE_GAUR_PLAINS_MUSIC;
 import static com.game.ConstVals.RenderingGround.PLAYGROUND;
+import static com.game.ConstVals.RenderingGround.UI;
 import static com.game.ConstVals.ViewVals.*;
 import static com.game.ConstVals.WorldVals.*;
 import static com.game.controllers.ButtonStatus.*;
@@ -123,8 +127,15 @@ public class MegamanMaverick extends Game implements GameContext2d {
         addSystem(new GraphSystem());
         addSystem(new SpriteSystem((OrthographicCamera) viewports.get(PLAYGROUND).getCamera(), getSpriteBatch()));
         addSystem(new AnimationSystem());
-        addSystem(new DebugRectSystem(viewports.get(PLAYGROUND).getCamera(), getShapeRenderer()));
         addSystem(new SoundSystem(this));
+        addSystem(new DebugRectSystem(viewports.get(PLAYGROUND).getCamera(), getShapeRenderer()));
+        addSystem(new DebugLinesSystem(viewports.get(PLAYGROUND).getCamera(), getShapeRenderer()));
+        Vector2[] debugMsgPosArray = new Vector2[5];
+        for (int i = 0; i < 5; i++) {
+            debugMsgPosArray[i] = new Vector2(PPM, PPM + PPM * i);
+        }
+        addSystem(new DebugMessageSystem(viewports.get(UI).getCamera(), getSpriteBatch(),
+                "Megaman10Font.ttf", 5, debugMsgPosArray));
         // blackboard
         putBlackboardObject(MegamanVals.MEGAMAN_STATS, new MegamanStats());
         // define screens

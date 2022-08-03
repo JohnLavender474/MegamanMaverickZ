@@ -7,6 +7,7 @@ import com.game.GameContext2d;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
 import com.game.damage.DamageNegotiation;
+import com.game.damage.Damager;
 import com.game.entities.contracts.Faceable;
 import com.game.entities.contracts.Facing;
 import com.game.entities.megaman.Megaman;
@@ -24,7 +25,6 @@ import com.game.world.FixtureType;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -57,7 +57,6 @@ public class Met extends AbstractEnemy implements Faceable {
 
     public Met(GameContext2d gameContext, Supplier<Megaman> megamanSupplier, Vector2 spawn) {
         super(gameContext, megamanSupplier, .05f);
-        defineDamageNegotiations();
         addComponent(defineSpriteComponent());
         addComponent(defineUpdatableComponent());
         addComponent(defineAnimationComponent());
@@ -65,11 +64,12 @@ public class Met extends AbstractEnemy implements Faceable {
         setMetBehavior(SHIELDING);
     }
 
-    private void defineDamageNegotiations() {
-        damageNegotiations.put(Bullet.class, new DamageNegotiation(10));
-        damageNegotiations.put(Fireball.class, new DamageNegotiation(15));
-        damageNegotiations.put(ChargedShot.class, new DamageNegotiation(30));
-        damageNegotiations.put(ChargedShotDisintegration.class, new DamageNegotiation(15));
+    protected Map<Class<? extends Damager>, DamageNegotiation> defineDamageNegotiations() {
+        return Map.of(
+                Bullet.class, new DamageNegotiation(10),
+                Fireball.class, new DamageNegotiation(15),
+                ChargedShot.class, new DamageNegotiation(30),
+                ChargedShotDisintegration.class, new DamageNegotiation(15));
     }
 
     public void setMetBehavior(MetBehavior metBehavior) {

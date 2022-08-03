@@ -44,7 +44,6 @@ public class ChargedShot extends AbstractProjectile implements Faceable {
         addComponent(defineAnimationComponent());
         addComponent(defineBodyComponent(spawn));
         addComponent(defineSpriteComponent());
-        addComponent(new SoundComponent());
     }
 
     @Override

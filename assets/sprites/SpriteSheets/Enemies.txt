@@ -20,8 +20,15 @@ Bat/BatHang
 Bat/BatOpenEyes
   rotate: false
   xy: 96, 0
-  size: 64, 32
-  orig: 64, 32
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+Bat/BatOpenWings
+  rotate: false
+  xy: 128, 0
+  size: 32, 32
+  orig: 32, 32
   offset: 0, 0
   index: -1
 CloudedTorpedo/CloudyTorpedo
