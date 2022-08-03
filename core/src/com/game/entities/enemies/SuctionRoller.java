@@ -9,6 +9,7 @@ import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
 import com.game.damage.DamageNegotiation;
 import com.game.damage.Damager;
+import com.game.debugging.DebugLinesComponent;
 import com.game.entities.blocks.Block;
 import com.game.entities.contracts.Faceable;
 import com.game.entities.contracts.Facing;
@@ -31,6 +32,7 @@ import lombok.Setter;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import static com.badlogic.gdx.graphics.Color.*;
 import static com.game.ConstVals.TextureAsset.ENEMIES_TEXTURE_ATLAS;
 import static com.game.ConstVals.ViewVals.PPM;
 import static com.game.entities.contracts.Facing.F_LEFT;
@@ -57,6 +59,7 @@ public class SuctionRoller extends AbstractEnemy implements Faceable {
         addComponent(defineAnimationComponent());
         addComponent(defineUpdatableComponent());
         addComponent(defineBodyComponent(spawn));
+        addComponent(defineDebugLinesComponent());
         addComponent(defineSpriteComponent());
     }
 
@@ -102,7 +105,7 @@ public class SuctionRoller extends AbstractEnemy implements Faceable {
                         (node.getObjects().contains("Ground") || node.getObjects().contains("LeftWall") ||
                                 node.getObjects().contains("RightWall")));
         pathfindingComponent.setDoAllowDiagonal(() -> false);
-        Timer timer = new Timer(.25f);
+        Timer timer = new Timer(.05f);
         pathfindingComponent.setDoRefreshPredicate(delta -> {
             timer.update(delta);
             boolean isFinished = timer.isFinished();
@@ -192,6 +195,10 @@ public class SuctionRoller extends AbstractEnemy implements Faceable {
         right.setOffset(.375f * PPM, 0f);
         bodyComponent.addFixture(right);
         return bodyComponent;
+    }
+
+    private DebugLinesComponent defineDebugLinesComponent() {
+        return new DebugLinesComponent(() -> getComponent(PathfindingComponent.class).getPathPoints(), () -> RED);
     }
 
 }

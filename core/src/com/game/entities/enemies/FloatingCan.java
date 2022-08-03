@@ -19,6 +19,7 @@ import com.game.pathfinding.PathfindingComponent;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
 import com.game.utils.enums.Position;
+import com.game.utils.objects.Timer;
 import com.game.utils.objects.Wrapper;
 import com.game.world.BodyComponent;
 import com.game.world.Fixture;
@@ -85,10 +86,19 @@ public class FloatingCan extends AbstractEnemy {
                     trajectory.set(cos(angle), sin(angle)).scl(SPEED * PPM);
                 },
                 target -> getComponent(BodyComponent.class).getCollisionBox().overlaps(target));
+        pathfindingComponent.setDoAllowDiagonal(() -> false);
         pathfindingComponent.setDoAcceptPredicate(node ->
                 node.getObjects().stream().noneMatch(o -> o instanceof Block ||
                         (o instanceof FloatingCan && !o.equals(this))));
-        pathfindingComponent.setDoAllowDiagonal(() -> false);
+        Timer updateTimer = new Timer(.1f);
+        pathfindingComponent.setDoRefreshPredicate(delta -> {
+            updateTimer.update(delta);
+            boolean isFinished = updateTimer.isFinished();
+            if (updateTimer.isFinished()) {
+                updateTimer.reset();
+            }
+            return isFinished;
+        });
         return pathfindingComponent;
     }
 

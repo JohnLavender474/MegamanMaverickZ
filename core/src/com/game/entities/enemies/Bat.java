@@ -210,8 +210,16 @@ public class Bat extends AbstractEnemy implements Hitter {
                 },
                 target -> getComponent(BodyComponent.class).getCollisionBox().overlaps(target));
         pathfindingComponent.setDoAcceptPredicate(node ->
-                node.getObjects().stream().noneMatch(o -> o instanceof Block ||
-                        (o instanceof Bat && !o.equals(this))));
+                node.getObjects().stream().noneMatch(o -> o instanceof Block || (o instanceof Bat && !o.equals(this))));
+        Timer updateTimer = new Timer(.05f);
+        pathfindingComponent.setDoRefreshPredicate(delta -> {
+            updateTimer.update(delta);
+            boolean isFinished = updateTimer.isFinished();
+            if (updateTimer.isFinished()) {
+                updateTimer.reset();
+            }
+            return isFinished;
+        });
         return pathfindingComponent;
     }
 
