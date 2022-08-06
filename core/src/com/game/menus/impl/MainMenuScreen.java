@@ -16,19 +16,29 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.Map;
 
-import static com.game.ConstVals.GameScreen.*;
+import static com.game.ConstVals.GameScreen.TEST_LEVEL_1;
 import static com.game.ConstVals.MusicAsset.MMX3_INTRO_STAGE_MUSIC;
-import static com.game.ConstVals.SoundAsset.*;
+import static com.game.ConstVals.SoundAsset.CURSOR_MOVE_BLOOP_SOUND;
 import static com.game.ConstVals.TextureAsset.DECORATIONS_TEXTURE_ATLAS;
 import static com.game.ConstVals.ViewVals.PPM;
+import static com.game.menus.impl.MainMenuScreen.MainMenuButton.*;
+import static com.game.utils.enums.Direction.*;
 
 /**
  * Implementation of {@link MenuScreen} for the main menu of the game.
  */
 public class MainMenuScreen extends MenuScreen {
+
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    public enum MainMenuButton {
+
+        GAME_START("GAME START"), PASS_WORD("PASS WORD"), SETTINGS("SETTINGS"), EXIT("EXIT");
+
+        private final String prompt;
+
+    }
 
     private final Sprite title = new Sprite();
     private final Sprite arrow = new Sprite();
@@ -62,11 +72,11 @@ public class MainMenuScreen extends MenuScreen {
             arrowCenters.put(mainMenuButton, arrowCenter);
             row -= 0.75f;
         }
-        setMenuButton(MainMenuButton.GAME_START.name());
+        setMenuButton(GAME_START.name());
         TextureAtlas textureAtlas = gameContext.getAsset(DECORATIONS_TEXTURE_ATLAS.getSrc(), TextureAtlas.class);
         arrow.setRegion(textureAtlas.findRegion("Arrow"));
         arrow.setSize(0.5f * PPM, 0.5f * PPM);
-        Vector2 arrowCenter = arrowCenters.get(MainMenuButton.GAME_START);
+        Vector2 arrowCenter = arrowCenters.get(GAME_START);
         arrow.setCenter(arrowCenter.x, arrowCenter.y);
         title.setRegion(textureAtlas.findRegion("MegamanTitle"));
         title.setBounds(1 * PPM, 6.5f * PPM, 14f * PPM, 8f * PPM);
@@ -104,101 +114,92 @@ public class MainMenuScreen extends MenuScreen {
 
     @Override
     protected Map<String, MenuButton> defineMenuButtons() {
-        return new HashMap<>() {{
-            put(MainMenuButton.GAME_START.name(), new MenuButton() {
+        return Map.of(
+                GAME_START.name(), new MenuButton() {
 
-                @Override
-                public void onSelect(float delta) {
-                    gameContext.setScreen(TEST_LEVEL_1);
-                    // TODO: Set to boss menu screen
-                }
-
-                @Override
-                public void onNavigate(Direction direction, float delta) {
-                    if (direction == Direction.DIR_DOWN) {
-                        setMenuButton(MainMenuButton.PASS_WORD.name());
-                        Vector2 center = arrowCenters.get(MainMenuButton.PASS_WORD);
-                        arrow.setCenter(center.x, center.y);
+                    @Override
+                    public void onSelect(float delta) {
+                        gameContext.setScreen(TEST_LEVEL_1);
+                        // TODO: Set to boss menu screen
                     }
-                }
 
-            });
-            put(MainMenuButton.PASS_WORD.name(), new MenuButton() {
-                @Override
-                public void onSelect(float delta) {
-                    // TODO: Set to password screen
-                    // gameContext.setScreen("");
-                }
-
-                @Override
-                public void onNavigate(Direction direction, float delta) {
-                    switch (direction) {
-                        case DIR_UP -> {
-                            setMenuButton(MainMenuButton.GAME_START.name());
-                            Vector2 center = arrowCenters.get(MainMenuButton.GAME_START);
-                            arrow.setCenter(center.x, center.y);
-                        }
-                        case DIR_DOWN -> {
-                            setMenuButton(MainMenuButton.SETTINGS.name());
-                            Vector2 center = arrowCenters.get(MainMenuButton.SETTINGS);
+                    @Override
+                    public void onNavigate(Direction direction, float delta) {
+                        if (direction == DIR_DOWN) {
+                            setMenuButton(PASS_WORD.name());
+                            Vector2 center = arrowCenters.get(PASS_WORD);
                             arrow.setCenter(center.x, center.y);
                         }
                     }
-                }
-            });
-            put(MainMenuButton.SETTINGS.name(), new MenuButton() {
 
-                @Override
-                public void onSelect(float delta) {
+                },
+                PASS_WORD.name(), new MenuButton() {
 
-                    // TODO: Set to settings screen
-                    // gameContext.setScreen("");
-                }
+                    @Override
+                    public void onSelect(float delta) {
+                        // TODO: Set to password screen
+                        // gameContext.setScreen("");
+                    }
 
-                @Override
-                public void onNavigate(Direction direction, float delta) {
-                    switch (direction) {
-                        case DIR_UP -> {
-                            setMenuButton(MainMenuButton.PASS_WORD.name());
-                            Vector2 center = arrowCenters.get(MainMenuButton.PASS_WORD);
-                            arrow.setCenter(center.x, center.y);
+                    @Override
+                    public void onNavigate(Direction direction, float delta) {
+                        switch (direction) {
+                            case DIR_UP -> {
+                                setMenuButton(GAME_START.name());
+                                Vector2 center = arrowCenters.get(GAME_START);
+                                arrow.setCenter(center.x, center.y);
+                            }
+                            case DIR_DOWN -> {
+                                setMenuButton(SETTINGS.name());
+                                Vector2 center = arrowCenters.get(SETTINGS);
+                                arrow.setCenter(center.x, center.y);
+                            }
                         }
-                        case DIR_DOWN -> {
-                            setMenuButton(MainMenuButton.EXIT.name());
-                            Vector2 center = arrowCenters.get(MainMenuButton.EXIT);
+                    }
+
+                },
+                SETTINGS.name(), new MenuButton() {
+
+                    @Override
+                    public void onSelect(float delta) {
+                        // TODO: Set to settings screen
+                        // gameContext.setScreen("");
+                    }
+
+                    @Override
+                    public void onNavigate(Direction direction, float delta) {
+                        switch (direction) {
+                            case DIR_UP -> {
+                                setMenuButton(PASS_WORD.name());
+                                Vector2 center = arrowCenters.get(PASS_WORD);
+                                arrow.setCenter(center.x, center.y);
+                            }
+                            case DIR_DOWN -> {
+                                setMenuButton(EXIT.name());
+                                Vector2 center = arrowCenters.get(EXIT);
+                                arrow.setCenter(center.x, center.y);
+                            }
+                        }
+                    }
+
+                },
+                EXIT.name(), new MenuButton() {
+
+                    @Override
+                    public void onSelect(float delta) {
+                        Gdx.app.exit();
+                    }
+
+                    @Override
+                    public void onNavigate(Direction direction, float delta) {
+                        if (direction == DIR_UP) {
+                            setMenuButton(SETTINGS.name());
+                            Vector2 center = arrowCenters.get(SETTINGS);
                             arrow.setCenter(center.x, center.y);
                         }
                     }
-                }
 
-            });
-            put(MainMenuButton.EXIT.name(), new MenuButton() {
-
-                @Override
-                public void onSelect(float delta) {
-                    Gdx.app.exit();
-                }
-
-                @Override
-                public void onNavigate(Direction direction, float delta) {
-                    if (direction == Direction.DIR_UP) {
-                        setMenuButton(MainMenuButton.SETTINGS.name());
-                        Vector2 center = arrowCenters.get(MainMenuButton.SETTINGS);
-                        arrow.setCenter(center.x, center.y);
-                    }
-                }
-
-            });
-        }};
-    }
-
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private enum MainMenuButton {
-
-        GAME_START("GAME START"), PASS_WORD("PASS WORD"), SETTINGS("SETTINGS"), EXIT("EXIT");
-
-        private final String prompt;
-
+                });
     }
 
 }
