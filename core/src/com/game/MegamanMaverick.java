@@ -53,7 +53,8 @@ import java.util.function.Supplier;
 
 import static com.game.ConstVals.*;
 import static com.game.ConstVals.GameScreen.*;
-import static com.game.ConstVals.MusicAsset.XENOBLADE_GAUR_PLAINS_MUSIC;
+import static com.game.ConstVals.MegamanVals.*;
+import static com.game.ConstVals.MusicAsset.*;
 import static com.game.ConstVals.RenderingGround.PLAYGROUND;
 import static com.game.ConstVals.RenderingGround.UI;
 import static com.game.ConstVals.ViewVals.*;
@@ -137,11 +138,13 @@ public class MegamanMaverick extends Game implements GameContext2d {
         addSystem(new DebugMessageSystem(viewports.get(UI).getCamera(), getSpriteBatch(),
                 "Megaman10Font.ttf", 5, debugMsgPosArray));
         // blackboard
-        putBlackboardObject(MegamanVals.MEGAMAN_STATS, new MegamanStats());
+        putBlackboardObject(MEGAMAN_STATS, new MegamanStats());
         // define screens
         screens.put(MAIN_MENU, () -> new MainMenuScreen(this));
         screens.put(TEST_LEVEL_1, () -> new LevelScreen(
                 this, "tiledmaps/tmx/test1.tmx", XENOBLADE_GAUR_PLAINS_MUSIC.getSrc()));
+        screens.put(TEST_LEVEL_2, () -> new LevelScreen(
+                this, "tiledmaps/tmx/test2.tmx", MMZ_NEO_ARCADIA_MUSIC.getSrc()));
         // set screen
         setScreen(MAIN_MENU);
     }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.9" tiledversion="1.9.0" orientation="orthogonal" renderorder="right-down" width="150" height="60" tilewidth="16" tileheight="16" infinite="0" nextlayerid="5" nextobjectid="38">
+<map version="1.9" tiledversion="1.9.0" orientation="orthogonal" renderorder="right-down" width="150" height="60" tilewidth="16" tileheight="16" infinite="0" nextlayerid="9" nextobjectid="76">
  <tileset firstgid="1" source="../tsx/Tileset1.tsx"/>
  <layer id="1" name="Tile Layer 1" width="150" height="60">
   <data encoding="csv">
@@ -65,14 +65,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup id="3" name="DeathSensors" visible="0">
-  <object id="3" x="0" y="720" width="2016" height="240"/>
-  <object id="4" x="1360" y="704" width="656" height="16"/>
-  <object id="5" x="1872" y="656" width="48" height="16"/>
-  <object id="6" x="1632" y="656" width="48" height="16"/>
-  <object id="7" x="544" y="704" width="480" height="16"/>
-  <object id="8" x="880" y="656" width="16" height="16"/>
- </objectgroup>
+ <objectgroup id="7" name="MovingBlocks"/>
  <objectgroup id="4" name="StaticBlocks">
   <object id="9" x="0" y="480" width="16" height="240"/>
   <object id="10" x="240" y="576" width="64" height="144"/>
@@ -103,8 +96,59 @@
   <object id="36" x="592" y="672" width="112" height="16"/>
   <object id="37" x="512" y="672" width="32" height="48"/>
  </objectgroup>
+ <objectgroup id="6" name="PlayerSpawns">
+  <object id="75" name="start" x="48" y="688" width="16" height="16"/>
+ </objectgroup>
+ <objectgroup id="5" name="WallSlideSensors">
+  <object id="38" x="240" y="576" width="4" height="128"/>
+  <object id="39" x="300" y="576" width="4" height="128"/>
+  <object id="40" x="512" y="672" width="4" height="32"/>
+  <object id="41" x="540" y="672" width="4" height="32"/>
+  <object id="42" x="688" y="592" width="4" height="16"/>
+  <object id="43" x="592" y="672" width="4" height="16"/>
+  <object id="44" x="700" y="672" width="4" height="16"/>
+  <object id="45" x="828" y="592" width="4" height="16"/>
+  <object id="46" x="880" y="512" width="4" height="96"/>
+  <object id="47" x="892" y="512" width="4" height="96"/>
+  <object id="48" x="880" y="672" width="4" height="48"/>
+  <object id="49" x="892" y="672" width="4" height="48"/>
+  <object id="50" x="944" y="560" width="4" height="128"/>
+  <object id="51" x="956" y="576" width="4" height="112"/>
+  <object id="52" x="992" y="624" width="4" height="16"/>
+  <object id="53" x="1084" y="560" width="4" height="16"/>
+  <object id="54" x="1136" y="512" width="4" height="112"/>
+  <object id="55" x="1148" y="512" width="4" height="128"/>
+  <object id="56" x="1232" y="672" width="4" height="32"/>
+  <object id="57" x="1264" y="640" width="4" height="32"/>
+  <object id="58" x="1296" y="608" width="4" height="32"/>
+  <object id="59" x="1328" y="576" width="4" height="32"/>
+  <object id="60" x="1484" y="576" width="4" height="16"/>
+  <object id="61" x="1536" y="512" width="4" height="112"/>
+  <object id="62" x="1548" y="512" width="4" height="112"/>
+  <object id="63" x="1420" y="672" width="4" height="16"/>
+  <object id="64" x="1376" y="672" width="4" height="16"/>
+  <object id="65" x="1632" y="672" width="4" height="16"/>
+  <object id="66" x="1676" y="672" width="4" height="16"/>
+  <object id="67" x="1712" y="672" width="4" height="16"/>
+  <object id="68" x="1756" y="672" width="4" height="16"/>
+  <object id="69" x="1792" y="672" width="4" height="16"/>
+  <object id="70" x="1836" y="672" width="4" height="16"/>
+  <object id="71" x="1872" y="672" width="4" height="16"/>
+  <object id="72" x="1916" y="672" width="4" height="16"/>
+  <object id="73" x="1952" y="672" width="4" height="16"/>
+  <object id="74" x="1996" y="672" width="4" height="16"/>
+ </objectgroup>
+ <objectgroup id="3" name="DeathSensors">
+  <object id="3" x="0" y="720" width="2016" height="240"/>
+  <object id="4" x="1360" y="704" width="656" height="16"/>
+  <object id="5" x="1872" y="656" width="48" height="16"/>
+  <object id="6" x="1632" y="656" width="48" height="16"/>
+  <object id="7" x="544" y="704" width="480" height="16"/>
+  <object id="8" x="880" y="656" width="16" height="16"/>
+ </objectgroup>
  <objectgroup id="2" name="GameRooms" visible="0">
   <object id="1" x="16" y="496" width="1344" height="224"/>
   <object id="2" x="1360" y="496" width="656" height="224"/>
  </objectgroup>
+ <objectgroup id="8" name="EnemySpawns"/>
 </map>

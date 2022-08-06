@@ -49,6 +49,7 @@ import java.util.*;
 import java.util.function.Supplier;
 
 import static com.game.ConstVals.Events.*;
+import static com.game.ConstVals.GameScreen.*;
 import static com.game.ConstVals.RenderingGround.PLAYGROUND;
 import static com.game.ConstVals.SoundAsset.*;
 import static com.game.ConstVals.TextureAsset.BITS_ATLAS;
@@ -181,7 +182,7 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
     public void render(float delta) {
         super.render(delta);
         if (isPaused) {
-            onGamePaused(delta);
+            onGamePaused();
             if (gameContext.isJustPressed(ControllerButton.START)) {
                 isPaused = false;
             }
@@ -205,6 +206,7 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
 
     @Override
     public void dispose() {
+        levelMusic.stop();
         levelMap.dispose();
         gameContext.purgeAllEntities();
         gameContext.removeMessageListener(this);
@@ -272,8 +274,13 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
         // TODO: Handle fading in and out when level starts or player dies
     }
 
-    private void onGamePaused(float delta) {
-
+    private void onGamePaused() {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
+            gameContext.setScreen(TEST_LEVEL_1);
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) {
+            gameContext.setScreen(TEST_LEVEL_2);
+        }
+        // TODO: Create real pause menu
     }
 
     private void spawnMegaman() {

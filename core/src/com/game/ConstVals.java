@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 public class ConstVals {
 
     public enum GameScreen {
-        TEST_LEVEL_1, MAIN_MENU, PASSWORD, SETTINGS, BOSS_SELECT
+        TEST_LEVEL_1, TEST_LEVEL_2, MAIN_MENU, PASSWORD, SETTINGS, BOSS_SELECT
     }
 
     public enum RenderingGround {
