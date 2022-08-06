@@ -14,6 +14,7 @@ import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.game.ConstVals;
 import com.game.GameContext2d;
 import com.game.MessageListener;
 import com.game.behaviors.BehaviorSystem;
@@ -52,8 +53,9 @@ import static com.game.ConstVals.Events.*;
 import static com.game.ConstVals.GameScreen.*;
 import static com.game.ConstVals.RenderingGround.PLAYGROUND;
 import static com.game.ConstVals.SoundAsset.*;
+import static com.game.ConstVals.TextureAsset.*;
 import static com.game.ConstVals.TextureAsset.BITS_ATLAS;
-import static com.game.ConstVals.ViewVals.PPM;
+import static com.game.ConstVals.ViewVals.*;
 import static com.game.entities.megaman.MegamanWeapon.*;
 import static com.game.utils.UtilMethods.bottomCenterPoint;
 import static com.game.utils.UtilMethods.getPoint;
@@ -176,6 +178,11 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
         TextureRegion healthBit = gameContext.getAsset(BITS_ATLAS.getSrc(), TextureAtlas.class).findRegion("HealthBit");
         healthBar = new BitsBarUi(gameContext, () -> megaman.getComponent(HealthComponent.class).getCurrentHealth(),
                 () -> healthBit, new Vector2(8f, 2f), new Rectangle(PPM, 9f * PPM, 8f, 60f));
+        // black box sprite
+        TextureRegion black = gameContext.getAsset(DECORATIONS_TEXTURE_ATLAS.getSrc(), TextureAtlas.class)
+                .findRegion("Black");
+        blackBoxSprite.setRegion(black);
+        blackBoxSprite.setSize(VIEW_WIDTH * PPM, VIEW_HEIGHT * PPM);
     }
 
     @Override

@@ -19,7 +19,6 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.game.ConstVals.GameScreen;
-import com.game.ConstVals.MegamanVals;
 import com.game.ConstVals.RenderingGround;
 import com.game.animations.AnimationSystem;
 import com.game.behaviors.BehaviorSystem;

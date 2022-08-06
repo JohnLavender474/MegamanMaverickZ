@@ -14,20 +14,21 @@ import java.util.Map;
 
 import static com.game.ConstVals.ViewVals.*;
 import static com.game.controllers.ControllerButton.*;
+import static com.game.utils.enums.Direction.*;
 
 /**
  * The base class for all menu screens. Menu buttons need to be defined via {@link #defineMenuButtons()}.
  */
 public abstract class MenuScreen extends ScreenAdapter {
 
-    protected final Viewport uiViewport;
     protected final GameContext2d gameContext;
+    protected final Viewport uiViewport;
 
     private final Map<String, MenuButton> menuButtons;
-    private Music music;
 
     @Getter
     private String currentMenuButtonKey;
+    private Music music;
 
 
     /**
@@ -83,16 +84,16 @@ public abstract class MenuScreen extends ScreenAdapter {
             }
             if (gameContext.isJustPressed(DPAD_UP)) {
                 onMovement();
-                menuButton.onNavigate(Direction.DIR_UP, delta);
+                menuButton.onNavigate(DIR_UP, delta);
             } else if (gameContext.isJustPressed(DPAD_DOWN)) {
                 onMovement();
-                menuButton.onNavigate(Direction.DIR_DOWN, delta);
+                menuButton.onNavigate(DIR_DOWN, delta);
             } else if (gameContext.isJustPressed(DPAD_LEFT)) {
                 onMovement();
-                menuButton.onNavigate(Direction.DIR_LEFT, delta);
+                menuButton.onNavigate(DIR_LEFT, delta);
             } else if (gameContext.isJustPressed(DPAD_RIGHT)) {
                 onMovement();
-                menuButton.onNavigate(Direction.DIR_RIGHT, delta);
+                menuButton.onNavigate(DIR_RIGHT, delta);
             }
         }
     }

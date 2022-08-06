@@ -2,50 +2,101 @@ package com.game.menus.impl;
 
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
 import com.game.GameContext2d;
 import com.game.menus.MenuButton;
 import com.game.menus.MenuScreen;
 import com.game.utils.enums.Direction;
-import lombok.AccessLevel;
-import lombok.Getter;
+import com.game.utils.interfaces.Drawable;
+import com.game.utils.objects.FontHandle;
 import lombok.RequiredArgsConstructor;
 
+import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 
 import static com.game.ConstVals.SoundAsset.CURSOR_MOVE_BLOOP_SOUND;
+import static com.game.ConstVals.TextureAsset.*;
+import static com.game.ConstVals.ViewVals.*;
 import static com.game.menus.impl.BossSelectScreen.BossSelectButton.*;
+import static lombok.AccessLevel.*;
 
 public class BossSelectScreen extends MenuScreen {
 
-    @Getter
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    public enum BossSelectButton {
+    @RequiredArgsConstructor(access = PRIVATE)
+    enum BossSelectButton {
 
-        TIMBER_WOMAN("Timber Woman"),
-        JELLY_WOMAN("Jelly Woman"),
-        TSUNAMI_MAN("Tsunami Man"),
-        MANIAC_MAN("Maniac Man"),
-        SHROOM_MAN("Shroom Man"),
-        ATTIC_MAN("Attic Man"),
-        LION_MAN("Lion Man"),
-        PASSWORD("Password"),
-        QUIT("Quit Game"),
-        EXTRAS("Extras");
+        TIMBER_WOMAN("Timber Woman", 0, 0),
+        JELLY_WOMAN("Jelly Woman", 0, 1),
+        TSUNAMI_MAN("Tsunami Man", 0, 2),
+        MANIAC_MAN("Maniac Man", 1, 0),
+        SHROOM_MAN("Shroom Man", 1, 2),
+        ATTIC_MAN("Attic Man", 2, 0),
+        LION_MAN("Lion Man", 2, 1),
+        // TODO: Create name for last boss
+        SOMETHING_MAN("Something Man", 2, 2);
 
-        private final String prompt;
+        private final String name;
+        private final int x;
+        private final int y;
 
     }
 
+    static class BossSpriteHandle implements Drawable {
+
+        private final Sprite sprite = new Sprite();
+
+        private BossSpriteHandle(TextureRegion textureRegion, Vector2 center) {
+            sprite.setRegion(textureRegion);
+            sprite.setSize(5.33f * PPM, 4f * PPM);
+            sprite.setCenter(center.x, center.y);
+        }
+
+        @Override
+        public void draw(SpriteBatch spriteBatch) {
+            sprite.draw(spriteBatch);
+        }
+
+    }
+
+    private static final String STORE = "Store";
+    private static final String EXTRAS = "Extras";
+    private static final String PASSWORD = "Password";
+    private static final String QUIT_GAME = "Quit Game";
+
     private final Sprite topBlackBar = new Sprite();
     private final Sprite bottomBlackBar = new Sprite();
+    private final BossSpriteHandle[][] bossSpriteHandles = new BossSpriteHandle[3][3];
+    private final Map<BossSelectButton, FontHandle> texts = new EnumMap<>(BossSelectButton.class);
 
     /**
      * Instantiates a new Menu Screen.
      *
-     * @param gameContext2d the {@link GameContext2d}
+     * @param gameContext the {@link GameContext2d}
      */
-    public BossSelectScreen(GameContext2d gameContext2d) {
-        super(gameContext2d, null);
+    public BossSelectScreen(GameContext2d gameContext) {
+        super(gameContext, null);
+        // TODO: Set music
+    }
+
+    @Override
+    public void show() {
+        // texts
+        for (BossSelectButton button : BossSelectButton.values()) {
+            FontHandle text = new FontHandle("Megaman10Font.ttf", 8, new Vector2(button.x, button.y));
+            text.setText(button.name);
+            texts.put(button, text);
+        }
+        // top and bottom black bar
+        TextureRegion blackRegion = gameContext.getAsset(DECORATIONS_TEXTURE_ATLAS.getSrc(), TextureAtlas.class)
+                .findRegion("Black");
+        topBlackBar.setRegion(blackRegion);
+        topBlackBar.setSize(VIEW_WIDTH * PPM, PPM);
+        bottomBlackBar.set(topBlackBar);
+        topBlackBar.setPosition(0f, (VIEW_HEIGHT - 1) * PPM);
     }
 
     @Override
@@ -55,17 +106,25 @@ public class BossSelectScreen extends MenuScreen {
 
     @Override
     public void render(float delta) {
-        // set text
-        // set starting menu button
-        // set top and bottom black bars
-        // set array of sprites
-        // set logic for megaman face and where he looks to
+        // begin spritebatch
+        SpriteBatch spriteBatch = gameContext.getSpriteBatch();
+        spriteBatch.setProjectionMatrix(uiViewport.getCamera().combined);
+        spriteBatch.begin();
+        // array of sprites
+
+        // top and bottom black bars
+        topBlackBar.draw(spriteBatch);
+        bottomBlackBar.draw(spriteBatch);
+        // texts
+        texts.values().forEach(text -> text.draw(spriteBatch));
+        // end spritebatch
+        spriteBatch.end();
     }
 
     @Override
     protected Map<String, MenuButton> defineMenuButtons() {
-        return Map.of(
-                TIMBER_WOMAN.prompt, new MenuButton() {
+        return new HashMap<>() {{
+                put(TIMBER_WOMAN.name, new MenuButton() {
 
                     @Override
                     public void onSelect(float delta) {
@@ -77,8 +136,8 @@ public class BossSelectScreen extends MenuScreen {
 
                     }
 
-                },
-                JELLY_WOMAN.prompt, new MenuButton() {
+                });
+                put(JELLY_WOMAN.name, new MenuButton() {
 
                     @Override
                     public void onSelect(float delta) {
@@ -90,8 +149,8 @@ public class BossSelectScreen extends MenuScreen {
 
                     }
 
-                },
-                TSUNAMI_MAN.prompt, new MenuButton() {
+                });
+                put(TSUNAMI_MAN.name, new MenuButton() {
 
                     @Override
                     public void onSelect(float delta) {
@@ -103,7 +162,8 @@ public class BossSelectScreen extends MenuScreen {
 
                     }
 
-                }, MANIAC_MAN.prompt, new MenuButton() {
+                });
+                put(MANIAC_MAN.name, new MenuButton() {
 
                     @Override
                     public void onSelect(float delta) {
@@ -115,7 +175,8 @@ public class BossSelectScreen extends MenuScreen {
 
                     }
 
-                }, SHROOM_MAN.prompt, new MenuButton() {
+                });
+                put(SHROOM_MAN.name, new MenuButton() {
 
                     @Override
                     public void onSelect(float delta) {
@@ -127,7 +188,8 @@ public class BossSelectScreen extends MenuScreen {
 
                     }
 
-                }, ATTIC_MAN.prompt, new MenuButton() {
+                });
+                put(ATTIC_MAN.name, new MenuButton() {
 
                     @Override
                     public void onSelect(float delta) {
@@ -139,7 +201,8 @@ public class BossSelectScreen extends MenuScreen {
 
                     }
 
-                }, LION_MAN.prompt, new MenuButton() {
+                });
+                put(LION_MAN.name, new MenuButton() {
 
                     @Override
                     public void onSelect(float delta) {
@@ -151,7 +214,8 @@ public class BossSelectScreen extends MenuScreen {
 
                     }
 
-                }, PASSWORD.prompt, new MenuButton() {
+                });
+                put(STORE, new MenuButton() {
 
                     @Override
                     public void onSelect(float delta) {
@@ -163,8 +227,8 @@ public class BossSelectScreen extends MenuScreen {
 
                     }
 
-                },
-                QUIT.prompt, new MenuButton() {
+                });
+                put(EXTRAS, new MenuButton() {
 
                     @Override
                     public void onSelect(float delta) {
@@ -176,8 +240,8 @@ public class BossSelectScreen extends MenuScreen {
 
                     }
 
-                },
-                EXTRAS.prompt, new MenuButton() {
+                });
+                put(PASSWORD, new MenuButton() {
 
                     @Override
                     public void onSelect(float delta) {
@@ -189,8 +253,21 @@ public class BossSelectScreen extends MenuScreen {
 
                     }
 
-                }
-        );
+                });
+                put(QUIT_GAME, new MenuButton() {
+
+                    @Override
+                    public void onSelect(float delta) {
+
+                    }
+
+                    @Override
+                    public void onNavigate(Direction direction, float delta) {
+
+                    }
+
+                });
+            }};
     }
 
 }

@@ -64,10 +64,9 @@ public class MainMenuScreen extends MenuScreen {
         super.show();
         float row = 5f;
         for (MainMenuButton mainMenuButton : MainMenuButton.values()) {
-            FontHandle fontHandle = new FontHandle("Megaman10Font.ttf", 8);
+            FontHandle fontHandle = new FontHandle("Megaman10Font.ttf", 8, new Vector2(3 * PPM, row * PPM));
             fontHandle.setText(mainMenuButton.prompt);
             fonts.put(mainMenuButton, fontHandle);
-            fontHandle.getPosition().set(3 * PPM, row * PPM);
             Vector2 arrowCenter = new Vector2(2.5f * PPM, (row - 0.235f) * PPM);
             arrowCenters.put(mainMenuButton, arrowCenter);
             row -= 0.75f;
