@@ -1,5 +1,6 @@
 package com.game.utils;
 
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -9,14 +10,23 @@ import com.game.utils.enums.Direction;
 import com.game.utils.enums.Position;
 import com.game.utils.interfaces.Positional;
 
-import java.util.function.Predicate;
-
 import static java.lang.Math.*;
 
 /**
  * Global utility methods.
  */
 public class UtilMethods {
+
+    /**
+     * Returns if the provided rectangle is within the camera bounds.
+     *
+     * @param camera the camera*
+     * @param rectangle the rectangle
+     * @return if the provided rectangle is within the camera bounds
+     */
+    public static boolean isInCamBounds(Camera camera, Rectangle rectangle) {
+        return camera.frustum.boundsInFrustum(rectToBBox(rectangle));
+    }
 
     /**
      * Returns the number bounded between min and max.

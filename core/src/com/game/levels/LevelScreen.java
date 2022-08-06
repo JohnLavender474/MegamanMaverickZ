@@ -56,8 +56,7 @@ import static com.game.ConstVals.ViewVals.PPM;
 import static com.game.entities.megaman.MegamanWeapon.*;
 import static com.game.utils.UtilMethods.bottomCenterPoint;
 import static com.game.utils.UtilMethods.getPoint;
-import static com.game.utils.enums.Position.BOTTOM_CENTER;
-import static com.game.utils.enums.Position.TOP_CENTER;
+import static com.game.utils.enums.Position.*;
 
 public class LevelScreen extends ScreenAdapter implements MessageListener {
 
@@ -311,6 +310,9 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
             }
             case "bat" -> {
                 return () -> new Bat(gameContext, () -> megaman, getPoint(spawnObj.getRectangle(), TOP_CENTER));
+            }
+            case "dragonfly" -> {
+                return () -> new Dragonfly(gameContext, () -> megaman, getPoint(spawnObj.getRectangle(), CENTER));
             }
             default -> throw new IllegalStateException("Cannot find matching entity for <" + spawnObj.getName() + ">");
         }

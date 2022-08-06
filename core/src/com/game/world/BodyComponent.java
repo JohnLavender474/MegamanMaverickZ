@@ -23,8 +23,8 @@ public class BodyComponent implements Component {
     private final Vector2 friction = new Vector2();
     private final Vector2 velocity = new Vector2();
     private final Vector2 resistance = new Vector2(1f, 1f);
-    private final List<Fixture> fixtures = new ArrayList<>();
     private final Rectangle collisionBox = new Rectangle();
+    private final List<Fixture> fixtures = new ArrayList<>();
     private final Rectangle priorCollisionBox = new Rectangle();
     private final Set<BodySense> bodySenses = EnumSet.noneOf(BodySense.class);
     private final Map<Direction, Boolean> collisionFlags = new EnumMap<>(Direction.class) {{

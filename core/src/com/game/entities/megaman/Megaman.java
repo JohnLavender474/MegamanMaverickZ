@@ -121,6 +121,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         damageNegotiations.put(Met.class, new DamageNegotiation(5));
         damageNegotiations.put(Bullet.class, new DamageNegotiation(10));
         damageNegotiations.put(Fireball.class, new DamageNegotiation(5));
+        damageNegotiations.put(Dragonfly.class, new DamageNegotiation(5));
         damageNegotiations.put(SniperJoe.class, new DamageNegotiation(10));
         damageNegotiations.put(FloatingCan.class, new DamageNegotiation(10));
         damageNegotiations.put(SuctionRoller.class, new DamageNegotiation(10));

@@ -39,6 +39,11 @@ public abstract class AbstractEnemy extends Entity implements Damager, Damageabl
     protected final Map<Class<? extends Damager>, DamageNegotiation> damageNegotiations;
 
     public AbstractEnemy(GameContext2d gameContext, Supplier<Megaman> megamanSupplier, float damageDuration) {
+        this(gameContext, megamanSupplier, damageDuration, 1.5f);
+    }
+
+    public AbstractEnemy(GameContext2d gameContext, Supplier<Megaman> megamanSupplier,
+                         float damageDuration, float cullDuration) {
         this.gameContext = gameContext;
         this.megamanSupplier = megamanSupplier;
         this.damageNegotiations = defineDamageNegotiations();
@@ -46,7 +51,8 @@ public abstract class AbstractEnemy extends Entity implements Damager, Damageabl
         addComponent(defineGraphComponent());
         addComponent(new CullOnCamTransComponent());
         addComponent(new HealthComponent(30, this::disintegrate));
-        addComponent(new CullOutOfCamBoundsComponent(() -> getComponent(BodyComponent.class).getCollisionBox(), 1.5f));
+        addComponent(new CullOutOfCamBoundsComponent(
+                () -> getComponent(BodyComponent.class).getCollisionBox(), cullDuration));
         damageTimer.setToEnd();
         damageTimer.setDuration(damageDuration);
     }
