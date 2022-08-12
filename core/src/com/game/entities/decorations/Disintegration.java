@@ -26,7 +26,7 @@ import static com.game.world.BodyType.*;
 @Setter
 public class Disintegration extends Entity {
 
-    public static final float DISINTEGRATION_DURATION = .5f;
+    public static final float DISINTEGRATION_DURATION = .1f;
 
     private final Map<Class<? extends Component>, Component> components = new HashMap<>();
     private final Timer timer = new Timer(DISINTEGRATION_DURATION);
@@ -57,7 +57,7 @@ public class Disintegration extends Entity {
 
     private AnimationComponent defineAnimationComponent(GameContext2d gameContext) {
         return new AnimationComponent(new TimedAnimation(gameContext.getAsset(
-                DECORATIONS_TEXTURE_ATLAS.getSrc(), TextureAtlas.class).findRegion("Disintegration"), 3, 0.1f));
+                DECORATIONS_TEXTURE_ATLAS.getSrc(), TextureAtlas.class).findRegion("Disintegration"), 3, 0.005f));
     }
 
     private UpdatableComponent defineUpdatableComponent() {

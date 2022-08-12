@@ -56,6 +56,7 @@ import java.util.function.Supplier;
 
 import static com.game.ConstVals.TextureAsset.DECORATIONS_TEXTURE_ATLAS;
 import static com.game.ConstVals.ViewVals.*;
+import static com.game.ConstVals.WorldVals.*;
 import static com.game.levels.LevelScreen.LEVEL_CAM_TRANS_DURATION;
 import static com.game.levels.LevelScreen.MEGAMAN_DELTA_ON_CAM_TRANS;
 import static com.game.utils.UtilMethods.*;
@@ -128,8 +129,8 @@ public class TestEnemiesScreen extends ScreenAdapter implements MessageListener 
                 .findRegion("Black"));
         black.setSize(1920f, 1080f);
         black.setCenter(0f, 0f);
-        entitiesAndSystemsManager.addSystem(new WorldSystem(new TestWorldContactListener(),
-                WorldVals.AIR_RESISTANCE, WorldVals.FIXED_TIME_STEP));
+        entitiesAndSystemsManager.addSystem(new WorldSystem(
+                new TestWorldContactListener(), AIR_RESISTANCE, FIXED_TIME_STEP));
         entitiesAndSystemsManager.addSystem(new CullOnCamTransSystem(() -> levelCameraManager.getTransitionState()));
         entitiesAndSystemsManager.addSystem(new CullOnOutOfCamBoundsSystem(playgroundViewport.getCamera()));
         entitiesAndSystemsManager.addSystem(new PathfindingSystem(runOnShutdown));

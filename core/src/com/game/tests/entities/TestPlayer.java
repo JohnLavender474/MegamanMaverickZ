@@ -187,9 +187,9 @@ public class TestPlayer extends Entity implements Damageable, Faceable, CameraFo
         testPlayerWeapons.put(MEGA_BUSTER, new WeaponDef(() -> {
             Vector2 trajectory = new Vector2(15f * (facing == F_LEFT ? -PPM : PPM), 0f);
             if (isCharging()) {
-                return new TestChargedShot(this, trajectory, spawn.get(), facing, assetLoader, esManager);
+                return List.of(new TestChargedShot(this, trajectory, spawn.get(), facing, assetLoader, esManager));
             } else {
-                return new TestBullet(this, trajectory, spawn.get(), assetLoader, esManager);
+                return List.of(new TestBullet(this, trajectory, spawn.get(), assetLoader, esManager));
             }
         }, .1f, () -> getComponent(SoundComponent.class).requestSound(MEGA_BUSTER_BULLET_SHOT_SOUND)));
         testPlayerWeapons.put(FLAME_BUSTER, new WeaponDef(() -> {
@@ -199,7 +199,7 @@ public class TestPlayer extends Entity implements Damageable, Faceable, CameraFo
             } else {
                 // TODO: return normal fireball
             }
-            return new TestFireball(assetLoader, this, impulse, spawn.get());
+            return List.of(new TestFireball(assetLoader, this, impulse, spawn.get()));
         }, .75f, () -> getComponent(SoundComponent.class).requestSound(CRASH_BOMBER_SOUND)));
     }
 
@@ -212,7 +212,7 @@ public class TestPlayer extends Entity implements Damageable, Faceable, CameraFo
                 weaponDef.isDepleted() || !weaponDef.isCooldownTimerFinished()) {
             return;
         }
-        esManager.addEntity(weaponDef.getWeaponInstance());
+        weaponDef.getWeaponsInstances().forEach(esManager::addEntity);
         weaponDef.resetCooldownTimer();
         shootAnimationTimer.reset();
         weaponDef.runOnShoot();

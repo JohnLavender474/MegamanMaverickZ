@@ -5,33 +5,34 @@ import com.game.utils.objects.Percentage;
 import com.game.utils.objects.Timer;
 import lombok.Getter;
 
+import java.util.Collection;
 import java.util.function.Supplier;
 
 @Getter
 public class WeaponDef {
 
+    private final Supplier<Collection<IEntity>> weaponsSupplier;
     private final Percentage percentage = Percentage.of(100);
-    private final Supplier<IEntity> weaponSupplier;
     private final Timer shootCooldownTimer;
     private final Runnable runOnShoot;
 
-    public WeaponDef(Supplier<IEntity> weaponSupplier, float shootCooldown, Runnable runOnShoot) {
+    public WeaponDef(Supplier<Collection<IEntity>> weaponsSupplier, float shootCooldown, Runnable runOnShoot) {
         this.runOnShoot = runOnShoot;
-        this.weaponSupplier = weaponSupplier;
+        this.weaponsSupplier = weaponsSupplier;
         this.shootCooldownTimer = new Timer(shootCooldown);
         this.shootCooldownTimer.setToEnd();
     }
 
-    public WeaponDef(Supplier<IEntity> weaponSupplier, float shootCooldown) {
-        this(weaponSupplier, shootCooldown, () -> {});
+    public WeaponDef(Supplier<Collection<IEntity>> weaponsSupplier, float shootCooldown) {
+        this(weaponsSupplier, shootCooldown, () -> {});
     }
 
     public void runOnShoot() {
         runOnShoot.run();
     }
 
-    public IEntity getWeaponInstance() {
-        return weaponSupplier.get();
+    public Collection<IEntity> getWeaponsInstances() {
+        return weaponsSupplier.get();
     }
 
     public void translatePercentage(int percentage) {

@@ -15,6 +15,7 @@ import java.util.Map;
 import static com.game.ConstVals.ViewVals.*;
 import static com.game.controllers.ControllerButton.*;
 import static com.game.utils.enums.Direction.*;
+import static java.util.Arrays.stream;
 
 /**
  * The base class for all menu screens. Menu buttons need to be defined via {@link #defineMenuButtons()}.
@@ -28,6 +29,8 @@ public abstract class MenuScreen extends ScreenAdapter {
 
     @Getter
     private String currentMenuButtonKey;
+    @Getter
+    private boolean selectionMade;
     private Music music;
 
 
@@ -77,11 +80,11 @@ public abstract class MenuScreen extends ScreenAdapter {
     @Override
     public void render(float delta) {
         super.render(delta);
+        if (isSelectionMade()) {
+            return;
+        }
         MenuButton menuButton = menuButtons.get(currentMenuButtonKey);
         if (menuButton != null) {
-            if (gameContext.isJustPressed(X) || gameContext.isJustPressed(A) || gameContext.isJustPressed(START)) {
-                menuButton.onSelect(delta);
-            }
             if (gameContext.isJustPressed(DPAD_UP)) {
                 onMovement();
                 menuButton.onNavigate(DIR_UP, delta);
@@ -94,6 +97,12 @@ public abstract class MenuScreen extends ScreenAdapter {
             } else if (gameContext.isJustPressed(DPAD_RIGHT)) {
                 onMovement();
                 menuButton.onNavigate(DIR_RIGHT, delta);
+            }
+            if (gameContext.isJustPressed(X) || gameContext.isJustPressed(A) || gameContext.isJustPressed(START)) {
+                menuButton.onSelect(delta);
+                selectionMade = true;
+            } else {
+                menuButton.onHighlighted(delta);
             }
         }
     }

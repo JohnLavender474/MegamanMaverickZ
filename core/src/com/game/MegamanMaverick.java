@@ -50,6 +50,7 @@ import lombok.Setter;
 import java.util.*;
 import java.util.function.Supplier;
 
+import static com.badlogic.gdx.Gdx.*;
 import static com.game.ConstVals.*;
 import static com.game.ConstVals.GameScreen.*;
 import static com.game.ConstVals.MegamanVals.*;
@@ -242,7 +243,7 @@ public class MegamanMaverick extends Game implements GameContext2d {
         this.screen = screen;
         if (this.screen != null) {
             this.screen.show();
-            this.screen.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+            this.screen.resize(graphics.getWidth(), graphics.getHeight());
         }
     }
 
@@ -313,15 +314,15 @@ public class MegamanMaverick extends Game implements GameContext2d {
 
     @Override
     public void render() {
-        Gdx.gl20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            Gdx.app.exit();
+        gl20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
+        if (input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            app.exit();
         }
         if (doUpdateController()) {
             updateController();
         }
-        updateMessageDispatcher(Gdx.graphics.getDeltaTime());
+        updateMessageDispatcher(graphics.getDeltaTime());
         super.render();
         viewports.values().forEach(Viewport::apply);
     }

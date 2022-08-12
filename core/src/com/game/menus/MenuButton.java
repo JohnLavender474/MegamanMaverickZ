@@ -13,6 +13,13 @@ public interface MenuButton {
     void onSelect(float delta);
 
     /**
+     * Optional action on highlighted.
+     *
+     * @param delta the delta time
+     */
+    default void onHighlighted(float delta) {}
+
+    /**
      * On navigate.
      *
      * @param direction the direction

@@ -1,7 +1,7 @@
 Decorations.png
 size: 1920, 1750
 format: RGBA8888
-filter: Nearest,Nearest
+filter: Linear,Linear
 repeat: none
 Arrow
   rotate: false
@@ -12,14 +12,14 @@ Arrow
   index: -1
 Black
   rotate: false
-  xy: 256, 0
+  xy: 384, 0
   size: 200, 200
   orig: 200, 200
   offset: 0, 0
   index: -1
 Blue
   rotate: false
-  xy: 456, 0
+  xy: 584, 0
   size: 225, 225
   orig: 225, 225
   offset: 0, 0
@@ -40,7 +40,7 @@ Explosion
   index: -1
 MegamanHelmet
   rotate: false
-  xy: 681, 0
+  xy: 809, 0
   size: 300, 284
   orig: 300, 284
   offset: 0, 0
@@ -66,16 +66,23 @@ PlayerExplosionOrbs
   orig: 128, 64
   offset: 0, 0
   index: -1
+StageSelectBox_Blinking
+  rotate: false
+  xy: 256, 0
+  size: 128, 64
+  orig: 128, 64
+  offset: 0, 0
+  index: -1
 StageSelectBox_Highlighted
   rotate: false
-  xy: 981, 0
+  xy: 1109, 0
   size: 400, 400
   orig: 400, 400
   offset: 0, 0
   index: -1
 StageSelectBox_Unhighlighted
   rotate: false
-  xy: 1381, 0
+  xy: 1509, 0
   size: 400, 400
   orig: 400, 400
   offset: 0, 0

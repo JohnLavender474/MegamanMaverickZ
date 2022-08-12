@@ -38,14 +38,14 @@ public class AnimationComponent implements Component {
     public void animate(Sprite sprite, float delta) {
         String priorAnimationKey = currentAnimationKey;
         currentAnimationKey = animationKeySupplier.get();
-        TimedAnimation timedAnimation = animationFunction.apply(currentAnimationKey); // animations.get(currentAnimationKey);
+        TimedAnimation timedAnimation = animationFunction.apply(currentAnimationKey);
         if (timedAnimation == null) {
             return;
         }
         timedAnimation.update(delta);
         sprite.setRegion(timedAnimation.getCurrentT());
         if (priorAnimationKey != null && !currentAnimationKey.equals(priorAnimationKey)) {
-            TimedAnimation priorAnimation = animationFunction.apply(priorAnimationKey); // animations.get(priorAnimationKey);
+            TimedAnimation priorAnimation = animationFunction.apply(priorAnimationKey);
             priorAnimation.reset();
         }
     }

@@ -18,10 +18,11 @@ import lombok.RequiredArgsConstructor;
 import java.util.EnumMap;
 import java.util.Map;
 
+import static com.badlogic.gdx.Gdx.*;
 import static com.game.ConstVals.GameScreen.TEST_LEVEL_1;
 import static com.game.ConstVals.MusicAsset.MMX3_INTRO_STAGE_MUSIC;
 import static com.game.ConstVals.SoundAsset.CURSOR_MOVE_BLOOP_SOUND;
-import static com.game.ConstVals.TextureAsset.DECORATIONS_TEXTURE_ATLAS;
+import static com.game.ConstVals.TextureAsset.DECORATIONS_TEXTURE_ATLAS ;
 import static com.game.ConstVals.ViewVals.PPM;
 import static com.game.menus.impl.MainMenuScreen.MainMenuButton.*;
 import static com.game.utils.enums.Direction.*;
@@ -186,7 +187,7 @@ public class MainMenuScreen extends MenuScreen {
 
                     @Override
                     public void onSelect(float delta) {
-                        Gdx.app.exit();
+                        app.exit();
                     }
 
                     @Override

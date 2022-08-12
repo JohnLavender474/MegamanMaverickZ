@@ -5,6 +5,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import static lombok.AccessLevel.PRIVATE;
+
 public class ConstVals {
 
     public enum GameScreen {
@@ -28,6 +30,26 @@ public class ConstVals {
 
     public enum Events {
         PLAYER_DEAD, LEVEL_FINISHED
+    }
+
+    @Getter
+    @RequiredArgsConstructor(access = PRIVATE)
+    public enum Boss {
+
+        TIMBER_WOMAN("Timber Woman", 0, 0),
+        JELLY_WOMAN("Jelly Woman", 0, 1),
+        TSUNAMI_MAN("Tsunami Man", 0, 2),
+        MANIAC_MAN("Maniac Man", 1, 0),
+        SHROOM_MAN("Shroom Man", 1, 2),
+        ATTIC_MAN("Attic Man", 2, 0),
+        LION_MAN("Lion Man", 2, 1),
+        // TODO: Create name for last boss
+        SOMETHING_MAN("Something Man", 2, 2);
+
+        private final String name;
+        private final int x;
+        private final int y;
+
     }
 
     public static class MegamanVals {
