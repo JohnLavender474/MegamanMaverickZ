@@ -26,6 +26,7 @@ import static com.badlogic.gdx.graphics.Texture.TextureFilter.*;
 import static com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.*;
 import static com.game.ConstVals.TextureAsset.*;
 import static com.game.ConstVals.ViewVals.*;
+import static com.game.tests.screens.TestBossSelectScreen.TestPaneDefStatus.*;
 import static com.game.utils.UtilMethods.*;
 
 public class TestBossSelectScreen extends ScreenAdapter {
@@ -49,7 +50,7 @@ public class TestBossSelectScreen extends ScreenAdapter {
         private final Sprite metSprite = new Sprite();
         private final Sprite paneSprite = new Sprite();
 
-        private TestPaneDefStatus status;
+        private TestPaneDefStatus status = UNHIGHLIGHTED;
 
         public TestPaneDef(int x, int y, TestAssetLoader assetLoader) {
             // animations

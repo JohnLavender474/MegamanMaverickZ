@@ -581,12 +581,12 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         // left
         Fixture left = new Fixture(this, LEFT);
         left.setWidth(1f);
-        left.setOffset(-.45f * PPM, .25f * PPM);
+        left.setOffset(-.45f * PPM, .15f * PPM);
         bodyComponent.addFixture(left);
         // right
         Fixture right = new Fixture(this, RIGHT);
         right.setWidth(1f);
-        right.setOffset(.45f * PPM, .25f * PPM);
+        right.setOffset(.45f * PPM, .15f * PPM);
         bodyComponent.addFixture(right);
         // hitbox
         Fixture hitBox = new Fixture(this, DAMAGEABLE_BOX);

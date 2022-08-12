@@ -173,15 +173,15 @@
         </struct>
         <key>individualSpriteSettings</key>
         <map type="IndividualSpriteSettingsMap">
-            <key type="filename">../Frames/MegamanFace/Down.png</key>
-            <key type="filename">../Frames/MegamanFace/DownLeft.png</key>
-            <key type="filename">../Frames/MegamanFace/DownRight.png</key>
-            <key type="filename">../Frames/MegamanFace/Forward.png</key>
-            <key type="filename">../Frames/MegamanFace/Left.png</key>
-            <key type="filename">../Frames/MegamanFace/Right.png</key>
-            <key type="filename">../Frames/MegamanFace/Up.png</key>
-            <key type="filename">../Frames/MegamanFace/UpLeft.png</key>
-            <key type="filename">../Frames/MegamanFace/UpRight.png</key>
+            <key type="filename">../Frames/MegamanFace/BOTTOM_CENTER.png</key>
+            <key type="filename">../Frames/MegamanFace/BOTTOM_LEFT.png</key>
+            <key type="filename">../Frames/MegamanFace/BOTTOM_RIGHT.png</key>
+            <key type="filename">../Frames/MegamanFace/CENTER.png</key>
+            <key type="filename">../Frames/MegamanFace/CENTER_LEFT.png</key>
+            <key type="filename">../Frames/MegamanFace/CENTER_RIGHT.png</key>
+            <key type="filename">../Frames/MegamanFace/TOP_CENTER.png</key>
+            <key type="filename">../Frames/MegamanFace/TOP_LEFT.png</key>
+            <key type="filename">../Frames/MegamanFace/TOP_RIGHT.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>

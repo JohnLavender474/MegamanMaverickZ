@@ -6,8 +6,6 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.game.ConstVals.RenderingGround;
 import com.game.GameContext2d;
-import com.game.controllers.ControllerButton;
-import com.game.utils.enums.Direction;
 import lombok.Getter;
 
 import java.util.Map;
@@ -15,7 +13,6 @@ import java.util.Map;
 import static com.game.ConstVals.ViewVals.*;
 import static com.game.controllers.ControllerButton.*;
 import static com.game.utils.enums.Direction.*;
-import static java.util.Arrays.stream;
 
 /**
  * The base class for all menu screens. Menu buttons need to be defined via {@link #defineMenuButtons()}.
@@ -35,15 +32,18 @@ public abstract class MenuScreen extends ScreenAdapter {
 
 
     /**
-     * Instantiates a new Menu Screen.
+     * Instantiates a new Menu Screen. The first button is set and music begins playing on showing.
      *
      * @param gameContext the {@link GameContext2d}
+     * @param firstButton the button that is highlighted on showing the screen
+     * @param musicSrc the music source
      */
-    public MenuScreen(GameContext2d gameContext, String musicSrc) {
+    public MenuScreen(GameContext2d gameContext, String firstButton, String musicSrc) {
         this.gameContext = gameContext;
         this.menuButtons = defineMenuButtons();
         this.music = gameContext.getAsset(musicSrc, Music.class);
         this.uiViewport = gameContext.getViewport(RenderingGround.UI);
+        setMenuButton(firstButton);
     }
 
     /**
@@ -54,12 +54,12 @@ public abstract class MenuScreen extends ScreenAdapter {
     protected abstract Map<String, MenuButton> defineMenuButtons();
 
     /**
-     * Called when the cursor has been moved.
+     * Called when the cursor has been moved. Optional method.
      */
     protected void onMovement() {}
 
     /**
-     * Sets menu button.
+     * Set menu button.
      *
      * @param menuButtonKey the menu button key
      */
@@ -99,10 +99,7 @@ public abstract class MenuScreen extends ScreenAdapter {
                 menuButton.onNavigate(DIR_RIGHT, delta);
             }
             if (gameContext.isJustPressed(X) || gameContext.isJustPressed(A) || gameContext.isJustPressed(START)) {
-                menuButton.onSelect(delta);
-                selectionMade = true;
-            } else {
-                menuButton.onHighlighted(delta);
+                selectionMade = menuButton.onSelect(delta);
             }
         }
     }

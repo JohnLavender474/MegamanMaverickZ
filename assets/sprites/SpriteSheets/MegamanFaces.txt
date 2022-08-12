@@ -3,63 +3,63 @@ size: 432, 108
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
-Down
+BOTTOM_CENTER
   rotate: false
   xy: 0, 0
   size: 144, 36
   orig: 144, 36
   offset: 0, 0
   index: -1
-DownLeft
+BOTTOM_LEFT
   rotate: false
   xy: 144, 0
   size: 144, 36
   orig: 144, 36
   offset: 0, 0
   index: -1
-DownRight
+BOTTOM_RIGHT
   rotate: false
   xy: 288, 0
   size: 144, 36
   orig: 144, 36
   offset: 0, 0
   index: -1
-Forward
+CENTER
   rotate: false
   xy: 0, 36
   size: 144, 36
   orig: 144, 36
   offset: 0, 0
   index: -1
-Left
+CENTER_LEFT
   rotate: false
   xy: 144, 36
   size: 144, 36
   orig: 144, 36
   offset: 0, 0
   index: -1
-Right
+CENTER_RIGHT
   rotate: false
   xy: 288, 36
   size: 144, 36
   orig: 144, 36
   offset: 0, 0
   index: -1
-Up
+TOP_CENTER
   rotate: false
   xy: 0, 72
   size: 144, 36
   orig: 144, 36
   offset: 0, 0
   index: -1
-UpLeft
+TOP_LEFT
   rotate: false
   xy: 144, 72
   size: 144, 36
   orig: 144, 36
   offset: 0, 0
   index: -1
-UpRight
+TOP_RIGHT
   rotate: false
   xy: 288, 72
   size: 144, 36

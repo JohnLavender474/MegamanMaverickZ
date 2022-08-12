@@ -1,10 +1,12 @@
 package com.game;
 
 import com.badlogic.gdx.math.Vector2;
+import com.game.utils.enums.Position;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import static com.game.utils.enums.Position.*;
 import static lombok.AccessLevel.PRIVATE;
 
 public class ConstVals {
@@ -36,19 +38,41 @@ public class ConstVals {
     @RequiredArgsConstructor(access = PRIVATE)
     public enum Boss {
 
-        TIMBER_WOMAN("Timber Woman", 0, 0),
-        JELLY_WOMAN("Jelly Woman", 0, 1),
-        TSUNAMI_MAN("Tsunami Man", 0, 2),
-        MANIAC_MAN("Maniac Man", 1, 0),
-        SHROOM_MAN("Shroom Man", 1, 2),
-        ATTIC_MAN("Attic Man", 2, 0),
-        LION_MAN("Lion Man", 2, 1),
+        TIMBER_WOMAN("Timber Woman", BOTTOM_LEFT, null),
+        JELLY_WOMAN("Jelly Woman", CENTER_LEFT, null),
+        TSUNAMI_MAN("Tsunami Man", TOP_LEFT, null),
+        MANIAC_MAN("Maniac Man", BOTTOM_CENTER, null),
+        SHROOM_MAN("Shroom Man", TOP_CENTER, null),
+        ATTIC_MAN("Attic Man", BOTTOM_RIGHT, null),
+        LION_MAN("Lion Man", CENTER_RIGHT, null),
         // TODO: Create name for last boss
-        SOMETHING_MAN("Something Man", 2, 2);
+        SOMETHING_MAN("Something Man", TOP_RIGHT, null);
 
-        private final String name;
-        private final int x;
-        private final int y;
+        private final String bossName;
+        private final Position position;
+        private final GameScreen gameScreen;
+
+        public static Boss findByName(String name) {
+            for (Boss boss : values()) {
+                if (name.equals(boss.getBossName())) {
+                    return boss;
+                }
+            }
+            return null;
+        }
+
+        public static Boss findByPos(Position position) {
+            for (Boss boss : values()) {
+                if (boss.getPosition().equals(position)) {
+                    return boss;
+                }
+            }
+            return null;
+        }
+
+        public static Boss findByPos(int x, int y) {
+            return findByPos(getByGridIndex(x, y));
+        }
 
     }
 

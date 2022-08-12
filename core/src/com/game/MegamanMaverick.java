@@ -1,7 +1,6 @@
 package com.game;
 
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
@@ -35,6 +34,7 @@ import com.game.entities.megaman.MegamanStats;
 import com.game.graph.GraphSystem;
 import com.game.health.HealthSystem;
 import com.game.levels.LevelScreen;
+import com.game.menus.impl.BossSelectScreen;
 import com.game.menus.impl.MainMenuScreen;
 import com.game.pathfinding.PathfindingSystem;
 import com.game.sounds.SoundSystem;
@@ -141,12 +141,14 @@ public class MegamanMaverick extends Game implements GameContext2d {
         putBlackboardObject(MEGAMAN_STATS, new MegamanStats());
         // define screens
         screens.put(MAIN_MENU, () -> new MainMenuScreen(this));
+        screens.put(BOSS_SELECT, () -> new BossSelectScreen(this));
         screens.put(TEST_LEVEL_1, () -> new LevelScreen(
                 this, "tiledmaps/tmx/test1.tmx", XENOBLADE_GAUR_PLAINS_MUSIC.getSrc()));
         screens.put(TEST_LEVEL_2, () -> new LevelScreen(
                 this, "tiledmaps/tmx/test2.tmx", MMZ_NEO_ARCADIA_MUSIC.getSrc()));
         // set screen
-        setScreen(MAIN_MENU);
+        // setScreen(MAIN_MENU);
+        setScreen(BOSS_SELECT);
     }
 
     @Override
