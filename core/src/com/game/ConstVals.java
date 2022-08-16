@@ -12,7 +12,7 @@ import static lombok.AccessLevel.PRIVATE;
 public class ConstVals {
 
     public enum GameScreen {
-        TEST_LEVEL_1, TEST_LEVEL_2, MAIN_MENU, PASSWORD, SETTINGS, BOSS_SELECT
+        TEST_LEVEL_1, TEST_LEVEL_2, MAIN_MENU, PASSWORD, SETTINGS, BOSS_SELECT, TIMBER_WOMAN
     }
 
     public enum RenderingGround {
@@ -38,7 +38,7 @@ public class ConstVals {
     @RequiredArgsConstructor(access = PRIVATE)
     public enum Boss {
 
-        TIMBER_WOMAN("Timber Woman", BOTTOM_LEFT, null),
+        TIMBER_WOMAN("Timber Woman", BOTTOM_LEFT, GameScreen.TIMBER_WOMAN),
         JELLY_WOMAN("Jelly Woman", CENTER_LEFT, null),
         TSUNAMI_MAN("Tsunami Man", TOP_LEFT, null),
         MANIAC_MAN("Maniac Man", BOTTOM_CENTER, null),

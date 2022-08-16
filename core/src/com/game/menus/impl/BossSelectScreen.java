@@ -159,6 +159,7 @@ public class BossSelectScreen extends MenuScreen {
     private boolean outro;
     private boolean blink;
     private Boss bossSelection;
+
     private final Timer outroTimer = new Timer(1.05f, new ArrayList<>() {{
         for (int i = 1; i <= 10; i++) {
             add(new TimeMarkedRunnable(.1f * i, () -> blink = !blink));
@@ -266,6 +267,7 @@ public class BossSelectScreen extends MenuScreen {
             outroTimer.update(delta);
             if (outroTimer.isFinished()) {
                 gameContext.setScreen(bossSelection.getGameScreen());
+                spriteBatch.end();
                 return;
             }
             if (blink) {

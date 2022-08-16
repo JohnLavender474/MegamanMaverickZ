@@ -118,6 +118,13 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         healthTanks = megamanGameInfo.getHealthTanks();
         megamanWeaponsAttained = megamanGameInfo.getMegamanWeaponsAttained();
         megamanSpecialAbilities = megamanGameInfo.getMegamanSpecialAbilities();
+
+        // TODO: temporarily adding special abilities at onset
+        megamanSpecialAbilities.add(GROUND_SLIDE);
+        megamanSpecialAbilities.add(WALL_JUMP);
+        megamanSpecialAbilities.add(AIR_DASH);
+        // TODO: Remove three above lines of code
+
         setCurrentWeapon(MEGA_BUSTER);
         addComponent(defineHealthComponent(MEGAMAN_MAX_HEALTH));
         addComponent(defineControllerComponent());

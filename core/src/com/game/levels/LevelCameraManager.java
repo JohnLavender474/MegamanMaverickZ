@@ -26,15 +26,18 @@ public class LevelCameraManager implements Updatable {
     private final Camera camera;
     private final Timer transitionTimer;
     private final Map<Rectangle, String> gameRooms;
-    private final Vector2 transTargetPos = new Vector2();
     private final Vector2 transStartPos = new Vector2();
-    private CameraFocusable queuedFocusable;
-    private CameraFocusable focusable;
+    private final Vector2 transTargetPos = new Vector2();
+
     private Rectangle currentGameRoom;
+    private CameraFocusable focusable;
+    private CameraFocusable queuedFocusable;
+
     @Getter
     private ProcessState transitionState;
     @Getter
     private Direction transitionDirection;
+
     private boolean updating;
     private boolean reset;
 

@@ -145,8 +145,11 @@ public class MegamanMaverick extends Game implements GameContext2d {
                 this, "tiledmaps/tmx/test1.tmx", XENOBLADE_GAUR_PLAINS_MUSIC.getSrc()));
         screens.put(TEST_LEVEL_2, () -> new LevelScreen(
                 this, "tiledmaps/tmx/test2.tmx", MMZ_NEO_ARCADIA_MUSIC.getSrc()));
+        screens.put(TIMBER_WOMAN, () -> new LevelScreen(
+                this, "tiledmaps/tmx/TimberWomanStage.tmx", XENOBLADE_GAUR_PLAINS_MUSIC.getSrc()));
         // set screen
         setScreen(MAIN_MENU);
+        // setScreen(TEST_LEVEL_1);
     }
 
     @Override

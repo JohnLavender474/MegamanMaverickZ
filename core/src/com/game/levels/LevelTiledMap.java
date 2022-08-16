@@ -1,11 +1,15 @@
 package com.game.levels;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTile;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile;
@@ -15,6 +19,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.badlogic.gdx.graphics.Texture.TextureFilter.*;
+import static com.badlogic.gdx.maps.tiled.TiledMapTileLayer.*;
 
 /**
  * Manager class for {@link TiledMap} and {@link OrthogonalTiledMapRenderer}.
@@ -114,6 +121,31 @@ public class LevelTiledMap implements Disposable {
 
         @Override
         protected void beginRender() {
+            map.getLayers().forEach(mapLayer -> {
+                if (mapLayer instanceof TiledMapTileLayer tiledMapTileLayer) {
+                    for (int i = 0; i < tiledMapTileLayer.getWidth(); i++) {
+                        for (int j = 0; j < tiledMapTileLayer.getHeight(); j++) {
+                            Cell cell = tiledMapTileLayer.getCell(i, j);
+                            if (cell == null) {
+                                continue;
+                            }
+                            TiledMapTile tile = cell.getTile();
+                            if (tile == null) {
+                                continue;
+                            }
+                            TextureRegion textureRegion = tile.getTextureRegion();
+                            if (textureRegion == null) {
+                                continue;
+                            }
+                            Texture texture = textureRegion.getTexture();
+                            if (texture == null) {
+                                continue;
+                            }
+                            texture.setFilter(Nearest, Nearest);
+                        }
+                    }
+                }
+            });
             AnimatedTiledMapTile.updateAnimationBaseTime();
             isDrawing = batch.isDrawing();
             if (!isDrawing) {
