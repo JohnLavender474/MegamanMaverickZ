@@ -1,51 +1,63 @@
 package com.game.menus.impl;
 
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.GameContext2d;
+import com.game.animations.TimeMarkedRunnable;
 import com.game.animations.TimedAnimation;
-import com.game.menus.BlinkingArrow;
+import com.game.core.IAssetLoader;
+import com.game.menus.utils.BlinkingArrow;
 import com.game.menus.MenuButton;
 import com.game.menus.MenuScreen;
 import com.game.updatables.Updatable;
 import com.game.utils.enums.Direction;
 import com.game.utils.enums.Position;
 import com.game.utils.interfaces.Drawable;
+import com.game.utils.objects.FontHandle;
+import com.game.utils.objects.Timer;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 import static com.badlogic.gdx.graphics.Texture.TextureFilter.Nearest;
 import static com.game.ConstVals.*;
 import static com.game.ConstVals.Boss.*;
 import static com.game.ConstVals.MusicAsset.*;
-import static com.game.ConstVals.SoundAsset.CURSOR_MOVE_BLOOP_SOUND;
+import static com.game.ConstVals.RenderingGround.*;
+import static com.game.ConstVals.SoundAsset.*;
 import static com.game.ConstVals.TextureAsset.*;
 import static com.game.ConstVals.ViewVals.*;
-import static com.game.menus.impl.BossSelectScreen.BossPaneStatus.*;
 import static com.game.utils.UtilMethods.centerPoint;
 import static com.game.utils.enums.Position.*;
 
 public class BossSelectScreen extends MenuScreen {
 
-    // TODO: Fix the damn panes!
-
-    enum BossPaneStatus {
+    private enum BossPaneStatus {
         BLINKING,
         HIGHLIGHTED,
         UNHIGHLIGHTED
     }
 
+    private static final float PANE_BOUNDS_WIDTH = 5.33f;
+    private static final float PANE_BOUNDS_HEIGHT = 4f;
+    private static final float BOTTOM_OFFSET = 1.5f;
+    private static final float SPRITE_HEIGHT = 2f;
+    private static final float SPRITE_WIDTH = 3f;
+    private static final float PANE_HEIGHT = 3f;
+    private static final float PANE_WIDTH = 4f;
+
     @Getter
     @Setter
-    static class Pane implements Updatable, Drawable {
+    private static class BossPane implements Updatable, Drawable {
 
         private final String bossName;
-        private final TimedAnimation bossAnimation;
+        private final Supplier<TimedAnimation> bossAnimation;
         private final TimedAnimation paneBlinkingAnimation;
         private final TimedAnimation paneHighlightedAnimation;
         private final TimedAnimation paneUnhighlightedAnimation;
@@ -53,39 +65,51 @@ public class BossSelectScreen extends MenuScreen {
         private final Sprite bossSprite = new Sprite();
         private final Sprite paneSprite = new Sprite();
 
-        private BossPaneStatus bossPaneStatus = UNHIGHLIGHTED;
+        private BossPaneStatus bossPaneStatus = BossPaneStatus.UNHIGHLIGHTED;
 
-        public Pane(String bossName, int x, int y, GameContext2d gameContext) {
+        public BossPane(IAssetLoader assetLoader, TimedAnimation timedAnimation, String bossName, Position position) {
+            this(assetLoader, timedAnimation, bossName, position.getX(), position.getY());
+        }
+
+        public BossPane(IAssetLoader assetLoader, TimedAnimation bossAnimation, String bossName, int x, int y) {
+            this(assetLoader, () -> bossAnimation, bossName, x, y);
+        }
+
+        public BossPane(IAssetLoader assetLoader, Supplier<TimedAnimation> bossAnimation,
+                        String bossName, Position position) {
+            this(assetLoader, bossAnimation, bossName, position.getX(), position.getY());
+        }
+
+        public BossPane(IAssetLoader assetLoader, Supplier<TimedAnimation> bossAnimation,
+                        String bossName, int x, int y) {
             this.bossName = bossName;
-            // set animations
-            TextureRegion metRegion = gameContext.getAsset(MET_TEXTURE_ATLAS.getSrc(), TextureAtlas.class)
-                    .findRegion("Run");
-            this.bossAnimation = new TimedAnimation(metRegion, 2, .125f);
-            TextureAtlas decorationAtlas = gameContext.getAsset(DECORATIONS_TEXTURE_ATLAS.getSrc(), TextureAtlas.class);
-            TextureRegion paneBlinking = decorationAtlas.findRegion("StageSelectBox_Blinking");
-            this.paneBlinkingAnimation = new TimedAnimation(paneBlinking, 2, .125f);
-            TextureRegion paneHighlighted = decorationAtlas.findRegion("StageSelectBox_Highlighted");
-            this.paneHighlightedAnimation = new TimedAnimation(paneHighlighted);
-            TextureRegion paneUnhighlighted = decorationAtlas.findRegion("StageSelectBox_Unhighlighted");
+            this.bossAnimation = bossAnimation;
+            // set pane animations
+            TextureAtlas decorationAtlas = assetLoader.getAsset(
+                    STAGE_SELECT_TEXTURE_ATLAS.getSrc(), TextureAtlas.class);
+            TextureRegion paneUnhighlighted = decorationAtlas.findRegion("Pane");
             this.paneUnhighlightedAnimation = new TimedAnimation(paneUnhighlighted);
+            TextureRegion paneBlinking = decorationAtlas.findRegion("PaneBlinking");
+            this.paneBlinkingAnimation = new TimedAnimation(paneBlinking, 2, .125f);
+            TextureRegion paneHighlighted = decorationAtlas.findRegion("PaneHighlighted");
+            this.paneHighlightedAnimation = new TimedAnimation(paneHighlighted);
             // rect
-            Rectangle rect = new Rectangle(x * PANE_BOUNDS_WIDTH * PPM, BOTTOM_OFFSET * PPM + y * PANE_BOUNDS_HEIGHT * PPM,
+            Rectangle rect = new Rectangle(x * PANE_BOUNDS_WIDTH * PPM,
+                    BOTTOM_OFFSET * PPM + y * PANE_BOUNDS_HEIGHT * PPM,
                     PANE_BOUNDS_WIDTH * PPM, PANE_BOUNDS_HEIGHT * PPM);
             Vector2 centerPoint = centerPoint(rect);
             // met sprite
-            // bossSprite.setSize(PANE_BOUNDS_WIDTH * PPM, PANE_BOUNDS_HEIGHT * PPM);
-            bossSprite.setSize(4f * PPM, 3f * PPM);
-            bossSprite.setCenter(centerPoint.x, centerPoint.y + 15f);
+            bossSprite.setSize(SPRITE_WIDTH * PPM, SPRITE_HEIGHT * PPM);
+            bossSprite.setCenter(centerPoint.x, centerPoint.y);
             // pane sprite
-            // paneSprite.setSize(PANE_BOUNDS_WIDTH * PPM, PANE_BOUNDS_HEIGHT * PPM);
-            paneSprite.setSize(4f * PPM, 3f * PPM);
+            paneSprite.setSize(PANE_WIDTH * PPM, PANE_HEIGHT * PPM);
             paneSprite.setCenter(centerPoint.x, centerPoint.y);
         }
 
         @Override
         public void update(float delta) {
-            bossAnimation.update(delta);
-            bossSprite.setRegion(bossAnimation.getCurrentT());
+            bossAnimation.get().update(delta);
+            bossSprite.setRegion(bossAnimation.get().getCurrentT());
             TimedAnimation timedAnimation;
             switch (bossPaneStatus) {
                 case BLINKING -> timedAnimation = paneBlinkingAnimation;
@@ -113,23 +137,35 @@ public class BossSelectScreen extends MenuScreen {
 
     }
 
-    private static final float PANE_BOUNDS_WIDTH = 5.33f;
-    private static final float PANE_BOUNDS_HEIGHT = 4f;
-    private static final float BOTTOM_OFFSET = 1f;
+    private static final float INTRO_BLOCKS_TRANS = 15f;
+
+    private static final int BACKGROUND_PANES_COLS = 10;
+    private static final int BACKGROUND_PANES_ROWS = 10;
+    private static final float BACKGROUND_ANIM_DUR = .125f;
 
     private static final String MEGAMAN_FACE = "MegamanFace";
-    private static final String PASSWORD = "Password";
-    private static final String STORE = "Store";
     private static final String EXIT = "Exit";
 
-    private final Sprite blueSprite = new Sprite();
-    private final Sprite megamanFaceSprite = new Sprite();
-    private final List<Pane> panes = new ArrayList<>();
-    private final Map<String, Vector2> blinkingArrowCenters = new HashMap<>();
-    private final Map<Position, TimedAnimation> megamanFaceAnimations = new EnumMap<>(Position.class);
+    private final Camera camera;
+    private final Sound bloopSound;
+    private final Sprite blackBar = new Sprite();
+    private final List<FontHandle> texts = new ArrayList<>();
+    private final List<BossPane> bossPanes = new ArrayList<>();
+    private final Map<String, BlinkingArrow> blinkingArrows = new HashMap<>();
+    private final Map<TimedAnimation, Sprite> backgroundAnims = new HashMap<>();
 
-    private Boss currentHighlightedBoss = null;
-    private BlinkingArrow blinkingArrow;
+    private final Timer introTimer = new Timer(1f);
+
+    private boolean outro;
+    private boolean blink;
+    private Boss bossSelection;
+    private final Timer outroTimer = new Timer(1.05f, new ArrayList<>() {{
+        for (int i = 1; i <= 10; i++) {
+            add(new TimeMarkedRunnable(.1f * i, () -> blink = !blink));
+        }
+    }});
+    private final Sprite blueSprite = new Sprite();
+    private final Sprite whiteSprite = new Sprite();
 
     /**
      * Instantiates a new Menu Screen.
@@ -138,80 +174,132 @@ public class BossSelectScreen extends MenuScreen {
      */
     public BossSelectScreen(GameContext2d gameContext) {
         super(gameContext, MEGAMAN_FACE, STAGE_SELECT_MM3_MUSIC.getSrc());
+        this.camera = gameContext.getViewport(UI).getCamera();
+        this.bloopSound = gameContext.getAsset(CURSOR_MOVE_BLOOP_SOUND.getSrc(), Sound.class);
     }
 
     @Override
     public void show() {
         super.show();
-        // megaman face sprite and animations
-        megamanFaceSprite.setSize(4f * PPM, 3f * PPM);
-        Rectangle rect = new Rectangle(PANE_BOUNDS_WIDTH * PPM, BOTTOM_OFFSET * PPM + PANE_BOUNDS_HEIGHT * PPM,
-                PANE_BOUNDS_WIDTH * PPM, PANE_BOUNDS_HEIGHT * PPM);
-        Vector2 centerPoint = centerPoint(rect);
-        megamanFaceSprite.setCenter(centerPoint.x, centerPoint.y);
+        // set camera
+        camera.position.x -= INTRO_BLOCKS_TRANS * PPM;
+        // megaman pane
         TextureAtlas megamanFacesAtlas = gameContext.getAsset(MEGAMAN_FACES_TEXTURE_ATLAS.getSrc(), TextureAtlas.class);
+        Map<Position, TimedAnimation> megamanFaceAnimations = new EnumMap<>(Position.class);
         for (Position position : Position.values()) {
             TextureRegion region = megamanFacesAtlas.findRegion(position.name());
-            megamanFaceAnimations.put(position, new TimedAnimation(region, new float[] {2f, .035f, .035f, .035f}));
+            megamanFaceAnimations.put(position, new TimedAnimation(region));
         }
-        // blinking arrow
-        blinkingArrow = new BlinkingArrow(gameContext);
-        blinkingArrowCenters.put(PASSWORD, new Vector2());
-        blinkingArrowCenters.put(STORE, new Vector2());
-        blinkingArrowCenters.put(EXIT, new Vector2());
-        // boss panes
-
+        Supplier<TimedAnimation> megamanAnimSupplier = () -> {
+            Boss boss = findByName(getCurrentMenuButtonKey());
+            if (boss == null) {
+                return megamanFaceAnimations.get(CENTER);
+            }
+            return megamanFaceAnimations.get(boss.getPosition());
+        };
+        BossPane megamanPane = new BossPane(gameContext, megamanAnimSupplier, MEGAMAN_FACE, CENTER);
+        bossPanes.add(megamanPane);
+        // boss bossPanes
+        // TODO: Create boss atlas
+        // TextureAtlas bossAtlas = null;
+        TextureRegion temporary = gameContext.getAsset(ENEMIES_TEXTURE_ATLAS.getSrc(), TextureAtlas.class)
+                .findRegion("Met/Run");
         for (Boss boss : Boss.values()) {
-            panes.add(new Pane(boss.getBossName(), boss.getPosition().getX(), boss.getPosition().getY(), gameContext));
+            TimedAnimation bossAnimation = new TimedAnimation(temporary, 2, .1f);
+            BossPane bossPane = new BossPane(gameContext, bossAnimation, boss.getBossName(), boss.getPosition());
+            bossPanes.add(bossPane);
         }
-        // blue background
-        TextureAtlas decorations = gameContext.getAsset(DECORATIONS_TEXTURE_ATLAS.getSrc(), TextureAtlas.class);
-        TextureRegion blueRegion = decorations.findRegion("Blue");
-        blueSprite.setRegion(blueRegion);
-        blueSprite.setSize(VIEW_WIDTH * PPM, VIEW_HEIGHT * PPM);
+        // text and blinking arrows
+        texts.add(new FontHandle("Megaman10Font.ttf", 8, new Vector2(12.35f * PPM, PPM), "EXIT"));
+        blinkingArrows.put(EXIT, new BlinkingArrow(gameContext, new Vector2(12f * PPM, .75f * PPM)));
+        // background
+        TextureAtlas stageSelectAtlas = gameContext.getAsset(STAGE_SELECT_TEXTURE_ATLAS.getSrc(), TextureAtlas.class);
+        for (int i = 0; i < BACKGROUND_PANES_COLS; i++) {
+            for (int j = 0; j < BACKGROUND_PANES_ROWS; j++) {
+                TextureRegion textureRegion = stageSelectAtlas.findRegion("Background");
+                TimedAnimation timedAnimation = new TimedAnimation(textureRegion, 7, BACKGROUND_ANIM_DUR);
+                Sprite sprite = new Sprite();
+                float x = i * (VIEW_WIDTH / BACKGROUND_PANES_COLS) * PPM;
+                float y = j * (VIEW_HEIGHT / BACKGROUND_PANES_ROWS) * PPM;
+                sprite.setPosition(x, y);
+                sprite.setSize((VIEW_WIDTH / BACKGROUND_PANES_COLS) * PPM, (VIEW_HEIGHT / BACKGROUND_PANES_ROWS) * PPM);
+                backgroundAnims.put(timedAnimation, sprite);
+            }
+        }
+        // blue and white sprites
+        TextureAtlas colorsTextureAtlas = gameContext.getAsset(COLORS_TEXTURE_ATLAS.getSrc(), TextureAtlas.class);
+        blueSprite.setRegion(colorsTextureAtlas.findRegion("DarkBlue"));
+        blueSprite.setSize(2f * PPM + VIEW_WIDTH * PPM, 2f * PPM + VIEW_HEIGHT * PPM);
+        blueSprite.setPosition(-PPM, -PPM);
+        whiteSprite.setRegion(colorsTextureAtlas.findRegion("White"));
+        whiteSprite.setSize(2f * PPM + VIEW_WIDTH * PPM, 2f * PPM + VIEW_HEIGHT * PPM);
+        whiteSprite.setPosition(-PPM, -PPM);
+        // black bar
+        blackBar.setRegion(gameContext.getAsset(DECORATIONS_TEXTURE_ATLAS.getSrc(), TextureAtlas.class)
+                .findRegion("Black"));
+        blackBar.setPosition(-PPM, -PPM);
+        blackBar.setSize(2f * PPM + VIEW_WIDTH * PPM, PPM + 1.25f * PPM);
     }
 
     @Override
-    protected void onMovement() {
-        gameContext.getAsset(CURSOR_MOVE_BLOOP_SOUND.getSrc(), Sound.class).play();
+    protected void onAnyMovement() {
+        bloopSound.play();
     }
 
     @Override
     public void render(float delta) {
         super.render(delta);
+        // move camera if in intro
+        if (!introTimer.isFinished()) {
+            introTimer.update(delta);
+            camera.position.x += INTRO_BLOCKS_TRANS * PPM * delta;
+            if (introTimer.isFinished()) {
+                camera.position.x = VIEW_WIDTH * PPM / 2f;
+            }
+        }
         // begin spritebatch
         SpriteBatch spriteBatch = gameContext.getSpriteBatch();
         spriteBatch.setProjectionMatrix(uiViewport.getCamera().combined);
         spriteBatch.begin();
-        // blue background
-        blueSprite.draw(spriteBatch);
-        // set current highlighted boss, null if no boss is highlighted
-        currentHighlightedBoss = findByName(getCurrentMenuButtonKey());
-        TimedAnimation megamanFaceAnimation = megamanFaceAnimations.get(currentHighlightedBoss != null ?
-                currentHighlightedBoss.getPosition() : CENTER);
-        megamanFaceAnimation.update(delta);
-        megamanFaceSprite.setRegion(megamanFaceAnimation.getCurrentT());
-        Texture texture = megamanFaceSprite.getTexture();
-        if (texture != null) {
-            texture.setFilter(Nearest, Nearest);
-        }
-        megamanFaceSprite.draw(spriteBatch);
-        // boss panes
-        panes.forEach(pane -> {
-            if (pane.getBossName().equals(currentHighlightedBoss.getBossName())) {
-                pane.setBossPaneStatus(isSelectionMade() ? HIGHLIGHTED : BLINKING);
-            } else {
-                pane.setBossPaneStatus(UNHIGHLIGHTED);
+        // background
+        if (outro) {
+            outroTimer.update(delta);
+            if (outroTimer.isFinished()) {
+                gameContext.setScreen(bossSelection.getGameScreen());
+                return;
             }
-            pane.update(delta);
-            pane.draw(spriteBatch);
+            if (blink) {
+                whiteSprite.draw(spriteBatch);
+            } else {
+                blueSprite.draw(spriteBatch);
+            }
+        } else {
+            backgroundAnims.forEach((anim, sprite) -> {
+                anim.update(delta);
+                sprite.setRegion(anim.getCurrentT());
+                sprite.draw(spriteBatch);
+            });
+        }
+        // boss bossPanes
+        bossPanes.forEach(bossPane -> {
+            if (bossPane.getBossName().equals(getCurrentMenuButtonKey())) {
+                bossPane.setBossPaneStatus(isSelectionMade() ? BossPaneStatus.HIGHLIGHTED : BossPaneStatus.BLINKING);
+            } else {
+                bossPane.setBossPaneStatus(BossPaneStatus.UNHIGHLIGHTED);
+            }
+            bossPane.update(delta);
+            bossPane.draw(spriteBatch);
         });
+        // black bar
+        blackBar.draw(spriteBatch);
         // blinking arrow
-        if (blinkingArrowCenters.containsKey(getCurrentMenuButtonKey())) {
-            Vector2 center = blinkingArrowCenters.get(getCurrentMenuButtonKey());
-            blinkingArrow.setCenter(center);
+        if (blinkingArrows.containsKey(getCurrentMenuButtonKey())) {
+            BlinkingArrow blinkingArrow = blinkingArrows.get(getCurrentMenuButtonKey());
+            blinkingArrow.update(delta);
             blinkingArrow.draw(spriteBatch);
         }
+        // texts
+        texts.forEach(text -> text.draw(spriteBatch));
         // end spritebatch
         spriteBatch.end();
     }
@@ -237,44 +325,6 @@ public class BossSelectScreen extends MenuScreen {
             }
 
         });
-        menuButtons.put(STORE, new MenuButton() {
-
-            @Override
-            public boolean onSelect(float delta) {
-                // TODO: Change to store screen
-                return true;
-            }
-
-            @Override
-            public void onNavigate(Direction direction, float delta) {
-                switch (direction) {
-                    case DIR_UP -> setMenuButton(findByPos(0, 0).getBossName());
-                    case DIR_DOWN -> setMenuButton(findByPos(0, 2).getBossName());
-                    case DIR_LEFT -> setMenuButton(EXIT);
-                    case DIR_RIGHT -> setMenuButton(PASSWORD);
-                }
-            }
-
-        });
-        menuButtons.put(PASSWORD, new MenuButton() {
-
-            @Override
-            public boolean onSelect(float delta) {
-                // TODO: Pop up dialog with password, disappears after any bossName is pressed
-                return false;
-            }
-
-            @Override
-            public void onNavigate(Direction direction, float delta) {
-                switch (direction) {
-                    case DIR_UP -> setMenuButton(findByPos(1, 0).getBossName());
-                    case DIR_DOWN -> setMenuButton(findByPos(1, 2).getBossName());
-                    case DIR_LEFT -> setMenuButton(STORE);
-                    case DIR_RIGHT -> setMenuButton(EXIT);
-                }
-            }
-
-        });
         menuButtons.put(EXIT, new MenuButton() {
 
             @Override
@@ -286,10 +336,8 @@ public class BossSelectScreen extends MenuScreen {
             @Override
             public void onNavigate(Direction direction, float delta) {
                 switch (direction) {
-                    case DIR_UP -> setMenuButton(findByPos(2, 0).getBossName());
+                    case DIR_UP, DIR_LEFT, DIR_RIGHT -> setMenuButton(findByPos(2, 0).getBossName());
                     case DIR_DOWN -> setMenuButton(findByPos(2, 2).getBossName());
-                    case DIR_LEFT -> setMenuButton(PASSWORD);
-                    case DIR_RIGHT -> setMenuButton(STORE);
                 }
             }
 
@@ -299,7 +347,10 @@ public class BossSelectScreen extends MenuScreen {
 
                 @Override
                 public boolean onSelect(float delta) {
-                    gameContext.setScreen(boss.getGameScreen());
+                    gameContext.getAsset(BEAM_OUT_SOUND.getSrc(), Sound.class).play();
+                    bossSelection = boss;
+                    outro = true;
+                    music.stop();
                     return true;
                 }
 
@@ -314,7 +365,7 @@ public class BossSelectScreen extends MenuScreen {
                         case DIR_RIGHT -> x += 1;
                     }
                     if (y < 0 || y > 2) {
-                        setMenuButton(STORE);
+                        setMenuButton(EXIT);
                         return;
                     }
                     if (x < 0) {

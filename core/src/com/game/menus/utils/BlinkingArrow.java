@@ -1,4 +1,4 @@
-package com.game.menus;
+package com.game.menus.utils;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -12,6 +12,7 @@ import lombok.Getter;
 
 import static com.game.ConstVals.TextureAsset.*;
 import static com.game.ConstVals.ViewVals.PPM;
+import static com.game.utils.UtilMethods.drawFiltered;
 
 @Getter
 public class BlinkingArrow implements Updatable, Drawable {
@@ -23,10 +24,6 @@ public class BlinkingArrow implements Updatable, Drawable {
     private final Timer arrowBlinkTimer = new Timer();
 
     private boolean arrowVisible;
-
-    public BlinkingArrow(IAssetLoader assetLoader) {
-        this(assetLoader, Vector2.Zero);
-    }
 
     public BlinkingArrow(IAssetLoader assetLoader, Vector2 center) {
         this.center = center;
@@ -59,7 +56,7 @@ public class BlinkingArrow implements Updatable, Drawable {
         if (!isArrowVisible()) {
             return;
         }
-        arrowSprite.draw(spriteBatch);
+        drawFiltered(arrowSprite, spriteBatch);
     }
 
 }

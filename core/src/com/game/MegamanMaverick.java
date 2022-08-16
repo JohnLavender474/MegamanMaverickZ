@@ -30,7 +30,6 @@ import com.game.cull.CullOnOutOfCamBoundsSystem;
 import com.game.debugging.DebugLinesSystem;
 import com.game.debugging.DebugMessageSystem;
 import com.game.debugging.DebugRectSystem;
-import com.game.entities.megaman.MegamanStats;
 import com.game.graph.GraphSystem;
 import com.game.health.HealthSystem;
 import com.game.levels.LevelScreen;
@@ -138,7 +137,7 @@ public class MegamanMaverick extends Game implements GameContext2d {
         addSystem(new DebugMessageSystem(viewports.get(UI).getCamera(), getSpriteBatch(),
                 "Megaman10Font.ttf", 5, debugMsgPosArray));
         // blackboard
-        putBlackboardObject(MEGAMAN_STATS, new MegamanStats());
+        putBlackboardObject(MEGAMAN_GAME_INFO, new MegamanGameInfo());
         // define screens
         screens.put(MAIN_MENU, () -> new MainMenuScreen(this));
         screens.put(BOSS_SELECT, () -> new BossSelectScreen(this));
@@ -147,8 +146,7 @@ public class MegamanMaverick extends Game implements GameContext2d {
         screens.put(TEST_LEVEL_2, () -> new LevelScreen(
                 this, "tiledmaps/tmx/test2.tmx", MMZ_NEO_ARCADIA_MUSIC.getSrc()));
         // set screen
-        // setScreen(MAIN_MENU);
-        setScreen(BOSS_SELECT);
+        setScreen(MAIN_MENU);
     }
 
     @Override

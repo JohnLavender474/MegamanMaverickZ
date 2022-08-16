@@ -6,23 +6,26 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 import com.game.GameContext2d;
-import com.game.menus.BlinkingArrow;
+import com.game.menus.utils.BlinkingArrow;
 import com.game.menus.MenuButton;
 import com.game.menus.MenuScreen;
 import com.game.utils.enums.Direction;
 import com.game.utils.objects.FontHandle;
+import com.game.utils.objects.Timer;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import java.util.EnumMap;
 import java.util.Map;
 
-import static com.game.ConstVals.GameScreen.TEST_LEVEL_1;
+import static com.game.ConstVals.GameScreen.BOSS_SELECT;
 import static com.game.ConstVals.MusicAsset.MMX3_INTRO_STAGE_MUSIC;
 import static com.game.ConstVals.SoundAsset.CURSOR_MOVE_BLOOP_SOUND;
+import static com.game.ConstVals.SoundAsset.SELECT_PING_SOUND;
 import static com.game.ConstVals.TextureAsset.DECORATIONS_TEXTURE_ATLAS ;
 import static com.game.ConstVals.ViewVals.PPM;
 import static com.game.menus.impl.MainMenuScreen.MainMenuButton.*;
+import static com.game.utils.UtilMethods.*;
 
 /**
  * Implementation of {@link MenuScreen} for the main menu of the game.
@@ -84,16 +87,21 @@ public class MainMenuScreen extends MenuScreen {
         BlinkingArrow blinkingArrow = blinkingArrows.get(currentButton);
         blinkingArrow.update(delta);
         blinkingArrow.draw(spriteBatch);
-        title.draw(spriteBatch);
-        helmet.draw(spriteBatch);
-        subtitle.draw(spriteBatch);
+        drawFiltered(title, spriteBatch);
+        drawFiltered(helmet, spriteBatch);
+        drawFiltered(subtitle, spriteBatch);
         fonts.values().forEach(fontHandle -> fontHandle.draw(spriteBatch));
         spriteBatch.end();
     }
 
     @Override
-    protected void onMovement() {
+    protected void onAnyMovement() {
         gameContext.getAsset(CURSOR_MOVE_BLOOP_SOUND.getSrc(), Sound.class).play();
+    }
+
+    @Override
+    protected void onAnySelection() {
+        gameContext.getAsset(SELECT_PING_SOUND.getSrc(), Sound.class).play(.5f);
     }
 
     @Override
@@ -103,8 +111,7 @@ public class MainMenuScreen extends MenuScreen {
 
                     @Override
                     public boolean onSelect(float delta) {
-                        // TODO: Set to boss select menu
-                        gameContext.setScreen(TEST_LEVEL_1);
+                        gameContext.setScreen(BOSS_SELECT);
                         return true;
                     }
 

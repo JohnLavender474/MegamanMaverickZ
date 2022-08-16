@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.Entity;
 import com.game.GameContext2d;
+import com.game.MegamanGameInfo;
 import com.game.Message;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
@@ -23,7 +24,6 @@ import com.game.entities.contracts.Facing;
 import com.game.entities.decorations.ExplosionOrb;
 import com.game.entities.enemies.*;
 import com.game.entities.projectiles.Bullet;
-import com.game.entities.projectiles.ChargedShot;
 import com.game.entities.projectiles.Fireball;
 import com.game.health.HealthComponent;
 import com.game.levels.CameraFocusable;
@@ -47,7 +47,6 @@ import java.util.function.Supplier;
 import static com.badlogic.gdx.graphics.Color.*;
 import static com.game.ConstVals.Events.*;
 import static com.game.ConstVals.MegamanVals.*;
-import static com.game.ConstVals.MegamanVals.MEGAMAN_STATS;
 import static com.game.ConstVals.SoundAsset.*;
 import static com.game.ConstVals.TextureAsset.MEGAMAN_FIRE_TEXTURE_ATLAS;
 import static com.game.ConstVals.TextureAsset.MEGAMAN_TEXTURE_ATLAS;
@@ -56,6 +55,8 @@ import static com.game.behaviors.BehaviorType.*;
 import static com.game.controllers.ControllerButton.*;
 import static com.game.entities.contracts.Facing.*;
 import static com.game.entities.megaman.Megaman.AButtonTask.*;
+import static com.game.entities.megaman.Megaman.AButtonTask._AIR_DASH;
+import static com.game.entities.megaman.MegamanSpecialAbility.*;
 import static com.game.entities.megaman.MegamanWeapon.*;
 import static com.game.utils.UtilMethods.*;
 import static com.game.world.BodySense.*;
@@ -63,23 +64,33 @@ import static com.game.world.BodySense.FEET_ON_GROUND;
 import static com.game.world.FixtureType.*;
 
 /**
- * Megaman implementation of {@link IEntity}.
+ * Megaman, dah bloo bombah!
  */
 @Getter
 @Setter
 public class Megaman extends Entity implements Damageable, Faceable, CameraFocusable {
 
     public enum AButtonTask {
-        JUMP, AIR_DASH
+        _JUMP, _AIR_DASH
     }
 
     private static final float RUN_SPEED = 4f;
     private static final float EXPLOSION_ORB_SPEED = 3.5f;
 
+    private static final Map<Class<? extends Damager>, DamageNegotiation> damageNegotiations = Map.of(
+            Bat.class, new DamageNegotiation(5),
+            Met.class, new DamageNegotiation(5),
+            Bullet.class, new DamageNegotiation(10),
+            Fireball.class, new DamageNegotiation(5),
+            Dragonfly.class, new DamageNegotiation(5),
+            SniperJoe.class, new DamageNegotiation(10),
+            FloatingCan.class, new DamageNegotiation(10),
+            SuctionRoller.class, new DamageNegotiation(10));
+
     private final GameContext2d gameContext;
-    private final Set<MegamanWeapon> megamanWeaponsAttained = EnumSet.noneOf(MegamanWeapon.class);
-    private final Map<MegamanWeapon, WeaponDef> megamanWeapons = new EnumMap<>(MegamanWeapon.class);
-    private final Map<Class<? extends Damager>, DamageNegotiation> damageNegotiations = new HashMap<>();
+    private final Map<Integer, Integer> healthTanks;
+    private final Set<MegamanWeapon> megamanWeaponsAttained;
+    private final Set<MegamanSpecialAbility> megamanSpecialAbilities;
 
     private final Timer damageTimer = new Timer(.75f);
     private final Timer airDashTimer = new Timer(.25f);
@@ -90,19 +101,23 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
     private final Timer wallJumpImpetusTimer = new Timer(.2f);
     private final Timer damageRecoveryBlinkTimer = new Timer(.05f);
 
+    private static MegamanWeaponDefs megamanWeaponDefs;
+
     private boolean recoveryBlink;
     private Facing facing = F_RIGHT;
     private MegamanWeapon currentWeapon;
-    private AButtonTask aButtonTask = JUMP;
+    private AButtonTask aButtonTask = _JUMP;
 
     public Megaman(GameContext2d gameContext, Vector2 spawn) {
         this.gameContext = gameContext;
-        // TODO: Adding flame buster temporarily
-        addWeapon(FLAME_BUSTER);
-        MegamanStats megamanStats = gameContext.getBlackboardObject(MEGAMAN_STATS, MegamanStats.class);
-        megamanStats.getMegamanWeapons().forEach(this::addWeapon);
-        defineWeapons();
-        defineDamageNegotiations();
+        if (megamanWeaponDefs == null) {
+            megamanWeaponDefs = new MegamanWeaponDefs(gameContext);
+        }
+        megamanWeaponDefs.setMegaman(this);
+        MegamanGameInfo megamanGameInfo = gameContext.getBlackboardObject(MEGAMAN_GAME_INFO, MegamanGameInfo.class);
+        healthTanks = megamanGameInfo.getHealthTanks();
+        megamanWeaponsAttained = megamanGameInfo.getMegamanWeaponsAttained();
+        megamanSpecialAbilities = megamanGameInfo.getMegamanSpecialAbilities();
         setCurrentWeapon(MEGA_BUSTER);
         addComponent(defineHealthComponent(MEGAMAN_MAX_HEALTH));
         addComponent(defineControllerComponent());
@@ -117,17 +132,6 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         shootAnimationTimer.setToEnd();
         damageRecoveryTimer.setToEnd();
         wallJumpImpetusTimer.setToEnd();
-    }
-
-    private void defineDamageNegotiations() {
-        damageNegotiations.put(Bat.class, new DamageNegotiation(5));
-        damageNegotiations.put(Met.class, new DamageNegotiation(5));
-        damageNegotiations.put(Bullet.class, new DamageNegotiation(10));
-        damageNegotiations.put(Fireball.class, new DamageNegotiation(5));
-        damageNegotiations.put(Dragonfly.class, new DamageNegotiation(5));
-        damageNegotiations.put(SniperJoe.class, new DamageNegotiation(10));
-        damageNegotiations.put(FloatingCan.class, new DamageNegotiation(10));
-        damageNegotiations.put(SuctionRoller.class, new DamageNegotiation(10));
     }
 
     @Override
@@ -188,26 +192,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
      * @return the weapon def
      */
     public WeaponDef getWeaponDef(MegamanWeapon megamanWeapon) {
-        return megamanWeapons.get(megamanWeapon);
-    }
-
-    /**
-     * Return if Megaman has the weapon.
-     *
-     * @param megamanWeapon the weapon
-     * @return the weapon def
-     */
-    public boolean hasWeapon(MegamanWeapon megamanWeapon) {
-        return megamanWeaponsAttained.contains(megamanWeapon);
-    }
-
-    /**
-     * Add the weapon to weapons attained.
-     *
-     * @param megamanWeapon the weapon
-     */
-    public void addWeapon(MegamanWeapon megamanWeapon) {
-        megamanWeaponsAttained.add(megamanWeapon);
+        return megamanWeaponDefs.get(megamanWeapon);
     }
 
     private void stopCharging() {
@@ -217,7 +202,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
 
     private void shoot() {
         WeaponDef weaponDef = getWeaponDef(currentWeapon);
-        if (!hasWeapon(currentWeapon)) {
+        if (!megamanWeaponsAttained.contains(currentWeapon)) {
             throw new IllegalStateException();
         }
         if (weaponDef == null || isDamaged() || getComponent(BehaviorComponent.class).is(GROUND_SLIDING, AIR_DASHING) ||
@@ -228,39 +213,6 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         weaponDef.resetCooldownTimer();
         shootAnimationTimer.reset();
         weaponDef.runOnShoot();
-    }
-
-    private void defineWeapons() {
-        Supplier<Vector2> spawn = () -> {
-            Vector2 spawnPos = getComponent(BodyComponent.class).getCenter().add(isFacing(F_LEFT) ? -12.5f : 12.5f, 1f);
-            BehaviorComponent behaviorComponent = getComponent(BehaviorComponent.class);
-            BodyComponent bodyComponent = getComponent(BodyComponent.class);
-            if (behaviorComponent.is(WALL_SLIDING)) {
-                spawnPos.y += 2.25f;
-            } else if (!bodyComponent.is(FEET_ON_GROUND)) {
-                spawnPos.y += 2f + bodyComponent.getPosDelta().y;
-            }
-            return spawnPos;
-        };
-        megamanWeapons.put(MEGA_BUSTER, new WeaponDef(() -> {
-            Vector2 trajectory = new Vector2(15f * (isFacing(F_LEFT) ? -PPM : PPM), 0f);
-            if (isCharging()) {
-                return List.of(new ChargedShot(gameContext, this, trajectory, spawn.get(), facing));
-            } else {
-                return List.of(new Bullet(gameContext, this, trajectory, spawn.get()));
-            }
-        }, .1f, () -> getComponent(SoundComponent.class).requestSound(MEGA_BUSTER_BULLET_SHOT_SOUND)));
-        megamanWeapons.put(FLAME_BUSTER, new WeaponDef(() -> {
-            Vector2 impulse = new Vector2(35f * (isFacing(F_LEFT) ? -PPM : PPM), 10f * PPM);
-            /*
-            if (isCharging()) {
-                // TODO: return charging fireball
-            } else {
-                // TODO: return normal fireball
-            }
-             */
-            return List.of(new Fireball(gameContext, this, impulse, spawn.get()));
-        }, .75f, () -> getComponent(SoundComponent.class).requestSound(CRASH_BOMBER_SOUND)));
     }
 
     private HealthComponent defineHealthComponent(int maxHealth) {
@@ -308,7 +260,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
             }
             shootAnimationTimer.update(delta);
             wallJumpImpetusTimer.update(delta);
-            megamanWeapons.get(currentWeapon).updateCooldownTimer(delta);
+            megamanWeaponDefs.get(currentWeapon).updateCooldownTimer(delta);
         });
     }
 
@@ -390,7 +342,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
 
             @Override
             protected boolean evaluate(float delta) {
-                if (isDamaged()) {
+                if (isDamaged() || !megamanSpecialAbilities.contains(WALL_JUMP)) {
                     return false;
                 }
                 BodyComponent bodyComponent = getComponent(BodyComponent.class);
@@ -402,7 +354,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
             @Override
             protected void init() {
                 behaviorComponent.setIs(WALL_SLIDING);
-                setAButtonTask(JUMP);
+                setAButtonTask(_JUMP);
             }
 
             @Override
@@ -413,7 +365,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
             @Override
             protected void end() {
                 behaviorComponent.setIsNot(WALL_SLIDING);
-                setAButtonTask(AIR_DASH);
+                setAButtonTask(_AIR_DASH);
             }
 
         };
@@ -431,7 +383,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
                         // case 1
                         bodyComponent.getVelocity().y >= 0f && gameContext.isPressed(A) :
                         // case 2
-                        aButtonTask == JUMP && gameContext.isJustPressed(A) &&
+                        aButtonTask == _JUMP && gameContext.isJustPressed(A) &&
                                 (bodyComponent.is(FEET_ON_GROUND) || behaviorComponent.is(WALL_SLIDING));
             }
 
@@ -463,12 +415,13 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
 
             @Override
             protected boolean evaluate(float delta) {
-                if (isDamaged() || behaviorComponent.is(WALL_SLIDING) ||
-                        getComponent(BodyComponent.class).is(FEET_ON_GROUND) || airDashTimer.isFinished()) {
+                if (isDamaged() || !megamanSpecialAbilities.contains(AIR_DASH) || behaviorComponent.is(WALL_SLIDING) ||
+                        getComponent(BodyComponent.class).is(FEET_ON_GROUND) ||
+                        airDashTimer.isFinished()) {
                     return false;
                 }
                 return behaviorComponent.is(AIR_DASHING) ? gameContext.isPressed(A) :
-                        gameContext.isJustPressed(A) && getAButtonTask() == AIR_DASH;
+                        gameContext.isJustPressed(A) && getAButtonTask() == _AIR_DASH;
             }
 
             @Override
@@ -476,7 +429,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
                 getComponent(SoundComponent.class).requestSound(WHOOSH_SOUND);
                 getComponent(BodyComponent.class).setGravityOn(false);
                 behaviorComponent.setIs(AIR_DASHING);
-                setAButtonTask(JUMP);
+                setAButtonTask(_JUMP);
             }
 
             @Override
@@ -514,6 +467,9 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
 
             @Override
             protected boolean evaluate(float delta) {
+                if (!megamanSpecialAbilities.contains(GROUND_SLIDE)) {
+                    return false;
+                }
                 BodyComponent bodyComponent = getComponent(BodyComponent.class);
                 if (behaviorComponent.is(GROUND_SLIDING) && bodyComponent.is(HEAD_TOUCHING_BLOCK)) {
                     return true;

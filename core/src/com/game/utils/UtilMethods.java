@@ -1,6 +1,10 @@
 package com.game.utils;
 
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -10,12 +14,22 @@ import com.game.utils.enums.Direction;
 import com.game.utils.enums.Position;
 import com.game.utils.interfaces.Positional;
 
+import static com.badlogic.gdx.graphics.Texture.TextureFilter.*;
 import static java.lang.Math.*;
 
 /**
  * Global utility methods.
  */
 public class UtilMethods {
+
+    public static void drawFiltered(Sprite sprite, SpriteBatch spriteBatch) {
+        Texture texture = sprite.getTexture();
+        if (texture == null) {
+            return;
+        }
+        texture.setFilter(Nearest, Nearest);
+        sprite.draw(spriteBatch);
+    }
 
     /**
      * Returns if the provided rectangle is within the camera bounds.

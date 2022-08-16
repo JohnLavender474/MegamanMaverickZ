@@ -23,6 +23,7 @@ public class TimedAnimation implements Updatable, Resettable {
 
     private final List<TextureRegion> frames = new ArrayList<>();
     private final List<Float> frameTimes = new ArrayList<>();
+
     private float animationDuration;
     private TextureRegion currentT;
     private boolean loop = true;
@@ -71,7 +72,7 @@ public class TimedAnimation implements Updatable, Resettable {
     }
 
     /**
-     * Of timed animation.
+     * Static method for instantiating new timed animation.
      *
      * @param textureRegion the texture region
      * @param durations     the durations

@@ -22,13 +22,14 @@ public abstract class MenuScreen extends ScreenAdapter {
     protected final GameContext2d gameContext;
     protected final Viewport uiViewport;
 
+    protected Music music;
+
     private final Map<String, MenuButton> menuButtons;
 
     @Getter
     private String currentMenuButtonKey;
     @Getter
     private boolean selectionMade;
-    private Music music;
 
 
     /**
@@ -56,7 +57,12 @@ public abstract class MenuScreen extends ScreenAdapter {
     /**
      * Called when the cursor has been moved. Optional method.
      */
-    protected void onMovement() {}
+    protected void onAnyMovement() {}
+
+    /**
+     * Called when any selection has been made. Optional method.
+     */
+    protected void onAnySelection() {}
 
     /**
      * Set menu button.
@@ -86,19 +92,20 @@ public abstract class MenuScreen extends ScreenAdapter {
         MenuButton menuButton = menuButtons.get(currentMenuButtonKey);
         if (menuButton != null) {
             if (gameContext.isJustPressed(DPAD_UP)) {
-                onMovement();
+                onAnyMovement();
                 menuButton.onNavigate(DIR_UP, delta);
             } else if (gameContext.isJustPressed(DPAD_DOWN)) {
-                onMovement();
+                onAnyMovement();
                 menuButton.onNavigate(DIR_DOWN, delta);
             } else if (gameContext.isJustPressed(DPAD_LEFT)) {
-                onMovement();
+                onAnyMovement();
                 menuButton.onNavigate(DIR_LEFT, delta);
             } else if (gameContext.isJustPressed(DPAD_RIGHT)) {
-                onMovement();
+                onAnyMovement();
                 menuButton.onNavigate(DIR_RIGHT, delta);
             }
             if (gameContext.isJustPressed(X) || gameContext.isJustPressed(A) || gameContext.isJustPressed(START)) {
+                onAnySelection();
                 selectionMade = menuButton.onSelect(delta);
             }
         }

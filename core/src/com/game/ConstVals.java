@@ -77,7 +77,7 @@ public class ConstVals {
     }
 
     public static class MegamanVals {
-        public static final String MEGAMAN_STATS = "MegamanStats";
+        public static final String MEGAMAN_GAME_INFO = "MegamanGameInfo";
         public static final Integer MEGAMAN_MAX_HEALTH = 30;
     }
 
@@ -98,12 +98,14 @@ public class ConstVals {
         MET_TEXTURE_ATLAS("Met.txt"),
         FIRE_TEXTURE_ATLAS("Fire.txt"),
         ITEMS_TEXTURE_ATLAS("Items.txt"),
+        COLORS_TEXTURE_ATLAS("Colors.txt"),
         ENEMIES_TEXTURE_ATLAS("Enemies.txt"),
         OBJECTS_TEXTURE_ATLAS("Objects.txt"),
         MEGAMAN_TEXTURE_ATLAS("Megaman.txt"),
         BITS_ATLAS("HealthAndWeaponBits.txt"),
         CHARGE_ORBS_TEXTURE_ATLAS("ChargeOrbs.txt"),
         DECORATIONS_TEXTURE_ATLAS("Decorations.txt"),
+        STAGE_SELECT_TEXTURE_ATLAS("StageSelect.txt"),
         MEGAMAN_FIRE_TEXTURE_ATLAS("MegamanFire.txt"),
         CUSTOM_TILES_TEXTURE_ATLAS("CustomTiles.txt"),
         MEGAMAN_FACES_TEXTURE_ATLAS("MegamanFaces.txt"),
@@ -148,6 +150,7 @@ public class ConstVals {
         WHOOSH_SOUND("Whoosh.mp3"),
         PAUSE_SOUND("PauseMenu.mp3"),
         EXPLOSION_SOUND("Explosion.mp3"),
+        BEAM_OUT_SOUND("TeleportOut.mp3"),
         ENERGY_FILL_SOUND("EnergyFill.mp3"),
         SELECT_PING_SOUND("SelectPing.mp3"),
         ENEMY_BULLET_SOUND("EnemyShoot.mp3"),

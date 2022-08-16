@@ -45,13 +45,13 @@ public class Timer {
      */
     public Timer(float duration, Collection<TimeMarkedRunnable> timeMarkedRunnables) {
         setDuration(duration);
-        reset();
         timeMarkedRunnables.forEach(timeMarkedRunnable -> {
             if (timeMarkedRunnable.time() < 0f || timeMarkedRunnable.time() > duration) {
-                throw new IllegalStateException();
+                throw new IllegalArgumentException();
             }
         });
         this.timeMarkedRunnables.addAll(timeMarkedRunnables);
+        reset();
     }
 
     /**

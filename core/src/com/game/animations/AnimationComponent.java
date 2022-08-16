@@ -13,7 +13,6 @@ public class AnimationComponent implements Component {
 
     private final Supplier<String> animationKeySupplier;
     private final Function<String, TimedAnimation> animationFunction;
-    // private final Map<String, TimedAnimation> animations;
 
     @Getter
     private String currentAnimationKey;
@@ -24,7 +23,6 @@ public class AnimationComponent implements Component {
      * @param timedAnimation the timed animation
      */
     public AnimationComponent(TimedAnimation timedAnimation) {
-        // this.animations = Map.of("", timedAnimation);
         this.animationKeySupplier = () -> "";
         this.animationFunction = key -> timedAnimation;
     }

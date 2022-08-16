@@ -40,7 +40,7 @@ public class WorldContactListenerImpl implements WorldContactListener {
             IEntity entity = contact.mask1stEntity();
             entity.getComponent(BodyComponent.class).setIs(FEET_ON_GROUND);
             if (entity instanceof Megaman megaman) {
-                megaman.setAButtonTask(AButtonTask.JUMP);
+                megaman.setAButtonTask(AButtonTask._JUMP);
                 megaman.getComponent(SoundComponent.class).requestSound(MEGAMAN_LAND_SOUND);
             }
         } else if (contact.acceptMask(HEAD, BLOCK)) {
@@ -76,7 +76,7 @@ public class WorldContactListenerImpl implements WorldContactListener {
             IEntity entity = contact.mask1stEntity();
             entity.getComponent(BodyComponent.class).setIs(FEET_ON_GROUND);
             if (entity instanceof Megaman megaman) {
-                megaman.setAButtonTask(JUMP);
+                megaman.setAButtonTask(_JUMP);
             }
         } else if (contact.acceptMask(FEET, FEET_STICKER)) {
             contact.mask1stBody().translate(contact.mask2ndBody().getPosDelta());
@@ -112,7 +112,7 @@ public class WorldContactListenerImpl implements WorldContactListener {
         } else if (contact.acceptMask(FEET, BLOCK)) {
             contact.mask1stBody().setIsNot(FEET_ON_GROUND);
             if (contact.mask1stEntity() instanceof Megaman megaman) {
-                megaman.setAButtonTask(AIR_DASH);
+                megaman.setAButtonTask(_AIR_DASH);
             }
         } else if (contact.acceptMask(HEAD, BLOCK)) {
             contact.mask1stBody().setIsNot(HEAD_TOUCHING_BLOCK);
