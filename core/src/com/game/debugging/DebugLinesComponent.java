@@ -2,7 +2,7 @@ package com.game.debugging;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
-import com.game.Component;
+import com.game.core.Component;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -13,7 +13,7 @@ import java.util.function.Supplier;
 
 @Getter
 @NoArgsConstructor
-public class DebugLinesComponent implements Component {
+public class DebugLinesComponent extends Component {
 
     Map<Supplier<List<Vector2>>, Supplier<Color>> debugLinesSupplierMap = new HashMap<>();
 

@@ -1,6 +1,6 @@
 package com.game.behaviors;
 
-import com.game.Component;
+import com.game.core.Component;
 import com.game.updatables.Updatable;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,7 +15,7 @@ import java.util.Set;
  */
 @Getter
 @Setter
-public class BehaviorComponent implements Component {
+public class BehaviorComponent extends Component {
 
     private final Set<BehaviorType> activeBehaviors = EnumSet.noneOf(BehaviorType.class);
     private final List<Behavior> behaviors = new ArrayList<>();

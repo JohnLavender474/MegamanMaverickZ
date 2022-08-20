@@ -2,10 +2,6 @@ package com.game;
 
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
-import com.game.tests.GameTestRunner;
-import com.game.tests.GameTestRunner.TestScreen;
-
-import static com.game.tests.GameTestRunner.TestScreen.*;
 
 /**
  * The type Megaman maverick runner. Please note that on macOS your application needs to be started with the

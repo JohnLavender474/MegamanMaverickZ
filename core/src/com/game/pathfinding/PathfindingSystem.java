@@ -1,8 +1,8 @@
 package com.game.pathfinding;
 
 import com.badlogic.gdx.math.Rectangle;
-import com.game.System;
-import com.game.core.IEntity;
+import com.game.core.Entity;
+import com.game.core.System;
 import com.game.graph.Graph;
 import lombok.Setter;
 
@@ -21,7 +21,7 @@ public class PathfindingSystem extends System {
     private Graph graph;
 
     public PathfindingSystem(List<Runnable> runOnShutdown) {
-        super(Set.of(PathfindingComponent.class));
+        super(PathfindingComponent.class);
         runOnShutdown.add(executorService::shutdownNow);
     }
 
@@ -32,7 +32,7 @@ public class PathfindingSystem extends System {
     }
 
     @Override
-    protected void processEntity(IEntity entity, float delta) {
+    protected void processEntity(Entity entity, float delta) {
         PathfindingComponent pathfindingComponent = entity.getComponent(PathfindingComponent.class);
         Deque<Rectangle> path = pathfindingComponent.getCurrentPath();
         if (path != null) {

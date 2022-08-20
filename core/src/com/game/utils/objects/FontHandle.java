@@ -15,10 +15,20 @@ import lombok.Setter;
 @Setter
 public class FontHandle implements Drawable {
 
+    public static final String DEFAULT_TEXT = "Megaman10Font.ttf";
+
     private final BitmapFont font;
     private final Vector2 position = new Vector2();
 
     private String text;
+
+    public FontHandle(int fontSize, Vector2 position) {
+        this(DEFAULT_TEXT, fontSize, position);
+    }
+
+    public FontHandle(int fontSize, Vector2 position, String text) {
+        this(DEFAULT_TEXT, fontSize, position, text);
+    }
 
     public FontHandle(String ttfSrc, int fontSize, Vector2 position) {
         this(ttfSrc, fontSize, position, "");

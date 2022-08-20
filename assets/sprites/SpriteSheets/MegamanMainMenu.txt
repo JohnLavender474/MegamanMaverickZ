@@ -1,0 +1,40 @@
+MegamanMainMenu.png
+size: 674, 145
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+MegamanPose
+  rotate: false
+  xy: 0, 0
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+Subtitle8bit
+  rotate: false
+  xy: 128, 0
+  size: 145, 145
+  orig: 145, 145
+  offset: 0, 0
+  index: -1
+Z
+  rotate: false
+  xy: 273, 0
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+Z8bit
+  rotate: false
+  xy: 401, 0
+  size: 145, 145
+  orig: 145, 145
+  offset: 0, 0
+  index: -1
+ZeroSilhouette
+  rotate: false
+  xy: 546, 0
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1

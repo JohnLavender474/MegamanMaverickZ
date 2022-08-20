@@ -2,7 +2,7 @@ package com.game.pathfinding;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.Component;
+import com.game.core.Component;
 import com.game.graph.Node;
 import com.game.utils.UtilMethods;
 import lombok.AccessLevel;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 @Setter
 @RequiredArgsConstructor
-public class PathfindingComponent implements Component {
+public class PathfindingComponent extends Component {
 
     private final Supplier<Vector2> startSupplier;
     private final Supplier<Vector2> targetSupplier;

@@ -2,18 +2,18 @@ package com.game.sprites;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.System;
-import com.game.core.IEntity;
+import com.game.core.Entity;
+import com.game.core.System;
 import com.game.utils.enums.Position;
 import com.game.utils.objects.Wrapper;
 
 import java.util.Set;
 
+import static com.badlogic.gdx.graphics.Texture.TextureFilter.*;
 import static com.game.utils.UtilMethods.*;
 
 /**
@@ -27,7 +27,7 @@ public class SpriteSystem extends System {
     private boolean isDrawing;
 
     public SpriteSystem(OrthographicCamera camera, SpriteBatch spriteBatch) {
-        super(Set.of(SpriteComponent.class));
+        super(SpriteComponent.class);
         this.camera = camera;
         this.spriteBatch = spriteBatch;
     }
@@ -42,7 +42,7 @@ public class SpriteSystem extends System {
     }
 
     @Override
-    protected void processEntity(IEntity entity, float delta) {
+    protected void processEntity(Entity entity, float delta) {
         SpriteComponent spriteComponent = entity.getComponent(SpriteComponent.class);
         Sprite sprite = spriteComponent.getSprite();
         SpriteAdapter spriteAdapter = spriteComponent.getSpriteAdapter();
@@ -68,11 +68,7 @@ public class SpriteSystem extends System {
             sprite.setRotation(spriteAdapter.getRotation());
             spriteAdapter.update(delta);
         }
-        Texture texture = sprite.getTexture();
-        if (texture != null) {
-            texture.setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
-            sprite.draw(spriteBatch);
-        }
+        drawFiltered(sprite, spriteBatch);
     }
 
     @Override

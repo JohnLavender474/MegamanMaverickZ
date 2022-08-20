@@ -1,7 +1,7 @@
 package com.game.health;
 
-import com.game.System;
-import com.game.core.IEntity;
+import com.game.core.Entity;
+import com.game.core.System;
 
 import java.util.Set;
 
@@ -11,11 +11,11 @@ import java.util.Set;
 public class HealthSystem extends System {
 
     public HealthSystem() {
-        super(Set.of(HealthComponent.class));
+        super(HealthComponent.class);
     }
 
     @Override
-    protected void processEntity(IEntity entity, float delta) {
+    protected void processEntity(Entity entity, float delta) {
         HealthComponent healthComponent = entity.getComponent(HealthComponent.class);
         if (healthComponent.isHealthJustDepleted()) {
             entity.setDead(true);

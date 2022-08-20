@@ -1,7 +1,7 @@
 package com.game.core;
 
-import com.game.Message;
-import com.game.MessageListener;
+import com.game.messages.Message;
+import com.game.messages.MessageListener;
 
 /**
  * The interface Message dispatcher.

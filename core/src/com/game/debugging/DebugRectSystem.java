@@ -2,12 +2,11 @@ package com.game.debugging;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
-import com.game.System;
-import com.game.core.IEntity;
+import com.game.core.Entity;
+import com.game.core.System;
 
 import java.util.Set;
 
@@ -18,7 +17,7 @@ public class DebugRectSystem extends System {
     private boolean isDrawing;
 
     public DebugRectSystem(Camera camera, ShapeRenderer shapeRenderer) {
-        super(Set.of(DebugRectComponent.class));
+        super(DebugRectComponent.class);
         this.shapeRenderer = shapeRenderer;
         this.camera = camera;
     }
@@ -33,7 +32,7 @@ public class DebugRectSystem extends System {
     }
 
     @Override
-    protected void processEntity(IEntity entity, float delta) {
+    protected void processEntity(Entity entity, float delta) {
         DebugRectComponent debugRectComponent = entity.getComponent(DebugRectComponent.class);
         debugRectComponent.getDebugHandles().forEach(debugHandle -> {
             Rectangle rectangle = debugHandle.key().get();

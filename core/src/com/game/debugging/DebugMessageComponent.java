@@ -1,6 +1,6 @@
 package com.game.debugging;
 
-import com.game.Component;
+import com.game.core.Component;
 import lombok.AccessLevel;
 import lombok.Getter;
 
@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Queue;
 
 @Getter(AccessLevel.PACKAGE)
-public class DebugMessageComponent implements Component {
+public class DebugMessageComponent extends Component {
 
     private final Map<Integer, String> debugMessages = new HashMap<>();
     private final Queue<Integer> clearQueue = new LinkedList<>();

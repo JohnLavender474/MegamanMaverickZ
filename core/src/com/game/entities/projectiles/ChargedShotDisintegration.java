@@ -4,11 +4,14 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
-import com.game.Entity;
-import com.game.GameContext2d;
+import com.game.core.Entity;
+import com.game.core.GameContext2d;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
+import com.game.cull.CullOnCamTransComponent;
+import com.game.cull.CullOutOfCamBoundsComponent;
 import com.game.damage.Damager;
+import com.game.messages.MessageListener;
 import com.game.sounds.SoundComponent;
 import com.game.sprites.SpriteAdapter;
 import com.game.sprites.SpriteComponent;
@@ -17,23 +20,52 @@ import com.game.utils.objects.Timer;
 import com.game.world.BodyComponent;
 import com.game.world.Fixture;
 
-import static com.game.ConstVals.SoundAsset.*;
-import static com.game.ConstVals.TextureAsset.MEGAMAN_CHARGED_SHOT_TEXTURE_ATLAS;
-import static com.game.ConstVals.ViewVals.PPM;
+import static com.game.core.ConstVals.Events.LEVEL_PAUSED;
+import static com.game.core.ConstVals.Events.LEVEL_UNPAUSED;
+import static com.game.core.ConstVals.SoundAsset.*;
+import static com.game.core.ConstVals.TextureAsset.MEGAMAN_CHARGED_SHOT_TEXTURE_ATLAS;
+import static com.game.core.ConstVals.ViewVals.PPM;
 import static com.game.world.BodyType.*;
 import static com.game.world.FixtureType.*;
 
-public class ChargedShotDisintegration extends Entity implements Damager {
+public class ChargedShotDisintegration extends Entity implements MessageListener, Damager {
 
+    private final GameContext2d gameContext;
     private final Timer timer = new Timer(.75f);
     private final Timer soundTimer = new Timer(.15f);
 
     public ChargedShotDisintegration(GameContext2d gameContext, Vector2 center, boolean isLeft) {
+        this.gameContext = gameContext;
         addComponent(new SoundComponent());
         addComponent(defineUpdatableComponent());
         addComponent(defineBodyComponent(center));
         addComponent(defineSpriteComponent(center, isLeft));
         addComponent(defineAnimationComponent(gameContext));
+        gameContext.addMessageListener(this);
+    }
+
+    @Override
+    public void listenToMessage(Object owner, Object message, float delta) {
+        if (message.equals(LEVEL_PAUSED)) {
+            getComponents().values().forEach(component -> {
+                if (component instanceof CullOutOfCamBoundsComponent || component instanceof CullOnCamTransComponent) {
+                    return;
+                }
+                component.setOn(false);
+            });
+        } else if (message.equals(LEVEL_UNPAUSED)) {
+            getComponents().values().forEach(component -> {
+                if (component instanceof CullOutOfCamBoundsComponent || component instanceof CullOnCamTransComponent) {
+                    return;
+                }
+                component.setOn(true);
+            });
+        }
+    }
+
+    @Override
+    public void onDeath() {
+        gameContext.removeMessageListener(this);
     }
 
     private UpdatableComponent defineUpdatableComponent() {

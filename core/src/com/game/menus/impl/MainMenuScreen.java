@@ -5,27 +5,30 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
-import com.game.GameContext2d;
+import com.game.core.GameContext2d;
 import com.game.menus.utils.BlinkingArrow;
 import com.game.menus.MenuButton;
 import com.game.menus.MenuScreen;
 import com.game.utils.enums.Direction;
 import com.game.utils.objects.FontHandle;
-import com.game.utils.objects.Timer;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import java.util.EnumMap;
 import java.util.Map;
 
-import static com.game.ConstVals.GameScreen.BOSS_SELECT;
-import static com.game.ConstVals.MusicAsset.MMX3_INTRO_STAGE_MUSIC;
-import static com.game.ConstVals.SoundAsset.CURSOR_MOVE_BLOOP_SOUND;
-import static com.game.ConstVals.SoundAsset.SELECT_PING_SOUND;
-import static com.game.ConstVals.TextureAsset.DECORATIONS_TEXTURE_ATLAS ;
-import static com.game.ConstVals.ViewVals.PPM;
+import static com.game.core.ConstVals.GameScreen.BOSS_SELECT;
+import static com.game.core.ConstVals.MusicAsset.MMX3_INTRO_STAGE_MUSIC;
+import static com.game.core.ConstVals.SoundAsset.CURSOR_MOVE_BLOOP_SOUND;
+import static com.game.core.ConstVals.SoundAsset.SELECT_PING_SOUND;
+import static com.game.core.ConstVals.TextureAsset.DECORATIONS_TEXTURE_ATLAS ;
+import static com.game.core.ConstVals.TextureAsset.MEGAMAN_MAIN_MENU_ATLAS;
+import static com.game.core.ConstVals.ViewVals.*;
 import static com.game.menus.impl.MainMenuScreen.MainMenuButton.*;
 import static com.game.utils.UtilMethods.*;
+import static com.game.utils.enums.Direction.DIR_LEFT;
+import static com.game.utils.enums.Direction.DIR_RIGHT;
+import static java.lang.Math.round;
 
 /**
  * Implementation of {@link MenuScreen} for the main menu of the game.
@@ -41,8 +44,9 @@ public class MainMenuScreen extends MenuScreen {
 
     }
 
+    private final Sprite z = new Sprite();
+    private final Sprite pose = new Sprite();
     private final Sprite title = new Sprite();
-    private final Sprite helmet = new Sprite();
     private final Sprite subtitle = new Sprite();
     private final Map<MainMenuButton, FontHandle> fonts = new EnumMap<>(MainMenuButton.class);
     private final Map<MainMenuButton, BlinkingArrow> blinkingArrows = new EnumMap<>(MainMenuButton.class);
@@ -54,27 +58,27 @@ public class MainMenuScreen extends MenuScreen {
      */
     public MainMenuScreen(GameContext2d gameContext) {
         super(gameContext, GAME_START.name(), MMX3_INTRO_STAGE_MUSIC.getSrc());
-    }
-
-    @Override
-    public void show() {
-        super.show();
-        float row = 5f;
-        for (MainMenuButton mainMenuButton : MainMenuButton.values()) {
-            FontHandle fontHandle = new FontHandle("Megaman10Font.ttf", 8, new Vector2(3 * PPM, row * PPM));
+        float row = .15f * PPM;
+        for (MainMenuButton mainMenuButton : values()) {
+            FontHandle fontHandle = new FontHandle("Megaman10Font.ttf", round(PPM / 2f),
+                    new Vector2(2f * PPM, row * PPM));
             fontHandle.setText(mainMenuButton.prompt);
             fonts.put(mainMenuButton, fontHandle);
-            Vector2 arrowCenter = new Vector2(2.5f * PPM, (row - .235f) * PPM);
+            Vector2 arrowCenter = new Vector2(1.5f * PPM, (row - (.0075f * PPM)) * PPM);
             blinkingArrows.put(mainMenuButton, new BlinkingArrow(gameContext, arrowCenter));
-            row -= 0.75f;
+            row -= PPM * .025f;
         }
-        TextureAtlas textureAtlas = gameContext.getAsset(DECORATIONS_TEXTURE_ATLAS.getSrc(), TextureAtlas.class);
-        title.setRegion(textureAtlas.findRegion("MegamanTitle"));
-        title.setBounds(1 * PPM, 6.5f * PPM, 14f * PPM, 8f * PPM);
-        helmet.setRegion(textureAtlas.findRegion("MegamanHelmet"));
-        helmet.setBounds(11 * PPM, 1 * PPM, 4f * PPM, 4f * PPM);
-        subtitle.setRegion(textureAtlas.findRegion("MegamanSubtitle"));
-        subtitle.setBounds(4 * PPM, 6 * PPM, 8 * PPM, 2f * PPM);
+        TextureAtlas decorations = gameContext.getAsset(DECORATIONS_TEXTURE_ATLAS.getSrc(), TextureAtlas.class);
+        title.setRegion(decorations.findRegion("MegamanTitle"));
+        title.setBounds(PPM, 6.5f * PPM, 14f * PPM, 8f * PPM);
+        TextureAtlas mainMenu = gameContext.getAsset(MEGAMAN_MAIN_MENU_ATLAS.getSrc(), TextureAtlas.class);
+        subtitle.setRegion(mainMenu.findRegion("Subtitle8bit"));
+        subtitle.setSize(8f * PPM, 8f * PPM);
+        subtitle.setCenter((VIEW_WIDTH * PPM / 2f) - 1.75f * PPM, VIEW_HEIGHT * PPM / 2f);
+        pose.setRegion(mainMenu.findRegion("MegamanPose"));
+        pose.setBounds(5.5f * PPM, 0f, 10f * PPM, 10f * PPM);
+        z.setRegion(mainMenu.findRegion("Z8bit"));
+        z.setBounds(subtitle.getX() + 6f * PPM, subtitle.getY(), 8f * PPM, 8f * PPM);
     }
 
     @Override
@@ -88,14 +92,18 @@ public class MainMenuScreen extends MenuScreen {
         blinkingArrow.update(delta);
         blinkingArrow.draw(spriteBatch);
         drawFiltered(title, spriteBatch);
-        drawFiltered(helmet, spriteBatch);
         drawFiltered(subtitle, spriteBatch);
+        drawFiltered(z, spriteBatch);
+        drawFiltered(pose, spriteBatch);
         fonts.values().forEach(fontHandle -> fontHandle.draw(spriteBatch));
         spriteBatch.end();
     }
 
     @Override
-    protected void onAnyMovement() {
+    protected void onAnyMovement(Direction direction) {
+        if (equalsAny(direction, DIR_LEFT, DIR_RIGHT)) {
+            return;
+        }
         gameContext.getAsset(CURSOR_MOVE_BLOOP_SOUND.getSrc(), Sound.class).play();
     }
 
@@ -119,6 +127,7 @@ public class MainMenuScreen extends MenuScreen {
                     public void onNavigate(Direction direction, float delta) {
                         switch (direction) {
                             case DIR_DOWN -> setMenuButton(PASS_WORD.name());
+                            case DIR_UP -> setMenuButton(EXIT.name());
                         }
                     }
 
@@ -169,6 +178,7 @@ public class MainMenuScreen extends MenuScreen {
                     public void onNavigate(Direction direction, float delta) {
                         switch (direction) {
                             case DIR_UP -> setMenuButton(SETTINGS.name());
+                            case DIR_DOWN -> setMenuButton(GAME_START.name());
                         }
                     }
 

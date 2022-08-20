@@ -4,10 +4,10 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.GameContext2d;
+import com.game.core.Entity;
+import com.game.core.GameContext2d;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
-import com.game.core.IEntity;
 import com.game.damage.Damageable;
 import com.game.damage.Damager;
 import com.game.entities.contracts.Faceable;
@@ -22,9 +22,9 @@ import com.game.world.Fixture;
 import lombok.Getter;
 import lombok.Setter;
 
-import static com.game.ConstVals.SoundAsset.*;
-import static com.game.ConstVals.TextureAsset.MEGAMAN_CHARGED_SHOT_TEXTURE_ATLAS;
-import static com.game.ConstVals.ViewVals.PPM;
+import static com.game.core.ConstVals.SoundAsset.*;
+import static com.game.core.ConstVals.TextureAsset.MEGAMAN_CHARGED_SHOT_TEXTURE_ATLAS;
+import static com.game.core.ConstVals.ViewVals.PPM;
 import static com.game.entities.contracts.Facing.F_LEFT;
 import static com.game.world.BodyType.*;
 import static com.game.world.FixtureType.*;
@@ -37,7 +37,7 @@ public class ChargedShot extends AbstractProjectile implements Faceable {
 
     private Facing facing;
 
-    public ChargedShot(GameContext2d gameContext, IEntity owner, Vector2 trajectory, Vector2 spawn, Facing facing) {
+    public ChargedShot(GameContext2d gameContext, Entity owner, Vector2 trajectory, Vector2 spawn, Facing facing) {
         super(gameContext, owner, .15f);
         this.trajectory.set(trajectory);
         setFacing(facing);

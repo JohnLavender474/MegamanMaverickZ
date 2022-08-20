@@ -1,8 +1,8 @@
 package com.game.entities.megaman;
 
 import com.badlogic.gdx.math.Vector2;
-import com.game.Component;
-import com.game.GameContext2d;
+import com.game.core.Component;
+import com.game.core.GameContext2d;
 import com.game.behaviors.BehaviorComponent;
 import com.game.entities.contracts.Facing;
 import com.game.entities.projectiles.Bullet;
@@ -18,12 +18,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import static com.game.ConstVals.SoundAsset.CRASH_BOMBER_SOUND;
-import static com.game.ConstVals.SoundAsset.MEGA_BUSTER_BULLET_SHOT_SOUND;
-import static com.game.ConstVals.ViewVals.PPM;
+import static com.game.core.ConstVals.SoundAsset.*;
+import static com.game.core.ConstVals.ViewVals.PPM;
 import static com.game.behaviors.BehaviorType.WALL_SLIDING;
 import static com.game.entities.contracts.Facing.F_LEFT;
-import static com.game.entities.megaman.MegamanWeapon.FLAME_BUSTER;
+import static com.game.entities.megaman.MegamanWeapon.FLAME_TOSS;
 import static com.game.entities.megaman.MegamanWeapon.MEGA_BUSTER;
 import static com.game.world.BodySense.FEET_ON_GROUND;
 
@@ -62,13 +61,14 @@ public class MegamanWeaponDefs {
 
     private void defineWeapons() {
         Supplier<Vector2> spawn = () -> {
-            Vector2 spawnPos = getComponent(BodyComponent.class).getCenter().add(isFacing(F_LEFT) ? -12.5f : 12.5f, 1f);
+            Vector2 spawnPos = getComponent(BodyComponent.class).getCenter().add(.75f * PPM *
+                    (isFacing(F_LEFT) ? -1f : 1f), PPM / 16f);
             BehaviorComponent behaviorComponent = getComponent(BehaviorComponent.class);
             BodyComponent bodyComponent = getComponent(BodyComponent.class);
             if (behaviorComponent.is(WALL_SLIDING)) {
-                spawnPos.y += 2.25f;
+                spawnPos.y += .15f * PPM;
             } else if (!bodyComponent.is(FEET_ON_GROUND)) {
-                spawnPos.y += 2f + bodyComponent.getPosDelta().y;
+                spawnPos.y += PPM / 8f + bodyComponent.getPosDelta().y;
             }
             return spawnPos;
         };
@@ -79,8 +79,14 @@ public class MegamanWeaponDefs {
             } else {
                 return List.of(new Bullet(gameContext, megaman, trajectory, spawn.get()));
             }
-        }, .1f, () -> getComponent(SoundComponent.class).requestSound(MEGA_BUSTER_BULLET_SHOT_SOUND)));
-        megamanWeaponDefs.put(FLAME_BUSTER, new WeaponDef(() -> {
+        }, .1f, () -> {
+            if (isCharging()) {
+                getComponent(SoundComponent.class).requestSound(MEGA_BUSTER_CHARGED_SHOT_SOUND);
+            } else {
+                getComponent(SoundComponent.class).requestSound(MEGA_BUSTER_BULLET_SHOT_SOUND);
+            }
+        }));
+        megamanWeaponDefs.put(FLAME_TOSS, new WeaponDef(() -> {
             Vector2 impulse = new Vector2(35f * (isFacing(F_LEFT) ? -PPM : PPM), 10f * PPM);
             /*
             if (isCharging()) {

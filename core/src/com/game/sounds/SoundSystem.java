@@ -1,13 +1,13 @@
 package com.game.sounds;
 
 import com.badlogic.gdx.audio.Sound;
-import com.game.System;
+import com.game.core.Entity;
+import com.game.core.System;
 import com.game.core.IAssetLoader;
-import com.game.core.IEntity;
 
 import java.util.*;
 
-import static com.game.ConstVals.*;
+import static com.game.core.ConstVals.*;
 
 public class SoundSystem extends System {
 
@@ -17,7 +17,7 @@ public class SoundSystem extends System {
     private boolean stopAllLoopingSounds;
 
     public SoundSystem(IAssetLoader assetLoader) {
-        super(Set.of(SoundComponent.class));
+        super(SoundComponent.class);
         this.assetLoader = assetLoader;
     }
 
@@ -26,7 +26,7 @@ public class SoundSystem extends System {
     }
 
     @Override
-    protected void processEntity(IEntity entity, float delta) {
+    protected void processEntity(Entity entity, float delta) {
         SoundComponent soundComponent = entity.getComponent(SoundComponent.class);
         Queue<SoundRequest> soundRequests = soundComponent.getSoundRequests();
         while (!soundRequests.isEmpty()) {

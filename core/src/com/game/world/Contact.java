@@ -2,7 +2,7 @@ package com.game.world;
 
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
-import com.game.core.IEntity;
+import com.game.core.Entity;
 import com.game.utils.objects.Pair;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -64,11 +64,11 @@ public class Contact {
     }
 
     /**
-     * Fetches the {@link IEntity} of the first {@link Fixture} contained in {@link #getMask()}.
+     * Fetches the {@link Entity} of the first {@link Fixture} contained in {@link #getMask()}.
      *
      * @return the entity
      */
-    public IEntity mask1stEntity() {
+    public Entity mask1stEntity() {
         return mask.getFirst().getEntity();
     }
 
@@ -91,11 +91,11 @@ public class Contact {
     }
 
     /**
-     * Fetches the {@link IEntity} of the second {@link Fixture} contained in {@link #getMask()}.
+     * Fetches the {@link Entity} of the second {@link Fixture} contained in {@link #getMask()}.
      *
      * @return the entity
      */
-    public IEntity mask2ndEntity() {
+    public Entity mask2ndEntity() {
         return mask.getSecond().getEntity();
     }
 

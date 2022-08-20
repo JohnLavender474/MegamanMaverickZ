@@ -1,6 +1,6 @@
 package com.game.health;
 
-import com.game.Component;
+import com.game.core.Component;
 import com.game.utils.interfaces.Resettable;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,7 +10,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class HealthComponent implements Component, Resettable {
+public class HealthComponent extends Component implements Resettable {
 
     private Runnable runOnDeath;
     private int currentHealth;

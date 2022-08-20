@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.GameContext2d;
+import com.game.core.GameContext2d;
 import com.game.animations.TimeMarkedRunnable;
 import com.game.animations.TimedAnimation;
 import com.game.core.IAssetLoader;
@@ -26,13 +26,14 @@ import java.util.*;
 import java.util.function.Supplier;
 
 import static com.badlogic.gdx.graphics.Texture.TextureFilter.Nearest;
-import static com.game.ConstVals.*;
-import static com.game.ConstVals.Boss.*;
-import static com.game.ConstVals.MusicAsset.*;
-import static com.game.ConstVals.RenderingGround.*;
-import static com.game.ConstVals.SoundAsset.*;
-import static com.game.ConstVals.TextureAsset.*;
-import static com.game.ConstVals.ViewVals.*;
+import static com.game.core.ConstVals.*;
+import static com.game.core.ConstVals.Boss.*;
+import static com.game.core.ConstVals.GameScreen.*;
+import static com.game.core.ConstVals.MusicAsset.*;
+import static com.game.core.ConstVals.RenderingGround.*;
+import static com.game.core.ConstVals.SoundAsset.*;
+import static com.game.core.ConstVals.TextureAsset.*;
+import static com.game.core.ConstVals.ViewVals.*;
 import static com.game.utils.UtilMethods.centerPoint;
 import static com.game.utils.enums.Position.*;
 
@@ -154,7 +155,7 @@ public class BossSelectScreen extends MenuScreen {
     private final Map<String, BlinkingArrow> blinkingArrows = new HashMap<>();
     private final Map<TimedAnimation, Sprite> backgroundAnims = new HashMap<>();
 
-    private final Timer introTimer = new Timer(1f);
+    private final Timer introTimer = new Timer(.5f);
 
     private boolean outro;
     private boolean blink;
@@ -177,14 +178,6 @@ public class BossSelectScreen extends MenuScreen {
         super(gameContext, MEGAMAN_FACE, STAGE_SELECT_MM3_MUSIC.getSrc());
         this.camera = gameContext.getViewport(UI).getCamera();
         this.bloopSound = gameContext.getAsset(CURSOR_MOVE_BLOOP_SOUND.getSrc(), Sound.class);
-    }
-
-    @Override
-    public void show() {
-        super.show();
-        // set camera
-        camera.position.x -= INTRO_BLOCKS_TRANS * PPM;
-        // megaman pane
         TextureAtlas megamanFacesAtlas = gameContext.getAsset(MEGAMAN_FACES_TEXTURE_ATLAS.getSrc(), TextureAtlas.class);
         Map<Position, TimedAnimation> megamanFaceAnimations = new EnumMap<>(Position.class);
         for (Position position : Position.values()) {
@@ -211,7 +204,7 @@ public class BossSelectScreen extends MenuScreen {
             bossPanes.add(bossPane);
         }
         // text and blinking arrows
-        texts.add(new FontHandle("Megaman10Font.ttf", 8, new Vector2(12.35f * PPM, PPM), "EXIT"));
+        texts.add(new FontHandle("Megaman10Font.ttf", (int) (PPM / 2f), new Vector2(12.35f * PPM, PPM), "EXIT"));
         blinkingArrows.put(EXIT, new BlinkingArrow(gameContext, new Vector2(12f * PPM, .75f * PPM)));
         // background
         TextureAtlas stageSelectAtlas = gameContext.getAsset(STAGE_SELECT_TEXTURE_ATLAS.getSrc(), TextureAtlas.class);
@@ -243,7 +236,18 @@ public class BossSelectScreen extends MenuScreen {
     }
 
     @Override
-    protected void onAnyMovement() {
+    public void show() {
+        super.show();
+        // reset timers and outro bool
+        introTimer.reset();
+        outroTimer.reset();
+        outro = false;
+        // set camera
+        camera.position.x -= INTRO_BLOCKS_TRANS * PPM;
+    }
+
+    @Override
+    protected void onAnyMovement(Direction direction) {
         bloopSound.play();
     }
 
@@ -253,7 +257,7 @@ public class BossSelectScreen extends MenuScreen {
         // move camera if in intro
         if (!introTimer.isFinished()) {
             introTimer.update(delta);
-            camera.position.x += INTRO_BLOCKS_TRANS * PPM * delta;
+            camera.position.x += INTRO_BLOCKS_TRANS * PPM * delta * (1f / introTimer.getDuration());
             if (introTimer.isFinished()) {
                 camera.position.x = VIEW_WIDTH * PPM / 2f;
             }
@@ -265,11 +269,6 @@ public class BossSelectScreen extends MenuScreen {
         // background
         if (outro) {
             outroTimer.update(delta);
-            if (outroTimer.isFinished()) {
-                gameContext.setScreen(bossSelection.getGameScreen());
-                spriteBatch.end();
-                return;
-            }
             if (blink) {
                 whiteSprite.draw(spriteBatch);
             } else {
@@ -304,6 +303,10 @@ public class BossSelectScreen extends MenuScreen {
         texts.forEach(text -> text.draw(spriteBatch));
         // end spritebatch
         spriteBatch.end();
+        // if outro is finished, set screen
+        if (outroTimer.isFinished()) {
+            gameContext.setScreen(bossSelection.getGameScreen());
+        }
     }
 
     @Override
@@ -331,8 +334,8 @@ public class BossSelectScreen extends MenuScreen {
 
             @Override
             public boolean onSelect(float delta) {
-                // TODO: Pop up dialog asking to confirm exit to main menu, press X to accept, any other to abort
-                return false;
+                gameContext.setScreen(MAIN_MENU);
+                return true;
             }
 
             @Override

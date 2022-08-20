@@ -1,6 +1,6 @@
 package com.game.updatables;
 
-import com.game.Component;
+import com.game.core.Component;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -13,7 +13,7 @@ import java.util.function.Supplier;
  */
 @Getter
 @NoArgsConstructor
-public class UpdatableComponent implements Component {
+public class UpdatableComponent extends Component {
 
     private final Map<Updatable, Supplier<Boolean>> updatables = new HashMap<>();
 

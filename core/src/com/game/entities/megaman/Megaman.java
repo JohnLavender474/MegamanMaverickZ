@@ -4,20 +4,21 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.Entity;
-import com.game.GameContext2d;
-import com.game.MegamanGameInfo;
-import com.game.Message;
+import com.game.core.ConstVals;
+import com.game.core.Entity;
+import com.game.core.GameContext2d;
+import com.game.core.MegamanGameInfo;
+import com.game.messages.Message;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
 import com.game.behaviors.Behavior;
 import com.game.behaviors.BehaviorComponent;
 import com.game.controllers.ControllerAdapter;
 import com.game.controllers.ControllerComponent;
-import com.game.core.IEntity;
 import com.game.damage.DamageNegotiation;
 import com.game.damage.Damageable;
 import com.game.damage.Damager;
+import com.game.debugging.DebugMessageComponent;
 import com.game.debugging.DebugRectComponent;
 import com.game.entities.contracts.Faceable;
 import com.game.entities.contracts.Facing;
@@ -32,6 +33,7 @@ import com.game.sprites.SpriteAdapter;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
 import com.game.utils.enums.Position;
+import com.game.utils.objects.Percentage;
 import com.game.utils.objects.Timer;
 import com.game.utils.objects.Wrapper;
 import com.game.weapons.WeaponDef;
@@ -45,12 +47,13 @@ import java.util.*;
 import java.util.function.Supplier;
 
 import static com.badlogic.gdx.graphics.Color.*;
-import static com.game.ConstVals.Events.*;
-import static com.game.ConstVals.MegamanVals.*;
-import static com.game.ConstVals.SoundAsset.*;
-import static com.game.ConstVals.TextureAsset.MEGAMAN_FIRE_TEXTURE_ATLAS;
-import static com.game.ConstVals.TextureAsset.MEGAMAN_TEXTURE_ATLAS;
-import static com.game.ConstVals.ViewVals.PPM;
+import static com.game.core.ConstVals.Events.*;
+import static com.game.core.ConstVals.LevelStatus.*;
+import static com.game.core.ConstVals.MegamanVals.*;
+import static com.game.core.ConstVals.SoundAsset.*;
+import static com.game.core.ConstVals.TextureAsset.MEGAMAN_FIRE_TEXTURE_ATLAS;
+import static com.game.core.ConstVals.TextureAsset.MEGAMAN_TEXTURE_ATLAS;
+import static com.game.core.ConstVals.ViewVals.PPM;
 import static com.game.behaviors.BehaviorType.*;
 import static com.game.controllers.ControllerButton.*;
 import static com.game.entities.contracts.Facing.*;
@@ -88,7 +91,8 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
             SuctionRoller.class, new DamageNegotiation(10));
 
     private final GameContext2d gameContext;
-    private final Map<Integer, Integer> healthTanks;
+
+    private final Percentage[] healthTanks;
     private final Set<MegamanWeapon> megamanWeaponsAttained;
     private final Set<MegamanSpecialAbility> megamanSpecialAbilities;
 
@@ -127,6 +131,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
 
         setCurrentWeapon(MEGA_BUSTER);
         addComponent(defineHealthComponent(MEGAMAN_MAX_HEALTH));
+        addComponent(new DebugMessageComponent());
         addComponent(defineControllerComponent());
         addComponent(defineUpdatableComponent());
         addComponent(defineBodyComponent(spawn));
@@ -139,6 +144,12 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         shootAnimationTimer.setToEnd();
         damageRecoveryTimer.setToEnd();
         wallJumpImpetusTimer.setToEnd();
+        gameContext.addMessageListener(this);
+    }
+
+    @Override
+    public void onDeath() {
+        gameContext.removeMessageListener(this);
     }
 
     @Override
@@ -190,6 +201,16 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
      */
     public boolean isCharging() {
         return chargingTimer.isFinished();
+    }
+
+    /**
+     * Return if standing.
+     *
+     * @return if standing
+     */
+    public boolean isStanding() {
+        return !getComponent(BehaviorComponent.class).is(RUNNING, AIR_DASHING, GROUND_SLIDING) &&
+                getComponent(BodyComponent.class).is(FEET_ON_GROUND);
     }
 
     /**
@@ -296,6 +317,13 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
                 getComponent(BehaviorComponent.class).setIsNot(RUNNING);
             }
 
+            @Override
+            public void onReleaseContinued() {
+                if (!gameContext.isPressed(DPAD_RIGHT)) {
+                    getComponent(BehaviorComponent.class).setIsNot(RUNNING);
+                }
+            }
+
         });
         controllerComponent.addControllerAdapter(DPAD_RIGHT, new ControllerAdapter() {
 
@@ -320,6 +348,12 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
                 getComponent(BehaviorComponent.class).setIsNot(RUNNING);
             }
 
+            @Override
+            public void onReleaseContinued() {
+                if (!gameContext.isPressed(DPAD_LEFT)) {
+                    getComponent(BehaviorComponent.class).setIsNot(RUNNING);
+                }
+            }
 
         });
         controllerComponent.addControllerAdapter(X, new ControllerAdapter() {
@@ -500,8 +534,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
             protected void act(float delta) {
                 BodyComponent bodyComponent = getComponent(BodyComponent.class);
                 groundSlideTimer.update(delta);
-                if (isDamaged() ||
-                        (isFacing(F_LEFT) && bodyComponent.is(TOUCHING_BLOCK_LEFT)) ||
+                if (isDamaged() || (isFacing(F_LEFT) && bodyComponent.is(TOUCHING_BLOCK_LEFT)) ||
                         (isFacing(F_RIGHT) && bodyComponent.is(TOUCHING_BLOCK_RIGHT))) {
                     return;
                 }
@@ -534,21 +567,21 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         bodyComponent.setWidth(.8f * PPM);
         // feet
         Fixture feet = new Fixture(this, FEET);
-        feet.setSize(10f, 1f);
+        feet.setSize(.625f * PPM, (1f / 16f) * PPM);
         bodyComponent.addFixture(feet);
         // head
         Fixture head = new Fixture(this, HEAD);
-        head.setSize(10f, 2f);
+        head.setSize(.625f * PPM, (1f / 8f) * PPM);
         head.setOffset(0f, PPM / 2f);
         bodyComponent.addFixture(head);
         // left
         Fixture left = new Fixture(this, LEFT);
-        left.setWidth(1f);
+        left.setWidth(PPM / 16f);
         left.setOffset(-.45f * PPM, .15f * PPM);
         bodyComponent.addFixture(left);
         // right
         Fixture right = new Fixture(this, RIGHT);
-        right.setWidth(1f);
+        right.setWidth(PPM / 16f);
         right.setOffset(.45f * PPM, .15f * PPM);
         bodyComponent.addFixture(right);
         // hitbox
@@ -601,6 +634,11 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
             }
 
             @Override
+            public float getOffsetX() {
+                return isStanding() && isShooting() ? .3f * PPM * (isFacing(F_LEFT) ? -1f : 1f) : 0f;
+            }
+
+            @Override
             public float getOffsetY() {
                 return getComponent(BehaviorComponent.class).is(GROUND_SLIDING) ? .1f * -PPM : 0f;
             }
@@ -610,6 +648,9 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
 
     private AnimationComponent defineAnimationComponent() {
         Supplier<String> keySupplier = () -> {
+            if (gameContext.isLevelStatus(PAUSED)) {
+                return null;
+            }
             BodyComponent bodyComponent = getComponent(BodyComponent.class);
             BehaviorComponent behaviorComponent = getComponent(BehaviorComponent.class);
             if (isDamaged()) {
@@ -673,7 +714,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
             String textureAtlasKey;
             switch (megamanWeapon) {
                 case MEGA_BUSTER -> textureAtlasKey = MEGAMAN_TEXTURE_ATLAS.getSrc();
-                case FLAME_BUSTER -> textureAtlasKey = MEGAMAN_FIRE_TEXTURE_ATLAS.getSrc();
+                case FLAME_TOSS -> textureAtlasKey = MEGAMAN_FIRE_TEXTURE_ATLAS.getSrc();
                 default -> throw new IllegalStateException();
             }
             TextureAtlas textureAtlas = gameContext.getAsset(textureAtlasKey, TextureAtlas.class);

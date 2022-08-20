@@ -1,11 +1,11 @@
 package com.game.damage;
 
-import com.game.core.IEntity;
+import com.game.core.Entity;
 
 import java.util.Set;
 
 /**
- * Interface for {@link IEntity} instances that are able to be damaged.
+ * Interface for {@link Entity} instances that are able to be damaged.
  */
 public interface Damageable {
 

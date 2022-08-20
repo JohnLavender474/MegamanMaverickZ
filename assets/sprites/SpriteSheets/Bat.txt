@@ -1,7 +1,7 @@
 Bat.png
 size: 160, 32
 format: RGBA8888
-filter: Linear,Linear
+filter: Nearest,Nearest
 repeat: none
 BatFly
   rotate: false

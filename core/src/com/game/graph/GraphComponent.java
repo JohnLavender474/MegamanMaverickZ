@@ -1,20 +1,18 @@
 package com.game.graph;
 
 import com.badlogic.gdx.math.Rectangle;
-import com.game.Component;
+import com.game.core.Component;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 @Getter
 @NoArgsConstructor
-public class GraphComponent implements Component {
+public class GraphComponent extends Component {
 
     private final Map<Supplier<Rectangle>, Supplier<Collection<Object>>> suppliers = new HashMap<>();
 

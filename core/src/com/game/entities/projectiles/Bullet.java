@@ -5,8 +5,8 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.GameContext2d;
-import com.game.core.IEntity;
+import com.game.core.Entity;
+import com.game.core.GameContext2d;
 import com.game.debugging.DebugRectComponent;
 import com.game.entities.decorations.Disintegration;
 import com.game.entities.enemies.AbstractEnemy;
@@ -21,9 +21,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import static com.badlogic.gdx.graphics.Color.*;
-import static com.game.ConstVals.SoundAsset.*;
-import static com.game.ConstVals.TextureAsset.OBJECTS_TEXTURE_ATLAS;
-import static com.game.ConstVals.ViewVals.PPM;
+import static com.game.core.ConstVals.SoundAsset.*;
+import static com.game.core.ConstVals.TextureAsset.OBJECTS_TEXTURE_ATLAS;
+import static com.game.core.ConstVals.ViewVals.PPM;
 import static com.game.utils.UtilMethods.*;
 import static com.game.utils.enums.Position.*;
 import static com.game.world.BodyType.*;
@@ -37,7 +37,7 @@ public class Bullet extends AbstractProjectile {
 
     private final Vector2 trajectory = new Vector2();
 
-    public Bullet(GameContext2d gameContext, IEntity owner, Vector2 trajectory, Vector2 spawn) {
+    public Bullet(GameContext2d gameContext, Entity owner, Vector2 trajectory, Vector2 spawn) {
         super(gameContext, owner, .15f);
         this.trajectory.set(trajectory);
         addComponent(new SoundComponent());

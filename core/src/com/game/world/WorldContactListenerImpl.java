@@ -1,6 +1,6 @@
 package com.game.world;
 
-import com.game.core.IEntity;
+import com.game.core.Entity;
 import com.game.damage.Damageable;
 import com.game.damage.Damager;
 import com.game.entities.contracts.Hitter;
@@ -8,7 +8,7 @@ import com.game.entities.megaman.Megaman;
 import com.game.health.HealthComponent;
 import com.game.sounds.SoundComponent;
 
-import static com.game.ConstVals.SoundAsset.*;
+import static com.game.core.ConstVals.SoundAsset.*;
 import static com.game.entities.megaman.Megaman.*;
 import static com.game.entities.megaman.Megaman.AButtonTask.*;
 import static com.game.world.BodySense.*;
@@ -37,7 +37,7 @@ public class WorldContactListenerImpl implements WorldContactListener {
                 !contact.mask1stEntity().equals(contact.mask2ndEntity())) {
             contact.mask1stBody().setIs(TOUCHING_HITBOX_RIGHT);
         } else if (contact.acceptMask(FEET, BLOCK)) {
-            IEntity entity = contact.mask1stEntity();
+            Entity entity = contact.mask1stEntity();
             entity.getComponent(BodyComponent.class).setIs(FEET_ON_GROUND);
             if (entity instanceof Megaman megaman) {
                 megaman.setAButtonTask(AButtonTask._JUMP);
@@ -73,7 +73,7 @@ public class WorldContactListenerImpl implements WorldContactListener {
                 !contact.mask1stEntity().equals(contact.mask2ndEntity())) {
             contact.mask1stBody().setIs(TOUCHING_HITBOX_RIGHT);
         } else if (contact.acceptMask(FEET, BLOCK)) {
-            IEntity entity = contact.mask1stEntity();
+            Entity entity = contact.mask1stEntity();
             entity.getComponent(BodyComponent.class).setIs(FEET_ON_GROUND);
             if (entity instanceof Megaman megaman) {
                 megaman.setAButtonTask(_JUMP);

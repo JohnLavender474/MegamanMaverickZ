@@ -3,7 +3,7 @@ package com.game.entities.blocks;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.Entity;
+import com.game.core.Entity;
 import com.game.entities.decorations.DecorativeSprite;
 import com.game.graph.GraphComponent;
 import com.game.world.BodyComponent;
@@ -13,7 +13,7 @@ import com.game.world.Fixture;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.game.ConstVals.ViewVals.PPM;
+import static com.game.core.ConstVals.ViewVals.PPM;
 import static com.game.utils.UtilMethods.centerPoint;
 import static com.game.world.FixtureType.*;
 

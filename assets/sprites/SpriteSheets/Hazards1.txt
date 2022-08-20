@@ -1,0 +1,61 @@
+Hazards1.png
+size: 1024, 1405
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Axe
+  rotate: false
+  xy: 0, 0
+  size: 388, 578
+  orig: 388, 578
+  offset: 0, 0
+  index: -1
+FireColumn
+  rotate: false
+  xy: 388, 0
+  size: 350, 312
+  orig: 350, 312
+  offset: 0, 0
+  index: -1
+Mace
+  rotate: false
+  xy: 738, 0
+  size: 250, 381
+  orig: 250, 381
+  offset: 0, 0
+  index: -1
+RedBouncer
+  rotate: false
+  xy: 0, 578
+  size: 1024, 189
+  orig: 1024, 189
+  offset: 0, 0
+  index: -1
+Saw
+  rotate: false
+  xy: 0, 767
+  size: 1024, 509
+  orig: 1024, 509
+  offset: 0, 0
+  index: -1
+Spike1
+  rotate: false
+  xy: 0, 1276
+  size: 100, 99
+  orig: 100, 99
+  offset: 0, 0
+  index: -1
+Spike2
+  rotate: false
+  xy: 100, 1276
+  size: 131, 128
+  orig: 131, 128
+  offset: 0, 0
+  index: -1
+Spike3
+  rotate: false
+  xy: 231, 1276
+  size: 122, 129
+  orig: 122, 129
+  offset: 0, 0
+  index: -1

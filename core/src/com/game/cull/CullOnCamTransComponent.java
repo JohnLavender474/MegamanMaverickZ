@@ -1,5 +1,5 @@
 package com.game.cull;
 
-import com.game.Component;
+import com.game.core.Component;
 
-public class CullOnCamTransComponent implements Component {}
+public class CullOnCamTransComponent extends Component {}

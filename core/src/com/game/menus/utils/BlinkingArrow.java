@@ -10,8 +10,8 @@ import com.game.utils.interfaces.Drawable;
 import com.game.utils.objects.Timer;
 import lombok.Getter;
 
-import static com.game.ConstVals.TextureAsset.*;
-import static com.game.ConstVals.ViewVals.PPM;
+import static com.game.core.ConstVals.TextureAsset.*;
+import static com.game.core.ConstVals.ViewVals.PPM;
 import static com.game.utils.UtilMethods.drawFiltered;
 
 @Getter

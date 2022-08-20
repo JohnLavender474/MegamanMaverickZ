@@ -3,7 +3,7 @@ package com.game.entities.enemies;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
-import com.game.GameContext2d;
+import com.game.core.GameContext2d;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimeMarkedRunnable;
 import com.game.animations.TimedAnimation;
@@ -28,9 +28,9 @@ import lombok.Setter;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import static com.game.ConstVals.TextureAsset.ENEMIES_TEXTURE_ATLAS;
-import static com.game.ConstVals.ViewVals.PPM;
-import static com.game.ConstVals.SoundAsset.*;
+import static com.game.core.ConstVals.TextureAsset.ENEMIES_TEXTURE_ATLAS;
+import static com.game.core.ConstVals.ViewVals.PPM;
+import static com.game.core.ConstVals.SoundAsset.*;
 import static com.game.entities.contracts.Facing.*;
 import static com.game.utils.UtilMethods.setBottomCenterToPoint;
 import static com.game.world.BodyType.*;
@@ -134,7 +134,7 @@ public class SniperJoe extends AbstractEnemy implements Faceable {
         // shield
         Fixture shield = new Fixture(this, SHIELD);
         shield.putUserData("reflectDir", "straight");
-        shield.setSize(.15f * PPM, .85f * PPM);
+        shield.setSize(.35f * PPM, .85f * PPM);
         bodyComponent.addFixture(shield);
         // body pre-process
         bodyComponent.setPreProcess(delta -> {

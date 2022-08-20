@@ -3,8 +3,8 @@ package com.game.entities.decorations;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
-import com.game.Entity;
-import com.game.GameContext2d;
+import com.game.core.Entity;
+import com.game.core.GameContext2d;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
 import com.game.cull.CullOnCamTransComponent;
@@ -14,8 +14,8 @@ import com.game.updatables.UpdatableComponent;
 import com.game.utils.objects.Timer;
 import lombok.Getter;
 
-import static com.game.ConstVals.TextureAsset.DECORATIONS_TEXTURE_ATLAS;
-import static com.game.ConstVals.ViewVals.PPM;
+import static com.game.core.ConstVals.TextureAsset.DECORATIONS_TEXTURE_ATLAS;
+import static com.game.core.ConstVals.ViewVals.PPM;
 
 @Getter
 public class ExplosionOrb extends Entity {

@@ -1,7 +1,5 @@
 package com.game.core;
 
-import com.game.System;
-
 import java.util.Collection;
 
 public interface IEntitiesAndSystemsManager {
@@ -37,19 +35,19 @@ public interface IEntitiesAndSystemsManager {
     void updateSystems(float delta);
 
     /**
-     * Add {@link IEntity}. To remove the entity, {@link IEntity#isDead()} ishould be set to true.
+     * Add {@link Entity}. To remove the entity, {@link Entity#isDead()} ishould be set to true.
      * The entity should be purged from all {@link System} instances on the following update cycle.
      *
      * @param entity the entity to be added
      */
-    void addEntity(IEntity entity);
+    void addEntity(Entity entity);
 
     /**
-     * Adds each entity. See {@link #addEntity(IEntity)}.
+     * Adds each entity. See {@link #addEntity(Entity)}.
      *
      * @param entities the entities to be added
      */
-    default void addEntities(Collection<? extends IEntity> entities) {
+    default void addEntities(Collection<? extends Entity> entities) {
         entities.forEach(this::addEntity);
     }
 
@@ -58,7 +56,7 @@ public interface IEntitiesAndSystemsManager {
      *
      * @return the collection
      */
-    Collection<IEntity> getEntities();
+    Collection<Entity> getEntities();
 
     /**
      * Should be called when leaving a level screen and all entities need to be disposed of.

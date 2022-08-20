@@ -1,14 +1,14 @@
 package com.game.cull;
 
 import com.badlogic.gdx.math.Rectangle;
-import com.game.Component;
+import com.game.core.Component;
 import com.game.utils.objects.Timer;
 import lombok.Getter;
 
 import java.util.function.Supplier;
 
 @Getter
-public class CullOutOfCamBoundsComponent implements Component {
+public class CullOutOfCamBoundsComponent extends Component {
 
     private final Timer cullTimer;
     private final Supplier<Rectangle> boundsSupplier;

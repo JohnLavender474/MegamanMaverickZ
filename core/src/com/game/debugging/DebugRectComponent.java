@@ -2,7 +2,7 @@ package com.game.debugging;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Rectangle;
-import com.game.Component;
+import com.game.core.Component;
 import com.game.utils.objects.KeyValuePair;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +17,7 @@ import java.util.function.Supplier;
  */
 @Getter
 @NoArgsConstructor
-public class DebugRectComponent implements Component {
+public class DebugRectComponent extends Component {
 
     private final List<KeyValuePair<Supplier<Rectangle>, Supplier<Color>>> debugHandles = new ArrayList<>();
 

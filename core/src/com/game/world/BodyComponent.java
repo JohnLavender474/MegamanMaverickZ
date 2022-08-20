@@ -2,7 +2,7 @@ package com.game.world;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.Component;
+import com.game.core.Component;
 import com.game.updatables.Updatable;
 import com.game.utils.enums.Direction;
 import com.game.utils.UtilMethods;
@@ -18,7 +18,7 @@ import static java.util.stream.Collectors.toList;
  */
 @Getter
 @Setter
-public class BodyComponent implements Component {
+public class BodyComponent extends Component {
 
     private final Vector2 friction = new Vector2();
     private final Vector2 velocity = new Vector2();

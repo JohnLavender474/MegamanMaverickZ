@@ -3,7 +3,7 @@ package com.game.world;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.core.IEntity;
+import com.game.core.Entity;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -21,7 +21,7 @@ import static com.badlogic.gdx.graphics.Color.*;
 @RequiredArgsConstructor
 public class Fixture {
 
-    private final IEntity entity;
+    private final Entity entity;
     private final FixtureType fixtureType;
 
     private final Vector2 offset = new Vector2();

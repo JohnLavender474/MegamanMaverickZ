@@ -1,16 +1,13 @@
 package com.game.spawns;
 
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
-import com.game.Entity;
-import com.game.GameContext2d;
-import com.game.core.IEntity;
+import com.game.core.Entity;
+import com.game.core.GameContext2d;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static com.game.utils.UtilMethods.rectToBBox;
@@ -20,10 +17,10 @@ import static com.game.utils.UtilMethods.rectToBBox;
 public class Spawn {
 
     private final GameContext2d gameContext;
-    private final Supplier<IEntity> spawnSupplier;
+    private final Supplier<Entity> spawnSupplier;
     private final Rectangle spawnBounds;
 
-    private IEntity entity;
+    private Entity entity;
     private boolean inCamBounds;
     private boolean wasInCamBounds;
 
@@ -48,10 +45,6 @@ public class Spawn {
         }
         entity.setDead(true);
         entity = null;
-    }
-
-    public void resetCamBounds() {
-        inCamBounds = wasInCamBounds = false;
     }
 
 }

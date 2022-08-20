@@ -1,74 +1,74 @@
 Backgrounds1.png
-size: 1964, 834
+size: 1024, 1856
 format: RGBA8888
-filter: Linear,Linear
+filter: Nearest,Nearest
 repeat: none
 BKG01
   rotate: false
-  xy: 1, 1
+  xy: 0, 0
   size: 416, 832
   orig: 416, 832
   offset: 0, 0
   index: -1
 BKG02
   rotate: false
-  xy: 419, 1
+  xy: 416, 0
   size: 256, 512
   orig: 256, 512
   offset: 0, 0
   index: -1
 BKG03
-  rotate: true
-  xy: 419, 515
+  rotate: false
+  xy: 672, 0
   size: 256, 512
   orig: 256, 512
   offset: 0, 0
   index: -1
 BKG04
   rotate: false
-  xy: 677, 1
+  xy: 0, 832
   size: 256, 512
   orig: 256, 512
   offset: 0, 0
   index: -1
 BKG05
-  rotate: true
-  xy: 933, 515
+  rotate: false
+  xy: 256, 832
   size: 256, 512
   orig: 256, 512
   offset: 0, 0
   index: -1
 BKG06
   rotate: false
-  xy: 935, 1
+  xy: 512, 832
   size: 256, 512
   orig: 256, 512
   offset: 0, 0
   index: -1
 BKG07
   rotate: false
-  xy: 1193, 1
+  xy: 768, 832
   size: 256, 512
   orig: 256, 512
   offset: 0, 0
   index: -1
 BKG08
-  rotate: true
-  xy: 1451, 1
+  rotate: false
+  xy: 0, 1344
   size: 256, 512
   orig: 256, 512
   offset: 0, 0
   index: -1
 BKG09
-  rotate: true
-  xy: 1451, 259
+  rotate: false
+  xy: 256, 1344
   size: 256, 512
   orig: 256, 512
   offset: 0, 0
   index: -1
 BKG10
-  rotate: true
-  xy: 1447, 517
+  rotate: false
+  xy: 512, 1344
   size: 256, 512
   orig: 256, 512
   offset: 0, 0

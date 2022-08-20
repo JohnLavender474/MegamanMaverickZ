@@ -2,9 +2,8 @@ package com.game.spawns;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.Rectangle;
-import com.game.Entity;
-import com.game.GameContext2d;
-import com.game.core.IEntity;
+import com.game.core.Entity;
+import com.game.core.GameContext2d;
 import com.game.updatables.UpdatableComponent;
 import com.game.utils.objects.Timer;
 
@@ -16,8 +15,8 @@ import static com.game.utils.UtilMethods.rectToBBox;
 
 public class SpawnLocation extends Entity {
 
-    private final List<IEntity> entities = new ArrayList<>();
-    private final Supplier<IEntity> entitySupplier;
+    private final List<Entity> entities = new ArrayList<>();
+    private final Supplier<Entity> entitySupplier;
     private final GameContext2d gameContext;
     private final Rectangle bounds;
     private final Camera camera;
@@ -25,7 +24,7 @@ public class SpawnLocation extends Entity {
     private final int max;
 
     public SpawnLocation(GameContext2d gameContext, Camera camera, Rectangle bounds,
-                         int max, float duration, Supplier<IEntity> entitySupplier) {
+                         int max, float duration, Supplier<Entity> entitySupplier) {
         this.entitySupplier = entitySupplier;
         this.timer = new Timer(duration);
         this.gameContext = gameContext;
@@ -37,7 +36,7 @@ public class SpawnLocation extends Entity {
 
     private UpdatableComponent defineUpdatableComponent() {
         return new UpdatableComponent(delta -> {
-            entities.removeIf(IEntity::isDead);
+            entities.removeIf(Entity::isDead);
             boolean isInCamBounds = camera.frustum.boundsInFrustum(rectToBBox(bounds));
             if (!isInCamBounds || entities.size() >= max) {
                 timer.reset();
@@ -45,7 +44,7 @@ public class SpawnLocation extends Entity {
             }
             timer.update(delta);
             if (timer.isFinished()) {
-                IEntity entity = entitySupplier.get();
+                Entity entity = entitySupplier.get();
                 gameContext.addEntity(entity);
                 entities.add(entity);
                 timer.reset();

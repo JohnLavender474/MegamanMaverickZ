@@ -1,16 +1,15 @@
 package com.game.sounds;
 
-import com.game.Component;
-import com.game.ConstVals;
+import com.game.core.Component;
 import lombok.AccessLevel;
 import lombok.Getter;
 
 import java.util.*;
 
-import static com.game.ConstVals.*;
+import static com.game.core.ConstVals.*;
 
 @Getter(AccessLevel.PACKAGE)
-public class SoundComponent implements Component {
+public class SoundComponent extends Component {
 
     private final Queue<SoundRequest> soundRequests = new LinkedList<>();
     private final Queue<SoundAsset> stopLoopingSoundRequests = new LinkedList<>();

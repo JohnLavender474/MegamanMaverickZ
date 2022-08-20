@@ -1,6 +1,6 @@
 package com.game.weapons;
 
-import com.game.core.IEntity;
+import com.game.core.Entity;
 import com.game.utils.objects.Percentage;
 import com.game.utils.objects.Timer;
 import lombok.Getter;
@@ -11,19 +11,19 @@ import java.util.function.Supplier;
 @Getter
 public class WeaponDef {
 
-    private final Supplier<Collection<IEntity>> weaponsSupplier;
+    private final Supplier<Collection<Entity>> weaponsSupplier;
     private final Percentage percentage = Percentage.of(100);
     private final Timer shootCooldownTimer;
     private final Runnable runOnShoot;
 
-    public WeaponDef(Supplier<Collection<IEntity>> weaponsSupplier, float shootCooldown, Runnable runOnShoot) {
+    public WeaponDef(Supplier<Collection<Entity>> weaponsSupplier, float shootCooldown, Runnable runOnShoot) {
         this.runOnShoot = runOnShoot;
         this.weaponsSupplier = weaponsSupplier;
         this.shootCooldownTimer = new Timer(shootCooldown);
         this.shootCooldownTimer.setToEnd();
     }
 
-    public WeaponDef(Supplier<Collection<IEntity>> weaponsSupplier, float shootCooldown) {
+    public WeaponDef(Supplier<Collection<Entity>> weaponsSupplier, float shootCooldown) {
         this(weaponsSupplier, shootCooldown, () -> {});
     }
 
@@ -31,7 +31,7 @@ public class WeaponDef {
         runOnShoot.run();
     }
 
-    public Collection<IEntity> getWeaponsInstances() {
+    public Collection<Entity> getWeaponsInstances() {
         return weaponsSupplier.get();
     }
 

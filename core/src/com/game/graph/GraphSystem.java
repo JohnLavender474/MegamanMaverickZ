@@ -1,7 +1,7 @@
 package com.game.graph;
 
-import com.game.System;
-import com.game.core.IEntity;
+import com.game.core.Entity;
+import com.game.core.System;
 import lombok.Setter;
 
 import java.util.List;
@@ -13,7 +13,7 @@ public class GraphSystem extends System {
     private Graph graph;
 
     public GraphSystem() {
-        super(Set.of(GraphComponent.class));
+        super(GraphComponent.class);
     }
 
     @Override
@@ -22,7 +22,7 @@ public class GraphSystem extends System {
     }
 
     @Override
-    protected void processEntity(IEntity entity, float delta) {
+    protected void processEntity(Entity entity, float delta) {
         GraphComponent graphComponent = entity.getComponent(GraphComponent.class);
         graphComponent.getSuppliers().forEach((boundsSupplier, objsSupplier) -> {
             List<Node> nodes = graph.getNodesOverlapping(boundsSupplier.get());

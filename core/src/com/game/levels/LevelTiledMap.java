@@ -28,6 +28,9 @@ import static com.badlogic.gdx.maps.tiled.TiledMapTileLayer.*;
  */
 public class LevelTiledMap implements Disposable {
 
+    private final OrthographicCamera camera;
+    private final SpriteBatch spriteBatch;
+
     private final Map<String, List<RectangleMapObject>> objects = new HashMap<>();
     private final CustomOrthoTiledMapRenderer tiledMapRenderer;
     private final TiledMap tiledMap;
@@ -37,7 +40,9 @@ public class LevelTiledMap implements Disposable {
      *
      * @param tmxFile the seed file
      */
-    public LevelTiledMap(String tmxFile) {
+    public LevelTiledMap(OrthographicCamera camera, SpriteBatch spriteBatch, String tmxFile) {
+        this.camera = camera;
+        this.spriteBatch = spriteBatch;
         tiledMap = new TmxMapLoader().load(tmxFile);
         tiledMapRenderer = new CustomOrthoTiledMapRenderer(tiledMap);
         tiledMap.getLayers().forEach(mapLayer -> {
@@ -81,11 +86,8 @@ public class LevelTiledMap implements Disposable {
 
     /**
      * Draws the tile layers of the tiled map using the provided camera and sprite batch.
-     *
-     * @param camera the camera
-     * @param spriteBatch the sprite batch
      */
-    public void draw(OrthographicCamera camera, SpriteBatch spriteBatch) {
+    public void draw() {
         tiledMapRenderer.render(camera, spriteBatch);
     }
 
@@ -121,6 +123,8 @@ public class LevelTiledMap implements Disposable {
 
         @Override
         protected void beginRender() {
+            AnimatedTiledMapTile.updateAnimationBaseTime();
+            /*
             map.getLayers().forEach(mapLayer -> {
                 if (mapLayer instanceof TiledMapTileLayer tiledMapTileLayer) {
                     for (int i = 0; i < tiledMapTileLayer.getWidth(); i++) {
@@ -146,7 +150,7 @@ public class LevelTiledMap implements Disposable {
                     }
                 }
             });
-            AnimatedTiledMapTile.updateAnimationBaseTime();
+             */
             isDrawing = batch.isDrawing();
             if (!isDrawing) {
                 batch.begin();

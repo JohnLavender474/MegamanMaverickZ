@@ -1,9 +1,8 @@
 package com.game.cull;
 
 import com.badlogic.gdx.graphics.Camera;
-import com.game.System;
-import com.game.core.IEntity;
-import com.game.utils.UtilMethods;
+import com.game.core.Entity;
+import com.game.core.System;
 
 import java.util.Set;
 
@@ -14,12 +13,12 @@ public class CullOnOutOfCamBoundsSystem extends System {
     private final Camera camera;
 
     public CullOnOutOfCamBoundsSystem(Camera camera) {
-        super(Set.of(CullOutOfCamBoundsComponent.class));
+        super(CullOutOfCamBoundsComponent.class);
         this.camera = camera;
     }
 
     @Override
-    protected void processEntity(IEntity entity, float delta) {
+    protected void processEntity(Entity entity, float delta) {
         CullOutOfCamBoundsComponent cullComponent = entity.getComponent(CullOutOfCamBoundsComponent.class);
         if (camera.frustum.boundsInFrustum(rectToBBox(cullComponent.getBounds()))) {
             cullComponent.resetCullTimer();

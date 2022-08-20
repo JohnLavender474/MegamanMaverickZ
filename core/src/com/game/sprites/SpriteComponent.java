@@ -1,7 +1,7 @@
 package com.game.sprites;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.game.Component;
+import com.game.core.Component;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SpriteComponent implements Component {
+public class SpriteComponent extends Component {
 
     private Sprite sprite = new Sprite();
     private SpriteAdapter spriteAdapter;

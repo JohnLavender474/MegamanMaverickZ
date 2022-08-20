@@ -3,8 +3,8 @@ package com.game.debugging;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
-import com.game.System;
-import com.game.core.IEntity;
+import com.game.core.Entity;
+import com.game.core.System;
 import com.game.utils.objects.FontHandle;
 
 import java.util.*;
@@ -17,7 +17,7 @@ public class DebugMessageSystem extends System {
 
     public DebugMessageSystem(Camera camera, SpriteBatch spriteBatch,
                               String fontSrc, int fontSize, Vector2... positions) {
-        super(Set.of(DebugMessageComponent.class));
+        super(DebugMessageComponent.class);
         this.camera = camera;
         this.spriteBatch = spriteBatch;
         for (Vector2 position : positions) {
@@ -26,7 +26,7 @@ public class DebugMessageSystem extends System {
     }
 
     @Override
-    protected void processEntity(IEntity entity, float delta) {
+    protected void processEntity(Entity entity, float delta) {
         DebugMessageComponent debugMessageComponent = entity.getComponent(DebugMessageComponent.class);
         Iterator<Map.Entry<Integer, String>> msgIter = debugMessageComponent.getDebugMessages().entrySet().iterator();
         while (msgIter.hasNext()) {

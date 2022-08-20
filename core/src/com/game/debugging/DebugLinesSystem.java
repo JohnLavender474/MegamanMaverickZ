@@ -3,8 +3,8 @@ package com.game.debugging;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
-import com.game.System;
-import com.game.core.IEntity;
+import com.game.core.Entity;
+import com.game.core.System;
 
 import java.util.List;
 import java.util.Set;
@@ -19,7 +19,7 @@ public class DebugLinesSystem extends System {
     private boolean isDrawing;
 
     public DebugLinesSystem(Camera camera, ShapeRenderer shapeRenderer) {
-        super(Set.of(DebugLinesComponent.class));
+        super(DebugLinesComponent.class);
         this.camera = camera;
         this.shapeRenderer = shapeRenderer;
     }
@@ -34,7 +34,7 @@ public class DebugLinesSystem extends System {
     }
 
     @Override
-    protected void processEntity(IEntity entity, float delta) {
+    protected void processEntity(Entity entity, float delta) {
         DebugLinesComponent debugLinesComponent = entity.getComponent(DebugLinesComponent.class);
         debugLinesComponent.getDebugLinesSupplierMap().forEach((pointsSupplier, colorSupplier) -> {
             List<Vector2> points = pointsSupplier.get();

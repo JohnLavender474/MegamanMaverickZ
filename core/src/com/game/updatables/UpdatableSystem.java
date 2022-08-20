@@ -1,7 +1,7 @@
 package com.game.updatables;
 
-import com.game.System;
-import com.game.core.IEntity;
+import com.game.core.Entity;
+import com.game.core.System;
 
 import java.util.Set;
 
@@ -11,11 +11,11 @@ import java.util.Set;
 public class UpdatableSystem extends System {
 
     public UpdatableSystem() {
-        super(Set.of(UpdatableComponent.class));
+        super(UpdatableComponent.class);
     }
 
     @Override
-    protected void processEntity(IEntity entity, float delta) {
+    protected void processEntity(Entity entity, float delta) {
         entity.getComponent(UpdatableComponent.class).getUpdatables().forEach((updatable, doUpdate) -> {
             if (doUpdate.get()) {
                 updatable.update(delta);

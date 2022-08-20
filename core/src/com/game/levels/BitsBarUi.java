@@ -1,14 +1,12 @@
 package com.game.levels;
 
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.ConstVals;
-import com.game.GameContext2d;
+import com.game.core.GameContext2d;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
@@ -16,7 +14,7 @@ import java.util.function.Supplier;
 
 import static com.badlogic.gdx.graphics.Color.*;
 import static com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.*;
-import static com.game.ConstVals.RenderingGround.*;
+import static com.game.core.ConstVals.RenderingGround.*;
 
 /**
  * Container class for ui gameplay bits bar for health or weapon energy.

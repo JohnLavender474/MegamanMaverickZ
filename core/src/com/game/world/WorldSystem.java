@@ -3,8 +3,8 @@ package com.game.world;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.System;
-import com.game.core.IEntity;
+import com.game.core.Entity;
+import com.game.core.System;
 import com.game.updatables.Updatable;
 
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ public class WorldSystem extends System {
     private float accumulator;
 
     public WorldSystem(WorldContactListener worldContactListener, Vector2 airResistance, float fixedTimeStep) {
-        super(Set.of(BodyComponent.class));
+        super(BodyComponent.class);
         this.airResistance = airResistance;
         this.fixedTimeStep = fixedTimeStep;
         this.worldContactListener = worldContactListener;
@@ -44,7 +44,7 @@ public class WorldSystem extends System {
     }
 
     @Override
-    protected void processEntity(IEntity entity, float delta) {
+    protected void processEntity(Entity entity, float delta) {
         BodyComponent bodyComponent = entity.getComponent(BodyComponent.class);
         bodies.add(bodyComponent);
         bodyComponent.setPriorCollisionBoxToCurrent();
@@ -62,7 +62,12 @@ public class WorldSystem extends System {
         while (accumulator >= fixedTimeStep) {
             accumulator -= fixedTimeStep;
             bodies.forEach(bodyComponent -> {
-                roundedVector2(bodyComponent.getVelocity(), 3);
+                if (abs(bodyComponent.getVelocity().x) < .25f) {
+                    bodyComponent.getVelocity().x = 0f;
+                }
+                if (abs(bodyComponent.getVelocity().y) < .25f) {
+                    bodyComponent.getVelocity().y = 0f;
+                }
                 // Apply resistance
                 if (bodyComponent.isAffectedByResistance()) {
                     bodyComponent.getVelocity().x /= max(1f, bodyComponent.getResistance().x);

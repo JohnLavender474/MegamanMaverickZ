@@ -4,13 +4,14 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.game.ConstVals.RenderingGround;
-import com.game.GameContext2d;
+import com.game.core.ConstVals.RenderingGround;
+import com.game.core.GameContext2d;
+import com.game.utils.enums.Direction;
 import lombok.Getter;
 
 import java.util.Map;
 
-import static com.game.ConstVals.ViewVals.*;
+import static com.game.core.ConstVals.ViewVals.*;
 import static com.game.controllers.ControllerButton.*;
 import static com.game.utils.enums.Direction.*;
 
@@ -26,25 +27,37 @@ public abstract class MenuScreen extends ScreenAdapter {
 
     private final Map<String, MenuButton> menuButtons;
 
+    private String firstButtonKey;
     @Getter
     private String currentMenuButtonKey;
     @Getter
     private boolean selectionMade;
 
+    /**
+     * See {@link #MenuScreen(GameContext2d, String, String)}. Music is set to null.
+     *
+     * @param gameContext the {@link GameContext2d}
+     * @param firstButtonKey the button that is highlighted on showing the screen
+     */
+    public MenuScreen(GameContext2d gameContext, String firstButtonKey) {
+        this(gameContext, firstButtonKey, null);
+    }
 
     /**
      * Instantiates a new Menu Screen. The first button is set and music begins playing on showing.
      *
      * @param gameContext the {@link GameContext2d}
-     * @param firstButton the button that is highlighted on showing the screen
+     * @param firstButtonKey the button that is highlighted on showing the screen
      * @param musicSrc the music source
      */
-    public MenuScreen(GameContext2d gameContext, String firstButton, String musicSrc) {
+    public MenuScreen(GameContext2d gameContext, String firstButtonKey, String musicSrc) {
         this.gameContext = gameContext;
         this.menuButtons = defineMenuButtons();
-        this.music = gameContext.getAsset(musicSrc, Music.class);
         this.uiViewport = gameContext.getViewport(RenderingGround.UI);
-        setMenuButton(firstButton);
+        this.currentMenuButtonKey = this.firstButtonKey = firstButtonKey;
+        if (musicSrc != null) {
+            this.music = gameContext.getAsset(musicSrc, Music.class);
+        }
     }
 
     /**
@@ -57,7 +70,7 @@ public abstract class MenuScreen extends ScreenAdapter {
     /**
      * Called when the cursor has been moved. Optional method.
      */
-    protected void onAnyMovement() {}
+    protected void onAnyMovement(Direction direction) {}
 
     /**
      * Called when any selection has been made. Optional method.
@@ -75,8 +88,12 @@ public abstract class MenuScreen extends ScreenAdapter {
 
     @Override
     public void show() {
-        music.play();
-        music.setLooping(true);
+        setMenuButton(firstButtonKey);
+        selectionMade = false;
+        if (music != null) {
+            music.play();
+            music.setLooping(true);
+        }
         gameContext.setDoUpdateController(true);
         Vector3 camPos = uiViewport.getCamera().position;
         camPos.x = (VIEW_WIDTH * PPM) / 2f;
@@ -92,16 +109,16 @@ public abstract class MenuScreen extends ScreenAdapter {
         MenuButton menuButton = menuButtons.get(currentMenuButtonKey);
         if (menuButton != null) {
             if (gameContext.isJustPressed(DPAD_UP)) {
-                onAnyMovement();
+                onAnyMovement(DIR_UP);
                 menuButton.onNavigate(DIR_UP, delta);
             } else if (gameContext.isJustPressed(DPAD_DOWN)) {
-                onAnyMovement();
+                onAnyMovement(DIR_DOWN);
                 menuButton.onNavigate(DIR_DOWN, delta);
             } else if (gameContext.isJustPressed(DPAD_LEFT)) {
-                onAnyMovement();
+                onAnyMovement(DIR_LEFT);
                 menuButton.onNavigate(DIR_LEFT, delta);
             } else if (gameContext.isJustPressed(DPAD_RIGHT)) {
-                onAnyMovement();
+                onAnyMovement(DIR_RIGHT);
                 menuButton.onNavigate(DIR_RIGHT, delta);
             }
             if (gameContext.isJustPressed(X) || gameContext.isJustPressed(A) || gameContext.isJustPressed(START)) {
@@ -113,8 +130,10 @@ public abstract class MenuScreen extends ScreenAdapter {
 
     @Override
     public void dispose() {
-        music.setLooping(false);
-        music.stop();
+        if (music != null) {
+            music.setLooping(false);
+            music.stop();
+        }
     }
 
 }

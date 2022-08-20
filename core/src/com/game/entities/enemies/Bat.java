@@ -5,12 +5,13 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.GameContext2d;
+import com.game.core.GameContext2d;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
 import com.game.damage.DamageNegotiation;
 import com.game.damage.Damager;
 import com.game.debugging.DebugLinesComponent;
+import com.game.debugging.DebugMessageComponent;
 import com.game.debugging.DebugRectComponent;
 import com.game.entities.blocks.Block;
 import com.game.entities.contracts.Hitter;
@@ -38,8 +39,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.badlogic.gdx.math.MathUtils.*;
-import static com.game.ConstVals.TextureAsset.*;
-import static com.game.ConstVals.ViewVals.PPM;
+import static com.game.core.ConstVals.TextureAsset.*;
+import static com.game.core.ConstVals.ViewVals.PPM;
 import static com.game.entities.enemies.Bat.BatStatus.*;
 import static com.game.utils.UtilMethods.*;
 import static com.game.utils.UtilMethods.centerPoint;
@@ -79,6 +80,7 @@ public class Bat extends AbstractEnemy implements Hitter {
         addComponent(defineAnimationComponent());
         addComponent(defineUpdatableComponent());
         addComponent(defineDebugRectComponent());
+        addComponent(new DebugMessageComponent());
         addComponent(defineDebugLinesComponent());
         addComponent(definePathfindingComponent());
     }
@@ -90,11 +92,6 @@ public class Bat extends AbstractEnemy implements Hitter {
                 Fireball.class, new DamageNegotiation(30),
                 ChargedShot.class, new DamageNegotiation(30),
                 ChargedShotDisintegration.class, new DamageNegotiation(30));
-    }
-
-    @Override
-    public void onDeath() {
-
     }
 
     @Override
@@ -131,6 +128,11 @@ public class Bat extends AbstractEnemy implements Hitter {
                 if (getCurrentStatus().equals(FLYING_TO_RETREAT) && bodyComponent.is(HEAD_TOUCHING_BLOCK)) {
                     setCurrentStatus(HANGING);
                 }
+                // debug message
+                DebugMessageComponent debugMessageComponent = getComponent(DebugMessageComponent.class);
+                debugMessageComponent.debugMessage(1, "Megaman: " + getMegaman().getFocus());
+                debugMessageComponent.debugMessage(2, "Behavior: " + getCurrentStatus());
+                debugMessageComponent.debugMessage(3, "Trajectory: " + trajectory);
             }
         });
     }

@@ -17,14 +17,15 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.game.ConstVals.GameScreen;
-import com.game.ConstVals.RenderingGround;
+import com.game.core.*;
+import com.game.core.ConstVals.GameScreen;
+import com.game.core.ConstVals.RenderingGround;
 import com.game.animations.AnimationSystem;
 import com.game.behaviors.BehaviorSystem;
 import com.game.controllers.ButtonStatus;
 import com.game.controllers.ControllerButton;
 import com.game.controllers.ControllerSystem;
-import com.game.core.IEntity;
+import com.game.core.System;
 import com.game.cull.CullOnCamTransSystem;
 import com.game.cull.CullOnOutOfCamBoundsSystem;
 import com.game.debugging.DebugLinesSystem;
@@ -35,10 +36,15 @@ import com.game.health.HealthSystem;
 import com.game.levels.LevelScreen;
 import com.game.menus.impl.BossSelectScreen;
 import com.game.menus.impl.MainMenuScreen;
+import com.game.menus.impl.PauseMenuScreen;
+import com.game.messages.Message;
+import com.game.messages.MessageListener;
+import com.game.movement.PendulumSystem;
+import com.game.movement.RotatingLineSystem;
 import com.game.pathfinding.PathfindingSystem;
 import com.game.sounds.SoundSystem;
 import com.game.sprites.SpriteSystem;
-import com.game.trajectories.TrajectorySystem;
+import com.game.movement.TrajectorySystem;
 import com.game.updatables.UpdatableSystem;
 import com.game.utils.objects.KeyValuePair;
 import com.game.world.WorldContactListenerImpl;
@@ -47,20 +53,24 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.*;
-import java.util.function.Supplier;
 
 import static com.badlogic.gdx.Gdx.*;
-import static com.game.ConstVals.*;
-import static com.game.ConstVals.GameScreen.*;
-import static com.game.ConstVals.MegamanVals.*;
-import static com.game.ConstVals.MusicAsset.*;
-import static com.game.ConstVals.RenderingGround.PLAYGROUND;
-import static com.game.ConstVals.RenderingGround.UI;
-import static com.game.ConstVals.ViewVals.*;
-import static com.game.ConstVals.WorldVals.*;
+import static com.game.core.ConstVals.*;
+import static com.game.core.ConstVals.Events.LEVEL_PAUSED;
+import static com.game.core.ConstVals.Events.LEVEL_UNPAUSED;
+import static com.game.core.ConstVals.GameScreen.*;
+import static com.game.core.ConstVals.LevelStatus.*;
+import static com.game.core.ConstVals.MegamanVals.*;
+import static com.game.core.ConstVals.MusicAsset.*;
+import static com.game.core.ConstVals.RenderingGround.PLAYGROUND;
+import static com.game.core.ConstVals.RenderingGround.UI;
+import static com.game.core.ConstVals.ViewVals.*;
+import static com.game.core.ConstVals.WorldVals.*;
 import static com.game.controllers.ButtonStatus.*;
 import static com.game.controllers.ControllerUtils.*;
+import static com.game.core.DebugLogger.DebugLevel.*;
 import static com.game.utils.UtilMethods.*;
+import static com.game.utils.objects.FontHandle.*;
 
 /**
  * The entry point into the Megaman game. Initializes all assets and classes that need to be initialized before gameplay
@@ -68,31 +78,41 @@ import static com.game.utils.UtilMethods.*;
  * {@link com.badlogic.gdx.Screen#render(float)} on {@link #getScreen()} every frame.
  */
 @Getter
-public class MegamanMaverick extends Game implements GameContext2d {
+public class MegamanMaverick extends Game implements GameContext2d, MessageListener {
 
     private final Map<ControllerButton, ButtonStatus> controllerButtons = new EnumMap<>(ControllerButton.class);
     private final Map<RenderingGround, Viewport> viewports = new EnumMap<>(RenderingGround.class);
-    private final Map<GameScreen, Supplier<Screen>> screens = new EnumMap<>(GameScreen.class);
     private final Queue<KeyValuePair<Rectangle, Color>> debugQueue = new ArrayDeque<>();
     private final Map<Class<? extends System>, System> systems = new LinkedHashMap<>();
+    private final Map<GameScreen, Screen> screens = new EnumMap<>(GameScreen.class);
     private final Set<MessageListener> messageListeners = new HashSet<>();
     private final Queue<Message> messageQueue = new ArrayDeque<>();
     private final List<Disposable> disposables = new ArrayList<>();
     private final Map<String, Object> blackBoard = new HashMap<>();
     private final List<Runnable> runOnShutdown = new ArrayList<>();
-    private final Set<IEntity> entities = new HashSet<>();
+    private final Set<Entity> entities = new HashSet<>();
+
+    private GameScreen currentScreenKey;
     private ShapeRenderer shapeRenderer;
     private AssetManager assetManager;
     private SpriteBatch spriteBatch;
 
+    private Screen overlayScreen;
+    private GameScreen overlayScreenKey;
+
+    @Setter
+    private LevelStatus levelStatus = LevelStatus.NONE;
     @Setter
     private boolean doUpdateController;
 
     @Override
     public void create() {
+        DebugLogger.getInstance().setDebugLevel(DEBUG);
         // viewports
         for (RenderingGround renderingGround : RenderingGround.values()) {
-            viewports.put(renderingGround, new FitViewport(VIEW_WIDTH * PPM, VIEW_HEIGHT * PPM));
+            Viewport viewport = new FitViewport(VIEW_WIDTH * PPM, VIEW_HEIGHT * PPM);
+            viewport.getCamera().position.set(VIEW_WIDTH * PPM / 2f, VIEW_HEIGHT * PPM / 2f, 0f);
+            viewports.put(renderingGround, viewport);
         }
         // controller buttons
         for (ControllerButton controllerButton : ControllerButton.values()) {
@@ -102,6 +122,7 @@ public class MegamanMaverick extends Game implements GameContext2d {
         shapeRenderer = new ShapeRenderer();
         assetManager = new AssetManager();
         spriteBatch = new SpriteBatch();
+        // disposables
         disposables.addAll(List.of(assetManager, spriteBatch, shapeRenderer));
         // assets
         for (MusicAsset musicAsset : MusicAsset.values()) {
@@ -122,6 +143,8 @@ public class MegamanMaverick extends Game implements GameContext2d {
         addSystem(new TrajectorySystem());
         addSystem(new WorldSystem(new WorldContactListenerImpl(), AIR_RESISTANCE, FIXED_TIME_STEP));
         addSystem(new PathfindingSystem(runOnShutdown));
+        addSystem(new RotatingLineSystem());
+        addSystem(new PendulumSystem());
         addSystem(new UpdatableSystem());
         addSystem(new BehaviorSystem());
         addSystem(new GraphSystem());
@@ -135,21 +158,23 @@ public class MegamanMaverick extends Game implements GameContext2d {
             debugMsgPosArray[i] = new Vector2(PPM, PPM + PPM * i);
         }
         addSystem(new DebugMessageSystem(viewports.get(UI).getCamera(), getSpriteBatch(),
-                "Megaman10Font.ttf", 5, debugMsgPosArray));
+                DEFAULT_TEXT, 8, debugMsgPosArray));
         // blackboard
         putBlackboardObject(MEGAMAN_GAME_INFO, new MegamanGameInfo());
+        // add this as message listener
+        addMessageListener(this);
         // define screens
-        screens.put(MAIN_MENU, () -> new MainMenuScreen(this));
-        screens.put(BOSS_SELECT, () -> new BossSelectScreen(this));
-        screens.put(TEST_LEVEL_1, () -> new LevelScreen(
+        screens.put(MAIN_MENU, new MainMenuScreen(this));
+        screens.put(BOSS_SELECT, new BossSelectScreen(this));
+        screens.put(PAUSE_MENU, new PauseMenuScreen(this));
+        screens.put(TEST_LEVEL_1, new LevelScreen(
                 this, "tiledmaps/tmx/test1.tmx", XENOBLADE_GAUR_PLAINS_MUSIC.getSrc()));
-        screens.put(TEST_LEVEL_2, () -> new LevelScreen(
+        screens.put(TEST_LEVEL_2, new LevelScreen(
                 this, "tiledmaps/tmx/test2.tmx", MMZ_NEO_ARCADIA_MUSIC.getSrc()));
-        screens.put(TIMBER_WOMAN, () -> new LevelScreen(
+        screens.put(TIMBER_WOMAN, new LevelScreen(
                 this, "tiledmaps/tmx/TimberWomanStage.tmx", XENOBLADE_GAUR_PLAINS_MUSIC.getSrc()));
         // set screen
         setScreen(MAIN_MENU);
-        // setScreen(TEST_LEVEL_1);
     }
 
     @Override
@@ -158,12 +183,22 @@ public class MegamanMaverick extends Game implements GameContext2d {
     }
 
     @Override
-    public void addEntity(IEntity entity) {
+    public void setSpriteBatchProjectionMatrix(RenderingGround renderingGround) {
+        getSpriteBatch().setProjectionMatrix(getViewport(renderingGround).getCamera().combined);
+    }
+
+    @Override
+    public void setShapeRendererProjectionMatrix(RenderingGround renderingGround) {
+        getShapeRenderer().setProjectionMatrix(getViewport(renderingGround).getCamera().combined);
+    }
+
+    @Override
+    public void addEntity(Entity entity) {
         entities.add(entity);
     }
 
     @Override
-    public Collection<IEntity> getEntities() {
+    public Collection<Entity> getEntities() {
         return Collections.unmodifiableCollection(entities);
     }
 
@@ -190,9 +225,9 @@ public class MegamanMaverick extends Game implements GameContext2d {
 
     @Override
     public void updateSystems(float delta) {
-        Iterator<IEntity> entityIterator = entities.iterator();
+        Iterator<Entity> entityIterator = entities.iterator();
         while (entityIterator.hasNext()) {
-            IEntity entity = entityIterator.next();
+            Entity entity = entityIterator.next();
             if (entity.isDead()) {
                 systems.values().forEach(system -> {
                     if (system.entityIsMember(entity)) {
@@ -230,8 +265,26 @@ public class MegamanMaverick extends Game implements GameContext2d {
     }
 
     @Override
+    public void putOverlayScreen(GameScreen overlayScreenKey) {
+        popOverlayScreen();
+        this.overlayScreenKey = overlayScreenKey;
+        overlayScreen = screens.get(overlayScreenKey);
+    }
+
+    @Override
+    public void popOverlayScreen() {
+        if (overlayScreen == null) {
+            return;
+        }
+        overlayScreen.dispose();
+        currentScreenKey = null;
+        overlayScreen = null;
+    }
+
+    @Override
     public void setScreen(GameScreen key) throws NoSuchElementException {
-        Screen screen = screens.get(key).get();
+        currentScreenKey = key;
+        Screen screen = screens.get(currentScreenKey);
         if (screen == null) {
             throw new NoSuchElementException("No screen found associated with key " + key);
         }
@@ -316,6 +369,15 @@ public class MegamanMaverick extends Game implements GameContext2d {
     }
 
     @Override
+    public void listenToMessage(Object owner, Object message, float delta) {
+        if (message.equals(LEVEL_PAUSED)) {
+            setLevelStatus(PAUSED);
+        } else if (message.equals(LEVEL_UNPAUSED)) {
+            setLevelStatus(UNPAUSED);
+        }
+    }
+
+    @Override
     public void render() {
         gl20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -327,6 +389,9 @@ public class MegamanMaverick extends Game implements GameContext2d {
         }
         updateMessageDispatcher(graphics.getDeltaTime());
         super.render();
+        if (overlayScreen != null) {
+            overlayScreen.render(graphics.getDeltaTime());
+        }
         viewports.values().forEach(Viewport::apply);
     }
 

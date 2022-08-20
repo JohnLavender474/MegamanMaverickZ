@@ -1,7 +1,7 @@
 package com.game.animations;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.game.Component;
+import com.game.core.Component;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -9,7 +9,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 @RequiredArgsConstructor
-public class AnimationComponent implements Component {
+public class AnimationComponent extends Component {
 
     private final Supplier<String> animationKeySupplier;
     private final Function<String, TimedAnimation> animationFunction;
@@ -35,7 +35,8 @@ public class AnimationComponent implements Component {
      */
     public void animate(Sprite sprite, float delta) {
         String priorAnimationKey = currentAnimationKey;
-        currentAnimationKey = animationKeySupplier.get();
+        String newAnimationKey = animationKeySupplier.get();
+        currentAnimationKey = newAnimationKey != null ? newAnimationKey : priorAnimationKey;
         TimedAnimation timedAnimation = animationFunction.apply(currentAnimationKey);
         if (timedAnimation == null) {
             return;
