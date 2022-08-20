@@ -78,7 +78,7 @@ import static com.game.utils.objects.FontHandle.*;
  * {@link com.badlogic.gdx.Screen#render(float)} on {@link #getScreen()} every frame.
  */
 @Getter
-public class MegamanMaverick extends Game implements GameContext2d, MessageListener {
+public class MegamanMaverickZ extends Game implements GameContext2d, MessageListener {
 
     private final Map<ControllerButton, ButtonStatus> controllerButtons = new EnumMap<>(ControllerButton.class);
     private final Map<RenderingGround, Viewport> viewports = new EnumMap<>(RenderingGround.class);
