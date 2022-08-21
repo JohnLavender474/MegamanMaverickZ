@@ -17,7 +17,7 @@ import com.game.updatables.Updatable;
 import com.game.utils.enums.Direction;
 import com.game.utils.enums.Position;
 import com.game.utils.interfaces.Drawable;
-import com.game.utils.objects.FontHandle;
+import com.game.core.FontHandle;
 import com.game.utils.objects.Timer;
 import lombok.Getter;
 import lombok.Setter;
@@ -85,7 +85,7 @@ public class BossSelectScreen extends MenuScreen {
                         String bossName, int x, int y) {
             this.bossName = bossName;
             this.bossAnimation = bossAnimation;
-            // set pane animations
+            // setBounds pane animations
             TextureAtlas decorationAtlas = assetLoader.getAsset(
                     STAGE_SELECT_TEXTURE_ATLAS.getSrc(), TextureAtlas.class);
             TextureRegion paneUnhighlighted = decorationAtlas.findRegion("Pane");
@@ -242,7 +242,7 @@ public class BossSelectScreen extends MenuScreen {
         introTimer.reset();
         outroTimer.reset();
         outro = false;
-        // set camera
+        // setBounds camera
         camera.position.x -= INTRO_BLOCKS_TRANS * PPM;
     }
 
@@ -303,7 +303,7 @@ public class BossSelectScreen extends MenuScreen {
         texts.forEach(text -> text.draw(spriteBatch));
         // end spritebatch
         spriteBatch.end();
-        // if outro is finished, set screen
+        // if outro is finished, setBounds screen
         if (outroTimer.isFinished()) {
             gameContext.setScreen(bossSelection.getGameScreen());
         }

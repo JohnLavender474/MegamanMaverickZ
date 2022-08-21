@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Defines an animation where each {@link TextureRegion} has a set duration. The constructors of this class are
+ * Defines an animation where each {@link TextureRegion} has a setBounds duration. The constructors of this class are
  * compatible only with {@link TextureRegion} instances consisting of one row. {@link #isLoop()} is true by default.
  */
 @Getter

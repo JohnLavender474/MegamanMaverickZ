@@ -3,26 +3,35 @@ package com.game.debugging;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 import com.game.core.Component;
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-@Getter
-@NoArgsConstructor
+import static com.badlogic.gdx.graphics.glutils.ShapeRenderer.*;
+
+@Setter
+@Getter(AccessLevel.PACKAGE)
 public class DebugLinesComponent extends Component {
 
-    Map<Supplier<List<Vector2>>, Supplier<Color>> debugLinesSupplierMap = new HashMap<>();
+    private Map<List<Vector2>, Supplier<Color>> debugLinesSupplierMap = new HashMap<>();
+    private ShapeType shapeType;
+    private float thickness;
 
-    public DebugLinesComponent(Supplier<List<Vector2>> linesSupplier, Supplier<Color> colorSupplier) {
-        addLinesToDebug(linesSupplier, colorSupplier);
+    public DebugLinesComponent(Vector2 v1, Vector2 v2, Supplier<Color> colorSupplier,
+                               float thickness, ShapeType shapeType) {
+        this(List.of(v1, v2), colorSupplier, thickness, shapeType);
     }
 
-    public void addLinesToDebug(Supplier<List<Vector2>> linesSupplier, Supplier<Color> colorSupplier) {
-        debugLinesSupplierMap.put(linesSupplier, colorSupplier);
+    public DebugLinesComponent(List<Vector2> lines, Supplier<Color> colorSupplier, float thickness,
+                               ShapeType shapeType) {
+        this.debugLinesSupplierMap.put(lines, colorSupplier);
+        this.thickness = thickness;
+        this.shapeType = shapeType;
     }
 
 }

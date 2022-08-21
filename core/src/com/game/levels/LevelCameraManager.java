@@ -111,10 +111,10 @@ public class LevelCameraManager implements Updatable {
         case 1: if current game room is null, try to find next game room and assign it to current game room,
         wait until next update cycle to attempt another action
 
-        case 2: if current game room contains focusable, then set camera position to getCurrentFocus and
+        case 2: if current game room contains focusable, then setBounds camera position to getCurrentFocus and
         correct bounds if applicable
 
-        case 3: if current game room is not null and doesn't contain focusable, then set next game room,
+        case 3: if current game room is not null and doesn't contain focusable, then setBounds next game room,
         and if next game room is a neighbour, then init transition process, otherwise jump directly to
         focusable on next update cycle
         */
@@ -144,13 +144,13 @@ public class LevelCameraManager implements Updatable {
             Rectangle overlap = new Rectangle();
             Rectangle boundingBox = new Rectangle(0f, 0f, 5f * PPM, 5f * PPM).setCenter(focusable.getFocus());
             transitionDirection = getOverlapPushDirection(boundingBox, currentGameRoom, overlap);
-            // go ahead and set current game room to next room, which needs to be done even if
+            // go ahead and setBounds current game room to next room, which needs to be done even if
             // transition direction is null
             currentGameRoom = nextGameRoom;
             if (transitionDirection == null) {
                 return;
             }
-            // set transition state to BEGIN, set start and target vector2 values
+            // setBounds transition state to BEGIN, setBounds start and target vector2 values
             transitionState = ProcessState.BEGIN;
             transStartPos.set(toVec2(camera.position));
             transTargetPos.set(toVec2(camera.position));
@@ -197,10 +197,10 @@ public class LevelCameraManager implements Updatable {
 
     private void setCamToFocusable(float delta) {
         Vector2 pos = focusable.getFocus();
-        // camera.position.x = pos.x;
-        // camera.position.y = pos.y;
-        camera.position.x = interpolate(camera.position.x, pos.x, INTERPOLATION_SCALAR * delta);
-        camera.position.y = interpolate(camera.position.y, pos.y, INTERPOLATION_SCALAR * delta);
+        camera.position.x = pos.x;
+        camera.position.y = pos.y;
+        // camera.position.x = interpolate(camera.position.x, pos.x, INTERPOLATION_SCALAR * delta);
+        // camera.position.y = interpolate(camera.position.y, pos.y, INTERPOLATION_SCALAR * delta);
     }
 
 }

@@ -7,10 +7,12 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.game.core.ConstVals.ViewVals;
 import com.game.core.DebugLogger;
 import com.game.updatables.Updatable;
+import com.game.utils.UtilMethods;
 import com.game.utils.interfaces.Drawable;
 
 import static com.badlogic.gdx.graphics.Texture.TextureFilter.*;
 import static com.game.core.ConstVals.ViewVals.PPM;
+import static com.game.utils.UtilMethods.*;
 
 /**
  * Represents a grid of sprites to be used for repeating background images. Integer parameters are all scaled by
@@ -71,13 +73,11 @@ public class Background implements Updatable, Drawable {
         this.startX = startX;
         this.startY = startY;
         this.backgroundModel = new Sprite(textureRegion);
-        this.backgroundModel.setBounds(startX, startY, width * PPM, height * PPM);
+        this.backgroundModel.setBounds(startX, startY, width * PPM + 1f, height * PPM + 1f);
         this.backgroundSprites = new Sprite[rows][cols];
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
-                Sprite sprite = new Sprite(backgroundModel);
-                sprite.getTexture().setFilter(Nearest, Nearest);
-                backgroundSprites[i][j] = sprite;
+                backgroundSprites[i][j] = new Sprite(backgroundModel);
             }
         }
         resetPositions();

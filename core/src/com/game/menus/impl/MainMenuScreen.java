@@ -10,7 +10,7 @@ import com.game.menus.utils.BlinkingArrow;
 import com.game.menus.MenuButton;
 import com.game.menus.MenuScreen;
 import com.game.utils.enums.Direction;
-import com.game.utils.objects.FontHandle;
+import com.game.core.FontHandle;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 

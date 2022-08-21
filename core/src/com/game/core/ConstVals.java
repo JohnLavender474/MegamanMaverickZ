@@ -98,6 +98,7 @@ public class ConstVals {
     public enum TextureAsset {
 
         MET_TEXTURE_ATLAS("Met.txt"),
+        SAW_BEAM_ATLAS("SawBeam.txt"),
         FIRE_TEXTURE_ATLAS("Fire.txt"),
         ITEMS_TEXTURE_ATLAS("Items.txt"),
         COLORS_TEXTURE_ATLAS("Colors.txt"),

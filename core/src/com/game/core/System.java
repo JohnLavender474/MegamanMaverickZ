@@ -10,7 +10,7 @@ import java.util.*;
 import static com.game.utils.UtilMethods.objName;
 
 /**
- * The base class of game systems. Instances of this class perform game logic on a set of {@link Entity} instances.
+ * The base class of game systems. Instances of this class perform game logic on a setBounds of {@link Entity} instances.
  * Entities are eligible to be added to a System only if {@link Entity#hasAllComponents(Collection)} contains all the
  * elements of {@link #componentMask}. Because the behavior of systems is independent of game state, systems should
  * only be initialized once.
@@ -22,6 +22,7 @@ public abstract class System implements Updatable {
     private final Set<Class<? extends Component>> componentMask;
     private final Queue<Entity> entitiesToAddQueue = new LinkedList<>();
     private final Queue<Entity> entitiesToRemoveQueue = new LinkedList<>();
+
     @Setter
     @Getter
     private boolean isOn = true;
@@ -88,7 +89,7 @@ public abstract class System implements Updatable {
 
     /**
      * Returns if the {@link Entity} can be accepted as a member of this System by comparing {@link #componentMask}
-     * to {@link Entity#hasAllComponents(Collection)}. If the com.game.core.Entity's set of component keys contains all
+     * to {@link Entity#hasAllComponents(Collection)}. If the com.game.core.Entity's setBounds of component keys contains all
      * the component
      * classes contained in this System's component mask, then the com.game.core.Entity is accepted, otherwise the com
      * .game.Entity is rejected.

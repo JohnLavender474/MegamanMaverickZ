@@ -35,7 +35,7 @@ public interface IEntitiesAndSystemsManager {
     void updateSystems(float delta);
 
     /**
-     * Add {@link Entity}. To remove the entity, {@link Entity#isDead()} ishould be set to true.
+     * Add {@link Entity}. To remove the entity, {@link Entity#isDead()} ishould be setBounds to true.
      * The entity should be purged from all {@link System} instances on the following update cycle.
      *
      * @param entity the entity to be added

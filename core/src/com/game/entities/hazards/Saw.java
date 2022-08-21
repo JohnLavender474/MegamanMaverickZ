@@ -1,60 +1,112 @@
 package com.game.entities.hazards;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.maps.MapProperties;
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
+import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
-import com.game.core.ConstVals;
 import com.game.core.Entity;
 import com.game.core.GameContext2d;
 import com.game.core.IAssetLoader;
-import com.game.debugging.DebugRectComponent;
+import com.game.debugging.DebugLinesComponent;
+import com.game.debugging.DebugShapesComponent;
+import com.game.debugging.DebugShapesHandle;
+import com.game.movement.PendulumComponent;
+import com.game.movement.RotatingLineComponent;
+import com.game.movement.TrajectoryComponent;
 import com.game.sprites.SpriteAdapter;
 import com.game.sprites.SpriteComponent;
 import com.game.utils.enums.Position;
+import com.game.utils.interfaces.UpdatableConsumer;
+import com.game.movement.Pendulum;
+import com.game.movement.RotatingLine;
 import com.game.utils.objects.Wrapper;
 import com.game.world.BodyComponent;
 import com.game.world.Fixture;
 
 import static com.badlogic.gdx.graphics.Color.*;
+import static com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.*;
 import static com.game.core.ConstVals.TextureAsset.*;
 import static com.game.core.ConstVals.ViewVals.PPM;
+import static com.game.utils.UtilMethods.*;
+import static com.game.utils.enums.Position.*;
 import static com.game.world.BodyType.*;
 import static com.game.world.FixtureType.*;
+import static java.lang.Float.parseFloat;
 
 public class Saw extends Entity {
 
-    public enum SawType {
-        NONE,
-        PENDULUM_SAW,
-        ROTATING_SAW,
-        TRAJECTORY_SAW
+    public Saw(GameContext2d gameContext, RectangleMapObject sawObj) {
+        this(gameContext, sawObj.getRectangle());
+        MapProperties properties = sawObj.getProperties();
+        if (properties.containsKey("p")) {
+            int length = properties.get("length", Integer.class);
+            float scalar = properties.get("scalar", Float.class);
+            Pendulum pendulum = new Pendulum(length * PPM, 10f * PPM, bottomCenterPoint(sawObj.getRectangle()), scalar);
+            UpdatableConsumer<Pendulum> updatableConsumer = (pendulum1, delta) ->
+                    getComponent(BodyComponent.class).setCenter(pendulum1.getEnd());
+            addComponent(new PendulumComponent(pendulum, updatableConsumer));
+            addComponent(new DebugLinesComponent(pendulum.getAnchor(), pendulum.getEnd(),
+                    () -> DARK_GRAY, PPM / 8f, Filled));
+            Circle circle1 = new Circle(pendulum.getAnchor(), PPM / 4f);
+            Circle circle2 = new Circle();
+            circle2.setRadius(PPM / 4f);
+            addComponent(new DebugShapesComponent(new DebugShapesHandle(circle1, Filled, () -> DARK_GRAY),
+                    new DebugShapesHandle(circle2, Filled, () -> DARK_GRAY, (shape2D, delta) ->
+                        ((Circle) shape2D).setPosition(pendulum.getEnd()))));
+        } else if (properties.containsKey("r")) {
+            float radius = properties.get("radius", Integer.class);
+            float speed = properties.get("speed", Float.class);
+            RotatingLine rotatingLine = new RotatingLine(centerPoint(sawObj.getRectangle()), radius, speed);
+            UpdatableConsumer<RotatingLine> updatableConsumer = (rotatingLine1, delta) ->
+                    getComponent(BodyComponent.class).setCenter(rotatingLine1.getEndPoint());
+            addComponent(new RotatingLineComponent(rotatingLine, updatableConsumer));
+        } else if (properties.containsKey("t")) {
+            TrajectoryComponent trajectoryComponent = new TrajectoryComponent();
+            String[] trajectories = properties.get("trajectory", String.class).split(";");
+            for (String trajectory : trajectories) {
+                String[] params = trajectory.split(",");
+                float x = parseFloat(params[0]);
+                float y = parseFloat(params[1]);
+                float time = parseFloat(params[2]);
+                trajectoryComponent.addTrajectory(new Vector2(x * PPM, y * PPM), time);
+            }
+            addComponent(trajectoryComponent);
+        }
+    }
+
+    public Saw(IAssetLoader assetLoader, Rectangle rectangle) {
+        this(assetLoader, centerPoint(rectangle));
+    }
+
+    public Saw(IAssetLoader assetLoader, float centerX, float centerY) {
+        this(assetLoader, new Vector2(centerX, centerY));
     }
 
     public Saw(IAssetLoader assetLoader, Vector2 center) {
-        this(assetLoader, center, SawType.NONE);
-    }
-
-    public Saw(IAssetLoader assetLoader, Vector2 center, String sawType) {
-        this(assetLoader, center, SawType.valueOf(sawType));
-    }
-
-    public Saw(IAssetLoader assetLoader, Vector2 center, SawType sawType) {
         addComponent(defineAnimationComponent(assetLoader));
-        addComponent(defineSpriteComponent(center));
         addComponent(defineBodyComponent(center));
-        addComponent(defineDebugRectComponent());
+        addComponent(defineSpriteComponent());
     }
 
-    private SpriteComponent defineSpriteComponent(Vector2 center) {
+    private SpriteComponent defineSpriteComponent() {
         Sprite sprite = new Sprite();
         sprite.setSize(2f * PPM, 2f * PPM);
-        sprite.setCenter(center.x, center.y);
-        return new SpriteComponent(sprite);
+        return new SpriteComponent(sprite, new SpriteAdapter() {
+
+            @Override
+            public boolean setPositioning(Wrapper<Rectangle> bounds, Wrapper<Position> position) {
+                bounds.setData(getComponent(BodyComponent.class).getCollisionBox());
+                position.setData(CENTER);
+                return true;
+            }
+
+        });
     }
 
     private AnimationComponent defineAnimationComponent(IAssetLoader assetLoader) {
@@ -78,14 +130,19 @@ public class Saw extends Entity {
         death2.setSize(PPM, 2f * PPM);
         death2.setCenter(center);
         bodyComponent.addFixture(death2);
+        // Shield 1
+        Fixture shield1 = new Fixture(this, SHIELD);
+        shield1.setSize(PPM, PPM);
+        setBottomCenterToPoint(shield1.getFixtureBox(), bodyComponent.getCenter());
+        shield1.putUserData("reflectDir", "up");
+        bodyComponent.addFixture(shield1);
+        // Shield 2
+        Fixture shield2 = new Fixture(this, SHIELD);
+        shield2.setSize(PPM, PPM);
+        setTopCenterToPoint(shield2.getFixtureBox(), bodyComponent.getCenter());
+        shield2.putUserData("reflectDir", "down");
+        bodyComponent.addFixture(shield2);
         return bodyComponent;
-    }
-
-    private DebugRectComponent defineDebugRectComponent() {
-        DebugRectComponent debugRectComponent = new DebugRectComponent();
-        getComponent(BodyComponent.class).getFixtures().forEach(fixture ->
-            debugRectComponent.addDebugHandle(fixture::getFixtureBox, () -> RED));
-        return debugRectComponent;
     }
 
 }

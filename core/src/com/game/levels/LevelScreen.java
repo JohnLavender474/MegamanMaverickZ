@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -22,8 +21,8 @@ import com.game.cull.CullOnCamTransComponent;
 import com.game.cull.CullOnCamTransSystem;
 import com.game.cull.CullOutOfCamBoundsComponent;
 import com.game.entities.blocks.Block;
-import com.game.entities.decorations.DecorativeSprite;
 import com.game.entities.enemies.*;
+import com.game.entities.hazards.Saw;
 import com.game.entities.megaman.Megaman;
 import com.game.entities.sensors.DeathSensor;
 import com.game.entities.sensors.WallSlideSensor;
@@ -34,17 +33,15 @@ import com.game.levels.backgrounds.Background;
 import com.game.levels.backgrounds.WindyClouds;
 import com.game.messages.Message;
 import com.game.messages.MessageListener;
+import com.game.movement.TrajectorySystem;
 import com.game.pathfinding.PathfindingSystem;
 import com.game.sounds.SoundSystem;
 import com.game.spawns.Spawn;
 import com.game.spawns.SpawnLocation;
 import com.game.spawns.SpawnManager;
-import com.game.movement.TrajectoryComponent;
-import com.game.movement.TrajectorySystem;
 import com.game.updatables.UpdatableSystem;
 import com.game.utils.enums.Direction;
-import com.game.utils.objects.FontHandle;
-import com.game.utils.objects.Pendulum;
+import com.game.core.FontHandle;
 import com.game.utils.objects.Timer;
 import com.game.world.BodyComponent;
 import com.game.world.WorldSystem;
@@ -55,7 +52,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import static com.badlogic.gdx.graphics.Color.*;
 import static com.game.controllers.ControllerButton.START;
 import static com.game.core.ConstVals.Events.*;
 import static com.game.core.ConstVals.GameScreen.PAUSE_MENU;
@@ -74,6 +70,7 @@ import static java.lang.Math.*;
 public class LevelScreen extends ScreenAdapter implements MessageListener {
 
     private static final String SPECIAL = "Special";
+    private static final String HAZARDS = "Hazards";
     private static final String GAME_ROOMS = "GameRooms";
     private static final String BACKGROUNDS = "Backgrounds";
     private static final String ENEMY_SPAWNS = "EnemySpawns";
@@ -111,8 +108,6 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
         this.musicSrc = musicSrc;
         this.tmxFile = tmxFile;
     }
-
-    private Pendulum pendulum;
 
     @Override
     public void show() {
@@ -152,40 +147,16 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
             return rect;
         }).toList();
         List<Spawn> enemySpawns = levelMap.getObjectsOfLayer(ENEMY_SPAWNS).stream().map(enemySpawnObj ->
-                new Spawn(gameContext, getEntitySpawnSupplier(enemySpawnObj), enemySpawnObj.getRectangle())).toList();
+                new Spawn(gameContext, getEnemySpawnSupplier(enemySpawnObj), enemySpawnObj.getRectangle())).toList();
         spawnManager = new SpawnManager(gameContext.getViewport(PLAYGROUND).getCamera(), playerSpawns, enemySpawns);
         spawnManager.setCurrentPlayerSpawn(startPlayerSpawn);
         // static blocks
         levelMap.getObjectsOfLayer(STATIC_BLOCKS).forEach(staticBlockObj ->
                 gameContext.addEntity(new Block(staticBlockObj.getRectangle(), new Vector2(.035f, 0f))));
         // moving blocks
-        levelMap.getObjectsOfLayer(MOVING_BLOCKS).forEach(movingBlockObj -> {
-            Block movingBlock = new Block(movingBlockObj.getRectangle(), new Vector2(.035f, 0f),
-                    false, false, true, true, true);
-            // decorative sprites (if applicable)
-            MapProperties properties = movingBlockObj.getProperties();
-            if (properties.containsKey("DecorativeSrc") && properties.containsKey("DecorativeRegion")) {
-                String decorativeSrc = properties.get("DecorativeSrc", String.class);
-                String decorativeRegion = properties.get("DecorativeRegion", String.class);
-                TextureRegion textureRegion = gameContext.getAsset(decorativeSrc, TextureAtlas.class)
-                        .findRegion(decorativeRegion);
-                List<DecorativeSprite> decorativeSprites = movingBlock.generateDecorativeBlocks(textureRegion);
-                gameContext.addEntities(decorativeSprites);
-            }
-            // trajectory
-            TrajectoryComponent trajectoryComponent = new TrajectoryComponent();
-            String[] trajectories = movingBlockObj.getProperties().get("Trajectory", String.class).split(";");
-            for (String trajectory : trajectories) {
-                String[] params = trajectory.split(",");
-                float x = Float.parseFloat(params[0]);
-                float y = Float.parseFloat(params[1]);
-                float time = Float.parseFloat(params[2]);
-                trajectoryComponent.addTrajectory(new Vector2(x * PPM, y * PPM), time);
-            }
-            movingBlock.addComponent(trajectoryComponent);
-            // add to game context
-            gameContext.addEntity(movingBlock);
-        });
+        levelMap.getObjectsOfLayer(MOVING_BLOCKS).forEach(blockObj ->
+            gameContext.addEntity(new Block(gameContext, blockObj, new Vector2(.035f, 0f),
+                    false, false, true, true, true)));
         // wall slide sensors
         levelMap.getObjectsOfLayer(WALL_SLIDE_SENSORS).forEach(wallSlideSensorObj ->
                 gameContext.addEntity(new WallSlideSensor(wallSlideSensorObj.getRectangle())));
@@ -194,10 +165,12 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
                 gameContext.addEntity(new DeathSensor(deathSensorObj.getRectangle())));
         // special
         levelMap.getObjectsOfLayer(SPECIAL).forEach(specialObj -> {
-            if (specialObj.getName().equals("Pendulum")) {
-                pendulum = new Pendulum(2f * PPM, 10f * PPM, centerPoint(specialObj.getRectangle()), .5f);
-            }
             // TODO: instantiate special entities
+        });
+        // hazards
+        levelMap.getObjectsOfLayer(HAZARDS).forEach(hazardObj -> {
+            Entity hazard = getHazard(hazardObj);
+            gameContext.addEntity(hazard);
         });
         // game rooms
         Map<Rectangle, String> gameRooms = new HashMap<>();
@@ -301,10 +274,6 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
         });
         levelMap.draw();
         gameContext.updateSystems(delta);
-
-        pendulum.update(delta);
-        pendulum.debug(gameContext.getShapeRenderer(), RED);
-
     }
 
     @Override
@@ -346,7 +315,7 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
         fpsText.draw(spriteBatch);
     }
 
-    private Supplier<Entity> getEntitySpawnSupplier(RectangleMapObject spawnObj) {
+    private Supplier<Entity> getEnemySpawnSupplier(RectangleMapObject spawnObj) {
         switch (spawnObj.getName()) {
             case "met" -> {
                 return () -> new Met(gameContext, () -> megaman,
@@ -375,6 +344,15 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
         }
     }
 
+    private Entity getHazard(RectangleMapObject spawnObj) {
+        switch (spawnObj.getName()) {
+            case "saw" -> {
+                return new Saw(gameContext, spawnObj);
+            }
+            default -> throw new IllegalStateException("Cannot find matching entity for <" + spawnObj.getName() + ">");
+        }
+    }
+
     private void fadeIn(float delta) {
         if (!fadingIn) {
             initFadeIn();
@@ -382,7 +360,7 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
         fadingIn = true;
         fadingOut = false;
         fadeTimer.update(delta);
-        blackBoxSprite.setAlpha(max(0f, 1f - fadeTimer.getRatio()));
+        blackBoxSprite.setAlpha(Float.max(0f, 1f - fadeTimer.getRatio()));
         SpriteBatch spriteBatch = gameContext.getSpriteBatch();
         boolean spriteBatchDrawing = spriteBatch.isDrawing();
         if (!spriteBatchDrawing) {
@@ -402,7 +380,7 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
         fadingOut = true;
         fadingIn = false;
         fadeTimer.update(delta);
-        blackBoxSprite.setAlpha(min(1f, fadeTimer.getRatio()));
+        blackBoxSprite.setAlpha(Float.min(1f, fadeTimer.getRatio()));
         SpriteBatch spriteBatch = gameContext.getSpriteBatch();
         boolean spriteBatchDrawing = spriteBatch.isDrawing();
         if (!spriteBatchDrawing) {

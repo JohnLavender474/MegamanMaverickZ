@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * {@link Component} implementation for handling behaviors. Set of active behaviors is initialized as empty set.
+ * {@link Component} implementation for handling behaviors. Set of active behaviors is initialized as empty setBounds.
  */
 @Getter
 @Setter

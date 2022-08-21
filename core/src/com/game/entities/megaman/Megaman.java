@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.core.ConstVals;
 import com.game.core.Entity;
 import com.game.core.GameContext2d;
 import com.game.core.MegamanGameInfo;
@@ -19,7 +18,6 @@ import com.game.damage.DamageNegotiation;
 import com.game.damage.Damageable;
 import com.game.damage.Damager;
 import com.game.debugging.DebugMessageComponent;
-import com.game.debugging.DebugRectComponent;
 import com.game.entities.contracts.Faceable;
 import com.game.entities.contracts.Facing;
 import com.game.entities.decorations.ExplosionOrb;
@@ -46,7 +44,6 @@ import lombok.Setter;
 import java.util.*;
 import java.util.function.Supplier;
 
-import static com.badlogic.gdx.graphics.Color.*;
 import static com.game.core.ConstVals.Events.*;
 import static com.game.core.ConstVals.LevelStatus.*;
 import static com.game.core.ConstVals.MegamanVals.*;
@@ -135,7 +132,6 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         addComponent(defineControllerComponent());
         addComponent(defineUpdatableComponent());
         addComponent(defineBodyComponent(spawn));
-        addComponent(defineDebugRectComponent());
         addComponent(defineAnimationComponent());
         addComponent(defineBehaviorComponent());
         addComponent(defineSpriteComponent());
@@ -201,16 +197,6 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
      */
     public boolean isCharging() {
         return chargingTimer.isFinished();
-    }
-
-    /**
-     * Return if standing.
-     *
-     * @return if standing
-     */
-    public boolean isStanding() {
-        return !getComponent(BehaviorComponent.class).is(RUNNING, AIR_DASHING, GROUND_SLIDING) &&
-                getComponent(BodyComponent.class).is(FEET_ON_GROUND);
     }
 
     /**
@@ -634,11 +620,6 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
             }
 
             @Override
-            public float getOffsetX() {
-                return isStanding() && isShooting() ? .3f * PPM * (isFacing(F_LEFT) ? -1f : 1f) : 0f;
-            }
-
-            @Override
             public float getOffsetY() {
                 return getComponent(BehaviorComponent.class).is(GROUND_SLIDING) ? .1f * -PPM : 0f;
             }
@@ -749,15 +730,6 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
             weaponToAnimMap.put(megamanWeapon, animations);
         }
         return new AnimationComponent(keySupplier, key -> weaponToAnimMap.get(currentWeapon).get(key));
-    }
-
-    private DebugRectComponent defineDebugRectComponent() {
-        DebugRectComponent debugRectComponent = new DebugRectComponent();
-        BodyComponent bodyComponent = getComponent(BodyComponent.class);
-        debugRectComponent.addDebugHandle(bodyComponent::getCollisionBox, () -> GREEN);
-        bodyComponent.getFixtures().forEach(fixture ->
-                debugRectComponent.addDebugHandle(fixture::getFixtureBox, () -> BLUE));
-        return debugRectComponent;
     }
 
 }

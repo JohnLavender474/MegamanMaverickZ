@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.game.core.Entity;
 import com.game.core.System;
-import com.game.utils.objects.FontHandle;
+import com.game.core.FontHandle;
 
 import java.util.*;
 

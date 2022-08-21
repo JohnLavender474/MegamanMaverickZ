@@ -10,9 +10,9 @@ import java.util.Set;
 public interface Damageable {
 
     /**
-     * DamagerDef mask set.
+     * DamagerDef mask setBounds.
      *
-     * @return the set
+     * @return the setBounds
      */
     Set<Class<? extends Damager>> getDamagerMaskSet();
 

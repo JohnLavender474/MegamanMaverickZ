@@ -1,7 +1,6 @@
 package com.game.sprites;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
@@ -11,9 +10,9 @@ import com.game.core.System;
 import com.game.utils.enums.Position;
 import com.game.utils.objects.Wrapper;
 
-import java.util.Set;
+import java.util.PriorityQueue;
+import java.util.Queue;
 
-import static com.badlogic.gdx.graphics.Texture.TextureFilter.*;
 import static com.game.utils.UtilMethods.*;
 
 /**
@@ -21,10 +20,13 @@ import static com.game.utils.UtilMethods.*;
  */
 public class SpriteSystem extends System {
 
+    private final Queue<SpriteComponent> spriteComponentQueue = new PriorityQueue<>((o1, o2) -> {
+        int p1 = o1.getSpriteAdapter().getSpriteRenderPriority();
+        int p2 = o2.getSpriteAdapter().getSpriteRenderPriority();
+        return p1 - p2;
+    });
     private final OrthographicCamera camera;
     private final SpriteBatch spriteBatch;
-
-    private boolean isDrawing;
 
     public SpriteSystem(OrthographicCamera camera, SpriteBatch spriteBatch) {
         super(SpriteComponent.class);
@@ -34,45 +36,51 @@ public class SpriteSystem extends System {
 
     @Override
     protected void preProcess(float delta) {
-        spriteBatch.setProjectionMatrix(camera.combined);
-        isDrawing = spriteBatch.isDrawing();
-        if (!isDrawing) {
-            spriteBatch.begin();
-        }
+        spriteComponentQueue.clear();
     }
 
     @Override
     protected void processEntity(Entity entity, float delta) {
         SpriteComponent spriteComponent = entity.getComponent(SpriteComponent.class);
-        Sprite sprite = spriteComponent.getSprite();
-        SpriteAdapter spriteAdapter = spriteComponent.getSpriteAdapter();
-        if (spriteAdapter != null) {
-            Wrapper<Rectangle> bounds = Wrapper.of(null);
-            Wrapper<Position> position = Wrapper.of(null);
-            if (spriteAdapter.setPositioning(bounds, position)) {
-                if (bounds.getData() == null) {
-                    throw new IllegalStateException("SpriteAdapter::setPositioning returns true but the value of " +
-                            "Wrapper<Rectangle>::getData is null");
-                }
-                if (position.getData() == null) {
-                    throw new IllegalStateException("SpriteAdapter::setPositioning returns true but the value of " +
-                            "Wrapper<Position>::getData is null");
-                }
-                Vector2 point = getPoint(bounds.getData(), position.getData());
-                setToPoint(sprite.getBoundingRectangle(), point, position.getData(), sprite::setPosition);
-            }
-            sprite.setOrigin(sprite.getWidth() / 2f, sprite.getHeight() / 2f);
-            sprite.translate(spriteAdapter.getOffsetX(), spriteAdapter.getOffsetY());
-            sprite.setAlpha(spriteAdapter.isHidden() ? 0f : spriteAdapter.getAlpha());
-            sprite.setFlip(spriteAdapter.isFlipX(), spriteAdapter.isFlipY());
-            sprite.setRotation(spriteAdapter.getRotation());
-            spriteAdapter.update(delta);
-        }
-        drawFiltered(sprite, spriteBatch);
+        spriteComponentQueue.add(spriteComponent);
     }
 
     @Override
     protected void postProcess(float delta) {
+        spriteBatch.setProjectionMatrix(camera.combined);
+        boolean isDrawing = spriteBatch.isDrawing();
+        if (!isDrawing) {
+            spriteBatch.begin();
+        }
+        while (!spriteComponentQueue.isEmpty()) {
+            SpriteComponent spriteComponent = spriteComponentQueue.poll();
+            Sprite sprite = spriteComponent.getSprite();
+            SpriteAdapter spriteAdapter = spriteComponent.getSpriteAdapter();
+            Wrapper<Rectangle> bounds = Wrapper.of(null);
+            Wrapper<Position> position = Wrapper.of(null);
+            if (spriteAdapter.setPositioning(bounds, position)) {
+                if (bounds.getData() == null) {
+                    throw new IllegalStateException("SpriteAdapter::setPositioning returns true but the value " +
+                            "of Wrapper<Rectangle>::getData is null");
+                }
+                if (position.getData() == null) {
+                    throw new IllegalStateException("SpriteAdapter::setPositioning returns true but the value " +
+                            "of Wrapper<Position>::getData is null");
+                }
+                Vector2 point = getPoint(bounds.getData(), position.getData());
+                setToPoint(sprite.getBoundingRectangle(), point, position.getData(), sprite::setPosition);
+            }
+            Vector2 sizeTrans = spriteAdapter.getSizeTrans();
+            sprite.setSize(sprite.getWidth() + sizeTrans.x, sprite.getHeight() + sizeTrans.y);
+            Vector2 origin = spriteAdapter.getOrigin(sprite);
+            sprite.setOrigin(origin.x, origin.y);
+            sprite.translate(spriteAdapter.getOffsetX(), spriteAdapter.getOffsetY());
+            sprite.setAlpha(spriteAdapter.isHidden() ? 0f : spriteAdapter.getAlpha());
+            sprite.setFlip(spriteAdapter.isFlipX(), spriteAdapter.isFlipY());
+            sprite.setRotation(spriteAdapter.getRotation());
+            spriteAdapter.update(sprite, delta);
+            drawFiltered(sprite, spriteBatch);
+        }
         if (!isDrawing) {
             spriteBatch.end();
         }

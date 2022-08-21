@@ -16,7 +16,7 @@ public class WindyClouds extends Background {
 
     private static final float WIDTH = 10;
     private static final float HEIGHT = 20;
-    private static final float DURATION = 30f;
+    private static final float DURATION = 45f;
 
     private float dist;
 

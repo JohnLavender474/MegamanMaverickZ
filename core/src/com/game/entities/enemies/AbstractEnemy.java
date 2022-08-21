@@ -1,5 +1,6 @@
 package com.game.entities.enemies;
 
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
 import com.game.core.Entity;
 import com.game.core.GameContext2d;
@@ -150,7 +151,7 @@ public abstract class AbstractEnemy extends Entity implements MessageListener, D
         private final Timer blinkTimer = new Timer(.05f);
 
         @Override
-        public void update(float delta) {
+        public void update(Sprite sprite1, float delta) {
             if (isInvincible()) {
                 blinkTimer.update(delta);
             } else {

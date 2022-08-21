@@ -3,7 +3,6 @@ package com.game.movement;
 import com.game.core.Entity;
 import com.game.core.System;
 import com.game.utils.interfaces.UpdatableConsumer;
-import com.game.utils.objects.RotatingLine;
 
 public class RotatingLineSystem extends System {
 

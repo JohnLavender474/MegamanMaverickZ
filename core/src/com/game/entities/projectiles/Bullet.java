@@ -7,7 +7,6 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.core.Entity;
 import com.game.core.GameContext2d;
-import com.game.debugging.DebugRectComponent;
 import com.game.entities.decorations.Disintegration;
 import com.game.entities.enemies.AbstractEnemy;
 import com.game.sounds.SoundComponent;
@@ -20,7 +19,6 @@ import com.game.world.Fixture;
 import lombok.Getter;
 import lombok.Setter;
 
-import static com.badlogic.gdx.graphics.Color.*;
 import static com.game.core.ConstVals.SoundAsset.*;
 import static com.game.core.ConstVals.TextureAsset.OBJECTS_TEXTURE_ATLAS;
 import static com.game.core.ConstVals.ViewVals.PPM;
@@ -43,7 +41,6 @@ public class Bullet extends AbstractProjectile {
         addComponent(new SoundComponent());
         addComponent(defineSpriteComponent());
         addComponent(defineBodyComponent(spawn));
-        addComponent(defineDebugRectComponent());
     }
 
     public void disintegrate() {
@@ -103,17 +100,6 @@ public class Bullet extends AbstractProjectile {
         damageBox.setSize(.1f * PPM, .1f * PPM);
         bodyComponent.addFixture(damageBox);
         return bodyComponent;
-    }
-
-    private DebugRectComponent defineDebugRectComponent() {
-        DebugRectComponent debugRectComponent = new DebugRectComponent();
-        getComponent(BodyComponent.class).getFixtures().forEach(fixture ->
-                debugRectComponent.addDebugHandle(fixture::getFixtureBox, () -> switch (fixture.getFixtureType()) {
-                    case HITTER_BOX -> BLUE;
-                    case DAMAGER_BOX -> RED;
-                    default -> GREEN;
-                }));
-        return debugRectComponent;
     }
 
 }

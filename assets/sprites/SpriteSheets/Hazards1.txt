@@ -1,61 +1,61 @@
 Hazards1.png
-size: 1024, 1405
+size: 255, 272
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
-Axe
+FlameColumn
   rotate: false
   xy: 0, 0
-  size: 388, 578
-  orig: 388, 578
+  size: 120, 111
+  orig: 120, 111
   offset: 0, 0
   index: -1
-FireColumn
+FlameThrower
   rotate: false
-  xy: 388, 0
-  size: 350, 312
-  orig: 350, 312
-  offset: 0, 0
-  index: -1
-Mace
-  rotate: false
-  xy: 738, 0
-  size: 250, 381
-  orig: 250, 381
-  offset: 0, 0
-  index: -1
-RedBouncer
-  rotate: false
-  xy: 0, 578
-  size: 1024, 189
-  orig: 1024, 189
+  xy: 120, 0
+  size: 32, 32
+  orig: 32, 32
   offset: 0, 0
   index: -1
 Saw
   rotate: false
-  xy: 0, 767
-  size: 1024, 509
-  orig: 1024, 509
+  xy: 0, 111
+  size: 255, 129
+  orig: 255, 129
   offset: 0, 0
   index: -1
 Spike1
   rotate: false
-  xy: 0, 1276
-  size: 100, 99
-  orig: 100, 99
+  xy: 0, 240
+  size: 33, 31
+  orig: 33, 31
   offset: 0, 0
   index: -1
 Spike2
   rotate: false
-  xy: 100, 1276
-  size: 131, 128
-  orig: 131, 128
+  xy: 33, 240
+  size: 30, 32
+  orig: 30, 32
   offset: 0, 0
   index: -1
 Spike3
   rotate: false
-  xy: 231, 1276
-  size: 122, 129
-  orig: 122, 129
+  xy: 63, 240
+  size: 33, 32
+  orig: 33, 32
+  offset: 0, 0
+  index: -1
+Spike4
+  rotate: false
+  xy: 96, 240
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+Spike5
+  rotate: false
+  xy: 128, 240
+  size: 32, 32
+  orig: 32, 32
   offset: 0, 0
   index: -1

@@ -1,6 +1,5 @@
 package com.game.entities.enemies;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Rectangle;
@@ -10,9 +9,7 @@ import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
 import com.game.damage.DamageNegotiation;
 import com.game.damage.Damager;
-import com.game.debugging.DebugLinesComponent;
 import com.game.debugging.DebugMessageComponent;
-import com.game.debugging.DebugRectComponent;
 import com.game.entities.blocks.Block;
 import com.game.entities.contracts.Hitter;
 import com.game.entities.megaman.Megaman;
@@ -23,7 +20,6 @@ import com.game.entities.projectiles.Fireball;
 import com.game.pathfinding.PathfindingComponent;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
-import com.game.utils.UtilMethods;
 import com.game.utils.enums.Position;
 import com.game.utils.objects.Timer;
 import com.game.utils.objects.Wrapper;
@@ -36,7 +32,6 @@ import lombok.Setter;
 
 import java.util.*;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import static com.badlogic.gdx.math.MathUtils.*;
 import static com.game.core.ConstVals.TextureAsset.*;
@@ -79,9 +74,7 @@ public class Bat extends AbstractEnemy implements Hitter {
         addComponent(defineBodyComponent(spawn));
         addComponent(defineAnimationComponent());
         addComponent(defineUpdatableComponent());
-        addComponent(defineDebugRectComponent());
         addComponent(new DebugMessageComponent());
-        addComponent(defineDebugLinesComponent());
         addComponent(definePathfindingComponent());
     }
 
@@ -223,23 +216,6 @@ public class Bat extends AbstractEnemy implements Hitter {
             return isFinished;
         });
         return pathfindingComponent;
-    }
-
-    private DebugRectComponent defineDebugRectComponent() {
-        DebugRectComponent debugRectComponent = new DebugRectComponent();
-        getComponent(BodyComponent.class).getFixtures().forEach(fixture ->
-            debugRectComponent.addDebugHandle(fixture::getFixtureBox, () -> {
-                if (fixture.getFixtureType().equals(HEAD)) {
-                    return Color.GREEN;
-                }
-                return Color.BLUE;
-            }));
-        return debugRectComponent;
-    }
-
-    private DebugLinesComponent defineDebugLinesComponent() {
-        return new DebugLinesComponent(() -> getComponent(PathfindingComponent.class).getPathCpy().stream().map(
-                UtilMethods::centerPoint).collect(Collectors.toList()), () -> Color.RED);
     }
 
 }

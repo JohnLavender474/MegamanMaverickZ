@@ -13,14 +13,29 @@ import java.util.function.Supplier;
 
 public class DecorativeSprite extends Entity {
 
-    public DecorativeSprite(TextureRegion textureRegion, Vector2 dimensions, Supplier<Vector2> posSupplier) {
-        this(textureRegion, dimensions, posSupplier, delta -> false);
+    public DecorativeSprite(TextureRegion textureRegion, Vector2 dimensions, SpriteAdapter spriteAdapter,
+                            Predicate<Float> isDead) {
+        addComponent(defineSpriteComponent(textureRegion, dimensions, spriteAdapter));
+        addComponent(defineUpdatableComponent(isDead));
     }
 
     public DecorativeSprite(TextureRegion textureRegion, Vector2 dimensions,
-                                Supplier<Vector2> posSupplier, Predicate<Float> isDead) {
-        addComponent(defineSpriteComponent(textureRegion, dimensions, posSupplier));
-        addComponent(defineUpdatableComponent(isDead));
+                            Supplier<Vector2> centerSupplier, Predicate<Float> isDead) {
+        this(textureRegion, dimensions, new SpriteAdapter() {
+            @Override
+            public void update(Sprite sprite, float delta) {
+                Vector2 center = centerSupplier.get();
+                sprite.setCenter(center.x, center.y);
+            }
+        }, isDead);
+    }
+
+    public DecorativeSprite(TextureRegion textureRegion, Vector2 dimensions, SpriteAdapter spriteAdapter) {
+        this(textureRegion, dimensions, spriteAdapter, delta -> false);
+    }
+
+    public DecorativeSprite(TextureRegion textureRegion, Vector2 dimensions, Supplier<Vector2> centerSupplier) {
+        this(textureRegion, dimensions, centerSupplier, delta -> false);
     }
 
     private UpdatableComponent defineUpdatableComponent(Predicate<Float> isDead) {
@@ -32,16 +47,10 @@ public class DecorativeSprite extends Entity {
     }
 
     private SpriteComponent defineSpriteComponent(TextureRegion textureRegion, Vector2 dimensions,
-                                                  Supplier<Vector2> posSupplier) {
+                                                  SpriteAdapter spriteAdapter) {
         Sprite sprite = new Sprite(textureRegion);
         sprite.setSize(dimensions.x, dimensions.y);
-        return new SpriteComponent(sprite, new SpriteAdapter() {
-            @Override
-            public void update(float delta) {
-                Vector2 pos = posSupplier.get();
-                sprite.setPosition(pos.x, pos.y);
-            }
-        });
+        return new SpriteComponent(sprite, spriteAdapter);
     }
 
 

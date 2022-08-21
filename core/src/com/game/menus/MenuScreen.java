@@ -34,7 +34,7 @@ public abstract class MenuScreen extends ScreenAdapter {
     private boolean selectionMade;
 
     /**
-     * See {@link #MenuScreen(GameContext2d, String, String)}. Music is set to null.
+     * See {@link #MenuScreen(GameContext2d, String, String)}. Music is setBounds to null.
      *
      * @param gameContext the {@link GameContext2d}
      * @param firstButtonKey the button that is highlighted on showing the screen
@@ -44,7 +44,7 @@ public abstract class MenuScreen extends ScreenAdapter {
     }
 
     /**
-     * Instantiates a new Menu Screen. The first button is set and music begins playing on showing.
+     * Instantiates a new Menu Screen. The first button is setBounds and music begins playing on showing.
      *
      * @param gameContext the {@link GameContext2d}
      * @param firstButtonKey the button that is highlighted on showing the screen

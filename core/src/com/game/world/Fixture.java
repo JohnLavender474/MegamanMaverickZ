@@ -54,12 +54,21 @@ public class Fixture {
     }
 
     /**
-     * Set.
+     * Sets the bounds of the fixture box
      *
      * @param bounds the bounds
      */
-    public void set(Rectangle bounds) {
+    public void setBounds(Rectangle bounds) {
         fixtureBox.set(bounds);
+    }
+
+    /**
+     * Sets the bounds of the fixture box to that of the provided fixture. See {@link #setBounds(Rectangle)}.
+     *
+     * @param fixture the fixture whose bounds are to be used as a reference
+     */
+    public void setBounds(Fixture fixture) {
+        setBounds(fixture.getFixtureBox());
     }
 
     /**
@@ -70,7 +79,7 @@ public class Fixture {
      * @param width  the width
      * @param height the height
      */
-    public void set(float x, float y, float width, float height) {
+    public void setBounds(float x, float y, float width, float height) {
         fixtureBox.set(x, y, width, height);
     }
 

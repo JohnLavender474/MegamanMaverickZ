@@ -13,7 +13,7 @@ import lombok.ToString;
  * {@link Fixture#getFixtureBox()} of both the {@link Fixture} instances, returns true.
  * <p>
  * {@link #acceptMask(FixtureType, FixtureType)} returns if {@link Fixture#getFixtureType()} of the two fixtures
- * matches the supplied {@link FixtureType} values. If the method returns true, then {@link #mask} is set with the two
+ * matches the supplied {@link FixtureType} values. If the method returns true, then {@link #mask} is setBounds with the two
  * fixtures in the same order as the supplied FixtureType arguments. Otherwise, the mask pair remains null.
  */
 @Getter
@@ -27,7 +27,7 @@ public class Contact {
 
     /**
      * Checks if {@link Fixture#getFixtureType()} of {@link #fixture1} and {@link #fixture2} matches the supplied
-     * {@link FixtureType} arguments. If so, then return true and set {@link #mask}, otherwise return false and
+     * {@link FixtureType} arguments. If so, then return true and setBounds {@link #mask}, otherwise return false and
      * keep the mask pair the same as it was, null if never initialized by accepted mask.
      *
      * @param fixtureType1 the fixture type 1
@@ -47,7 +47,7 @@ public class Contact {
 
     /**
      * Checks if {@link Fixture#getFixtureType()} of {@link #fixture1} or {@link #fixture2} matches the supplied
-     * {@link FixtureType} argument. If so, then set the first element of {@link #getMask()} to the matching fixture.
+     * {@link FixtureType} argument. If so, then setBounds the first element of {@link #getMask()} to the matching fixture.
      *
      * @param fixtureType the fixture type
      * @return if the mask is accepted

@@ -124,7 +124,7 @@
             <key>data</key>
             <struct type="DataFile">
                 <key>name</key>
-                <filename></filename>
+                <filename>Hazards1.txt</filename>
             </struct>
         </map>
         <key>multiPack</key>
@@ -173,7 +173,7 @@
         </struct>
         <key>individualSpriteSettings</key>
         <map type="IndividualSpriteSettingsMap">
-            <key type="filename">../Frames/Hazards/Axe.png</key>
+            <key type="filename">../Frames/Hazards1/FlameColumn.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>
@@ -182,13 +182,15 @@
                 <key>scale9Enabled</key>
                 <false/>
                 <key>scale9Borders</key>
-                <rect>97,145,194,289</rect>
+                <rect>30,28,60,55</rect>
                 <key>scale9Paddings</key>
-                <rect>97,145,194,289</rect>
+                <rect>30,28,60,55</rect>
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
-            <key type="filename">../Frames/Hazards/FireColumn.png</key>
+            <key type="filename">../Frames/Hazards1/FlameThrower.png</key>
+            <key type="filename">../Frames/Hazards1/Spike4.png</key>
+            <key type="filename">../Frames/Hazards1/Spike5.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>
@@ -197,13 +199,13 @@
                 <key>scale9Enabled</key>
                 <false/>
                 <key>scale9Borders</key>
-                <rect>88,78,175,156</rect>
+                <rect>8,8,16,16</rect>
                 <key>scale9Paddings</key>
-                <rect>88,78,175,156</rect>
+                <rect>8,8,16,16</rect>
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
-            <key type="filename">../Frames/Hazards/Mace.png</key>
+            <key type="filename">../Frames/Hazards1/Saw.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>
@@ -212,13 +214,13 @@
                 <key>scale9Enabled</key>
                 <false/>
                 <key>scale9Borders</key>
-                <rect>63,95,125,191</rect>
+                <rect>64,32,129,65</rect>
                 <key>scale9Paddings</key>
-                <rect>63,95,125,191</rect>
+                <rect>64,32,129,65</rect>
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
-            <key type="filename">../Frames/Hazards/RedBouncer.png</key>
+            <key type="filename">../Frames/Hazards1/Spike1.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>
@@ -227,13 +229,13 @@
                 <key>scale9Enabled</key>
                 <false/>
                 <key>scale9Borders</key>
-                <rect>256,47,512,95</rect>
+                <rect>8,8,17,15</rect>
                 <key>scale9Paddings</key>
-                <rect>256,47,512,95</rect>
+                <rect>8,8,17,15</rect>
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
-            <key type="filename">../Frames/Hazards/Saw.png</key>
+            <key type="filename">../Frames/Hazards1/Spike2.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>
@@ -242,13 +244,13 @@
                 <key>scale9Enabled</key>
                 <false/>
                 <key>scale9Borders</key>
-                <rect>256,127,512,255</rect>
+                <rect>8,8,15,16</rect>
                 <key>scale9Paddings</key>
-                <rect>256,127,512,255</rect>
+                <rect>8,8,15,16</rect>
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
-            <key type="filename">../Frames/Hazards/Spike1.png</key>
+            <key type="filename">../Frames/Hazards1/Spike3.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>
@@ -257,46 +259,16 @@
                 <key>scale9Enabled</key>
                 <false/>
                 <key>scale9Borders</key>
-                <rect>25,25,50,49</rect>
+                <rect>8,8,17,16</rect>
                 <key>scale9Paddings</key>
-                <rect>25,25,50,49</rect>
-                <key>scale9FromFile</key>
-                <false/>
-            </struct>
-            <key type="filename">../Frames/Hazards/Spike2.png</key>
-            <struct type="IndividualSpriteSettings">
-                <key>pivotPoint</key>
-                <point_f>0.5,0.5</point_f>
-                <key>spriteScale</key>
-                <double>1</double>
-                <key>scale9Enabled</key>
-                <false/>
-                <key>scale9Borders</key>
-                <rect>33,32,65,64</rect>
-                <key>scale9Paddings</key>
-                <rect>33,32,65,64</rect>
-                <key>scale9FromFile</key>
-                <false/>
-            </struct>
-            <key type="filename">../Frames/Hazards/Spike3.png</key>
-            <struct type="IndividualSpriteSettings">
-                <key>pivotPoint</key>
-                <point_f>0.5,0.5</point_f>
-                <key>spriteScale</key>
-                <double>1</double>
-                <key>scale9Enabled</key>
-                <false/>
-                <key>scale9Borders</key>
-                <rect>31,32,61,65</rect>
-                <key>scale9Paddings</key>
-                <rect>31,32,61,65</rect>
+                <rect>8,8,17,16</rect>
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
         </map>
         <key>fileList</key>
         <array>
-            <filename>../Frames/Hazards</filename>
+            <filename>../Frames/Hazards1</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

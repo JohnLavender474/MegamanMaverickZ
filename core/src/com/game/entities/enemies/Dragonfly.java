@@ -11,7 +11,6 @@ import com.game.animations.TimedAnimation;
 import com.game.damage.DamageNegotiation;
 import com.game.damage.Damager;
 import com.game.debugging.DebugMessageComponent;
-import com.game.debugging.DebugRectComponent;
 import com.game.entities.contracts.Faceable;
 import com.game.entities.contracts.Facing;
 import com.game.entities.megaman.Megaman;
@@ -32,7 +31,6 @@ import lombok.Setter;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import static com.badlogic.gdx.graphics.Color.*;
 import static com.game.core.ConstVals.RenderingGround.*;
 import static com.game.core.ConstVals.TextureAsset.*;
 import static com.game.core.ConstVals.ViewVals.PPM;
@@ -71,7 +69,6 @@ public class Dragonfly extends AbstractEnemy implements Faceable {
         addComponent(defineSpriteComponent());
         addComponent(defineAnimationComponent());
         addComponent(defineBodyComponent(spawn));
-        addComponent(defineDebugRectComponent());
         addComponent(defineUpdatableComponent());
         addComponent(new DebugMessageComponent());
         currentBehavior = previousBehavior = MOVE_UP;
@@ -189,7 +186,7 @@ public class Dragonfly extends AbstractEnemy implements Faceable {
             }
 
             @Override
-            public void update(float delta) {
+            public void update(Sprite sprite1, float delta) {
                 if (equalsAny(currentBehavior, MOVE_UP, MOVE_DOWN)) {
                     setFacing(isMegamanLeft() ? F_LEFT : F_RIGHT);
                 }
@@ -206,15 +203,6 @@ public class Dragonfly extends AbstractEnemy implements Faceable {
     private AnimationComponent defineAnimationComponent() {
         TextureAtlas textureAtlas = gameContext.getAsset(ENEMIES_TEXTURE_ATLAS.getSrc(), TextureAtlas.class);
         return new AnimationComponent(new TimedAnimation(textureAtlas.findRegion("Dragonfly"), 2, .1f));
-    }
-
-    private DebugRectComponent defineDebugRectComponent() {
-        DebugRectComponent debugRectComponent = new DebugRectComponent();
-        BodyComponent bodyComponent = getComponent(BodyComponent.class);
-        debugRectComponent.addDebugHandle(bodyComponent::getCollisionBox, () -> RED);
-        bodyComponent.getFixtures().forEach(fixture ->
-                debugRectComponent.addDebugHandle(fixture::getFixtureBox, () -> BLUE));
-        return debugRectComponent;
     }
 
     private void changeBehavior(DragonFlyBehavior behavior) {

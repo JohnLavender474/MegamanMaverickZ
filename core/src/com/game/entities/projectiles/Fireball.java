@@ -75,7 +75,7 @@ public class Fireball extends AbstractProjectile {
             private float rotation = 0f;
 
             @Override
-            public void update(float delta) {
+            public void update(Sprite sprite1, float delta) {
                 if (isLanded()) {
                     return;
                 }

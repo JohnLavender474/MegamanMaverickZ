@@ -1,11 +1,17 @@
 package com.game.entities.blocks;
 
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.maps.MapProperties;
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.core.Entity;
+import com.game.core.GameContext2d;
+import com.game.core.IAssetLoader;
 import com.game.entities.decorations.DecorativeSprite;
 import com.game.graph.GraphComponent;
+import com.game.movement.TrajectoryComponent;
 import com.game.world.BodyComponent;
 import com.game.world.BodyType;
 import com.game.world.Fixture;
@@ -16,8 +22,15 @@ import java.util.List;
 import static com.game.core.ConstVals.ViewVals.PPM;
 import static com.game.utils.UtilMethods.centerPoint;
 import static com.game.world.FixtureType.*;
+import static java.lang.Float.parseFloat;
 
 public class Block extends Entity {
+
+    public Block(GameContext2d gameContext , RectangleMapObject blockObj, Vector2 friction, boolean resistance,
+                 boolean gravityOn, boolean wallSlideLeft, boolean wallSlideRight, boolean feetSticky) {
+        this(blockObj.getRectangle(), friction, resistance, gravityOn, wallSlideLeft, wallSlideRight, feetSticky);
+        setToBlockObj(gameContext, blockObj);
+    }
 
     public Block(Rectangle bounds, Vector2 friction) {
         this(bounds, friction, false, false, false, false, false);
@@ -30,6 +43,31 @@ public class Block extends Entity {
                 wallSlideLeft, wallSlideRight, feetSticky));
     }
 
+    private void setToBlockObj(GameContext2d gameContext, RectangleMapObject blockObj) {
+        MapProperties properties = blockObj.getProperties();
+        // decorative sprites
+        if (properties.containsKey("src") && properties.containsKey("region")) {
+            String decorativeSrc = properties.get("src", String.class);
+            String decorativeRegion = properties.get("region", String.class);
+            TextureRegion textureRegion = gameContext.getAsset(decorativeSrc, TextureAtlas.class)
+                    .findRegion(decorativeRegion);
+            gameContext.addEntities(generateDecorativeBlocks(textureRegion));
+        }
+        // trajectory
+        if (properties.containsKey("trajectory")) {
+            TrajectoryComponent trajectoryComponent = new TrajectoryComponent();
+            String[] trajectories = blockObj.getProperties().get("trajectory", String.class).split(";");
+            for (String trajectory : trajectories) {
+                String[] params = trajectory.split(",");
+                float x = parseFloat(params[0]);
+                float y = parseFloat(params[1]);
+                float time = parseFloat(params[2]);
+                trajectoryComponent.addTrajectory(new Vector2(x * PPM, y * PPM), time);
+            }
+            addComponent(trajectoryComponent);
+        }
+    }
+
     public List<DecorativeSprite> generateDecorativeBlocks(TextureRegion textureRegion) {
         List<DecorativeSprite> decorativeSprites = new ArrayList<>();
         Vector2 size = getComponent(BodyComponent.class).getSize().scl(1f / PPM);
@@ -37,7 +75,7 @@ public class Block extends Entity {
             for (int j = 0; j < (int) size.y; j++) {
                 final int finalI = i; final int finalJ = j;
                 decorativeSprites.add(new DecorativeSprite(textureRegion, new Vector2(PPM, PPM),
-                        () -> getComponent(BodyComponent.class).getPosition().add(finalI * PPM, finalJ * PPM)));
+                        () -> getComponent(BodyComponent.class).getCenter().add(finalI * PPM, finalJ * PPM)));
             }
         }
         return decorativeSprites;
@@ -51,7 +89,7 @@ public class Block extends Entity {
         bodyComponent.setGravityOn(gravityOn);
         bodyComponent.setAffectedByResistance(resistance);
         Fixture block = new Fixture(this, BLOCK);
-        block.set(bodyComponent.getCollisionBox());
+        block.setBounds(bodyComponent.getCollisionBox());
         bodyComponent.addFixture(block);
         if (wallSlideLeft) {
             Fixture leftWallSlide = new Fixture(this, WALL_SLIDE_SENSOR);

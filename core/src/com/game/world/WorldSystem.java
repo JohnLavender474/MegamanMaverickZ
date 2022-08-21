@@ -116,7 +116,7 @@ public class WorldSystem extends System {
                 }
             }
         }
-        // Handle contacts in the current contacts set
+        // Handle contacts in the current contacts setBounds
         currentContacts.forEach(contact -> {
             if (priorContacts.contains(contact)) {
                 worldContactListener.continueContact(contact, delta);
@@ -124,13 +124,13 @@ public class WorldSystem extends System {
                 worldContactListener.beginContact(contact, delta);
             }
         });
-        // Handle contacts in the prior contacts set
+        // Handle contacts in the prior contacts setBounds
         priorContacts.forEach(contact -> {
             if (!currentContacts.contains(contact)) {
                 worldContactListener.endContact(contact, delta);
             }
         });
-        // Move current contacts to prior contacts set, then clear the current contacts set
+        // Move current contacts to prior contacts setBounds, then clear the current contacts setBounds
         priorContacts.clear();
         priorContacts.addAll(currentContacts);
         currentContacts.clear();

@@ -30,7 +30,7 @@ import com.game.cull.CullOnCamTransSystem;
 import com.game.cull.CullOnOutOfCamBoundsSystem;
 import com.game.debugging.DebugLinesSystem;
 import com.game.debugging.DebugMessageSystem;
-import com.game.debugging.DebugRectSystem;
+import com.game.debugging.DebugShapesSystem;
 import com.game.graph.GraphSystem;
 import com.game.health.HealthSystem;
 import com.game.levels.LevelScreen;
@@ -70,7 +70,7 @@ import static com.game.controllers.ButtonStatus.*;
 import static com.game.controllers.ControllerUtils.*;
 import static com.game.core.DebugLogger.DebugLevel.*;
 import static com.game.utils.UtilMethods.*;
-import static com.game.utils.objects.FontHandle.*;
+import static com.game.core.FontHandle.*;
 
 /**
  * The entry point into the Megaman game. Initializes all assets and classes that need to be initialized before gameplay
@@ -119,9 +119,10 @@ public class MegamanMaverickZ extends Game implements GameContext2d, MessageList
             controllerButtons.put(controllerButton, IS_RELEASED);
         }
         // rendering
-        shapeRenderer = new ShapeRenderer();
-        assetManager = new AssetManager();
         spriteBatch = new SpriteBatch();
+        assetManager = new AssetManager();
+        shapeRenderer = new ShapeRenderer();
+        shapeRenderer.setAutoShapeType(true);
         // disposables
         disposables.addAll(List.of(assetManager, spriteBatch, shapeRenderer));
         // assets
@@ -151,7 +152,7 @@ public class MegamanMaverickZ extends Game implements GameContext2d, MessageList
         addSystem(new SpriteSystem((OrthographicCamera) viewports.get(PLAYGROUND).getCamera(), getSpriteBatch()));
         addSystem(new AnimationSystem());
         addSystem(new SoundSystem(this));
-        addSystem(new DebugRectSystem(viewports.get(PLAYGROUND).getCamera(), getShapeRenderer()));
+        addSystem(new DebugShapesSystem(viewports.get(PLAYGROUND).getCamera(), getShapeRenderer()));
         addSystem(new DebugLinesSystem(viewports.get(PLAYGROUND).getCamera(), getShapeRenderer()));
         Vector2[] debugMsgPosArray = new Vector2[5];
         for (int i = 0; i < 5; i++) {
@@ -173,7 +174,7 @@ public class MegamanMaverickZ extends Game implements GameContext2d, MessageList
                 this, "tiledmaps/tmx/test2.tmx", MMZ_NEO_ARCADIA_MUSIC.getSrc()));
         screens.put(TIMBER_WOMAN, new LevelScreen(
                 this, "tiledmaps/tmx/TimberWomanStage.tmx", XENOBLADE_GAUR_PLAINS_MUSIC.getSrc()));
-        // set screen
+        // setBounds screen
         setScreen(MAIN_MENU);
     }
 

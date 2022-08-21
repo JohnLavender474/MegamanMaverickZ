@@ -10,7 +10,7 @@ import com.game.core.MegamanGameInfo;
 import com.game.entities.megaman.MegamanWeapon;
 import com.game.menus.MenuButton;
 import com.game.menus.MenuScreen;
-import com.game.utils.objects.FontHandle;
+import com.game.core.FontHandle;
 import com.game.utils.objects.Percentage;
 
 import java.util.Map;
@@ -36,7 +36,7 @@ public class PauseMenuScreen extends MenuScreen {
     private final Percentage[] healthTanks;
 
     /**
-     * Instantiates a new Menu Screen. The first button is set and music begins playing on showing.
+     * Instantiates a new Menu Screen. The first button is setBounds and music begins playing on showing.
      *
      * @param gameContext the {@link GameContext2d}
      */
