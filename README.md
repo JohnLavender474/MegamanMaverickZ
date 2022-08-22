@@ -1,4 +1,4 @@
-<img src="assets/sprites/Frames/MegamanMainMenu/MegamanPose.png?raw=true" width="300px" height="300px" />
+<img src="assets/sprites/Frames/MegamanMainMenu/MegamanPose.png?raw=true" width="200px" height="200px" />
 
 # Megaman Maverick Z
 
