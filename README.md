@@ -1,4 +1,4 @@
-# MegamanMaverickZ
+# Megaman Maverick Z
 
 ## The story begins
 
