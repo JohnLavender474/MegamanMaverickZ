@@ -2,6 +2,7 @@ package com.game.entities.sensors;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.game.core.Entity;
+import com.game.core.GameContext2d;
 import com.game.world.BodyComponent;
 import com.game.world.BodyType;
 import com.game.world.Fixture;
@@ -10,7 +11,8 @@ import static com.game.world.FixtureType.WALL_SLIDE_SENSOR;
 
 public class WallSlideSensor extends Entity {
 
-    public WallSlideSensor(Rectangle bounds) {
+    public WallSlideSensor(GameContext2d gameContext, Rectangle bounds) {
+        super(gameContext);
         addComponent(defineBodyComponent(bounds));
     }
 

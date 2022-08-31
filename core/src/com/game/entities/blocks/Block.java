@@ -8,7 +8,6 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.core.Entity;
 import com.game.core.GameContext2d;
-import com.game.core.IAssetLoader;
 import com.game.entities.decorations.DecorativeSprite;
 import com.game.graph.GraphComponent;
 import com.game.movement.TrajectoryComponent;
@@ -28,16 +27,18 @@ public class Block extends Entity {
 
     public Block(GameContext2d gameContext , RectangleMapObject blockObj, Vector2 friction, boolean resistance,
                  boolean gravityOn, boolean wallSlideLeft, boolean wallSlideRight, boolean feetSticky) {
-        this(blockObj.getRectangle(), friction, resistance, gravityOn, wallSlideLeft, wallSlideRight, feetSticky);
+        this(gameContext, blockObj.getRectangle(), friction, resistance, gravityOn,
+                wallSlideLeft, wallSlideRight, feetSticky);
         setToBlockObj(gameContext, blockObj);
     }
 
-    public Block(Rectangle bounds, Vector2 friction) {
-        this(bounds, friction, false, false, false, false, false);
+    public Block(GameContext2d gameContext, Rectangle bounds, Vector2 friction) {
+        this(gameContext, bounds, friction, false, false, false, false, false);
     }
 
-    public Block(Rectangle bounds, Vector2 friction, boolean resistance, boolean gravityOn,
+    public Block(GameContext2d gameContext, Rectangle bounds, Vector2 friction, boolean resistance, boolean gravityOn,
                  boolean wallSlideLeft, boolean wallSlideRight, boolean feetSticky) {
+        super(gameContext);
         addComponent(defineGraphComponent());
         addComponent(defineBodyComponent(bounds, friction, resistance, gravityOn,
                 wallSlideLeft, wallSlideRight, feetSticky));
@@ -74,7 +75,7 @@ public class Block extends Entity {
         for (int i = 0; i < (int) size.x; i++) {
             for (int j = 0; j < (int) size.y; j++) {
                 final int finalI = i; final int finalJ = j;
-                decorativeSprites.add(new DecorativeSprite(textureRegion, new Vector2(PPM, PPM),
+                decorativeSprites.add(new DecorativeSprite(gameContext, textureRegion, new Vector2(PPM, PPM),
                         () -> getComponent(BodyComponent.class).getCenter().add(finalI * PPM, finalJ * PPM)));
             }
         }

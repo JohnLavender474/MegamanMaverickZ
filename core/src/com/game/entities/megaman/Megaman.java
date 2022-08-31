@@ -87,8 +87,6 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
             FloatingCan.class, new DamageNegotiation(10),
             SuctionRoller.class, new DamageNegotiation(10));
 
-    private final GameContext2d gameContext;
-
     private final Percentage[] healthTanks;
     private final Set<MegamanWeapon> megamanWeaponsAttained;
     private final Set<MegamanSpecialAbility> megamanSpecialAbilities;
@@ -110,7 +108,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
     private AButtonTask aButtonTask = _JUMP;
 
     public Megaman(GameContext2d gameContext, Vector2 spawn) {
-        this.gameContext = gameContext;
+        super(gameContext);
         if (megamanWeaponDefs == null) {
             megamanWeaponDefs = new MegamanWeaponDefs(gameContext);
         }

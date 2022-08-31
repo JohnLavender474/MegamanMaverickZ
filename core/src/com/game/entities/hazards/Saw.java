@@ -80,16 +80,17 @@ public class Saw extends Entity {
         }
     }
 
-    public Saw(IAssetLoader assetLoader, Rectangle rectangle) {
-        this(assetLoader, centerPoint(rectangle));
+    public Saw(GameContext2d gameContext, Rectangle rectangle) {
+        this(gameContext, centerPoint(rectangle));
     }
 
-    public Saw(IAssetLoader assetLoader, float centerX, float centerY) {
-        this(assetLoader, new Vector2(centerX, centerY));
+    public Saw(GameContext2d gameContext, float centerX, float centerY) {
+        this(gameContext, new Vector2(centerX, centerY));
     }
 
-    public Saw(IAssetLoader assetLoader, Vector2 center) {
-        addComponent(defineAnimationComponent(assetLoader));
+    public Saw(GameContext2d gameContext, Vector2 center) {
+        super(gameContext);
+        addComponent(defineAnimationComponent(gameContext));
         addComponent(defineBodyComponent(center));
         addComponent(defineSpriteComponent());
     }

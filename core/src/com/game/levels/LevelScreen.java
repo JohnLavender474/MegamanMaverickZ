@@ -152,17 +152,17 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
         spawnManager.setCurrentPlayerSpawn(startPlayerSpawn);
         // static blocks
         levelMap.getObjectsOfLayer(STATIC_BLOCKS).forEach(staticBlockObj ->
-                gameContext.addEntity(new Block(staticBlockObj.getRectangle(), new Vector2(.035f, 0f))));
+                gameContext.addEntity(new Block(gameContext, staticBlockObj.getRectangle(), new Vector2(.035f, 0f))));
         // moving blocks
         levelMap.getObjectsOfLayer(MOVING_BLOCKS).forEach(blockObj ->
             gameContext.addEntity(new Block(gameContext, blockObj, new Vector2(.035f, 0f),
                     false, false, true, true, true)));
         // wall slide sensors
         levelMap.getObjectsOfLayer(WALL_SLIDE_SENSORS).forEach(wallSlideSensorObj ->
-                gameContext.addEntity(new WallSlideSensor(wallSlideSensorObj.getRectangle())));
+                gameContext.addEntity(new WallSlideSensor(gameContext, wallSlideSensorObj.getRectangle())));
         // death sensors
         levelMap.getObjectsOfLayer(DEATH_SENSORS).forEach(deathSensorObj ->
-                gameContext.addEntity(new DeathSensor(deathSensorObj.getRectangle())));
+                gameContext.addEntity(new DeathSensor(gameContext, deathSensorObj.getRectangle())));
         // special
         levelMap.getObjectsOfLayer(SPECIAL).forEach(specialObj -> {
             // TODO: instantiate special entities

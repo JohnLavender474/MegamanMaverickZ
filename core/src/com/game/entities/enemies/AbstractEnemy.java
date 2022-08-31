@@ -37,7 +37,6 @@ import static java.util.Collections.unmodifiableSet;
 
 public abstract class AbstractEnemy extends Entity implements MessageListener, Damager, Damageable {
 
-    protected final GameContext2d gameContext;
     protected final Timer damageTimer = new Timer();
     protected final Supplier<Megaman> megamanSupplier;
     protected final Map<Class<? extends Damager>, DamageNegotiation> damageNegotiations;
@@ -48,7 +47,7 @@ public abstract class AbstractEnemy extends Entity implements MessageListener, D
 
     public AbstractEnemy(GameContext2d gameContext, Supplier<Megaman> megamanSupplier,
                          float damageDuration, float cullDuration) {
-        this.gameContext = gameContext;
+        super(gameContext);
         this.megamanSupplier = megamanSupplier;
         this.damageNegotiations = defineDamageNegotiations();
         addComponent(new SoundComponent());

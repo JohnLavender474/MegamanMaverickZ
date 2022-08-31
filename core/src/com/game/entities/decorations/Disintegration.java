@@ -33,6 +33,7 @@ public class Disintegration extends Entity {
     private boolean dead;
 
     public Disintegration(GameContext2d gameContext, Vector2 center) {
+        super(gameContext);
         addComponent(defineUpdatableComponent());
         addComponent(defineBodyComponent(center));
         addComponent(defineSpriteComponent(center));

@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.game.core.Entity;
+import com.game.core.GameContext2d;
 import com.game.sprites.SpriteAdapter;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
@@ -13,15 +14,16 @@ import java.util.function.Supplier;
 
 public class DecorativeSprite extends Entity {
 
-    public DecorativeSprite(TextureRegion textureRegion, Vector2 dimensions, SpriteAdapter spriteAdapter,
-                            Predicate<Float> isDead) {
+    public DecorativeSprite(GameContext2d gameContext, TextureRegion textureRegion, Vector2 dimensions,
+                            SpriteAdapter spriteAdapter, Predicate<Float> isDead) {
+        super(gameContext);
         addComponent(defineSpriteComponent(textureRegion, dimensions, spriteAdapter));
         addComponent(defineUpdatableComponent(isDead));
     }
 
-    public DecorativeSprite(TextureRegion textureRegion, Vector2 dimensions,
+    public DecorativeSprite(GameContext2d gameContext, TextureRegion textureRegion, Vector2 dimensions,
                             Supplier<Vector2> centerSupplier, Predicate<Float> isDead) {
-        this(textureRegion, dimensions, new SpriteAdapter() {
+        this(gameContext, textureRegion, dimensions, new SpriteAdapter() {
             @Override
             public void update(Sprite sprite, float delta) {
                 Vector2 center = centerSupplier.get();
@@ -30,12 +32,14 @@ public class DecorativeSprite extends Entity {
         }, isDead);
     }
 
-    public DecorativeSprite(TextureRegion textureRegion, Vector2 dimensions, SpriteAdapter spriteAdapter) {
-        this(textureRegion, dimensions, spriteAdapter, delta -> false);
+    public DecorativeSprite(GameContext2d gameContext, TextureRegion textureRegion, Vector2 dimensions,
+                            SpriteAdapter spriteAdapter) {
+        this(gameContext, textureRegion, dimensions, spriteAdapter, delta -> false);
     }
 
-    public DecorativeSprite(TextureRegion textureRegion, Vector2 dimensions, Supplier<Vector2> centerSupplier) {
-        this(textureRegion, dimensions, centerSupplier, delta -> false);
+    public DecorativeSprite(GameContext2d gameContext, TextureRegion textureRegion, Vector2 dimensions,
+                            Supplier<Vector2> centerSupplier) {
+        this(gameContext, textureRegion, dimensions, centerSupplier, delta -> false);
     }
 
     private UpdatableComponent defineUpdatableComponent(Predicate<Float> isDead) {

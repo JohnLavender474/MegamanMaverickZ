@@ -35,6 +35,7 @@ public class ChargedShotDisintegration extends Entity implements MessageListener
     private final Timer soundTimer = new Timer(.15f);
 
     public ChargedShotDisintegration(GameContext2d gameContext, Vector2 center, boolean isLeft) {
+        super(gameContext);
         this.gameContext = gameContext;
         addComponent(new SoundComponent());
         addComponent(defineUpdatableComponent());

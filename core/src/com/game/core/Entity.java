@@ -2,6 +2,7 @@ package com.game.core;
 
 import com.game.messages.MessageListener;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.util.Collection;
@@ -13,8 +14,10 @@ import static com.game.core.ConstVals.Events.LEVEL_UNPAUSED;
 
 @Getter
 @Setter
+@RequiredArgsConstructor
 public class Entity implements MessageListener {
 
+    protected final GameContext2d gameContext;
     protected final Map<Class<? extends Component>, Component> components = new HashMap<>();
     
     protected boolean dead;
@@ -33,18 +36,20 @@ public class Entity implements MessageListener {
         }
     }
     
-    public void onDeath() {}
+    public void onDeath() {
+        gameContext.removeMessageListener(this);
+    }
 
     public <C> C getComponent(Class<C> componentClass) {
         return componentClass.cast(getComponents().get(componentClass));
     }
 
     public boolean hasComponent(Class<? extends Component> clazz) {
-        return getComponents().containsKey(clazz) && clazz.isAssignableFrom(getComponents().get(clazz).getClass());
+        return getComponents().containsKey(clazz) && clazz.isAssignableFrom(getComponent(clazz).getClass());
     }
 
     public boolean hasAllComponents(Collection<Class<? extends Component>> clazzes) {
-        return getComponents().keySet().containsAll(clazzes);
+        return clazzes.stream().allMatch(this::hasComponent);
     }
 
     public void addComponent(Component component) {

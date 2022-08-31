@@ -23,6 +23,7 @@ public class ExplosionOrb extends Entity {
     private final Timer cullTimer = new Timer(.5f);
 
     public ExplosionOrb(GameContext2d gameContext, Vector2 spawn, Vector2 trajectory) {
+        super(gameContext);
         addComponent(defineSpriteComponent(spawn));
         addComponent(new CullOnCamTransComponent());
         addComponent(defineUpdatableComponent(trajectory));

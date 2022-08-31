@@ -21,13 +21,11 @@ import static com.game.core.ConstVals.Events.LEVEL_UNPAUSED;
 @Setter
 public abstract class AbstractProjectile extends Entity implements MessageListener, Hitter, Damager {
 
-    protected final GameContext2d gameContext;
-
     protected Entity owner;
 
     public AbstractProjectile(GameContext2d gameContext, Entity owner, float cullDuration) {
+        super(gameContext);
         this.owner = owner;
-        this.gameContext = gameContext;
         addComponent(new SoundComponent());
         addComponent(new CullOnCamTransComponent());
         addComponent(defineCullOutOfCamBoundsComponent(cullDuration));

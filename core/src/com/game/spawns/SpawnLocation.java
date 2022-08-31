@@ -25,6 +25,7 @@ public class SpawnLocation extends Entity {
 
     public SpawnLocation(GameContext2d gameContext, Camera camera, Rectangle bounds,
                          int max, float duration, Supplier<Entity> entitySupplier) {
+        super(gameContext);
         this.entitySupplier = entitySupplier;
         this.timer = new Timer(duration);
         this.gameContext = gameContext;

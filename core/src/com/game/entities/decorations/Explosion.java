@@ -24,6 +24,7 @@ public class Explosion extends Entity {
     private TimedAnimation timedAnimation;
 
     public Explosion(GameContext2d gameContext, Vector2 center) {
+        super(gameContext);
         addComponent(defineAnimationComponent(gameContext));
         addComponent(defineSpriteComponent(center));
         addComponent(defineUpdatableComponent());
