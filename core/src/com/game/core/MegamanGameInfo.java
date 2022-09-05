@@ -4,6 +4,7 @@ import com.game.entities.megaman.MegamanSpecialAbility;
 import com.game.entities.megaman.MegamanWeapon;
 import com.game.utils.objects.Percentage;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -17,6 +18,7 @@ import static com.game.entities.megaman.MegamanWeapon.*;
 import static com.game.utils.UtilMethods.boundNumber;
 
 @Getter
+@Setter
 public class MegamanGameInfo {
 
     public static final int MAX_HEALTH_TANKS = 4;
@@ -26,64 +28,8 @@ public class MegamanGameInfo {
     private final Percentage[] healthTanks = new Percentage[MAX_HEALTH_TANKS];
     private final Set<Boss> defeatedBosses = EnumSet.noneOf(Boss.class);
 
+    private boolean canCharge = false;
     private int credits = 0;
-
-    public void addSpecialAbilityToMegaman(MegamanSpecialAbility megamanSpecialAbility) {
-        megamanSpecialAbilities.add(megamanSpecialAbility);
-    }
-
-    public boolean megamanHasSpecialAbility(MegamanSpecialAbility megamanSpecialAbility) {
-        return megamanSpecialAbilities.contains(megamanSpecialAbility);
-    }
-
-    public void addWeaponToMegaman(MegamanWeapon megamanWeapon) {
-        megamanWeaponsAttained.add(megamanWeapon);
-    }
-
-    public boolean megamanHasWeapon(MegamanWeapon megamanWeapon) {
-        return megamanWeaponsAttained.contains(megamanWeapon);
-    }
-
-    public void setBossToDefeated(Boss boss) {
-        defeatedBosses.add(boss);
-    }
-
-    public boolean isBossDefeated(Boss boss) {
-        return defeatedBosses.contains(boss);
-    }
-
-    public boolean areAllBossesDefeated() {
-        for (Boss boss : Boss.values()) {
-            if (!isBossDefeated(boss)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public Percentage getHealthTank(int healthTankNumber) {
-        return healthTanks[healthTankNumber];
-    }
-
-    public void addHealthTank(int healthTankNumber) {
-        healthTanks[healthTankNumber] = Percentage.of(0);
-    }
-
-    public void addHealthToHealthTank(int healthTankNumber, int health) {
-        Percentage currentHealth = healthTanks[healthTankNumber];
-        currentHealth.translate(health);
-    }
-
-    public int getHealthTankHealthAndPurge(int healthTankNumber) {
-        Percentage healthPer = healthTanks[healthTankNumber];
-        int health = healthPer.getAsWholeNumber();
-        healthPer.setPercentage(0);
-        return health;
-    }
-
-    public void setCredits(int credits) {
-        this.credits = boundNumber(credits, 0, 99);
-    }
 
     public Supplier<Integer> getCreditsSupplier() {
         return () -> credits;

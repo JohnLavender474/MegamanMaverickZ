@@ -27,7 +27,6 @@ import java.util.function.Supplier;
 import static com.game.core.ConstVals.SoundAsset.ATOMIC_FIRE_SOUND;
 import static com.game.core.ConstVals.TextureAsset.FIRE_TEXTURE_ATLAS;
 import static com.game.core.ConstVals.ViewVals.PPM;
-import static com.game.utils.UtilMethods.equalsAny;
 import static com.game.world.FixtureType.*;
 
 @Getter
@@ -49,7 +48,7 @@ public class Fireball extends AbstractProjectile {
 
     @Override
     public void hit(Fixture fixture) {
-        if (equalsAny(fixture.getFixtureType(), BLOCK, DAMAGEABLE_BOX, SHIELD)) {
+        if (fixture.isAnyFixtureType(BLOCK, DAMAGEABLE_BOX, SHIELD)) {
             setLanded(true);
         }
     }

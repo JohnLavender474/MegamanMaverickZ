@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.core.Entity;
 import com.game.core.System;
-import com.game.updatables.Updatable;
+import com.game.utils.interfaces.Updatable;
 
 import java.util.ArrayList;
 import java.util.HashSet;

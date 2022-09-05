@@ -3,7 +3,7 @@ package com.game.movement;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
-import com.game.updatables.Updatable;
+import com.game.utils.interfaces.Updatable;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;

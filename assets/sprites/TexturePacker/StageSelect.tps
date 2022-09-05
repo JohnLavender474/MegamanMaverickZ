@@ -174,7 +174,9 @@
         <key>individualSpriteSettings</key>
         <map type="IndividualSpriteSettingsMap">
             <key type="filename">../Frames/StageSelect/Background.png</key>
-            <key type="filename">../Frames/StageSelect/BackgroundRotated.png</key>
+            <key type="filename">../Frames/StageSelect/Pane.png</key>
+            <key type="filename">../Frames/StageSelect/PaneHighlighted.png</key>
+            <key type="filename">../Frames/StageSelect/PaneShattered.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>
@@ -183,14 +185,13 @@
                 <key>scale9Enabled</key>
                 <false/>
                 <key>scale9Borders</key>
-                <rect>112,16,224,32</rect>
+                <rect>16,16,32,32</rect>
                 <key>scale9Paddings</key>
-                <rect>112,16,224,32</rect>
+                <rect>16,16,32,32</rect>
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
-            <key type="filename">../Frames/StageSelect/Pane.png</key>
-            <key type="filename">../Frames/StageSelect/PaneHighlighted.png</key>
+            <key type="filename">../Frames/StageSelect/Bar.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>
@@ -199,9 +200,9 @@
                 <key>scale9Enabled</key>
                 <false/>
                 <key>scale9Borders</key>
-                <rect>16,16,32,32</rect>
+                <rect>64,32,128,64</rect>
                 <key>scale9Paddings</key>
-                <rect>16,16,32,32</rect>
+                <rect>64,32,128,64</rect>
                 <key>scale9FromFile</key>
                 <false/>
             </struct>

@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 import com.game.core.IAssetLoader;
-import com.game.updatables.Updatable;
+import com.game.utils.interfaces.Updatable;
 import com.game.utils.interfaces.Drawable;
 import com.game.utils.objects.Timer;
 import lombok.Getter;

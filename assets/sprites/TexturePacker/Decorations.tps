@@ -311,6 +311,7 @@
             </struct>
             <key type="filename">../Frames/Decorations/StageSelectBox_Highlighted.png</key>
             <key type="filename">../Frames/Decorations/StageSelectBox_Unhighlighted.png</key>
+            <key type="filename">../Frames/Decorations/White.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>

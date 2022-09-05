@@ -2,8 +2,8 @@ package com.game.sounds;
 
 import com.badlogic.gdx.audio.Sound;
 import com.game.core.Entity;
+import com.game.core.GameContext2d;
 import com.game.core.System;
-import com.game.core.IAssetLoader;
 
 import java.util.*;
 
@@ -11,14 +11,14 @@ import static com.game.core.ConstVals.*;
 
 public class SoundSystem extends System {
 
-    private final IAssetLoader assetLoader;
+    private final GameContext2d gameContext;
     private final Map<SoundAsset, Sound> loopingSounds = new HashMap<>();
 
     private boolean stopAllLoopingSounds;
 
-    public SoundSystem(IAssetLoader assetLoader) {
+    public SoundSystem(GameContext2d gameContext) {
         super(SoundComponent.class);
-        this.assetLoader = assetLoader;
+        this.gameContext = gameContext;
     }
 
     public void requestToStopAllLoopingSounds() {
@@ -31,26 +31,24 @@ public class SoundSystem extends System {
         Queue<SoundRequest> soundRequests = soundComponent.getSoundRequests();
         while (!soundRequests.isEmpty()) {
             SoundRequest soundRequest = soundRequests.poll();
-            Sound sound = assetLoader.getAsset(soundRequest.request().getSrc(), Sound.class);
-            long id;
+            Sound sound = gameContext.getAsset(soundRequest.request().getSrc(), Sound.class);
             if (soundRequest.loop() && !loopingSounds.containsKey(soundRequest.request())) {
-                id = sound.loop();
+                gameContext.loopSound(sound);
                 loopingSounds.put(soundRequest.request(), sound);
             } else {
-                id = sound.play();
+                gameContext.playSound(sound);
             }
-            sound.setVolume(id, soundRequest.volume());
         }
         Queue<SoundAsset> stopLoopingSoundRequests = soundComponent.getStopLoopingSoundRequests();
         while (!stopLoopingSoundRequests.isEmpty()) {
             SoundAsset stopLoopingSoundRequest = stopLoopingSoundRequests.poll();
             Sound sound = loopingSounds.remove(stopLoopingSoundRequest);
             if (sound != null) {
-                sound.stop();
+                gameContext.stopSound(sound);
             }
         }
         if (stopAllLoopingSounds) {
-            loopingSounds.values().forEach(Sound::stop);
+            loopingSounds.values().forEach(gameContext::stopSound);
             loopingSounds.clear();
             stopAllLoopingSounds = false;
         }

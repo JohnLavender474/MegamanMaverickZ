@@ -7,7 +7,7 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
  * The type Megaman maverick runner. Please note that on macOS your application needs to be started with the
  * -XstartOnFirstThread JVM argument.
  */
-public class MegamanMaverickZRunner {
+public class GameRunner {
 
 	/**
 	 * The entry point of application.
@@ -20,7 +20,7 @@ public class MegamanMaverickZRunner {
 		config.setForegroundFPS(60);
 		config.setWindowedMode(1920, 1080);
 		config.setTitle("Megaman Maverick");
-		new Lwjgl3Application(new MegamanMaverickZ(), config);
+		new Lwjgl3Application(new MegamanMaverick(), config);
 	}
 
 }

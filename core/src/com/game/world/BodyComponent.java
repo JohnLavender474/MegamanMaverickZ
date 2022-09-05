@@ -3,7 +3,7 @@ package com.game.world;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.core.Component;
-import com.game.updatables.Updatable;
+import com.game.utils.interfaces.Updatable;
 import com.game.utils.enums.Direction;
 import com.game.utils.UtilMethods;
 import lombok.Getter;
@@ -436,7 +436,7 @@ public class BodyComponent extends Component {
      * @return the list of fixtures
      */
     public List<Fixture> getFixtures(FixtureType fixtureType) {
-        return fixtures.stream().filter(fixture -> fixture.getFixtureType().equals(fixtureType)).collect(toList());
+        return fixtures.stream().filter(fixture -> fixture.isFixtureType(fixtureType)).collect(toList());
     }
 
     /**
@@ -446,7 +446,7 @@ public class BodyComponent extends Component {
      * @return the optional fixture
      */
     public Optional<Fixture> getFirstMatchingFixture(FixtureType fixtureType) {
-        return fixtures.stream().filter(fixture -> fixture.getFixtureType().equals(fixtureType)).findFirst();
+        return fixtures.stream().filter(fixture -> fixture.isFixtureType(fixtureType)).findFirst();
     }
 
     /**

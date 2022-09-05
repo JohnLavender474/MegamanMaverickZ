@@ -89,7 +89,7 @@ public class Bat extends AbstractEnemy implements Hitter {
 
     @Override
     public void hit(Fixture fixture) {
-        if (fixture.getFixtureType().equals(DAMAGEABLE_BOX) && fixture.getEntity().equals(getMegaman())) {
+        if (fixture.isFixtureType(DAMAGEABLE_BOX) && fixture.getEntity().equals(getMegaman())) {
             setCurrentStatus(FLYING_TO_RETREAT);
         }
     }

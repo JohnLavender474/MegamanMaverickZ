@@ -1,4 +1,4 @@
-package com.game.updatables;
+package com.game.utils.interfaces;
 
 /**
  * The interface Updatable.

@@ -64,11 +64,11 @@ public class ChargedShot extends AbstractProjectile implements Faceable {
                 (owner instanceof Damager && fixture.getEntity() instanceof Damager)) {
             return;
         }
-        if (fixture.getFixtureType() == BLOCK) {
+        if (fixture.isFixtureType(BLOCK)) {
             setDead(true);
             gameContext.addEntity(new ChargedShotDisintegration(
                     gameContext, getComponent(BodyComponent.class).getCenter(), isFacing(F_LEFT)));
-        } else if (fixture.getFixtureType() == SHIELD) {
+        } else if (fixture.isFixtureType(SHIELD)) {
             setOwner(fixture.getEntity());
             swapFacing();
             trajectory.x *= -1f;

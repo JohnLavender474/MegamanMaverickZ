@@ -61,6 +61,7 @@ import static com.game.entities.megaman.MegamanWeapon.*;
 import static com.game.utils.UtilMethods.*;
 import static com.game.world.BodySense.*;
 import static com.game.world.BodySense.FEET_ON_GROUND;
+import static com.game.world.BodyType.*;
 import static com.game.world.FixtureType.*;
 
 /**
@@ -119,9 +120,11 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         megamanSpecialAbilities = megamanGameInfo.getMegamanSpecialAbilities();
 
         // TODO: temporarily adding special abilities at onset
+        /*
         megamanSpecialAbilities.add(GROUND_SLIDE);
         megamanSpecialAbilities.add(WALL_JUMP);
         megamanSpecialAbilities.add(AIR_DASH);
+        */
         // TODO: Remove three above lines of code
 
         setCurrentWeapon(MEGA_BUSTER);
@@ -546,25 +549,25 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
     }
 
     private BodyComponent defineBodyComponent(Vector2 spawn) {
-        BodyComponent bodyComponent = new BodyComponent(BodyType.DYNAMIC);
+        BodyComponent bodyComponent = new BodyComponent(DYNAMIC);
         bodyComponent.setPosition(spawn);
         bodyComponent.setWidth(.8f * PPM);
         // feet
-        Fixture feet = new Fixture(this, FEET);
+        Fixture feet = new Fixture(this, FEET, BOUNCEABLE);
         feet.setSize(.625f * PPM, (1f / 16f) * PPM);
         bodyComponent.addFixture(feet);
         // head
-        Fixture head = new Fixture(this, HEAD);
+        Fixture head = new Fixture(this, HEAD, BOUNCEABLE);
         head.setSize(.625f * PPM, (1f / 8f) * PPM);
         head.setOffset(0f, PPM / 2f);
         bodyComponent.addFixture(head);
         // left
-        Fixture left = new Fixture(this, LEFT);
+        Fixture left = new Fixture(this, LEFT, BOUNCEABLE);
         left.setWidth(PPM / 16f);
         left.setOffset(-.45f * PPM, .15f * PPM);
         bodyComponent.addFixture(left);
         // right
-        Fixture right = new Fixture(this, RIGHT);
+        Fixture right = new Fixture(this, RIGHT, BOUNCEABLE);
         right.setWidth(PPM / 16f);
         right.setOffset(.45f * PPM, .15f * PPM);
         bodyComponent.addFixture(right);

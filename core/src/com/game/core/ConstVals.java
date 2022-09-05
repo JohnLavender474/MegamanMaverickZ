@@ -1,75 +1,94 @@
 package com.game.core;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.game.utils.enums.Position;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import static com.game.core.ConstVals.ViewVals.*;
+import static com.game.core.ConstVals.ViewVals.PPM;
 import static com.game.utils.enums.Position.*;
 import static lombok.AccessLevel.PRIVATE;
 
 public class ConstVals {
+
+    public static Vector3 getCamInitPos() {
+        return new Vector3(VIEW_WIDTH * PPM / 2f, VIEW_HEIGHT * PPM / 2f, 0f);
+    }
 
     public enum GameScreen {
         TEST_LEVEL_1, TEST_LEVEL_2, MAIN_MENU, PASSWORD, SETTINGS, BOSS_SELECT, PAUSE_MENU, TIMBER_WOMAN
     }
 
     public enum RenderingGround {
-        UI, PLAYGROUND, BACKGROUND
+        BACKGROUND, PLAYGROUND, UI
     }
 
     public enum Events {
-        PLAYER_DEAD, LEVEL_PAUSED, LEVEL_UNPAUSED, LEVEL_FINISHED
+        PLAYER_DEAD, LEVEL_PAUSED, LEVEL_UNPAUSED, LEVEL_FINISHED, SOUND_VOLUME_CHANGE
     }
 
     public enum LevelStatus {
         PAUSED, UNPAUSED, NONE
     }
 
+    /**
+     * DESCRIPTIONS:
+     * -Timber Woman:
+     *
+     * Timber Woman beats Histrionic Man,
+     * Histrionic Man beats Sales Man,
+     * Sales Man beats Maniac Man,
+     * Maniac Man beats Lighter Man,
+     * Lighter Man beats Weed Man,
+     * Weed Man beats Beacon Man,
+     * Beacon Man beats Tsunami Man,
+     * Tsunami Man beats Timber Woman
+     */
     @Getter
     @RequiredArgsConstructor(access = PRIVATE)
     public enum Boss {
 
         TIMBER_WOMAN("Timber Woman", BOTTOM_LEFT, GameScreen.TIMBER_WOMAN),
-        JELLY_WOMAN("Jelly Woman", CENTER_LEFT, null),
+        /*
         MANIAC_MAN("Maniac Man", BOTTOM_CENTER, null),
-        TSUNAMI_MAN("Tsunami Man", TOP_LEFT, null),
-        SHROOM_MAN("Shroom Man", TOP_CENTER, null),
-        ATTIC_MAN("Attic Man", BOTTOM_RIGHT, null),
-        LION_MAN("Lion Man", CENTER_RIGHT, null),
-        // TODO: Create name for last boss
-        SOMETHING_MAN("Something Man", TOP_RIGHT, null);
+        TSUNAMI_MAN("Tsunami Man", BOTTOM_RIGHT, null),
+        SALES_MAN("Sales Man", CENTER_LEFT, null),
+        HISTRIONIC_MAN("Histrionic Man", CENTER_RIGHT, null),
+        BEACON_MAN("Beacon Man", TOP_LEFT, null),
+        WEED_MAN("Weed Man", TOP_CENTER, null),
+        LIGHTER_MAN("Lighter Man", TOP_RIGHT, null)
+         */
+        ;
 
         private final String bossName;
         private final Position position;
         private final GameScreen gameScreen;
 
         public static Boss findByName(String name) {
+            /*
             for (Boss boss : values()) {
                 if (name.equals(boss.getBossName())) {
                     return boss;
                 }
             }
             return null;
+             */
+            return TIMBER_WOMAN;
         }
 
         public static Boss findByPos(Position position) {
+            /*
             for (Boss boss : values()) {
                 if (boss.getPosition().equals(position)) {
                     return boss;
                 }
             }
             return null;
-        }
-
-        public static Boss findByGameScreen(GameScreen gameScreen) {
-            for (Boss boss : values()) {
-                if (boss.getGameScreen().equals(gameScreen)) {
-                    return boss;
-                }
-            }
-            return null;
+             */
+            return TIMBER_WOMAN;
         }
 
         public static Boss findByPos(int x, int y) {
@@ -107,6 +126,7 @@ public class ConstVals {
         MEGAMAN_TEXTURE_ATLAS("Megaman.txt"),
         BITS_ATLAS("HealthAndWeaponBits.txt"),
         HAZARDS_1_TEXTURE_ATLAS("Hazards1.txt"),
+        BOSS_FACES_TEXTURE_ATLAS("BossFaces.txt"),
         CHARGE_ORBS_TEXTURE_ATLAS("ChargeOrbs.txt"),
         DECORATIONS_TEXTURE_ATLAS("Decorations.txt"),
         STAGE_SELECT_TEXTURE_ATLAS("StageSelect.txt"),

@@ -1,6 +1,6 @@
 package com.game.behaviors;
 
-import com.game.updatables.Updatable;
+import com.game.utils.interfaces.Updatable;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

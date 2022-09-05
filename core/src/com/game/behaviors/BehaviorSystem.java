@@ -2,9 +2,7 @@ package com.game.behaviors;
 
 import com.game.core.Entity;
 import com.game.core.System;
-import com.game.updatables.Updatable;
-
-import java.util.Set;
+import com.game.utils.interfaces.Updatable;
 
 /**
  * {@link System} implementation for updating entity behaviors.

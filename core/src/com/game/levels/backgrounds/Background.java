@@ -6,13 +6,10 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.game.core.ConstVals.ViewVals;
 import com.game.core.DebugLogger;
-import com.game.updatables.Updatable;
-import com.game.utils.UtilMethods;
+import com.game.utils.interfaces.Updatable;
 import com.game.utils.interfaces.Drawable;
 
-import static com.badlogic.gdx.graphics.Texture.TextureFilter.*;
 import static com.game.core.ConstVals.ViewVals.PPM;
-import static com.game.utils.UtilMethods.*;
 
 /**
  * Represents a grid of sprites to be used for repeating background images. Integer parameters are all scaled by

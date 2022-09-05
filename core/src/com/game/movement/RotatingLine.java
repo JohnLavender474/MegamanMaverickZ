@@ -2,7 +2,7 @@ package com.game.movement;
 
 import com.badlogic.gdx.math.Polyline;
 import com.badlogic.gdx.math.Vector2;
-import com.game.updatables.Updatable;
+import com.game.utils.interfaces.Updatable;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -1,5 +1,5 @@
 package com.game.utils.interfaces;
 
-public interface Initializable<T> {
-    void init(T t);
+public interface Initializable {
+    void init();
 }

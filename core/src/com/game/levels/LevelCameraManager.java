@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.updatables.Updatable;
+import com.game.utils.interfaces.Updatable;
 import com.game.utils.enums.Direction;
 import com.game.utils.enums.ProcessState;
 import com.game.utils.objects.Timer;

@@ -1,6 +1,7 @@
 package com.game.updatables;
 
 import com.game.core.Component;
+import com.game.utils.interfaces.Updatable;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

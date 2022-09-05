@@ -26,6 +26,7 @@ import com.game.entities.hazards.Saw;
 import com.game.entities.megaman.Megaman;
 import com.game.entities.sensors.DeathSensor;
 import com.game.entities.sensors.WallSlideSensor;
+import com.game.entities.specials.SpringyBouncer;
 import com.game.graph.Graph;
 import com.game.graph.GraphSystem;
 import com.game.health.HealthComponent;
@@ -111,16 +112,14 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
 
     @Override
     public void show() {
-
         DebugLogger.getInstance().info("Entities size at level screen show init: " + gameContext.getEntities().size());
-
         // init
         gameContext.addMessageListener(this);
         gameContext.setLevelStatus(UNPAUSED);
         gameContext.setDoUpdateController(true);
         gameContext.getSystems().forEach(system -> system.setOn(true));
         levelMusic = gameContext.getAsset(musicSrc, Music.class);
-        levelMusic.play();
+        gameContext.playMusic(levelMusic, true);
         deathTimer.setToEnd();
         fpsText = new FontHandle("Megaman10Font.ttf", round(PPM / 2f), new Vector2(PPM, 14f * PPM));
         // level map
@@ -163,15 +162,12 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
         // death sensors
         levelMap.getObjectsOfLayer(DEATH_SENSORS).forEach(deathSensorObj ->
                 gameContext.addEntity(new DeathSensor(gameContext, deathSensorObj.getRectangle())));
-        // special
-        levelMap.getObjectsOfLayer(SPECIAL).forEach(specialObj -> {
-            // TODO: instantiate special entities
-        });
+        // specials
+        levelMap.getObjectsOfLayer(SPECIAL).forEach(specialObj ->
+            gameContext.addEntity(getSpecial(specialObj)));
         // hazards
-        levelMap.getObjectsOfLayer(HAZARDS).forEach(hazardObj -> {
-            Entity hazard = getHazard(hazardObj);
-            gameContext.addEntity(hazard);
-        });
+        levelMap.getObjectsOfLayer(HAZARDS).forEach(hazardObj ->
+            gameContext.addEntity(getHazard(hazardObj)));
         // game rooms
         Map<Rectangle, String> gameRooms = new HashMap<>();
         levelMap.getObjectsOfLayer(GAME_ROOMS).forEach(gameRoomObj ->
@@ -226,7 +222,6 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
             } else {
                 switch (levelCameraManager.getTransitionState()) {
                     case BEGIN -> {
-                        // gameContext.setDoUpdateController(false);
                         gameContext.getSystem(ControllerSystem.class).setOn(false);
                         gameContext.getSystem(TrajectorySystem.class).setOn(false);
                         gameContext.getSystem(UpdatableSystem.class).setOn(false);
@@ -250,7 +245,6 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
                         }
                     }
                     case END -> {
-                        // gameContext.setDoUpdateController(true);
                         gameContext.getSystem(ControllerSystem.class).setOn(true);
                         gameContext.getSystem(TrajectorySystem.class).setOn(true);
                         gameContext.getSystem(UpdatableSystem.class).setOn(true);
@@ -261,11 +255,9 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
             }
             deathTimer.update(delta);
             if (deathTimer.isJustFinished()) {
-                levelMusic.play();
+                gameContext.playMusic(levelMusic, true);
                 spawnMegaman();
             }
-            healthBar.draw();
-            showFpsText();
         }
         gameContext.setSpriteBatchProjectionMatrix(PLAYGROUND);
         backgrounds.forEach(background -> {
@@ -274,6 +266,8 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
         });
         levelMap.draw();
         gameContext.updateSystems(delta);
+        healthBar.draw();
+        showFpsText();
     }
 
     @Override
@@ -282,13 +276,13 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
             gameContext.getSystem(SoundSystem.class).requestToStopAllLoopingSounds();
             gameContext.getAsset(MEGAMAN_DEFEAT_SOUND.getSrc(), Sound.class).play();
             deathTimer.reset();
-            levelMusic.stop();
+            gameContext.stopMusic(levelMusic);
         }
     }
 
     @Override
     public void dispose() {
-        levelMusic.stop();
+        gameContext.stopMusic(levelMusic);
         levelMap.dispose();
         gameContext.purgeAllEntities();
         gameContext.setLevelStatus(NONE);
@@ -353,6 +347,15 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
         }
     }
 
+    private Entity getSpecial(RectangleMapObject spawnObj) {
+        switch (spawnObj.getName()) {
+            case "bounce" -> {
+                return new SpringyBouncer(gameContext, spawnObj);
+            }
+            default -> throw new IllegalStateException("Cannot find matching entity for <" + spawnObj.getName() + ">");
+        }
+    }
+
     private void fadeIn(float delta) {
         if (!fadingIn) {
             initFadeIn();
@@ -393,12 +396,12 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
         fadingOut = !fadeTimer.isFinished();
     }
 
-    private void initFadeIn() throws IllegalStateException {
+    private void initFadeIn() {
         blackBoxSprite.setBounds(0f, 0f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         fadeTimer.reset();
     }
 
-    private void initFadeOut() throws IllegalStateException {
+    private void initFadeOut() {
         blackBoxSprite.setBounds(0f, 0f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         blackBoxSprite.setAlpha(0f);
         fadeTimer.reset();

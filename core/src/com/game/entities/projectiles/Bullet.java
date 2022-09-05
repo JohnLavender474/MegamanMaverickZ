@@ -22,7 +22,6 @@ import lombok.Setter;
 import static com.game.core.ConstVals.SoundAsset.*;
 import static com.game.core.ConstVals.TextureAsset.OBJECTS_TEXTURE_ATLAS;
 import static com.game.core.ConstVals.ViewVals.PPM;
-import static com.game.utils.UtilMethods.*;
 import static com.game.utils.enums.Position.*;
 import static com.game.world.BodyType.*;
 import static com.game.world.FixtureType.*;
@@ -55,9 +54,9 @@ public class Bullet extends AbstractProjectile {
                 fixture.getEntity() instanceof AbstractEnemy)) {
             return;
         }
-        if (equalsAny(fixture.getFixtureType(), BLOCK, DAMAGEABLE_BOX)) {
+        if (fixture.isAnyFixtureType(BLOCK, DAMAGEABLE_BOX)) {
             disintegrate();
-        } else if (fixture.getFixtureType().equals(SHIELD)) {
+        } else if (fixture.isFixtureType(SHIELD)) {
             setOwner(fixture.getEntity());
             trajectory.x *= -1f;
             String reflectDir = fixture.getUserData("reflectDir", String.class);

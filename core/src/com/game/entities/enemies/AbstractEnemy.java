@@ -17,7 +17,7 @@ import com.game.health.HealthComponent;
 import com.game.messages.MessageListener;
 import com.game.sounds.SoundComponent;
 import com.game.sprites.SpriteAdapter;
-import com.game.updatables.Updatable;
+import com.game.utils.interfaces.Updatable;
 import com.game.utils.enums.Position;
 import com.game.utils.objects.Timer;
 import com.game.utils.objects.Wrapper;

@@ -1,5 +1,6 @@
 package com.game.world;
 
+import com.badlogic.gdx.math.Vector2;
 import com.game.core.Entity;
 import com.game.damage.Damageable;
 import com.game.damage.Damager;
@@ -7,8 +8,10 @@ import com.game.entities.contracts.Hitter;
 import com.game.entities.megaman.Megaman;
 import com.game.health.HealthComponent;
 import com.game.sounds.SoundComponent;
+import com.game.utils.objects.Timer;
 
 import static com.game.core.ConstVals.SoundAsset.*;
+import static com.game.core.ConstVals.ViewVals.PPM;
 import static com.game.entities.megaman.Megaman.*;
 import static com.game.entities.megaman.Megaman.AButtonTask.*;
 import static com.game.world.BodySense.*;
@@ -18,6 +21,7 @@ import static com.game.world.FixtureType.*;
  * Implementation of {@link WorldContactListener}.
  */
 public class WorldContactListenerImpl implements WorldContactListener {
+
     @Override
     public void beginContact(Contact contact, float delta) {
         if (contact.acceptMask(DAMAGEABLE_BOX, DEATH)) {
@@ -52,7 +56,22 @@ public class WorldContactListenerImpl implements WorldContactListener {
             damageable.takeDamageFrom(damager);
             damager.onDamageInflictedTo(damageable);
         } else if (contact.acceptMask(HITTER_BOX) && contact.mask1stEntity() instanceof Hitter hitter) {
-            hitter.hit(contact.getMask().getSecond());
+            hitter.hit(contact.mask2ndFixture());
+        } else if (contact.acceptMask(BOUNCEABLE, BOUNCER)) {
+            Fixture bouncer = contact.mask2ndFixture();
+            Float x = bouncer.getUserData("x", Float.class);
+            Float y = bouncer.getUserData("y", Float.class);
+            BodyComponent bounceable = contact.mask1stBody();
+            if (x != null) {
+                bounceable.setVelocityX(x * PPM);
+            }
+            if (y != null) {
+                bounceable.setVelocityY(y * PPM);
+            }
+            Runnable runnable = contact.mask2ndFixture().getUserData("onBounce", Runnable.class);
+            if (runnable != null) {
+                runnable.run();
+            }
         }
     }
 

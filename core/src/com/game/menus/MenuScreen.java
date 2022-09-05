@@ -91,8 +91,7 @@ public abstract class MenuScreen extends ScreenAdapter {
         setMenuButton(firstButtonKey);
         selectionMade = false;
         if (music != null) {
-            music.play();
-            music.setLooping(true);
+            gameContext.playMusic(music, true);
         }
         gameContext.setDoUpdateController(true);
         Vector3 camPos = uiViewport.getCamera().position;
@@ -131,8 +130,7 @@ public abstract class MenuScreen extends ScreenAdapter {
     @Override
     public void dispose() {
         if (music != null) {
-            music.setLooping(false);
-            music.stop();
+            gameContext.stopMusic(music);
         }
     }
 

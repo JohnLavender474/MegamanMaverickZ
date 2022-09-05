@@ -8,8 +8,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static com.badlogic.gdx.graphics.Color.*;
 
@@ -22,7 +21,7 @@ import static com.badlogic.gdx.graphics.Color.*;
 public class Fixture {
 
     private final Entity entity;
-    private final FixtureType fixtureType;
+    private final Set<FixtureType> fixtureMask = EnumSet.noneOf(FixtureType.class);
 
     private final Vector2 offset = new Vector2();
     private final Rectangle fixtureBox = new Rectangle();
@@ -30,6 +29,53 @@ public class Fixture {
 
     private boolean active = true;
     private Color debugColor = YELLOW;
+
+    public Fixture(Entity entity, FixtureType... fixtureTypes) {
+        this.entity = entity;
+        addFixtureTypes(fixtureTypes);
+    }
+
+    public boolean isFixtureType(FixtureType fixtureType) {
+        return fixtureMask.contains(fixtureType);
+    }
+
+    public boolean isAnyFixtureType(FixtureType... fixtureTypes) {
+        for (FixtureType fixtureType : fixtureTypes) {
+            if (isFixtureType(fixtureType)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isAllFixtureTypes(FixtureType... fixtureTypes) {
+        for (FixtureType fixtureType : fixtureTypes) {
+            if (!isFixtureType(fixtureType)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void removeFixtureTypes(FixtureType... fixtureTypes) {
+        for (FixtureType fixtureType : fixtureTypes) {
+            removeFixtureType(fixtureType);
+        }
+    }
+
+    public void removeFixtureType(FixtureType fixtureType) {
+        fixtureMask.remove(fixtureType);
+    }
+
+    public void addFixtureTypes(FixtureType... fixtureTypes) {
+        for (FixtureType fixtureType : fixtureTypes) {
+            addFixtureType(fixtureType);
+        }
+    }
+
+    public void addFixtureType(FixtureType fixtureType) {
+        fixtureMask.add(fixtureType);
+    }
 
     /**
      * Put user data.

@@ -1,39 +1,46 @@
 StageSelect.png
-size: 1152, 64
+size: 640, 64
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
 Background
   rotate: false
   xy: 0, 0
-  size: 448, 64
-  orig: 448, 64
+  size: 64, 64
+  orig: 64, 64
   offset: 0, 0
   index: -1
-BackgroundRotated
+Bar
   rotate: false
-  xy: 448, 0
-  size: 448, 64
-  orig: 448, 64
+  xy: 64, 0
+  size: 256, 64
+  orig: 256, 64
   offset: 0, 0
   index: -1
 Pane
   rotate: false
-  xy: 896, 0
+  xy: 320, 0
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 PaneBlinking
   rotate: false
-  xy: 960, 0
+  xy: 384, 0
   size: 128, 64
   orig: 128, 64
   offset: 0, 0
   index: -1
 PaneHighlighted
   rotate: false
-  xy: 1088, 0
+  xy: 512, 0
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+PaneShattered
+  rotate: false
+  xy: 576, 0
   size: 64, 64
   orig: 64, 64
   offset: 0, 0

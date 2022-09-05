@@ -5,4 +5,4 @@ package com.game.core;
  * listening, asset loading, sprite batch, screen management, and blackboard.
  */
 public interface GameContext2d extends IEntitiesAndSystemsManager, IScreenManager, ILevelStatus,
-        IRenderingManager, IController, IAssetLoader, IBlackboard, IMessageDispatcher {}
+        IRenderingManager, IController, IAssetLoader, IBlackboard, IMessageDispatcher, ISFXController {}

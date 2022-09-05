@@ -1,8 +1,6 @@
 package com.game.utils.objects;
 
 import com.game.animations.TimeMarkedRunnable;
-import com.game.updatables.Updatable;
-import com.game.utils.interfaces.Resettable;
 import lombok.Getter;
 
 import java.util.*;

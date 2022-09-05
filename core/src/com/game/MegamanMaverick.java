@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -56,8 +57,7 @@ import java.util.*;
 
 import static com.badlogic.gdx.Gdx.*;
 import static com.game.core.ConstVals.*;
-import static com.game.core.ConstVals.Events.LEVEL_PAUSED;
-import static com.game.core.ConstVals.Events.LEVEL_UNPAUSED;
+import static com.game.core.ConstVals.Events.*;
 import static com.game.core.ConstVals.GameScreen.*;
 import static com.game.core.ConstVals.LevelStatus.*;
 import static com.game.core.ConstVals.MegamanVals.*;
@@ -78,7 +78,7 @@ import static com.game.core.FontHandle.*;
  * {@link com.badlogic.gdx.Screen#render(float)} on {@link #getScreen()} every frame.
  */
 @Getter
-public class MegamanMaverickZ extends Game implements GameContext2d, MessageListener {
+public class MegamanMaverick extends Game implements GameContext2d, MessageListener {
 
     private final Map<ControllerButton, ButtonStatus> controllerButtons = new EnumMap<>(ControllerButton.class);
     private final Map<RenderingGround, Viewport> viewports = new EnumMap<>(RenderingGround.class);
@@ -97,6 +97,9 @@ public class MegamanMaverickZ extends Game implements GameContext2d, MessageList
     private AssetManager assetManager;
     private SpriteBatch spriteBatch;
 
+    private int soundEffectsVolume = 6;
+    private int musicVolume = 6;
+
     private Screen overlayScreen;
     private GameScreen overlayScreenKey;
 
@@ -111,7 +114,7 @@ public class MegamanMaverickZ extends Game implements GameContext2d, MessageList
         // viewports
         for (RenderingGround renderingGround : RenderingGround.values()) {
             Viewport viewport = new FitViewport(VIEW_WIDTH * PPM, VIEW_HEIGHT * PPM);
-            viewport.getCamera().position.set(VIEW_WIDTH * PPM / 2f, VIEW_HEIGHT * PPM / 2f, 0f);
+            viewport.getCamera().position.set(ConstVals.getCamInitPos());
             viewports.put(renderingGround, viewport);
         }
         // controller buttons
@@ -376,6 +379,20 @@ public class MegamanMaverickZ extends Game implements GameContext2d, MessageList
         } else if (message.equals(LEVEL_UNPAUSED)) {
             setLevelStatus(UNPAUSED);
         }
+    }
+
+    @Override
+    public void setSoundEffectsVolume(int soundEffectsVolume) {
+        this.soundEffectsVolume = soundEffectsVolume;
+        addMessage(new Message(null, SOUND_VOLUME_CHANGE));
+    }
+
+    @Override
+    public void setMusicVolume(int musicVolume) {
+        Array<Music> musicArray = new Array<>(MusicAsset.values().length);
+        assetManager.getAll(Music.class, musicArray);
+        musicArray.forEach(music -> music.setVolume(musicVolume / 10f));
+        this.musicVolume = musicVolume;
     }
 
     @Override
