@@ -1,6 +1,6 @@
 <img src="assets/sprites/Frames/MegamanMainMenu/MegamanPose.png?raw=true" width="200px" height="200px" />
 
-# Megaman Omega
+# Megaman Maverick
 
 ## The Story
 
