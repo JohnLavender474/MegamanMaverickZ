@@ -19,7 +19,7 @@ public class ConstVals {
     }
 
     public enum GameScreen {
-        TEST_LEVEL_1, TEST_LEVEL_2, MAIN_MENU, PASSWORD, SETTINGS, BOSS_SELECT, PAUSE_MENU, TIMBER_WOMAN
+        TEST_LEVEL_1, TEST_LEVEL_2, MAIN_MENU, PASSWORD, SETTINGS, EXTRAS, BOSS_SELECT, PAUSE_MENU, TIMBER_WOMAN
     }
 
     public enum RenderingGround {
@@ -51,7 +51,20 @@ public class ConstVals {
     @RequiredArgsConstructor(access = PRIVATE)
     public enum Boss {
 
-        TIMBER_WOMAN("Timber Woman", BOTTOM_LEFT, GameScreen.TIMBER_WOMAN),
+        TIMBER_WOMAN("Timber Woman", BOTTOM_LEFT, GameScreen.TIMBER_WOMAN) {
+            @Override
+            public String getBio() {
+                return "Originally designed to be 'Timbre Woman', she was \n" +
+                        "planned to be the finest a cappella singer in the world. \n" +
+                        "But one of the programmers screwed up and typed \n" +
+                        "'Timber' instead of 'Timbre' into her firmware, and \n" +
+                        "as a result, she became the world's strongest \n" +
+                        "lumberjack. She is an advocate for responsible \n" +
+                        "forestation practices and dreams of building a \n" +
+                        "'City Among the Trees' should she ever hold \n" +
+                        "a position in government.";
+            }
+        },
         /*
         MANIAC_MAN("Maniac Man", BOTTOM_CENTER, null),
         TSUNAMI_MAN("Tsunami Man", BOTTOM_RIGHT, null),
@@ -66,6 +79,8 @@ public class ConstVals {
         private final String bossName;
         private final Position position;
         private final GameScreen gameScreen;
+
+        public abstract String getBio();
 
         public static Boss findByName(String name) {
             /*
@@ -155,6 +170,8 @@ public class ConstVals {
         MMZ_NEO_ARCADIA_MUSIC("MMZ_NeoArcadia.mp3"),
         STAGE_SELECT_MM3_MUSIC("StageSelectMM3.mp3"),
         MMX3_INTRO_STAGE_MUSIC("MMX3_IntroStage.ogg"),
+        MM11_MAIN_MENU_MUSIC("MM11_Main_Menu.mp3"),
+        MM11_WILY_STAGE_MUSIC("MM11_Wily_Stage.mp3"),
         XENOBLADE_GAUR_PLAINS_MUSIC("Xenoblade_GaurPlains.ogg"),
         MMX_LEVEL_SELECT_SCREEN_MUSIC("MMX_LevelSelectScreen.ogg");
 

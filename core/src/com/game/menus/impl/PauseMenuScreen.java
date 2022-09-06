@@ -4,13 +4,12 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
-import com.game.core.DebugLogger;
 import com.game.core.GameContext2d;
 import com.game.core.MegamanGameInfo;
 import com.game.entities.megaman.MegamanWeapon;
 import com.game.menus.MenuButton;
 import com.game.menus.MenuScreen;
-import com.game.core.FontHandle;
+import com.game.core.MegaFontHandle;
 import com.game.utils.objects.Percentage;
 
 import java.util.Map;
@@ -27,12 +26,12 @@ import static com.game.entities.megaman.MegamanWeapon.*;
 
 public class PauseMenuScreen extends MenuScreen {
 
-    private final FontHandle[] weaponTexts = new FontHandle[MegamanWeapon.values().length];
+    private final MegaFontHandle[] weaponTexts = new MegaFontHandle[MegamanWeapon.values().length];
     private final Sprite[] weaponSprites = new Sprite[MegamanWeapon.values().length];
     private final Sprite[] healthTankSprites = new Sprite[MAX_HEALTH_TANKS];
     private final Set<MegamanWeapon> weaponsAttained;
     private final Supplier<Integer> creditsSupplier;
-    private final FontHandle creditsAmountText;
+    private final MegaFontHandle creditsAmountText;
     private final Percentage[] healthTanks;
 
     /**
@@ -51,7 +50,7 @@ public class PauseMenuScreen extends MenuScreen {
         for (MegamanWeapon megamanWeapon : MegamanWeapon.values()) {
             // TODO: Set sprite and text for each weapon
             weaponSprites[megamanWeapon.ordinal()] = new Sprite();
-            weaponTexts[megamanWeapon.ordinal()] = new FontHandle(8, new Vector2(), megamanWeapon.getWeaponText());
+            weaponTexts[megamanWeapon.ordinal()] = new MegaFontHandle(8, new Vector2(), megamanWeapon.getWeaponText());
         }
 
         // TODO: Create texture atlas for health tank sprites
@@ -61,7 +60,7 @@ public class PauseMenuScreen extends MenuScreen {
         }
 
         // TODO: Credits text
-        creditsAmountText = new FontHandle(8, new Vector2());
+        creditsAmountText = new MegaFontHandle(8, new Vector2());
 
     }
 

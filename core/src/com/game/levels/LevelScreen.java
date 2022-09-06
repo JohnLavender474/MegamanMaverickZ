@@ -42,7 +42,7 @@ import com.game.spawns.SpawnLocation;
 import com.game.spawns.SpawnManager;
 import com.game.updatables.UpdatableSystem;
 import com.game.utils.enums.Direction;
-import com.game.core.FontHandle;
+import com.game.core.MegaFontHandle;
 import com.game.utils.objects.Timer;
 import com.game.world.BodyComponent;
 import com.game.world.WorldSystem;
@@ -94,7 +94,7 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
 
     private Megaman megaman;
     private Music levelMusic;
-    private FontHandle fpsText;
+    private MegaFontHandle fpsText;
     private BitsBarUi healthBar;
     private LevelTiledMap levelMap;
     private SpawnManager spawnManager;
@@ -121,7 +121,7 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
         levelMusic = gameContext.getAsset(musicSrc, Music.class);
         gameContext.playMusic(levelMusic, true);
         deathTimer.setToEnd();
-        fpsText = new FontHandle("Megaman10Font.ttf", round(PPM / 2f), new Vector2(PPM, 14f * PPM));
+        fpsText = new MegaFontHandle("Megaman10Font.ttf", round(PPM / 2f), new Vector2(PPM, 14f * PPM));
         // level map
         levelMap = new LevelTiledMap((OrthographicCamera) gameContext.getViewport(PLAYGROUND).getCamera(),
                 gameContext.getSpriteBatch(), tmxFile);

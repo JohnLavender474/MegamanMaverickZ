@@ -20,7 +20,7 @@ import com.game.utils.interfaces.Updatable;
 import com.game.utils.enums.Direction;
 import com.game.utils.enums.Position;
 import com.game.utils.interfaces.Drawable;
-import com.game.core.FontHandle;
+import com.game.core.MegaFontHandle;
 import com.game.utils.objects.Timer;
 import lombok.Getter;
 import lombok.Setter;
@@ -156,11 +156,11 @@ public class BossSelectScreen extends MenuScreen {
 
     private final Camera camera;
     private final Sound bloopSound;
-    private final FontHandle bossName;
+    private final MegaFontHandle bossName;
     private final ScreenSlide screenSlide;
     private final Sprite blackBar1 = new Sprite();
     private final Sprite blackBar2 = new Sprite();
-    private final List<FontHandle> texts = new ArrayList<>();
+    private final List<MegaFontHandle> texts = new ArrayList<>();
     private final List<BossPane> bossPanes = new ArrayList<>();
     private final Map<Sprite, TimedAnimation> bars = new HashMap<>();
     private final Map<String, BlinkingArrow> blinkingArrows = new HashMap<>();
@@ -211,9 +211,9 @@ public class BossSelectScreen extends MenuScreen {
             bossPanes.add(bossPane);
         }
         // text and blinking arrows
-        texts.add(new FontHandle("Megaman10Font.ttf", (int) (PPM / 2f),
+        texts.add(new MegaFontHandle("Megaman10Font.ttf", (int) (PPM / 2f),
                 new Vector2(5.35f * PPM, 13.85f * PPM), "PRESS START"));
-        texts.add(new FontHandle("Megaman10Font.ttf", (int) (PPM / 2f),
+        texts.add(new MegaFontHandle("Megaman10Font.ttf", (int) (PPM / 2f),
                 new Vector2(12.35f * PPM, PPM), BACK));
         blinkingArrows.put(BACK, new BlinkingArrow(gameContext, new Vector2(12f * PPM, .75f * PPM)));
         // background
@@ -238,7 +238,7 @@ public class BossSelectScreen extends MenuScreen {
         blackBar2.setRegion(black);
         blackBar2.setBounds(0f, 0f, .25f * PPM, VIEW_HEIGHT * PPM);
         // boss name
-        bossName = new FontHandle("Megaman10Font.ttf", (int) (PPM / 2f), new Vector2(PPM, PPM));
+        bossName = new MegaFontHandle("Megaman10Font.ttf", (int) (PPM / 2f), new Vector2(PPM, PPM));
     }
 
     @Override

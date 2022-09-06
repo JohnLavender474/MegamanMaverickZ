@@ -8,22 +8,26 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.game.core.ConstVals;
+import com.game.core.ConstVals.GameScreen;
 import com.game.core.GameContext2d;
 import com.game.menus.utils.BlinkingArrow;
 import com.game.menus.MenuButton;
 import com.game.menus.MenuScreen;
 import com.game.menus.utils.ScreenSlide;
 import com.game.utils.enums.Direction;
-import com.game.core.FontHandle;
+import com.game.core.MegaFontHandle;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.game.core.ConstVals.GameScreen.BOSS_SELECT;
-import static com.game.core.ConstVals.MusicAsset.MMX3_INTRO_STAGE_MUSIC;
+import static com.game.core.ConstVals.MusicAsset.MM11_WILY_STAGE_MUSIC;
+import static com.game.core.ConstVals.RenderingGround.*;
 import static com.game.core.ConstVals.SoundAsset.CURSOR_MOVE_BLOOP_SOUND;
 import static com.game.core.ConstVals.SoundAsset.SELECT_PING_SOUND;
 import static com.game.core.ConstVals.TextureAsset.DECORATIONS_TEXTURE_ATLAS ;
@@ -33,7 +37,6 @@ import static com.game.menus.impl.MainMenuScreen.MainMenuButton.*;
 import static com.game.menus.impl.MainMenuScreen.SettingsButton.*;
 import static com.game.utils.UtilMethods.*;
 import static com.game.utils.enums.Direction.*;
-import static java.lang.Math.round;
 
 /**
  * Implementation of {@link MenuScreen} for the main menu of the game.
@@ -65,11 +68,9 @@ public class MainMenuScreen extends MenuScreen {
     private final Sprite pose = new Sprite();
     private final Sprite title = new Sprite();
     private final Sprite subtitle = new Sprite();
-    private final Map<String, FontHandle> fonts = new HashMap<>();
+    private final List<MegaFontHandle> fonts = new ArrayList<>();
     private final Map<String, BlinkingArrow> blinkingArrows = new HashMap<>();
     private final ScreenSlide screenSlide;
-    private final FontHandle musicVolumeFont;
-    private final FontHandle soundEffectsVolumeFont;
 
     /**
      * Instantiates a new Main Menu Screen.
@@ -77,17 +78,14 @@ public class MainMenuScreen extends MenuScreen {
      * @param gameContext the game context 2 d
      */
     public MainMenuScreen(GameContext2d gameContext) {
-        super(gameContext, GAME_START.name(), MMX3_INTRO_STAGE_MUSIC.getSrc());
+        super(gameContext, GAME_START.name(), MM11_WILY_STAGE_MUSIC.getSrc());
         // screen slide
         screenSlide = new ScreenSlide(uiViewport.getCamera(), SETTINGS_TRANS, ConstVals.getCamInitPos(),
                 ConstVals.getCamInitPos().add(SETTINGS_TRANS), .5f, true);
         // buttons and arrows
         float row = .175f * PPM;
         for (MainMenuButton mainMenuButton : MainMenuButton.values()) {
-            FontHandle fontHandle = new FontHandle("Megaman10Font.ttf", round(PPM / 2f),
-                    new Vector2(2f * PPM, row * PPM));
-            fontHandle.setText(mainMenuButton.prompt);
-            fonts.put(mainMenuButton.name(), fontHandle);
+            fonts.add(new MegaFontHandle(new Vector2(2f * PPM, row * PPM), mainMenuButton.prompt));
             Vector2 arrowCenter = new Vector2(1.5f * PPM, (row - (.0075f * PPM)) * PPM);
             blinkingArrows.put(mainMenuButton.name(), new BlinkingArrow(gameContext, arrowCenter));
             row -= PPM * .025f;
@@ -95,18 +93,16 @@ public class MainMenuScreen extends MenuScreen {
         // fonts
         row = .15f * PPM;
         for (SettingsButton settingsButton : SettingsButton.values()) {
-            FontHandle fontHandle = new FontHandle("Megaman10Font.ttf", round(PPM / 2f),
-                    new Vector2(17f * PPM, row * PPM));
-            fontHandle.setText(settingsButton.prompt);
-            fonts.put(settingsButton.name(), fontHandle);
+            fonts.add(new MegaFontHandle(new Vector2(17f * PPM, row * PPM), settingsButton.prompt));
             Vector2 arrowCenter = new Vector2(16.5f * PPM, (row - (.0075f * PPM)) * PPM);
             blinkingArrows.put(settingsButton.name(), new BlinkingArrow(gameContext, arrowCenter));
             row -= PPM * .025f;
         }
-        musicVolumeFont = new FontHandle("Megaman10Font.ttf", round(PPM / 2f),
-                new Vector2(21f * PPM, .15f * PPM * PPM));
-        soundEffectsVolumeFont = new FontHandle("Megaman10Font.ttf", round(PPM / 2f),
-                new Vector2(21f * PPM, ((.15f * PPM) - (.025f * PPM)) * PPM));
+        fonts.add(new MegaFontHandle(new Vector2(3f * PPM, .5f * PPM), "© OLD LAVY GENES, 20XX"));
+        fonts.add(new MegaFontHandle(new Vector2(21f * PPM, .15f * PPM * PPM),
+                () -> "" + gameContext.getMusicVolume()));
+        fonts.add(new MegaFontHandle(new Vector2(21f * PPM, ((.15f * PPM) - (.025f * PPM)) * PPM),
+                () -> "" + gameContext.getSoundEffectsVolume()));
         // decorations
         TextureAtlas decorations = gameContext.getAsset(DECORATIONS_TEXTURE_ATLAS.getSrc(), TextureAtlas.class);
         title.setRegion(decorations.findRegion("MegamanTitle"));
@@ -123,7 +119,7 @@ public class MainMenuScreen extends MenuScreen {
     public void render(float delta) {
         super.render(delta);
         SpriteBatch spriteBatch = gameContext.getSpriteBatch();
-        spriteBatch.setProjectionMatrix(uiViewport.getCamera().combined);
+        gameContext.setSpriteBatchProjectionMatrix(UI);
         spriteBatch.begin();
         // arrows and sprites
         BlinkingArrow blinkingArrow = blinkingArrows.get(getCurrentMenuButtonKey());
@@ -133,11 +129,7 @@ public class MainMenuScreen extends MenuScreen {
         drawFiltered(subtitle, spriteBatch);
         drawFiltered(pose, spriteBatch);
         // fonts
-        fonts.values().forEach(fontHandle -> fontHandle.draw(spriteBatch));
-        musicVolumeFont.setText("" + gameContext.getMusicVolume());
-        musicVolumeFont.draw(spriteBatch);
-        soundEffectsVolumeFont.setText("" + gameContext.getSoundEffectsVolume());
-        soundEffectsVolumeFont.draw(spriteBatch);
+        fonts.forEach(fontHandle -> fontHandle.draw(spriteBatch));
         spriteBatch.end();
         // screen slide
         screenSlide.update(delta);
@@ -237,7 +229,8 @@ public class MainMenuScreen extends MenuScreen {
 
                     @Override
                     public boolean onSelect(float delta) {
-                        return false;
+                        gameContext.setScreen(GameScreen.EXTRAS);
+                        return true;
                     }
 
                     @Override

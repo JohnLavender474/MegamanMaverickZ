@@ -36,6 +36,7 @@ import com.game.graph.GraphSystem;
 import com.game.health.HealthSystem;
 import com.game.levels.LevelScreen;
 import com.game.menus.impl.BossSelectScreen;
+import com.game.menus.impl.ExtrasScreen;
 import com.game.menus.impl.MainMenuScreen;
 import com.game.menus.impl.PauseMenuScreen;
 import com.game.messages.Message;
@@ -70,7 +71,7 @@ import static com.game.controllers.ButtonStatus.*;
 import static com.game.controllers.ControllerUtils.*;
 import static com.game.core.DebugLogger.DebugLevel.*;
 import static com.game.utils.UtilMethods.*;
-import static com.game.core.FontHandle.*;
+import static com.game.core.MegaFontHandle.*;
 
 /**
  * The entry point into the Megaman game. Initializes all assets and classes that need to be initialized before gameplay
@@ -169,6 +170,7 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
         addMessageListener(this);
         // define screens
         screens.put(MAIN_MENU, new MainMenuScreen(this));
+        screens.put(EXTRAS, new ExtrasScreen(this));
         screens.put(BOSS_SELECT, new BossSelectScreen(this));
         screens.put(PAUSE_MENU, new PauseMenuScreen(this));
         screens.put(TEST_LEVEL_1, new LevelScreen(
