@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 
 import static com.badlogic.gdx.graphics.Color.*;
 import static com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.*;
-import static com.game.core.ConstVals.RenderingGround.*;
+import static com.game.core.constants.RenderingGround.*;
 
 /**
  * Container class for ui gameplay bits bar for health or weapon energy.

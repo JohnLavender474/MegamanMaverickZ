@@ -13,8 +13,4 @@ public class RotatingLineComponent extends Component {
     private RotatingLine rotatingLine;
     private UpdatableConsumer<RotatingLine> updatableConsumer;
 
-    public RotatingLineComponent(RotatingLine rotatingLine) {
-        setRotatingLine(rotatingLine);
-    }
-
 }

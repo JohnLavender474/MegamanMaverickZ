@@ -1,5 +1,5 @@
 package com.game.sounds;
 
-import static com.game.core.ConstVals.*;
+import com.game.core.constants.SoundAsset;
 
 public record SoundRequest(SoundAsset request, Boolean loop, Float volume) {}

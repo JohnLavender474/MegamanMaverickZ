@@ -4,10 +4,9 @@ import com.badlogic.gdx.audio.Sound;
 import com.game.core.Entity;
 import com.game.core.GameContext2d;
 import com.game.core.System;
+import com.game.core.constants.SoundAsset;
 
 import java.util.*;
-
-import static com.game.core.ConstVals.*;
 
 public class SoundSystem extends System {
 
@@ -28,6 +27,9 @@ public class SoundSystem extends System {
     @Override
     protected void processEntity(Entity entity, float delta) {
         SoundComponent soundComponent = entity.getComponent(SoundComponent.class);
+        if (soundComponent.getUpdatable() != null) {
+            soundComponent.getUpdatable().update(delta);
+        }
         Queue<SoundRequest> soundRequests = soundComponent.getSoundRequests();
         while (!soundRequests.isEmpty()) {
             SoundRequest soundRequest = soundRequests.poll();

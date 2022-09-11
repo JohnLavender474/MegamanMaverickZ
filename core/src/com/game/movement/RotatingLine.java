@@ -10,21 +10,25 @@ import lombok.Setter;
 @Setter
 public class RotatingLine implements Updatable {
 
-    private final Polyline polyline = new Polyline();
-    private final float[] vertices = new float[4];
-    private final float[] debugColorVals = new float[4];
     private final float radius;
+    private final float[] vertices = new float[4];
+    private final Polyline polyline = new Polyline();
 
     public float speed;
     public float degrees;
 
     public RotatingLine(Vector2 origin, float radius, float speed) {
+        this(origin, radius, speed, 0f);
+    }
+
+    public RotatingLine(Vector2 origin, float radius, float speed, float degrees) {
         this.speed = speed;
         this.radius = radius;
+        this.degrees = degrees;
         vertices[0] = origin.x;
         vertices[1] = origin.y;
-        vertices[2] = origin.x;
-        vertices[3] = origin.y + radius;
+        vertices[2] = origin.x + radius;
+        vertices[3] = origin.y;
         polyline.setVertices(vertices);
         polyline.setOrigin(origin.x, origin.y);
     }
@@ -32,6 +36,9 @@ public class RotatingLine implements Updatable {
     @Override
     public void update(float delta) {
         degrees += speed * delta;
+        if (degrees >= 360f) {
+            degrees -= 360f;
+        }
         polyline.setRotation(degrees);
     }
 
@@ -41,15 +48,9 @@ public class RotatingLine implements Updatable {
         return new Vector2(x, y);
     }
 
-    public void setDebugColorVals(float r, float g, float b, float a) {
-        debugColorVals[0] = r;
-        debugColorVals[1] = g;
-        debugColorVals[2] = b;
-        debugColorVals[3] = a;
-    }
-
     public Vector2 getEndPoint() {
-        return new Vector2(vertices[2], vertices[3]);
+        float[] tv = polyline.getTransformedVertices();
+        return new Vector2(tv[2], tv[3]);
     }
 
     public void translate(float x, float y) {

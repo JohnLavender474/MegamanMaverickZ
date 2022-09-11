@@ -4,7 +4,7 @@
         <key>fileFormatVersion</key>
         <int>5</int>
         <key>texturePackerVersion</key>
-        <string>6.0.0</string>
+        <string>6.0.2</string>
         <key>autoSDSettings</key>
         <array>
             <struct type="AutoSDSettings">
@@ -43,22 +43,12 @@
         <uint>2</uint>
         <key>basisUniversalQualityLevel</key>
         <uint>2</uint>
-        <key>atfCompressData</key>
-        <false/>
-        <key>mipMapMinSize</key>
-        <uint>32768</uint>
         <key>etc1QualityLevel</key>
         <uint>70</uint>
         <key>etc2QualityLevel</key>
         <uint>70</uint>
         <key>dxtCompressionMode</key>
         <enum type="SettingsBase::DxtCompressionMode">DXT_PERCEPTUAL</enum>
-        <key>jxrColorFormat</key>
-        <enum type="SettingsBase::JpegXrColorMode">JXR_YUV444</enum>
-        <key>jxrTrimFlexBits</key>
-        <uint>0</uint>
-        <key>jxrCompressionLevel</key>
-        <uint>0</uint>
         <key>ditherType</key>
         <enum type="SettingsBase::DitherType">NearestNeighbour</enum>
         <key>backgroundColor</key>
@@ -82,8 +72,6 @@
         <key>webpQualityLevel</key>
         <uint>101</uint>
         <key>textureSubPath</key>
-        <string></string>
-        <key>atfFormats</key>
         <string></string>
         <key>textureFormat</key>
         <enum type="SettingsBase::TextureFormat">png</enum>
@@ -136,7 +124,7 @@
             <key>data</key>
             <struct type="DataFile">
                 <key>name</key>
-                <filename></filename>
+                <filename>../SpriteSheets/Electric.txt</filename>
             </struct>
         </map>
         <key>multiPack</key>
@@ -186,6 +174,7 @@
         <key>individualSpriteSettings</key>
         <map type="IndividualSpriteSettingsMap">
             <key type="filename">../Frames/Electric/BigElectric.png</key>
+            <key type="filename">../Frames/Electric/PurpleShockBalls.png</key>
             <key type="filename">../Frames/Electric/SmallElectric.png</key>
             <key type="filename">../Frames/Electric/Zap.png</key>
             <struct type="IndividualSpriteSettings">
@@ -205,9 +194,7 @@
         </map>
         <key>fileList</key>
         <array>
-            <filename>../Frames/Electric/BigElectric.png</filename>
-            <filename>../Frames/Electric/SmallElectric.png</filename>
-            <filename>../Frames/Electric/Zap.png</filename>
+            <filename>../Frames/Electric</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

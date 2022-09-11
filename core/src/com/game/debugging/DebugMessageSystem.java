@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.game.core.Entity;
 import com.game.core.System;
-import com.game.core.MegaFontHandle;
+import com.game.core.MegaTextHandle;
 
 import java.util.*;
 
@@ -13,7 +13,7 @@ public class DebugMessageSystem extends System {
 
     private final Camera camera;
     private final SpriteBatch spriteBatch;
-    private final List<MegaFontHandle> debugMessageMegaFontHandles = new ArrayList<>();
+    private final List<MegaTextHandle> debugMessageMegaTextHandles = new ArrayList<>();
 
     public DebugMessageSystem(Camera camera, SpriteBatch spriteBatch,
                               String fontSrc, int fontSize, Vector2... positions) {
@@ -21,7 +21,7 @@ public class DebugMessageSystem extends System {
         this.camera = camera;
         this.spriteBatch = spriteBatch;
         for (Vector2 position : positions) {
-            debugMessageMegaFontHandles.add(new MegaFontHandle(fontSrc, fontSize, position));
+            debugMessageMegaTextHandles.add(new MegaTextHandle(fontSrc, fontSize, position));
         }
     }
 
@@ -32,22 +32,22 @@ public class DebugMessageSystem extends System {
         while (msgIter.hasNext()) {
             Map.Entry<Integer, String> msg = msgIter.next();
             msgIter.remove();
-            if (msg.getKey() >= debugMessageMegaFontHandles.size()) {
+            if (msg.getKey() >= debugMessageMegaTextHandles.size()) {
                 java.lang.System.err.println("ERROR: Debug Message System int key is out of bounds: " + msg.getKey());
                 java.lang.System.err.println("CULPRIT: " + entity);
                 continue;
             }
-            debugMessageMegaFontHandles.get(msg.getKey()).setText(msg.getValue());
+            debugMessageMegaTextHandles.get(msg.getKey()).setText(msg.getValue());
         }
         Queue<Integer> clearQueue = debugMessageComponent.getClearQueue();
         while (!clearQueue.isEmpty()) {
             int indexToClear = clearQueue.poll();
-            if (indexToClear >= debugMessageMegaFontHandles.size()) {
+            if (indexToClear >= debugMessageMegaTextHandles.size()) {
                 java.lang.System.err.println("ERROR: Debug Message System clear key is out of bounds: " + indexToClear);
                 java.lang.System.err.println("CULPRIT: " + entity);
                 continue;
             }
-            debugMessageMegaFontHandles.get(indexToClear).clearText();
+            debugMessageMegaTextHandles.get(indexToClear).clearText();
         }
     }
 
@@ -58,7 +58,7 @@ public class DebugMessageSystem extends System {
         if (!isDrawing) {
             spriteBatch.begin();
         }
-        debugMessageMegaFontHandles.forEach(debugMessage -> debugMessage.draw(spriteBatch));
+        debugMessageMegaTextHandles.forEach(debugMessage -> debugMessage.draw(spriteBatch));
         if (!isDrawing) {
             spriteBatch.end();
         }

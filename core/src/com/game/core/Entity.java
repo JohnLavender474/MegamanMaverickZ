@@ -9,8 +9,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.game.core.ConstVals.Events.LEVEL_PAUSED;
-import static com.game.core.ConstVals.Events.LEVEL_UNPAUSED;
+import static com.game.core.constants.Events.LEVEL_PAUSED;
+import static com.game.core.constants.Events.LEVEL_UNPAUSED;
 
 @Getter
 @Setter

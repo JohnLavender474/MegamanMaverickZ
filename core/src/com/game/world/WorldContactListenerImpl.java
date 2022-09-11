@@ -1,6 +1,5 @@
 package com.game.world;
 
-import com.badlogic.gdx.math.Vector2;
 import com.game.core.Entity;
 import com.game.damage.Damageable;
 import com.game.damage.Damager;
@@ -8,10 +7,9 @@ import com.game.entities.contracts.Hitter;
 import com.game.entities.megaman.Megaman;
 import com.game.health.HealthComponent;
 import com.game.sounds.SoundComponent;
-import com.game.utils.objects.Timer;
 
-import static com.game.core.ConstVals.SoundAsset.*;
-import static com.game.core.ConstVals.ViewVals.PPM;
+import static com.game.core.constants.SoundAsset.*;
+import static com.game.core.constants.ViewVals.PPM;
 import static com.game.entities.megaman.Megaman.*;
 import static com.game.entities.megaman.Megaman.AButtonTask.*;
 import static com.game.world.BodySense.*;

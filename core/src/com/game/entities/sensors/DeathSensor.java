@@ -22,8 +22,7 @@ public class DeathSensor extends Entity {
         bodyComponent.setGravityOn(false);
         bodyComponent.setAffectedByResistance(false);
         bodyComponent.set(bounds);
-        Fixture death = new Fixture(this, DEATH);
-        death.setBounds(bounds);
+        Fixture death = new Fixture(this, new Rectangle(bounds), DEATH);
         bodyComponent.addFixture(death);
         return bodyComponent;
     }

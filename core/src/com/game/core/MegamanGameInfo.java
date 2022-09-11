@@ -1,5 +1,6 @@
 package com.game.core;
 
+import com.game.core.constants.Boss;
 import com.game.entities.megaman.MegamanSpecialAbility;
 import com.game.entities.megaman.MegamanWeapon;
 import com.game.utils.objects.Percentage;
@@ -7,15 +8,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import static com.game.core.ConstVals.*;
-import static com.game.core.ConstVals.MegamanVals.*;
 import static com.game.entities.megaman.MegamanWeapon.*;
-import static com.game.utils.UtilMethods.boundNumber;
 
 @Getter
 @Setter

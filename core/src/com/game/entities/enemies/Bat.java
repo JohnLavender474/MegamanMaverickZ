@@ -34,8 +34,8 @@ import java.util.*;
 import java.util.function.Supplier;
 
 import static com.badlogic.gdx.math.MathUtils.*;
-import static com.game.core.ConstVals.TextureAsset.*;
-import static com.game.core.ConstVals.ViewVals.PPM;
+import static com.game.core.constants.TextureAsset.*;
+import static com.game.core.constants.ViewVals.PPM;
 import static com.game.entities.enemies.Bat.BatStatus.*;
 import static com.game.utils.UtilMethods.*;
 import static com.game.utils.UtilMethods.centerPoint;
@@ -144,7 +144,7 @@ public class Bat extends AbstractEnemy implements Hitter {
     }
 
     private AnimationComponent defineAnimationComponent() {
-        TextureAtlas textureAtlas = gameContext.getAsset(ENEMIES_TEXTURE_ATLAS.getSrc(), TextureAtlas.class);
+        TextureAtlas textureAtlas = gameContext.getAsset(ENEMIES.getSrc(), TextureAtlas.class);
         Supplier<String> keySupplier = () -> currentStatus.getRegionName();
         Map<String, TimedAnimation> timedAnimations = Map.of(
                 "BatHang", new TimedAnimation(textureAtlas.findRegion("Bat/BatHang")),
@@ -159,25 +159,22 @@ public class Bat extends AbstractEnemy implements Hitter {
         bodyComponent.setSize(.5f * PPM, .75f * PPM);
         setTopCenterToPoint(bodyComponent.getCollisionBox(), spawn);
         // head
-        Fixture head = new Fixture(this, HEAD);
-        head.setSize(.5f * PPM, 5f);
+        Fixture head = new Fixture(this, new Rectangle(0f, 0f, .5f * PPM, .175f * PPM), HEAD);
         head.setOffset(0f, .75f * PPM / 2f);
         bodyComponent.addFixture(head);
+        // model
+        Rectangle model = new Rectangle(0f, 0f, .75f * PPM, .75f * PPM);
         // hitter box
-        Fixture hitterBox = new Fixture(this, HITTER_BOX);
-        hitterBox.setSize(.75f * PPM, .75f * PPM);
+        Fixture hitterBox = new Fixture(this, new Rectangle(model), HITTER_BOX);
         bodyComponent.addFixture(hitterBox);
         // damageable box
-        Fixture damageableBox = new Fixture(this, DAMAGEABLE_BOX);
-        damageableBox.setSize(.75f * PPM, .75f * PPM);
+        Fixture damageableBox = new Fixture(this, new Rectangle(model), DAMAGEABLE_BOX);
         bodyComponent.addFixture(damageableBox);
         // damager box
-        Fixture damagerBox = new Fixture(this, DAMAGER_BOX);
-        damagerBox.setSize(.75f * PPM, .75f * PPM);
+        Fixture damagerBox = new Fixture(this, new Rectangle(model), DAMAGER_BOX);
         bodyComponent.addFixture(damagerBox);
         // shield
-        Fixture shield = new Fixture(this, SHIELD);
-        shield.setSize(.75f * PPM, .75f * PPM);
+        Fixture shield = new Fixture(this, new Rectangle(model), SHIELD);
         bodyComponent.addFixture(shield);
         // pre-process
         bodyComponent.setPreProcess(delta -> {

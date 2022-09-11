@@ -14,7 +14,6 @@ import com.game.entities.decorations.Explosion;
 import com.game.entities.megaman.Megaman;
 import com.game.graph.GraphComponent;
 import com.game.health.HealthComponent;
-import com.game.messages.MessageListener;
 import com.game.sounds.SoundComponent;
 import com.game.sprites.SpriteAdapter;
 import com.game.utils.interfaces.Updatable;
@@ -28,14 +27,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import static com.game.core.ConstVals.Events.LEVEL_PAUSED;
-import static com.game.core.ConstVals.Events.LEVEL_UNPAUSED;
-import static com.game.core.ConstVals.SoundAsset.*;
+import static com.game.core.constants.SoundAsset.*;
 import static com.game.entities.contracts.Facing.*;
 import static com.game.utils.enums.Position.*;
 import static java.util.Collections.unmodifiableSet;
 
-public abstract class AbstractEnemy extends Entity implements MessageListener, Damager, Damageable {
+public abstract class AbstractEnemy extends Entity implements Damager, Damageable {
 
     protected final Timer damageTimer = new Timer();
     protected final Supplier<Megaman> megamanSupplier;
@@ -62,25 +59,6 @@ public abstract class AbstractEnemy extends Entity implements MessageListener, D
     }
 
     protected abstract Map<Class<? extends Damager>, DamageNegotiation> defineDamageNegotiations();
-
-    @Override
-    public void listenToMessage(Object owner, Object message, float delta) {
-        if (message.equals(LEVEL_PAUSED)) {
-            getComponents().values().forEach(component -> {
-                if (component instanceof CullOutOfCamBoundsComponent || component instanceof CullOnCamTransComponent) {
-                    return;
-                }
-                component.setOn(false);
-            });
-        } else if (message.equals(LEVEL_UNPAUSED)) {
-            getComponents().values().forEach(component -> {
-                if (component instanceof CullOutOfCamBoundsComponent || component instanceof CullOnCamTransComponent) {
-                    return;
-                }
-                component.setOn(true);
-            });
-        }
-    }
 
     @Override
     public void onDeath() {

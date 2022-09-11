@@ -1,7 +1,7 @@
 package com.game.world;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Shape2D;
 import com.badlogic.gdx.math.Vector2;
 import com.game.core.Entity;
 import lombok.Getter;
@@ -21,18 +21,18 @@ import static com.badlogic.gdx.graphics.Color.*;
 public class Fixture {
 
     private final Entity entity;
-    private final Set<FixtureType> fixtureMask = EnumSet.noneOf(FixtureType.class);
-
+    private final Shape2D fixtureShape;
     private final Vector2 offset = new Vector2();
-    private final Rectangle fixtureBox = new Rectangle();
     private final Map<String, Object> userData = new HashMap<>();
+    private final Set<FixtureType> fixtureMask = EnumSet.noneOf(FixtureType.class);
 
     private boolean active = true;
     private Color debugColor = YELLOW;
 
-    public Fixture(Entity entity, FixtureType... fixtureTypes) {
+    public Fixture(Entity entity, Shape2D fixtureShape, FixtureType... fixtureTypes) {
         this.entity = entity;
-        addFixtureTypes(fixtureTypes);
+        this.fixtureShape = fixtureShape;
+        addFixtureType(fixtureTypes);
     }
 
     public boolean isFixtureType(FixtureType fixtureType) {
@@ -48,33 +48,8 @@ public class Fixture {
         return false;
     }
 
-    public boolean isAllFixtureTypes(FixtureType... fixtureTypes) {
-        for (FixtureType fixtureType : fixtureTypes) {
-            if (!isFixtureType(fixtureType)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public void removeFixtureTypes(FixtureType... fixtureTypes) {
-        for (FixtureType fixtureType : fixtureTypes) {
-            removeFixtureType(fixtureType);
-        }
-    }
-
-    public void removeFixtureType(FixtureType fixtureType) {
-        fixtureMask.remove(fixtureType);
-    }
-
-    public void addFixtureTypes(FixtureType... fixtureTypes) {
-        for (FixtureType fixtureType : fixtureTypes) {
-            addFixtureType(fixtureType);
-        }
-    }
-
-    public void addFixtureType(FixtureType fixtureType) {
-        fixtureMask.add(fixtureType);
+    public void addFixtureType(FixtureType... fixtureTypes) {
+        fixtureMask.addAll(Arrays.asList(fixtureTypes));
     }
 
     /**
@@ -100,36 +75,6 @@ public class Fixture {
     }
 
     /**
-     * Sets the bounds of the fixture box
-     *
-     * @param bounds the bounds
-     */
-    public void setBounds(Rectangle bounds) {
-        fixtureBox.set(bounds);
-    }
-
-    /**
-     * Sets the bounds of the fixture box to that of the provided fixture. See {@link #setBounds(Rectangle)}.
-     *
-     * @param fixture the fixture whose bounds are to be used as a reference
-     */
-    public void setBounds(Fixture fixture) {
-        setBounds(fixture.getFixtureBox());
-    }
-
-    /**
-     * Set.
-     *
-     * @param x      the x
-     * @param y      the y
-     * @param width  the width
-     * @param height the height
-     */
-    public void setBounds(float x, float y, float width, float height) {
-        fixtureBox.set(x, y, width, height);
-    }
-
-    /**
      * Set offset.
      *
      * @param x the x
@@ -137,53 +82,6 @@ public class Fixture {
      */
     public void setOffset(float x, float y) {
         offset.set(x, y);
-    }
-
-    /**
-     * Sets size.
-     *
-     * @param x the x
-     * @param y the y
-     */
-    public void setSize(float x, float y) {
-        fixtureBox.setSize(x, y);
-    }
-
-    /**
-     * Set width.
-     *
-     * @param x the width
-     */
-    public void setWidth(float x) {
-        fixtureBox.setWidth(x);
-    }
-
-    /**
-     * Set height.
-     *
-     * @param y the height
-     */
-    public void setHeight(float y) {
-        fixtureBox.setHeight(y);
-    }
-
-    /**
-     * Set center.
-     *
-     * @param center the center
-     */
-    public void setCenter(Vector2 center) {
-        setCenter(center.x, center.y);
-    }
-
-    /**
-     * Set center.
-     *
-     * @param x the x
-     * @param y the y
-     */
-    public void setCenter(float x, float y) {
-        fixtureBox.setCenter(x, y);
     }
 
 }

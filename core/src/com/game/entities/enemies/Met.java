@@ -2,6 +2,7 @@ package com.game.entities.enemies;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.core.GameContext2d;
 import com.game.animations.AnimationComponent;
@@ -28,9 +29,9 @@ import lombok.Setter;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import static com.game.core.ConstVals.SoundAsset.*;
-import static com.game.core.ConstVals.TextureAsset.MET_TEXTURE_ATLAS;
-import static com.game.core.ConstVals.ViewVals.PPM;
+import static com.game.core.constants.SoundAsset.*;
+import static com.game.core.constants.TextureAsset.MET;
+import static com.game.core.constants.ViewVals.PPM;
 import static com.game.entities.enemies.Met.MetBehavior.*;
 import static com.game.utils.UtilMethods.setBottomCenterToPoint;
 import static com.game.world.BodySense.TOUCHING_HITBOX_LEFT;
@@ -151,28 +152,27 @@ public class Met extends AbstractEnemy implements Faceable {
         bodyComponent.setSize(.75f * PPM, .75f * PPM);
         setBottomCenterToPoint(bodyComponent.getCollisionBox(), spawn);
         bodyComponent.setGravity(-50f * PPM);
+        // side model
+        Rectangle sideModel = new Rectangle(0f, 0f, .1f * PPM, .75f * PPM);
         // left
-        Fixture left = new Fixture(this, FixtureType.LEFT);
-        left.setSize(3f, .75f * PPM);
+        Fixture left = new Fixture(this, new Rectangle(sideModel), FixtureType.LEFT);
         left.setOffset(-.65f * PPM, 0f);
         bodyComponent.addFixture(left);
         // right
-        Fixture right = new Fixture(this, FixtureType.RIGHT);
-        right.setSize(3f, .75f * PPM);
+        Fixture right = new Fixture(this, new Rectangle(sideModel), FixtureType.RIGHT);
         right.setOffset(.65f * PPM, 0f);
         bodyComponent.addFixture(right);
         // shield
-        Fixture shield = new Fixture(this, FixtureType.SHIELD);
+        Fixture shield = new Fixture(this, new Rectangle(0f, 0f, PPM, 1.5f * PPM), FixtureType.SHIELD);
         shield.putUserData("reflectDir", "up");
-        shield.setSize(PPM, 1.5f * PPM);
         bodyComponent.addFixture(shield);
+        // box model
+        Rectangle boxModel = new Rectangle(0f, 0f, .75f * PPM, .75f * PPM);
         // hit box
-        Fixture hitBox = new Fixture(this, FixtureType.DAMAGEABLE_BOX);
-        hitBox.setSize(.75f * PPM, .75f * PPM);
+        Fixture hitBox = new Fixture(this, new Rectangle(boxModel), FixtureType.DAMAGEABLE_BOX);
         bodyComponent.addFixture(hitBox);
         // damage box
-        Fixture damageBox = new Fixture(this, FixtureType.DAMAGER_BOX);
-        damageBox.setSize(.75f * PPM, .75f * PPM);
+        Fixture damageBox = new Fixture(this, new Rectangle(boxModel), FixtureType.DAMAGER_BOX);
         bodyComponent.addFixture(damageBox);
         return bodyComponent;
     }
@@ -195,7 +195,7 @@ public class Met extends AbstractEnemy implements Faceable {
             case PANIC -> "RunNaked";
             case SHIELDING -> "LayDown";
         };
-        TextureAtlas textureAtlas = gameContext.getAsset(MET_TEXTURE_ATLAS.getSrc(), TextureAtlas.class);
+        TextureAtlas textureAtlas = gameContext.getAsset(MET.getSrc(), TextureAtlas.class);
         Map<String, TimedAnimation> timedAnimations = Map.of(
             "Run", new TimedAnimation(textureAtlas.findRegion("Run"), 2, .125f),
             "PopUp", new TimedAnimation(textureAtlas.findRegion("PopUp")),

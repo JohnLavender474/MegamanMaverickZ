@@ -19,9 +19,9 @@ import com.game.world.Fixture;
 import lombok.Getter;
 import lombok.Setter;
 
-import static com.game.core.ConstVals.SoundAsset.*;
-import static com.game.core.ConstVals.TextureAsset.OBJECTS_TEXTURE_ATLAS;
-import static com.game.core.ConstVals.ViewVals.PPM;
+import static com.game.core.constants.SoundAsset.*;
+import static com.game.core.constants.TextureAsset.OBJECTS;
+import static com.game.core.constants.ViewVals.PPM;
 import static com.game.utils.enums.Position.*;
 import static com.game.world.BodyType.*;
 import static com.game.world.FixtureType.*;
@@ -70,7 +70,7 @@ public class Bullet extends AbstractProjectile {
     }
 
     private SpriteComponent defineSpriteComponent() {
-        TextureRegion textureRegion = gameContext.getAsset(OBJECTS_TEXTURE_ATLAS.getSrc(), TextureAtlas.class)
+        TextureRegion textureRegion = gameContext.getAsset(OBJECTS.getSrc(), TextureAtlas.class)
                 .findRegion("YellowBullet");
         Sprite sprite = new Sprite();
         sprite.setRegion(textureRegion);
@@ -90,13 +90,13 @@ public class Bullet extends AbstractProjectile {
         bodyComponent.setPreProcess(delta -> bodyComponent.setVelocity(trajectory));
         bodyComponent.setSize(.1f * PPM, .1f * PPM);
         bodyComponent.setCenter(spawn.x, spawn.y);
+        // model
+        Rectangle model = new Rectangle(0f, 0f, .1f * PPM, .1f * PPM);
         // projectile
-        Fixture projectile = new Fixture(this, HITTER_BOX);
-        projectile.setSize(.1f * PPM, .1f * PPM);
+        Fixture projectile = new Fixture(this, new Rectangle(model), HITTER_BOX);
         bodyComponent.addFixture(projectile);
         // damager box
-        Fixture damageBox = new Fixture(this, DAMAGER_BOX);
-        damageBox.setSize(.1f * PPM, .1f * PPM);
+        Fixture damageBox = new Fixture(this, new Rectangle(model), DAMAGER_BOX);
         bodyComponent.addFixture(damageBox);
         return bodyComponent;
     }

@@ -10,7 +10,7 @@ import lombok.ToString;
 
 /**
  * Defines the case in which {@link Intersector#intersectRectangles(Rectangle, Rectangle, Rectangle)}, provided with
- * {@link Fixture#getFixtureBox()} of both the {@link Fixture} instances, returns true.
+ * {@link Fixture#getFixtureShape()} of both the {@link Fixture} instances, returns true.
  * <p>
  * {@link #acceptMask(FixtureType, FixtureType)} returns if {@link Fixture#isFixtureType(FixtureType)} of the two
  * fixtures matches the supplied {@link FixtureType} values. If the method returns true, then {@link #mask} is setBounds

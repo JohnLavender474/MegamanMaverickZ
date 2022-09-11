@@ -21,8 +21,7 @@ public class WallSlideSensor extends Entity {
         bodyComponent.setAffectedByResistance(false);
         bodyComponent.setGravityOn(false);
         bodyComponent.set(bounds);
-        Fixture wallSlideSensor = new Fixture(this, WALL_SLIDE_SENSOR);
-        wallSlideSensor.setBounds(bounds);
+        Fixture wallSlideSensor = new Fixture(this, new Rectangle(bounds), WALL_SLIDE_SENSOR);
         bodyComponent.addFixture(wallSlideSensor);
         return bodyComponent;
     }

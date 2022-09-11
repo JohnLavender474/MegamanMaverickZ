@@ -1,6 +1,5 @@
 package com.game.utils.objects;
 
-import com.game.animations.TimeMarkedRunnable;
 import lombok.Getter;
 
 import java.util.*;
@@ -19,10 +18,24 @@ public class Timer {
     private boolean justFinished;
 
     /**
-     * Instantiates a new Time ticker.
+     * Instantiates a new timer.
      */
     public Timer() {
         this(1f);
+    }
+
+    /**
+     * Copies all fields from the supplied timer to this. {@link TimeMarkedRunnable} instances are immutable,
+     * therefore the instances passed to this are the same as those contained in the timer to be copied.
+     *
+     * @param timer the timer to be copied
+     */
+    public Timer(Timer timer) {
+        timeMarkedRunnables.addAll(timer.getTimeMarkedRunnables());
+        timeMarkedRunnableQueue.addAll(timer.getTimeMarkedRunnableQueue());
+        time = timer.getTime();
+        duration = timer.getDuration();
+        justFinished = timer.isJustFinished();
     }
 
     /**

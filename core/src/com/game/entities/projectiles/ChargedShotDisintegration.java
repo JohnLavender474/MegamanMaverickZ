@@ -3,6 +3,7 @@ package com.game.entities.projectiles;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.core.Entity;
 import com.game.core.GameContext2d;
@@ -20,11 +21,11 @@ import com.game.utils.objects.Timer;
 import com.game.world.BodyComponent;
 import com.game.world.Fixture;
 
-import static com.game.core.ConstVals.Events.LEVEL_PAUSED;
-import static com.game.core.ConstVals.Events.LEVEL_UNPAUSED;
-import static com.game.core.ConstVals.SoundAsset.*;
-import static com.game.core.ConstVals.TextureAsset.MEGAMAN_CHARGED_SHOT_TEXTURE_ATLAS;
-import static com.game.core.ConstVals.ViewVals.PPM;
+import static com.game.core.constants.Events.LEVEL_PAUSED;
+import static com.game.core.constants.Events.LEVEL_UNPAUSED;
+import static com.game.core.constants.SoundAsset.*;
+import static com.game.core.constants.TextureAsset.MEGAMAN_CHARGED_SHOT;
+import static com.game.core.constants.ViewVals.PPM;
 import static com.game.world.BodyType.*;
 import static com.game.world.FixtureType.*;
 
@@ -86,8 +87,7 @@ public class ChargedShotDisintegration extends Entity implements MessageListener
     private BodyComponent defineBodyComponent(Vector2 center) {
         BodyComponent bodyComponent = new BodyComponent(ABSTRACT);
         bodyComponent.setCenter(center);
-        Fixture damagerBox = new Fixture(this, DAMAGER_BOX);
-        damagerBox.setSize(PPM, PPM);
+        Fixture damagerBox = new Fixture(this, new Rectangle(0f, 0f, PPM, PPM), DAMAGER_BOX);
         bodyComponent.addFixture(damagerBox);
         return bodyComponent;
     }
@@ -106,7 +106,7 @@ public class ChargedShotDisintegration extends Entity implements MessageListener
 
     private AnimationComponent defineAnimationComponent(GameContext2d gameContext) {
         TextureRegion textureRegion = gameContext.getAsset(
-                        MEGAMAN_CHARGED_SHOT_TEXTURE_ATLAS.getSrc(), TextureAtlas.class)
+                        MEGAMAN_CHARGED_SHOT.getSrc(), TextureAtlas.class)
                 .findRegion("MegamanChargedShotCollision");
         return new AnimationComponent(new TimedAnimation(textureRegion, 3, .05f));
     }

@@ -24,9 +24,9 @@ import lombok.Setter;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import static com.game.core.ConstVals.SoundAsset.ATOMIC_FIRE_SOUND;
-import static com.game.core.ConstVals.TextureAsset.FIRE_TEXTURE_ATLAS;
-import static com.game.core.ConstVals.ViewVals.PPM;
+import static com.game.core.constants.SoundAsset.ATOMIC_FIRE_SOUND;
+import static com.game.core.constants.TextureAsset.FIRE;
+import static com.game.core.constants.ViewVals.PPM;
 import static com.game.world.FixtureType.*;
 
 @Getter
@@ -100,7 +100,7 @@ public class Fireball extends AbstractProjectile {
     }
 
     private AnimationComponent defineAnimationComponent() {
-        TextureAtlas textureAtlas = gameContext.getAsset(FIRE_TEXTURE_ATLAS.getSrc(), TextureAtlas.class);
+        TextureAtlas textureAtlas = gameContext.getAsset(FIRE.getSrc(), TextureAtlas.class);
         Supplier<String> keySupplier = () -> isLanded() ? "Flame" : "Fireball";
         Map<String, TimedAnimation> timedAnimations = Map.of(
                 "Flame", new TimedAnimation(textureAtlas.findRegion("Flame"), 4, .1f),
@@ -119,15 +119,12 @@ public class Fireball extends AbstractProjectile {
         bodyComponent.setGravity(-50f * PPM);
         bodyComponent.setSize(PPM, PPM);
         bodyComponent.setCenter(spawn.x, spawn.y);
-        Fixture projectile = new Fixture(this, HITTER_BOX);
-        projectile.setSize(.85f * PPM, .85f * PPM);
+        Fixture projectile = new Fixture(this, new Rectangle(0f, 0f, .85f * PPM, .85f * PPM), HITTER_BOX);
         projectile.setOffset(0f, -.15f * PPM);
         bodyComponent.addFixture(projectile);
-        Fixture damageBox = new Fixture(this, DAMAGER_BOX);
-        damageBox.setSize(PPM, PPM);
+        Fixture damageBox = new Fixture(this, new Rectangle(0f, 0f, PPM, PPM), DAMAGER_BOX);
         bodyComponent.addFixture(damageBox);
-        Fixture feet = new Fixture(this, FEET);
-        feet.setSize(PPM / 2f, 1f);
+        Fixture feet = new Fixture(this, new Rectangle(0f, 0f, PPM / 2f, 1f), FEET);
         feet.setOffset(0f, -PPM / 2f);
         bodyComponent.addFixture(feet);
         return bodyComponent;

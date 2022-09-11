@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import static com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.*;
-import static com.game.core.ConstVals.ViewVals.PPM;
+import static com.game.core.constants.ViewVals.PPM;
 import static java.lang.Math.*;
 
 /**

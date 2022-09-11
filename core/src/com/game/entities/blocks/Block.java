@@ -18,7 +18,7 @@ import com.game.world.Fixture;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.game.core.ConstVals.ViewVals.PPM;
+import static com.game.core.constants.ViewVals.PPM;
 import static com.game.utils.UtilMethods.centerPoint;
 import static com.game.world.FixtureType.*;
 import static java.lang.Float.parseFloat;
@@ -89,24 +89,23 @@ public class Block extends Entity {
         bodyComponent.setFriction(friction);
         bodyComponent.setGravityOn(gravityOn);
         bodyComponent.setAffectedByResistance(resistance);
-        Fixture block = new Fixture(this, BLOCK);
-        block.setBounds(bodyComponent.getCollisionBox());
+        Fixture block = new Fixture(this, bodyComponent.getCollisionBox(), BLOCK);
         bodyComponent.addFixture(block);
         if (wallSlideLeft) {
-            Fixture leftWallSlide = new Fixture(this, WALL_SLIDE_SENSOR);
-            leftWallSlide.setSize(PPM / 3f, bodyComponent.getCollisionBox().height - PPM / 3f);
+            Fixture leftWallSlide = new Fixture(this, new Rectangle(0f, 0f, PPM / 3f,
+                    bodyComponent.getCollisionBox().height - PPM / 3f), WALL_SLIDE_SENSOR);
             leftWallSlide.setOffset(-bodyComponent.getCollisionBox().width / 2f, 0f);
             bodyComponent.addFixture(leftWallSlide);
         }
         if (wallSlideRight) {
-            Fixture rightWallSlide = new Fixture(this, WALL_SLIDE_SENSOR);
-            rightWallSlide.setSize(PPM / 3f, bodyComponent.getCollisionBox().height - PPM / 3f);
+            Fixture rightWallSlide = new Fixture(this, new Rectangle(0f, 0f, PPM / 3f,
+                    bodyComponent.getCollisionBox().height - PPM / 3f), WALL_SLIDE_SENSOR);
             rightWallSlide.setOffset(bodyComponent.getCollisionBox().width / 2f, 0f);
             bodyComponent.addFixture(rightWallSlide);
         }
         if (feetSticky) {
-            Fixture feetSticker = new Fixture(this, FEET_STICKER);
-            feetSticker.setSize(bodyComponent.getCollisionBox().width, PPM / 3f);
+            Fixture feetSticker = new Fixture(this, new Rectangle(0f, 0f, bodyComponent.getCollisionBox().width,
+                    PPM / 3f), FEET_STICKER);
             feetSticker.setOffset(0f, (bodyComponent.getCollisionBox().height / 2f) - 2f);
             bodyComponent.addFixture(feetSticker);
         }

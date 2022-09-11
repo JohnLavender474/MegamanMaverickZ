@@ -31,9 +31,9 @@ import lombok.Setter;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import static com.game.core.ConstVals.RenderingGround.*;
-import static com.game.core.ConstVals.TextureAsset.*;
-import static com.game.core.ConstVals.ViewVals.PPM;
+import static com.game.core.constants.RenderingGround.*;
+import static com.game.core.constants.TextureAsset.*;
+import static com.game.core.constants.ViewVals.PPM;
 import static com.game.entities.contracts.Facing.F_LEFT;
 import static com.game.entities.contracts.Facing.F_RIGHT;
 import static com.game.entities.enemies.Dragonfly.DragonFlyBehavior.*;
@@ -104,21 +104,19 @@ public class Dragonfly extends AbstractEnemy implements Faceable {
         BodyComponent bodyComponent = new BodyComponent(ABSTRACT);
         bodyComponent.setSize(.75f * PPM, .75f * PPM);
         bodyComponent.setCenter(spawn);
+        // model
+        Rectangle model = new Rectangle(0f, 0f, .75f * PPM, .75f * PPM);
         // damageable box
-        Fixture damageableBox = new Fixture(this, DAMAGEABLE_BOX);
-        damageableBox.setSize(.75f * PPM, .75f * PPM);
+        Fixture damageableBox = new Fixture(this, new Rectangle(model), DAMAGEABLE_BOX);
         bodyComponent.addFixture(damageableBox);
         // damager box
-        Fixture damagerBox = new Fixture(this, DAMAGER_BOX);
-        damagerBox.setSize(.75f * PPM, .75f * PPM);
+        Fixture damagerBox = new Fixture(this, new Rectangle(model), DAMAGER_BOX);
         bodyComponent.addFixture(damagerBox);
         // out-of-bounds scanner
-        Fixture oobScanner = new Fixture(this, CUSTOM);
-        oobScanner.setSize(1f, 1f);
+        Fixture oobScanner = new Fixture(this, new Rectangle(0f, 0f, 1f, 1f), CUSTOM);
         bodyComponent.addFixture(oobScanner);
         // Megaman scanner
-        Fixture megamanScanner = new Fixture(this, CUSTOM);
-        megamanScanner.setSize(32f * PPM, PPM);
+        Fixture megamanScanner = new Fixture(this, new Rectangle(0f, 0f, 32f * PPM, PPM), CUSTOM);
         bodyComponent.addFixture(megamanScanner);
         // pre-process
         bodyComponent.setPreProcess(delta -> {
@@ -150,20 +148,20 @@ public class Dragonfly extends AbstractEnemy implements Faceable {
             }
             switch (currentBehavior) {
                 case MOVE_UP -> {
-                    if (!isInCamBounds(camera, oobScanner.getFixtureBox())) {
+                    if (!isInCamBounds(camera, (Rectangle) oobScanner.getFixtureShape())) {
                         changeBehavior(MOVE_HORIZONTAL);
                         toLeftBounds = isMegamanLeft();
                     }
                 }
                 case MOVE_HORIZONTAL -> {
                     boolean doChange = (toLeftBounds && !isMegamanLeft()) || (!toLeftBounds && isMegamanLeft());
-                    if (doChange && !isInCamBounds(camera, oobScanner.getFixtureBox())) {
+                    if (doChange && !isInCamBounds(camera, (Rectangle) oobScanner.getFixtureShape())) {
                         changeBehavior(previousBehavior == MOVE_UP ? MOVE_DOWN : MOVE_UP);
                     }
                 }
                 case MOVE_DOWN -> {
-                    if (megamanScanner.getFixtureBox().contains(getMegaman().getFocus()) ||
-                            (!isMegamanBelow() && !isInCamBounds(camera, oobScanner.getFixtureBox()))) {
+                    if (megamanScanner.getFixtureShape().contains(getMegaman().getFocus()) ||
+                            (!isMegamanBelow() && !isInCamBounds(camera, (Rectangle) oobScanner.getFixtureShape()))) {
                         changeBehavior(MOVE_HORIZONTAL);
                         toLeftBounds = isMegamanLeft();
                     }
@@ -201,7 +199,7 @@ public class Dragonfly extends AbstractEnemy implements Faceable {
     }
 
     private AnimationComponent defineAnimationComponent() {
-        TextureAtlas textureAtlas = gameContext.getAsset(ENEMIES_TEXTURE_ATLAS.getSrc(), TextureAtlas.class);
+        TextureAtlas textureAtlas = gameContext.getAsset(ENEMIES.getSrc(), TextureAtlas.class);
         return new AnimationComponent(new TimedAnimation(textureAtlas.findRegion("Dragonfly"), 2, .1f));
     }
 

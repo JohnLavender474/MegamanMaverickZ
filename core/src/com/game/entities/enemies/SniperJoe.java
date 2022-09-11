@@ -2,10 +2,11 @@ package com.game.entities.enemies;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.core.GameContext2d;
 import com.game.animations.AnimationComponent;
-import com.game.animations.TimeMarkedRunnable;
+import com.game.utils.objects.TimeMarkedRunnable;
 import com.game.animations.TimedAnimation;
 import com.game.damage.DamageNegotiation;
 import com.game.damage.Damager;
@@ -28,9 +29,9 @@ import lombok.Setter;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import static com.game.core.ConstVals.TextureAsset.ENEMIES_TEXTURE_ATLAS;
-import static com.game.core.ConstVals.ViewVals.PPM;
-import static com.game.core.ConstVals.SoundAsset.*;
+import static com.game.core.constants.TextureAsset.ENEMIES;
+import static com.game.core.constants.ViewVals.PPM;
+import static com.game.core.constants.SoundAsset.*;
 import static com.game.entities.contracts.Facing.*;
 import static com.game.utils.UtilMethods.setBottomCenterToPoint;
 import static com.game.world.BodyType.*;
@@ -111,7 +112,7 @@ public class SniperJoe extends AbstractEnemy implements Faceable {
 
     private AnimationComponent defineAnimationComponent() {
         Supplier<String> keySupplier = () -> isShielded ? "Shielded" : "Shooting";
-        TextureAtlas textureAtlas = gameContext.getAsset(ENEMIES_TEXTURE_ATLAS.getSrc(), TextureAtlas.class);
+        TextureAtlas textureAtlas = gameContext.getAsset(ENEMIES.getSrc(), TextureAtlas.class);
         Map<String, TimedAnimation> timedAnimations = Map.of(
             "Shooting", new TimedAnimation(textureAtlas.findRegion("SniperJoe/SniperJoeShooting")),
             "Shielded", new TimedAnimation(textureAtlas.findRegion("SniperJoe/SniperJoeShielded")));
@@ -124,17 +125,14 @@ public class SniperJoe extends AbstractEnemy implements Faceable {
         bodyComponent.setSize(PPM, 1.5f * PPM);
         setBottomCenterToPoint(bodyComponent.getCollisionBox(), spawn);
         // hit box
-        Fixture hitBox = new Fixture(this, DAMAGEABLE_BOX);
-        hitBox.setSize(.75f * PPM, 1.15f * PPM);
+        Fixture hitBox = new Fixture(this, new Rectangle(0f, 0f, .75f * PPM, 1.15f * PPM), DAMAGEABLE_BOX);
         bodyComponent.addFixture(hitBox);
         // damage Box
-        Fixture damageBox = new Fixture(this, DAMAGER_BOX);
-        damageBox.setCenter(.75f * PPM, 1.25f * PPM);
+        Fixture damageBox = new Fixture(this, new Rectangle(0f, 0f, .75f * PPM, 1.25f * PPM), DAMAGER_BOX);
         bodyComponent.addFixture(damageBox);
         // shield
-        Fixture shield = new Fixture(this, SHIELD);
+        Fixture shield = new Fixture(this, new Rectangle(0f, 0f, .35f * PPM, .85f * PPM), SHIELD);
         shield.putUserData("reflectDir", "straight");
-        shield.setSize(.35f * PPM, .85f * PPM);
         bodyComponent.addFixture(shield);
         // body pre-process
         bodyComponent.setPreProcess(delta -> {

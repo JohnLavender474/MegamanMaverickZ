@@ -19,8 +19,7 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.game.core.*;
-import com.game.core.ConstVals.GameScreen;
-import com.game.core.ConstVals.RenderingGround;
+import com.game.core.constants.*;
 import com.game.animations.AnimationSystem;
 import com.game.behaviors.BehaviorSystem;
 import com.game.controllers.ButtonStatus;
@@ -34,16 +33,17 @@ import com.game.debugging.DebugMessageSystem;
 import com.game.debugging.DebugShapesSystem;
 import com.game.graph.GraphSystem;
 import com.game.health.HealthSystem;
-import com.game.levels.LevelScreen;
-import com.game.menus.impl.BossSelectScreen;
-import com.game.menus.impl.ExtrasScreen;
-import com.game.menus.impl.MainMenuScreen;
-import com.game.menus.impl.PauseMenuScreen;
+import com.game.screens.LevelScreen;
+import com.game.screens.menus.impl.BossSelectScreen;
+import com.game.screens.menus.impl.ExtrasScreen;
+import com.game.screens.menus.impl.MainMenuScreen;
+import com.game.screens.menus.impl.PauseMenuScreen;
 import com.game.messages.Message;
 import com.game.messages.MessageListener;
 import com.game.movement.PendulumSystem;
 import com.game.movement.RotatingLineSystem;
 import com.game.pathfinding.PathfindingSystem;
+import com.game.screens.other.LevelIntroScreen;
 import com.game.sounds.SoundSystem;
 import com.game.sprites.SpriteSystem;
 import com.game.movement.TrajectorySystem;
@@ -57,21 +57,20 @@ import lombok.Setter;
 import java.util.*;
 
 import static com.badlogic.gdx.Gdx.*;
-import static com.game.core.ConstVals.*;
-import static com.game.core.ConstVals.Events.*;
-import static com.game.core.ConstVals.GameScreen.*;
-import static com.game.core.ConstVals.LevelStatus.*;
-import static com.game.core.ConstVals.MegamanVals.*;
-import static com.game.core.ConstVals.MusicAsset.*;
-import static com.game.core.ConstVals.RenderingGround.PLAYGROUND;
-import static com.game.core.ConstVals.RenderingGround.UI;
-import static com.game.core.ConstVals.ViewVals.*;
-import static com.game.core.ConstVals.WorldVals.*;
+import static com.game.core.constants.Events.*;
+import static com.game.core.constants.GameScreen.*;
+import static com.game.core.constants.LevelStatus.*;
+import static com.game.core.constants.MegamanVals.*;
+import static com.game.core.constants.MusicAsset.*;
+import static com.game.core.constants.RenderingGround.PLAYGROUND;
+import static com.game.core.constants.RenderingGround.UI;
+import static com.game.core.constants.ViewVals.*;
+import static com.game.core.constants.WorldVals.*;
 import static com.game.controllers.ButtonStatus.*;
 import static com.game.controllers.ControllerUtils.*;
 import static com.game.core.DebugLogger.DebugLevel.*;
 import static com.game.utils.UtilMethods.*;
-import static com.game.core.MegaFontHandle.*;
+import static com.game.core.MegaTextHandle.*;
 
 /**
  * The entry point into the Megaman game. Initializes all assets and classes that need to be initialized before gameplay
@@ -115,7 +114,7 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
         // viewports
         for (RenderingGround renderingGround : RenderingGround.values()) {
             Viewport viewport = new FitViewport(VIEW_WIDTH * PPM, VIEW_HEIGHT * PPM);
-            viewport.getCamera().position.set(ConstVals.getCamInitPos());
+            viewport.getCamera().position.set(ConstFuncs.getCamInitPos());
             viewports.put(renderingGround, viewport);
         }
         // controller buttons
@@ -173,6 +172,7 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
         screens.put(EXTRAS, new ExtrasScreen(this));
         screens.put(BOSS_SELECT, new BossSelectScreen(this));
         screens.put(PAUSE_MENU, new PauseMenuScreen(this));
+        screens.put(LEVEL_INTRO, new LevelIntroScreen(this));
         screens.put(TEST_LEVEL_1, new LevelScreen(
                 this, "tiledmaps/tmx/test1.tmx", XENOBLADE_GAUR_PLAINS_MUSIC.getSrc()));
         screens.put(TEST_LEVEL_2, new LevelScreen(
@@ -181,6 +181,8 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
                 this, "tiledmaps/tmx/TimberWomanStage.tmx", XENOBLADE_GAUR_PLAINS_MUSIC.getSrc()));
         // setBounds screen
         setScreen(MAIN_MENU);
+        //((LevelIntroScreen) getScreen(LEVEL_INTRO)).set(Boss.TIMBER_WOMAN);
+        // setScreen(LEVEL_INTRO);
     }
 
     @Override
@@ -299,6 +301,7 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
 
     @Override
     public void setScreen(Screen screen) {
+        viewports.values().forEach(viewport -> viewport.getCamera().position.set(ConstFuncs.getCamInitPos()));
         if (this.screen != null) {
             this.screen.dispose();
         }
@@ -307,6 +310,11 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
             this.screen.show();
             this.screen.resize(graphics.getWidth(), graphics.getHeight());
         }
+    }
+
+    @Override
+    public Screen getScreen(GameScreen gameScreen) {
+        return screens.get(gameScreen);
     }
 
     @Override

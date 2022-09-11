@@ -2,9 +2,9 @@ package com.game.animations;
 
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.game.utils.interfaces.Resettable;
 import com.game.utils.interfaces.Updatable;
 import com.game.utils.objects.KeyValuePair;
-import com.game.utils.interfaces.Resettable;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -31,6 +31,34 @@ public class TimedAnimation implements Updatable, Resettable {
     private float timeElapsed;
 
     /**
+     * Copies all fields of the supplied timed animation to this. Can be reversed if desired.
+     *
+     * @param timedAnimation the timed animation to copy
+     * @param reverse        if this should be the reverse of the supplied animation
+     */
+    public TimedAnimation(TimedAnimation timedAnimation, boolean reverse) {
+        frames.addAll(timedAnimation.getFrames());
+        frameTimes.addAll(timedAnimation.getFrameTimes());
+        animationDuration = timedAnimation.getAnimationDuration();
+        timeElapsed = timedAnimation.getTimeElapsed();
+        isFinished = timedAnimation.isFinished();
+        currentT = timedAnimation.getCurrentT();
+        loop = timedAnimation.isLoop();
+        if (reverse) {
+            reverse();
+        }
+    }
+
+    /**
+     * See {@link #TimedAnimation(TimedAnimation, boolean)}.
+     *
+     * @param timedAnimation the timed animation to copy
+     */
+    public TimedAnimation(TimedAnimation timedAnimation) {
+        this(timedAnimation, false);
+    }
+
+    /**
      * Instantiates a new Timed animation. Default number of frames is 1, default duration is 1 second.
      *
      * @param textureRegion the texture region
@@ -46,6 +74,18 @@ public class TimedAnimation implements Updatable, Resettable {
      * @param durations     the durations
      */
     public TimedAnimation(TextureRegion textureRegion, float[] durations) {
+        this(textureRegion, durations, true);
+    }
+
+    /**
+     * Instantiates a new Timed animation.
+     *
+     * @param textureRegion the texture region
+     * @param durations     the durations
+     * @param loop          if loop
+     */
+    public TimedAnimation(TextureRegion textureRegion, float[] durations, boolean loop) {
+        this.loop = loop;
         instantiate(textureRegion, durations);
     }
 
@@ -57,9 +97,22 @@ public class TimedAnimation implements Updatable, Resettable {
      * @param duration      the duration
      */
     public TimedAnimation(TextureRegion textureRegion, int numFrames, float duration) {
+        this(textureRegion, numFrames, duration, true);
+    }
+
+    /**
+     * Instantiates a new Timed animation.
+     *
+     * @param textureRegion the texture region
+     * @param numFrames     the num frames
+     * @param duration      the duration
+     * @param loop          if loop
+     */
+    public TimedAnimation(TextureRegion textureRegion, int numFrames, float duration, boolean loop) {
         float[] durations = new float[numFrames];
         Arrays.fill(durations, duration);
         instantiate(textureRegion, durations);
+        this.loop = loop;
     }
 
     /**

@@ -22,9 +22,9 @@ import com.game.world.Fixture;
 import lombok.Getter;
 import lombok.Setter;
 
-import static com.game.core.ConstVals.SoundAsset.*;
-import static com.game.core.ConstVals.TextureAsset.MEGAMAN_CHARGED_SHOT_TEXTURE_ATLAS;
-import static com.game.core.ConstVals.ViewVals.PPM;
+import static com.game.core.constants.SoundAsset.*;
+import static com.game.core.constants.TextureAsset.MEGAMAN_CHARGED_SHOT;
+import static com.game.core.constants.ViewVals.PPM;
 import static com.game.entities.contracts.Facing.F_LEFT;
 import static com.game.world.BodyType.*;
 import static com.game.world.FixtureType.*;
@@ -84,7 +84,7 @@ public class ChargedShot extends AbstractProjectile implements Faceable {
 
     private AnimationComponent defineAnimationComponent() {
         TextureAtlas textureAtlas = gameContext.getAsset(
-                MEGAMAN_CHARGED_SHOT_TEXTURE_ATLAS.getSrc(), TextureAtlas.class);
+                MEGAMAN_CHARGED_SHOT.getSrc(), TextureAtlas.class);
         return new AnimationComponent(new TimedAnimation(textureAtlas.findRegion("MegamanChargedShot"), 2, .05f));
     }
 
@@ -113,11 +113,11 @@ public class ChargedShot extends AbstractProjectile implements Faceable {
         bodyComponent.setPreProcess(delta -> bodyComponent.setVelocity(trajectory));
         bodyComponent.setSize(PPM, PPM);
         bodyComponent.setCenter(spawn.x, spawn.y);
-        Fixture projectile = new Fixture(this, HITTER_BOX);
-        projectile.setSize(PPM, PPM);
+        // model
+        Rectangle model = new Rectangle(0f, 0f, PPM, PPM);
+        Fixture projectile = new Fixture(this, new Rectangle(model), HITTER_BOX);
         bodyComponent.addFixture(projectile);
-        Fixture damageBox = new Fixture(this, DAMAGER_BOX);
-        damageBox.setSize(PPM, PPM);
+        Fixture damageBox = new Fixture(this, new Rectangle(model), DAMAGER_BOX);
         bodyComponent.addFixture(damageBox);
         return bodyComponent;
     }

@@ -14,8 +14,8 @@ import com.game.updatables.UpdatableComponent;
 import com.game.utils.objects.Timer;
 import lombok.Getter;
 
-import static com.game.core.ConstVals.TextureAsset.DECORATIONS_TEXTURE_ATLAS;
-import static com.game.core.ConstVals.ViewVals.PPM;
+import static com.game.core.constants.TextureAsset.DECORATIONS;
+import static com.game.core.constants.ViewVals.PPM;
 
 @Getter
 public class ExplosionOrb extends Entity {
@@ -46,7 +46,7 @@ public class ExplosionOrb extends Entity {
 
     private AnimationComponent defineAnimationComponent(GameContext2d gameContext) {
         return new AnimationComponent(new TimedAnimation(gameContext.getAsset(
-                DECORATIONS_TEXTURE_ATLAS.getSrc(), TextureAtlas.class).findRegion("PlayerExplosionOrbs"), 2, .075f));
+                DECORATIONS.getSrc(), TextureAtlas.class).findRegion("PlayerExplosionOrbs"), 2, .075f));
     }
 
 }

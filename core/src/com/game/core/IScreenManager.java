@@ -1,15 +1,9 @@
 package com.game.core;
 
-import com.game.core.ConstVals.GameScreen;
+import com.badlogic.gdx.Screen;
+import com.game.core.constants.GameScreen;
 
 public interface IScreenManager {
-
-    /**
-     * Get current game screen key.
-     *
-     * @return current game screen key
-     */
-    GameScreen getCurrentScreenKey();
 
     /**
      * Set screen. Previous screen should be disposed of.
@@ -17,6 +11,14 @@ public interface IScreenManager {
      * @param gameScreen the game screen
      */
     void setScreen(GameScreen gameScreen);
+
+    /**
+     * Gets the screen mapped to the game screen key
+     *
+     * @param gameScreen the game screen key
+     * @return  the screen
+     */
+    Screen getScreen(GameScreen gameScreen);
 
     /**
      * Overlays a screen onto the current screen.
@@ -29,12 +31,5 @@ public interface IScreenManager {
      * Removes the overlay screen.
      */
     void popOverlayScreen();
-
-    /**
-     * Returns the key of the current overlay screen if one is present.
-     *
-     * @return the current overlay screen key
-     */
-    GameScreen getOverlayScreenKey();
 
 }

@@ -28,8 +28,8 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import static com.badlogic.gdx.math.MathUtils.*;
-import static com.game.core.ConstVals.TextureAsset.ENEMIES_TEXTURE_ATLAS;
-import static com.game.core.ConstVals.ViewVals.PPM;
+import static com.game.core.constants.TextureAsset.ENEMIES;
+import static com.game.core.constants.ViewVals.PPM;
 import static com.game.utils.UtilMethods.centerPoint;
 import static com.game.utils.UtilMethods.setBottomCenterToPoint;
 import static com.game.utils.enums.Position.*;
@@ -65,13 +65,13 @@ public class FloatingCan extends AbstractEnemy {
         bodyComponent.setSize(.75f * PPM, .75f * PPM);
         setBottomCenterToPoint(bodyComponent.getCollisionBox(), spawn);
         bodyComponent.setPreProcess(delta -> bodyComponent.setVelocity(trajectory));
+        // model
+        Rectangle model = new Rectangle(0f, 0f, .75f * PPM, .75f * PPM);
         // hitbox
-        Fixture hitbox = new Fixture(this, DAMAGEABLE_BOX);
-        hitbox.setSize(.75f * PPM, .75f * PPM);
+        Fixture hitbox = new Fixture(this, new Rectangle(model), DAMAGEABLE_BOX);
         bodyComponent.addFixture(hitbox);
         // damagebox
-        Fixture damagebox = new Fixture(this, DAMAGER_BOX);
-        damagebox.setSize(.75f * PPM, .75f * PPM);
+        Fixture damagebox = new Fixture(this, new Rectangle(model), DAMAGER_BOX);
         bodyComponent.addFixture(damagebox);
         return bodyComponent;
     }
@@ -123,7 +123,7 @@ public class FloatingCan extends AbstractEnemy {
     }
 
     private AnimationComponent defineAnimationComponent() {
-        TextureAtlas textureAtlas = gameContext.getAsset(ENEMIES_TEXTURE_ATLAS.getSrc(), TextureAtlas.class);
+        TextureAtlas textureAtlas = gameContext.getAsset(ENEMIES.getSrc(), TextureAtlas.class);
         return new AnimationComponent(new TimedAnimation(textureAtlas.findRegion("FloatingCan"), 4, .15f));
     }
 

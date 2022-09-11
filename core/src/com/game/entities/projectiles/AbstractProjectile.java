@@ -14,8 +14,8 @@ import com.game.world.BodyComponent;
 import lombok.Getter;
 import lombok.Setter;
 
-import static com.game.core.ConstVals.Events.LEVEL_PAUSED;
-import static com.game.core.ConstVals.Events.LEVEL_UNPAUSED;
+import static com.game.core.constants.Events.LEVEL_PAUSED;
+import static com.game.core.constants.Events.LEVEL_UNPAUSED;
 
 @Getter
 @Setter

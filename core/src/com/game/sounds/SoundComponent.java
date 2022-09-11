@@ -1,18 +1,22 @@
 package com.game.sounds;
 
 import com.game.core.Component;
+import com.game.core.constants.SoundAsset;
+import com.game.utils.interfaces.Updatable;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.*;
 
-import static com.game.core.ConstVals.*;
-
+@Setter
 @Getter(AccessLevel.PACKAGE)
 public class SoundComponent extends Component {
 
     private final Queue<SoundRequest> soundRequests = new LinkedList<>();
     private final Queue<SoundAsset> stopLoopingSoundRequests = new LinkedList<>();
+
+    private Updatable updatable;
 
     public void requestSound(SoundAsset sound) {
         requestSound(sound, false);

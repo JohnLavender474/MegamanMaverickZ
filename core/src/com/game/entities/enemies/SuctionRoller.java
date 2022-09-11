@@ -31,8 +31,8 @@ import lombok.Setter;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import static com.game.core.ConstVals.TextureAsset.ENEMIES_TEXTURE_ATLAS;
-import static com.game.core.ConstVals.ViewVals.PPM;
+import static com.game.core.constants.TextureAsset.ENEMIES;
+import static com.game.core.constants.ViewVals.PPM;
 import static com.game.entities.contracts.Facing.F_LEFT;
 import static com.game.entities.contracts.Facing.F_RIGHT;
 import static com.game.utils.UtilMethods.*;
@@ -144,7 +144,7 @@ public class SuctionRoller extends AbstractEnemy implements Faceable {
     }
 
     private AnimationComponent defineAnimationComponent() {
-        TextureAtlas textureAtlas = gameContext.getAsset(ENEMIES_TEXTURE_ATLAS.getSrc(), TextureAtlas.class);
+        TextureAtlas textureAtlas = gameContext.getAsset(ENEMIES.getSrc(), TextureAtlas.class);
         return new AnimationComponent(new TimedAnimation(textureAtlas.findRegion("SuctionRoller"), 5, .1f));
     }
 
@@ -168,27 +168,26 @@ public class SuctionRoller extends AbstractEnemy implements Faceable {
                 bodyComponent.setVelocityX((isFacing(F_RIGHT) ? 2.5f : -2.5f) * PPM);
             }
         });
+        // box model
+        Rectangle boxModel = new Rectangle(0f, 0f, .75f * PPM, PPM);
         // hit box
-        Fixture hitbox = new Fixture(this, DAMAGEABLE_BOX);
-        hitbox.setSize(.75f * PPM, PPM);
+        Fixture hitbox = new Fixture(this, new Rectangle(boxModel), DAMAGEABLE_BOX);
         bodyComponent.addFixture(hitbox);
         // damager box
-        Fixture damagerbox = new Fixture(this, DAMAGER_BOX);
-        damagerbox.setSize(.75f * PPM, PPM);
+        Fixture damagerbox = new Fixture(this, new Rectangle(boxModel), DAMAGER_BOX);
         bodyComponent.addFixture(damagerbox);
         // feet
-        Fixture feet = new Fixture(this, FEET);
-        feet.setSize(8f, .75f);
+        Fixture feet = new Fixture(this, new Rectangle(0f, 0f, PPM / 4f, .75f), FEET);
         feet.setOffset(0f, -PPM / 2f);
         bodyComponent.addFixture(feet);
+        // side model
+        Rectangle sideModel = new Rectangle(0f, 0f, 1f, PPM - 1f);
         // left
-        Fixture left = new Fixture(this, LEFT);
-        left.setSize(1f, PPM - 1f);
+        Fixture left = new Fixture(this, new Rectangle(sideModel), LEFT);
         left.setOffset(-.375f * PPM, 0f);
         bodyComponent.addFixture(left);
         // right
-        Fixture right = new Fixture(this, RIGHT);
-        right.setSize(1f, PPM - 1f);
+        Fixture right = new Fixture(this, new Rectangle(sideModel), RIGHT);
         right.setOffset(.375f * PPM, 0f);
         bodyComponent.addFixture(right);
         return bodyComponent;

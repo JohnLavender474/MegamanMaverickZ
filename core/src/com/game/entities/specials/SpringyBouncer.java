@@ -2,13 +2,10 @@ package com.game.entities.specials;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
-import com.game.core.ConstVals;
 import com.game.core.Entity;
 import com.game.core.GameContext2d;
 import com.game.sounds.SoundComponent;
@@ -24,9 +21,9 @@ import com.game.world.Fixture;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import static com.game.core.ConstVals.SoundAsset.*;
-import static com.game.core.ConstVals.TextureAsset.*;
-import static com.game.core.ConstVals.ViewVals.PPM;
+import static com.game.core.constants.SoundAsset.*;
+import static com.game.core.constants.TextureAsset.*;
+import static com.game.core.constants.ViewVals.PPM;
 import static com.game.utils.enums.Position.*;
 import static com.game.world.BodyType.*;
 import static com.game.world.FixtureType.*;
@@ -53,7 +50,7 @@ public class SpringyBouncer extends Entity {
         BodyComponent bodyComponent = new BodyComponent(ABSTRACT, bouncerObj.getRectangle());
         Float x = bouncerObj.getProperties().get("x", Float.class);
         Float y = bouncerObj.getProperties().get("y", Float.class);
-        Fixture bouncer = new Fixture(this, BOUNCER);
+        Fixture bouncer = new Fixture(this, new Rectangle(bouncerObj.getRectangle()), BOUNCER);
         if (x != null) {
             bouncer.putUserData("x", x);
         }
@@ -64,7 +61,6 @@ public class SpringyBouncer extends Entity {
             bounceTimer.reset();
             getComponent(SoundComponent.class).requestSound(DINK_SOUND);
         });
-        bouncer.setBounds(bouncerObj.getRectangle());
         bodyComponent.addFixture(bouncer);
         return bodyComponent;
     }
@@ -84,7 +80,7 @@ public class SpringyBouncer extends Entity {
 
     private AnimationComponent defineAnimationComponent() {
         Supplier<String> keySupplier = () -> bounceTimer.isFinished() ? "still" : "bounce";
-        TextureAtlas textureAtlas = gameContext.getAsset(OBJECTS_TEXTURE_ATLAS.getSrc(), TextureAtlas.class);
+        TextureAtlas textureAtlas = gameContext.getAsset(OBJECTS.getSrc(), TextureAtlas.class);
         Map<String, TimedAnimation> animationMap = Map.of(
                 "still", new TimedAnimation(textureAtlas.findRegion("SpringyBouncerStill")),
                 "bounce", new TimedAnimation(textureAtlas.findRegion("SpringyBouncer"), 5, .05f));

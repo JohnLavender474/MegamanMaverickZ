@@ -18,8 +18,8 @@ import lombok.Setter;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.game.core.ConstVals.TextureAsset.DECORATIONS_TEXTURE_ATLAS;
-import static com.game.core.ConstVals.ViewVals.PPM;
+import static com.game.core.constants.TextureAsset.DECORATIONS;
+import static com.game.core.constants.ViewVals.PPM;
 import static com.game.world.BodyType.*;
 
 @Getter
@@ -58,7 +58,7 @@ public class Disintegration extends Entity {
 
     private AnimationComponent defineAnimationComponent(GameContext2d gameContext) {
         return new AnimationComponent(new TimedAnimation(gameContext.getAsset(
-                DECORATIONS_TEXTURE_ATLAS.getSrc(), TextureAtlas.class).findRegion("Disintegration"), 3, 0.005f));
+                DECORATIONS.getSrc(), TextureAtlas.class).findRegion("Disintegration"), 3, 0.005f));
     }
 
     private UpdatableComponent defineUpdatableComponent() {

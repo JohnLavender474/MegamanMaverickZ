@@ -137,11 +137,11 @@ public class LevelTiledMap implements Disposable {
                             if (tile == null) {
                                 continue;
                             }
-                            TextureRegion textureRegion = tile.getTextureRegion();
-                            if (textureRegion == null) {
+                            TextureRegion speakerFace = tile.getTextureRegion();
+                            if (speakerFace == null) {
                                 continue;
                             }
-                            Texture texture = textureRegion.getTexture();
+                            Texture texture = speakerFace.getTexture();
                             if (texture == null) {
                                 continue;
                             }

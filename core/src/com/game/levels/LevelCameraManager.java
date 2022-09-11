@@ -12,7 +12,7 @@ import lombok.Getter;
 
 import java.util.Map;
 
-import static com.game.core.ConstVals.ViewVals.PPM;
+import static com.game.core.constants.ViewVals.PPM;
 import static com.game.utils.UtilMethods.*;
 
 /**
@@ -22,8 +22,6 @@ import static com.game.utils.UtilMethods.*;
  * keys and can optionally be associated with a String value.
  */
 public class LevelCameraManager implements Updatable {
-
-    private static final float INTERPOLATION_SCALAR = 12.5f;
 
     private final Camera camera;
     private final Timer transitionTimer;
@@ -95,18 +93,18 @@ public class LevelCameraManager implements Updatable {
             reset = true;
         }
         if (reset) {
-            setCamToFocusable(delta);
+            setCamToFocusable();
             currentGameRoom = nextGameRoom();
             reset = false;
         } else if (transitionState == null) {
-            onNullTrans(delta);
+            onNullTrans();
         } else {
             onTrans(delta);
         }
         updating = false;
     }
 
-    private void onNullTrans(float delta) {
+    private void onNullTrans() {
         /*
         case 1: if current game room is null, try to find next game room and assign it to current game room,
         wait until next update cycle to attempt another action
@@ -121,7 +119,7 @@ public class LevelCameraManager implements Updatable {
         if (currentGameRoom == null) {
             currentGameRoom = nextGameRoom();
         } else if (currentGameRoom.contains(focusable.getFocus())) {
-            setCamToFocusable(delta);
+            setCamToFocusable();
             if (camera.position.y > (currentGameRoom.y + currentGameRoom.height) - camera.viewportHeight / 2.0f) {
                 camera.position.y = (currentGameRoom.y + currentGameRoom.height) - camera.viewportHeight / 2.0f;
             }
@@ -195,12 +193,10 @@ public class LevelCameraManager implements Updatable {
                 focusable.getFocus())).findFirst().orElse(null);
     }
 
-    private void setCamToFocusable(float delta) {
+    private void setCamToFocusable() {
         Vector2 pos = focusable.getFocus();
         camera.position.x = pos.x;
         camera.position.y = pos.y;
-        // camera.position.x = interpolate(camera.position.x, pos.x, INTERPOLATION_SCALAR * delta);
-        // camera.position.y = interpolate(camera.position.y, pos.y, INTERPOLATION_SCALAR * delta);
     }
 
 }

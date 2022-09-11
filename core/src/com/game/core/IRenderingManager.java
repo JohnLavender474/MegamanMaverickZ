@@ -3,7 +3,7 @@ package com.game.core;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.game.core.ConstVals.RenderingGround;
+import com.game.core.constants.RenderingGround;
 
 public interface IRenderingManager {
 

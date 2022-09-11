@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.core.Entity;
 import com.game.core.System;
+import com.game.utils.ShapeUtils;
 import com.game.utils.interfaces.Updatable;
 
 import java.util.ArrayList;
@@ -12,7 +13,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.game.utils.UtilMethods.*;
 import static java.lang.Math.*;
 
 /**
@@ -86,7 +86,7 @@ public class WorldSystem extends System {
                 bodyComponent.getFixtures().forEach(fixture -> {
                     Vector2 center = bodyComponent.getCenter();
                     center.add(fixture.getOffset());
-                    fixture.setCenter(center);
+                    ShapeUtils.setCenter(fixture.getFixtureShape(), center);
                 });
             });
             // Handle collisions
@@ -106,7 +106,7 @@ public class WorldSystem extends System {
                         if (f1.isActive() && !f1.getEntity().isDead()) {
                             for (Fixture f2 : bodies.get(j).getFixtures()) {
                                 if (f2.isActive() && !f2.getEntity().isDead()) {
-                                    if (overlaps(f1.getFixtureBox(), f2.getFixtureBox())) {
+                                    if (ShapeUtils.overlap(f1.getFixtureShape(), f2.getFixtureShape())) {
                                         currentContacts.add(new Contact(f1, f2));
                                     }
                                 }

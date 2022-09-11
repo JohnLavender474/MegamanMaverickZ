@@ -1,8 +1,8 @@
 package com.game.utils.objects;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
+
+import java.util.function.Consumer;
 
 /**
  * A homosexual pair of T's. T stands for tests of course. But in all seriousness...
@@ -16,15 +16,35 @@ import lombok.RequiredArgsConstructor;
  * @param <T> the type parameter
  */
 @Getter
-@RequiredArgsConstructor
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Pair<T> {
 
-    private final T first;
-    private final T second;
-    private final boolean swappable;
+    private T first;
+    private T second;
+    private boolean swappable;
 
     public Pair(T first, T second) {
         this(first, second, true);
+    }
+
+    public static <U> Pair<U> of(U u1, U u2) {
+        return new Pair<>(u1, u2);
+    }
+
+    public void set(Pair<T> p) {
+        set(p.getFirst(), p.getSecond());
+    }
+
+    public void set(T first, T second) {
+        setFirst(first);
+        setSecond(second);
+    }
+
+    public void forEach(Consumer<T> consumer) {
+        consumer.accept(first);
+        consumer.accept(second);
     }
 
     @Override

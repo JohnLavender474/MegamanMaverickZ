@@ -36,7 +36,6 @@ import com.game.utils.objects.Timer;
 import com.game.utils.objects.Wrapper;
 import com.game.weapons.WeaponDef;
 import com.game.world.BodyComponent;
-import com.game.world.BodyType;
 import com.game.world.Fixture;
 import lombok.Getter;
 import lombok.Setter;
@@ -44,13 +43,13 @@ import lombok.Setter;
 import java.util.*;
 import java.util.function.Supplier;
 
-import static com.game.core.ConstVals.Events.*;
-import static com.game.core.ConstVals.LevelStatus.*;
-import static com.game.core.ConstVals.MegamanVals.*;
-import static com.game.core.ConstVals.SoundAsset.*;
-import static com.game.core.ConstVals.TextureAsset.MEGAMAN_FIRE_TEXTURE_ATLAS;
-import static com.game.core.ConstVals.TextureAsset.MEGAMAN_TEXTURE_ATLAS;
-import static com.game.core.ConstVals.ViewVals.PPM;
+import static com.game.core.constants.Events.*;
+import static com.game.core.constants.LevelStatus.*;
+import static com.game.core.constants.MegamanVals.*;
+import static com.game.core.constants.SoundAsset.*;
+import static com.game.core.constants.TextureAsset.MEGAMAN_FIRE;
+import static com.game.core.constants.TextureAsset.MEGAMAN;
+import static com.game.core.constants.ViewVals.PPM;
 import static com.game.behaviors.BehaviorType.*;
 import static com.game.controllers.ControllerButton.*;
 import static com.game.entities.contracts.Facing.*;
@@ -553,27 +552,22 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         bodyComponent.setPosition(spawn);
         bodyComponent.setWidth(.8f * PPM);
         // feet
-        Fixture feet = new Fixture(this, FEET, BOUNCEABLE);
-        feet.setSize(.625f * PPM, (1f / 16f) * PPM);
+        Fixture feet = new Fixture(this, new Rectangle(0f, 0f, .625f * PPM, PPM / 16f), FEET, BOUNCEABLE);
         bodyComponent.addFixture(feet);
         // head
-        Fixture head = new Fixture(this, HEAD, BOUNCEABLE);
-        head.setSize(.625f * PPM, (1f / 8f) * PPM);
+        Fixture head = new Fixture(this, new Rectangle(0f, 0f, .625f * PPM, PPM / 8f), HEAD, BOUNCEABLE);
         head.setOffset(0f, PPM / 2f);
         bodyComponent.addFixture(head);
         // left
-        Fixture left = new Fixture(this, LEFT, BOUNCEABLE);
-        left.setWidth(PPM / 16f);
+        Fixture left = new Fixture(this, new Rectangle(0f, 0f, PPM / 16f, 0f), LEFT, BOUNCEABLE);
         left.setOffset(-.45f * PPM, .15f * PPM);
         bodyComponent.addFixture(left);
         // right
-        Fixture right = new Fixture(this, RIGHT, BOUNCEABLE);
-        right.setWidth(PPM / 16f);
+        Fixture right = new Fixture(this, new Rectangle(0f, 0f, PPM / 16f, 0f), RIGHT, BOUNCEABLE);
         right.setOffset(.45f * PPM, .15f * PPM);
         bodyComponent.addFixture(right);
         // hitbox
-        Fixture hitBox = new Fixture(this, DAMAGEABLE_BOX);
-        hitBox.setSize(.8f * PPM, .5f * PPM);
+        Fixture hitBox = new Fixture(this, new Rectangle(0f, 0f, .8f * PPM, .5f * PPM), DAMAGEABLE_BOX);
         bodyComponent.addFixture(hitBox);
         // pre-process
         bodyComponent.setPreProcess(delta -> {
@@ -581,13 +575,13 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
             if (behaviorComponent.is(GROUND_SLIDING)) {
                 bodyComponent.setHeight(.45f * PPM);
                 feet.setOffset(0f, -PPM / 4f);
-                right.setHeight(.15f * PPM);
-                left.setHeight(.15f * PPM);
+                ((Rectangle) right.getFixtureShape()).setHeight(.15f * PPM);
+                ((Rectangle) left.getFixtureShape()).setHeight(.15f * PPM);
             } else {
                 bodyComponent.setHeight(.95f * PPM);
                 feet.setOffset(0f, -PPM / 2f);
-                right.setHeight(.35f * PPM);
-                left.setHeight(.35f * PPM);
+                ((Rectangle) right.getFixtureShape()).setHeight(.35f * PPM);
+                ((Rectangle) left.getFixtureShape()).setHeight(.35f * PPM);
             }
             if (bodyComponent.getVelocity().y < 0f && !bodyComponent.is(FEET_ON_GROUND)) {
                 bodyComponent.setGravity(-60f * PPM);
@@ -695,8 +689,8 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         for (MegamanWeapon megamanWeapon : MegamanWeapon.values()) {
             String textureAtlasKey;
             switch (megamanWeapon) {
-                case MEGA_BUSTER -> textureAtlasKey = MEGAMAN_TEXTURE_ATLAS.getSrc();
-                case FLAME_TOSS -> textureAtlasKey = MEGAMAN_FIRE_TEXTURE_ATLAS.getSrc();
+                case MEGA_BUSTER -> textureAtlasKey = MEGAMAN.getSrc();
+                case FLAME_TOSS -> textureAtlasKey = MEGAMAN_FIRE.getSrc();
                 default -> throw new IllegalStateException();
             }
             TextureAtlas textureAtlas = gameContext.getAsset(textureAtlasKey, TextureAtlas.class);
