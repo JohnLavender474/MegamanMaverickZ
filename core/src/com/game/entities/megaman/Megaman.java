@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.game.core.Entity;
 import com.game.core.GameContext2d;
 import com.game.core.MegamanGameInfo;
+import com.game.entities.hazards.LaserBeamer;
 import com.game.messages.Message;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
@@ -84,6 +85,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
             Dragonfly.class, new DamageNegotiation(5),
             SniperJoe.class, new DamageNegotiation(10),
             FloatingCan.class, new DamageNegotiation(10),
+            LaserBeamer.class, new DamageNegotiation(10),
             SuctionRoller.class, new DamageNegotiation(10));
 
     private final Percentage[] healthTanks;
