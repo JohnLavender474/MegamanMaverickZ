@@ -4,16 +4,12 @@ import com.badlogic.gdx.math.Polyline;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.core.Entity;
-import com.game.core.constants.MiscellaneousVals;
 import com.game.damage.Damageable;
 import com.game.damage.Damager;
 import com.game.entities.contracts.Hitter;
 import com.game.entities.megaman.Megaman;
 import com.game.health.HealthComponent;
 import com.game.sounds.SoundComponent;
-import com.game.utils.ShapeUtils;
-import com.game.utils.UtilMethods;
-import com.game.utils.objects.Pair;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -8,6 +8,8 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.core.Entity;
 import com.game.core.GameContext2d;
+import com.game.debugging.DebugShapesComponent;
+import com.game.debugging.DebugShapesHandle;
 import com.game.entities.decorations.DecorativeSprite;
 import com.game.graph.GraphComponent;
 import com.game.movement.TrajectoryComponent;
@@ -18,6 +20,8 @@ import com.game.world.Fixture;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.badlogic.gdx.graphics.Color.*;
+import static com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.*;
 import static com.game.core.constants.ViewVals.PPM;
 import static com.game.utils.UtilMethods.centerPoint;
 import static com.game.world.FixtureType.*;
@@ -42,6 +46,7 @@ public class Block extends Entity {
         addComponent(defineGraphComponent());
         addComponent(defineBodyComponent(bounds, friction, resistance, gravityOn,
                 wallSlideLeft, wallSlideRight, feetSticky));
+        addComponent(defineDebugShapesComponent());
     }
 
     private void setToBlockObj(GameContext2d gameContext, RectangleMapObject blockObj) {
@@ -80,6 +85,13 @@ public class Block extends Entity {
             }
         }
         return decorativeSprites;
+    }
+
+    private DebugShapesComponent defineDebugShapesComponent() {
+        DebugShapesComponent debugShapesComponent = new DebugShapesComponent();
+        getComponent(BodyComponent.class).getFixtures().stream().filter(f -> f.isFixtureType(BLOCK)).forEach(f ->
+                debugShapesComponent.addDebugShapeHandle(new DebugShapesHandle(f::getFixtureShape, Line, () -> BLUE)));
+        return debugShapesComponent;
     }
 
     private BodyComponent defineBodyComponent(Rectangle bounds, Vector2 friction, boolean resistance, boolean gravityOn,

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static com.badlogic.gdx.math.Intersector.*;
 import static com.game.utils.UtilMethods.*;
 
 public class ShapeUtils {
@@ -23,19 +24,19 @@ public class ShapeUtils {
         if (mask(s1, s2, Rectangle.class)) {
             return Intersector.overlaps((Rectangle) s1, (Rectangle) s2);
         } else if (mask(s1, s2, Circle.class)) {
-            return Intersector.overlaps((Circle) s1, (Circle) s2);
+            return overlaps((Circle) s1, (Circle) s2);
         } else if (mask(s1, s2, Polyline.class)) {
             return overlapLines((Polyline) s1, (Polyline) s2);
         } else if (mask(s1, s2, Rectangle.class, Circle.class, p)) {
-            return Intersector.overlaps((Circle) p.getSecond(), (Rectangle) p.getFirst());
+            return overlaps((Circle) p.getSecond(), (Rectangle) p.getFirst());
         } else if (mask(s1, s2, Rectangle.class, Polyline.class, p)) {
             Polyline polyline = (Polyline) p.getSecond();
             float[] v = polyline.getTransformedVertices();
-            return Intersector.intersectSegmentRectangle(new Vector2(v[0], v[1]), new Vector2(v[2], v[3]),
+            return intersectSegmentRectangle(new Vector2(v[0], v[1]), new Vector2(v[2], v[3]),
                     (Rectangle) p.getFirst());
         } else if (mask(s1, s2, Circle.class, Polyline.class, p)) {
             Pair<Vector2> line = polylineToPointPair((Polyline) p.getSecond());
-            return Intersector.intersectSegmentCircle(line.getFirst(), line.getSecond(), (Circle) p.getFirst(), null);
+            return intersectSegmentCircle(line.getFirst(), line.getSecond(), (Circle) p.getFirst(), null);
         }
         return false;
     }
@@ -96,8 +97,16 @@ public class ShapeUtils {
         return intersectLines(polylineToPointPair(line1), polylineToPointPair(line2), intersection);
     }
 
+    /**
+     * Returns the result of {@link Intersector#intersectSegments(Vector2, Vector2, Vector2, Vector2, Vector2)}.
+     *
+     * @param l1 the first point
+     * @param l2 the second point
+     * @param intersection the intersection point
+     * @return if the two lines intersect
+     */
     public static boolean intersectLines(Pair<Vector2> l1, Pair<Vector2> l2, Vector2 intersection) {
-        return Intersector.intersectLines(l1.getFirst(), l1.getSecond(), l2.getFirst(), l2.getSecond(), intersection);
+        return intersectSegments(l1.getFirst(), l1.getSecond(), l2.getFirst(), l2.getSecond(), intersection);
     }
 
     /**

@@ -1,6 +1,5 @@
 package com.game.entities.hazards;
 
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Polyline;
 import com.badlogic.gdx.math.Vector2;
@@ -11,7 +10,6 @@ import com.game.debugging.DebugLinesComponent;
 import com.game.debugging.DebugShapesComponent;
 import com.game.debugging.DebugShapesHandle;
 import com.game.updatables.UpdatableComponent;
-import com.game.utils.ShapeUtils;
 import com.game.utils.objects.Pair;
 import com.game.utils.objects.RotatingLine;
 import com.game.utils.objects.Timer;
@@ -22,7 +20,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
-import java.util.function.Supplier;
 
 import static com.badlogic.gdx.graphics.Color.*;
 import static com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.*;
@@ -86,8 +83,6 @@ public class LaserBeamer extends Entity implements Damager {
         DebugLinesComponent debugLinesComponent = new DebugLinesComponent();
         debugLinesComponent.setThickness(THICKNESS);
         debugLinesComponent.setShapeType(Line);
-        debugLinesComponent.addDebugLine(() -> List.of(rotatingLine.getPos(),
-                rotatingLine.getEndPoint()), () -> RED);
         debugLinesComponent.addDebugLine(() -> {
             Pair<Vector2> p = polylineToPointPair(laser);
             return List.of(p.getFirst(), p.getSecond());
