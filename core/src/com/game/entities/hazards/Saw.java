@@ -23,8 +23,8 @@ import com.game.sprites.SpriteAdapter;
 import com.game.sprites.SpriteComponent;
 import com.game.utils.enums.Position;
 import com.game.utils.interfaces.UpdatableConsumer;
-import com.game.movement.Pendulum;
-import com.game.movement.RotatingLine;
+import com.game.utils.objects.Pendulum;
+import com.game.utils.objects.RotatingLine;
 import com.game.utils.objects.Wrapper;
 import com.game.world.BodyComponent;
 import com.game.world.Fixture;
@@ -83,8 +83,8 @@ public class Saw extends Entity {
         Circle circle1 = new Circle(pendulum.getAnchor(), PPM / 4f);
         Circle circle2 = new Circle();
         circle2.setRadius(PPM / 4f);
-        addComponent(new DebugShapesComponent(new DebugShapesHandle(circle1, Filled, () -> DARK_GRAY),
-                new DebugShapesHandle(circle2, Filled, () -> DARK_GRAY, (shape2D, delta) ->
+        addComponent(new DebugShapesComponent(new DebugShapesHandle(() -> circle1, Filled, () -> DARK_GRAY),
+                new DebugShapesHandle(() -> circle2, Filled, () -> DARK_GRAY, (shape2D, delta) ->
                         ((Circle) shape2D).setPosition(pendulum.getEnd()))));
     }
 
@@ -102,9 +102,9 @@ public class Saw extends Entity {
         Circle circle2 = new Circle();
         circle2.setRadius(PPM / 4f);
         addComponent(new DebugShapesComponent(
-                new DebugShapesHandle(circle1, Filled, () -> DARK_GRAY, ((shape2D, delta) ->
+                new DebugShapesHandle(() -> circle1, Filled, () -> DARK_GRAY, ((shape2D, delta) ->
                         ((Circle) shape2D).setPosition(rotatingLine.getPos()))),
-                new DebugShapesHandle(circle2, Filled, () -> DARK_GRAY, (shape2D, delta) ->
+                new DebugShapesHandle(() -> circle2, Filled, () -> DARK_GRAY, (shape2D, delta) ->
                         ((Circle) shape2D).setPosition(rotatingLine.getEndPoint()))));
     }
 

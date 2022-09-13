@@ -39,22 +39,44 @@ public class Timer {
     }
 
     /**
-     * Instantiates a new Time ticker.
+     * Instantiates a new Timer.
      *
      * @param duration            the duration
      * @param timeMarkedRunnables the time marked runnables
      */
     public Timer(float duration, TimeMarkedRunnable... timeMarkedRunnables) {
-        this(duration, Arrays.asList(timeMarkedRunnables));
+        this(duration, false, timeMarkedRunnables);
     }
 
     /**
-     * Instantiates a new Time ticker.
+     * Instantiates a new Timer.
+     *
+     * @param duration            the duration
+     * @param setToEnd            if timer should be finished at init
+     * @param timeMarkedRunnables the time marked runnables
+     */
+    public Timer(float duration, boolean setToEnd, TimeMarkedRunnable... timeMarkedRunnables) {
+        this(duration, setToEnd, Arrays.asList(timeMarkedRunnables));
+    }
+
+    /**
+     * Instantiates a new Timer.
      *
      * @param duration            the duration
      * @param timeMarkedRunnables the time marked runnables
      */
     public Timer(float duration, Collection<TimeMarkedRunnable> timeMarkedRunnables) {
+        this(duration, false, timeMarkedRunnables);
+    }
+
+    /**
+     * Instantiates a new Timer.
+     *
+     * @param duration            the duration
+     * @param setToEnd            if timer should be finished at init
+     * @param timeMarkedRunnables the time marked runnables
+     */
+    public Timer(float duration, boolean setToEnd, Collection<TimeMarkedRunnable> timeMarkedRunnables) {
         setDuration(duration);
         timeMarkedRunnables.forEach(timeMarkedRunnable -> {
             if (timeMarkedRunnable.time() < 0f || timeMarkedRunnable.time() > duration) {
@@ -62,7 +84,11 @@ public class Timer {
             }
         });
         this.timeMarkedRunnables.addAll(timeMarkedRunnables);
-        reset();
+        if (setToEnd) {
+            setToEnd();
+        } else {
+            reset();
+        }
     }
 
     /**
@@ -102,16 +128,6 @@ public class Timer {
      */
     public boolean isFinished() {
         return time >= duration;
-    }
-
-    /**
-     * Is the provided time greater than or equal to this timer's time.
-     *
-     * @param time the time
-     * @return if the provided time is greater than or equal to this timer's time.
-     */
-    public boolean isTimeGreaterThanOrEqualTo(float time) {
-        return this.time <= time;
     }
 
     /**

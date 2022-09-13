@@ -107,10 +107,10 @@ public class Dragonfly extends AbstractEnemy implements Faceable {
         // model
         Rectangle model = new Rectangle(0f, 0f, .75f * PPM, .75f * PPM);
         // damageable box
-        Fixture damageableBox = new Fixture(this, new Rectangle(model), DAMAGEABLE_BOX);
+        Fixture damageableBox = new Fixture(this, new Rectangle(model), DAMAGEABLE);
         bodyComponent.addFixture(damageableBox);
         // damager box
-        Fixture damagerBox = new Fixture(this, new Rectangle(model), DAMAGER_BOX);
+        Fixture damagerBox = new Fixture(this, new Rectangle(model), DAMAGER);
         bodyComponent.addFixture(damagerBox);
         // out-of-bounds scanner
         Fixture oobScanner = new Fixture(this, new Rectangle(0f, 0f, 1f, 1f), CUSTOM);

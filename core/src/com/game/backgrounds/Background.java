@@ -130,17 +130,10 @@ public class Background implements Updatable, Drawable {
 
     @Override
     public void draw(SpriteBatch spriteBatch) {
-        boolean isDrawing = spriteBatch.isDrawing();
-        if (!isDrawing) {
-            spriteBatch.begin();
-        }
         for (Sprite[] row : backgroundSprites) {
             for (Sprite sprite : row) {
                 drawFiltered(sprite, spriteBatch);
             }
-        }
-        if (!isDrawing) {
-            spriteBatch.end();
         }
     }
 

@@ -1,8 +1,9 @@
-package com.game.movement;
+package com.game.utils.objects;
 
 import com.badlogic.gdx.math.Polyline;
 import com.badlogic.gdx.math.Vector2;
 import com.game.utils.interfaces.Updatable;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,12 +11,12 @@ import lombok.Setter;
 @Setter
 public class RotatingLine implements Updatable {
 
-    private final float radius;
+    @Getter(AccessLevel.NONE)
     private final float[] vertices = new float[4];
     private final Polyline polyline = new Polyline();
 
-    public float speed;
-    public float degrees;
+    private float speed;
+    private float degrees;
 
     public RotatingLine(Vector2 origin, float radius, float speed) {
         this(origin, radius, speed, 0f);
@@ -23,12 +24,21 @@ public class RotatingLine implements Updatable {
 
     public RotatingLine(Vector2 origin, float radius, float speed, float degrees) {
         this.speed = speed;
-        this.radius = radius;
         this.degrees = degrees;
+        Vector2 endPoint = origin.cpy().add(radius, 0f);
+        setPoints(origin, endPoint);
+        polyline.setRotation(degrees);
+    }
+
+    public float[] getTransformedVertices() {
+        return polyline.getTransformedVertices();
+    }
+
+    public void setPoints(Vector2 origin, Vector2 endPoint) {
         vertices[0] = origin.x;
         vertices[1] = origin.y;
-        vertices[2] = origin.x + radius;
-        vertices[3] = origin.y;
+        vertices[2] = endPoint.x;
+        vertices[3] = endPoint.y;
         polyline.setVertices(vertices);
         polyline.setOrigin(origin.x, origin.y);
     }
@@ -36,9 +46,6 @@ public class RotatingLine implements Updatable {
     @Override
     public void update(float delta) {
         degrees += speed * delta;
-        if (degrees >= 360f) {
-            degrees -= 360f;
-        }
         polyline.setRotation(degrees);
     }
 

@@ -26,4 +26,8 @@ public class DebugShapesComponent extends Component {
         this.debugShapesHandles = debugShapesHandles;
     }
 
+    public void addDebugShapeHandle(DebugShapesHandle debugShapesHandle) {
+        debugShapesHandles.add(debugShapesHandle);
+    }
+
 }

@@ -119,11 +119,11 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         megamanSpecialAbilities = megamanGameInfo.getMegamanSpecialAbilities();
 
         // TODO: temporarily adding special abilities at onset
-        /*
+
         megamanSpecialAbilities.add(GROUND_SLIDE);
         megamanSpecialAbilities.add(WALL_JUMP);
         megamanSpecialAbilities.add(AIR_DASH);
-        */
+
         // TODO: Remove three above lines of code
 
         setCurrentWeapon(MEGA_BUSTER);
@@ -567,7 +567,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         right.setOffset(.45f * PPM, .15f * PPM);
         bodyComponent.addFixture(right);
         // hitbox
-        Fixture hitBox = new Fixture(this, new Rectangle(0f, 0f, .8f * PPM, .5f * PPM), DAMAGEABLE_BOX);
+        Fixture hitBox = new Fixture(this, new Rectangle(0f, 0f, .8f * PPM, .5f * PPM), DAMAGEABLE);
         bodyComponent.addFixture(hitBox);
         // pre-process
         bodyComponent.setPreProcess(delta -> {

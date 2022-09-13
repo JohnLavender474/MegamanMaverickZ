@@ -54,7 +54,7 @@ public class Bullet extends AbstractProjectile {
                 fixture.getEntity() instanceof AbstractEnemy)) {
             return;
         }
-        if (fixture.isAnyFixtureType(BLOCK, DAMAGEABLE_BOX)) {
+        if (fixture.isAnyFixtureType(BLOCK, DAMAGEABLE)) {
             disintegrate();
         } else if (fixture.isFixtureType(SHIELD)) {
             setOwner(fixture.getEntity());
@@ -96,7 +96,7 @@ public class Bullet extends AbstractProjectile {
         Fixture projectile = new Fixture(this, new Rectangle(model), HITTER_BOX);
         bodyComponent.addFixture(projectile);
         // damager box
-        Fixture damageBox = new Fixture(this, new Rectangle(model), DAMAGER_BOX);
+        Fixture damageBox = new Fixture(this, new Rectangle(model), DAMAGER);
         bodyComponent.addFixture(damageBox);
         return bodyComponent;
     }

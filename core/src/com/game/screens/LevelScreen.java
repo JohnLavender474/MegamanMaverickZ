@@ -22,6 +22,7 @@ import com.game.cull.CullOutOfCamBoundsComponent;
 import com.game.entities.blocks.Block;
 import com.game.entities.bosses.TimberWoman;
 import com.game.entities.enemies.*;
+import com.game.entities.hazards.LaserBeamer;
 import com.game.entities.hazards.Saw;
 import com.game.entities.megaman.Megaman;
 import com.game.entities.sensors.DeathSensor;
@@ -125,7 +126,7 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
                 gameContext.getSpriteBatch(), tmxFile);
         // backgrounds
         backgrounds = new ArrayList<>();
-        levelMap.getObjectsOfLayer(BACKGROUNDS).forEach(backgroundObj -> {
+        levelMap.getRectObjsOfLayer(BACKGROUNDS).forEach(backgroundObj -> {
             switch (backgroundObj.getName()) {
                 case WINDY_CLOUDS -> backgrounds.add(new WindyClouds(gameContext, backgroundObj));
             }
@@ -136,45 +137,46 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
         gameContext.getSystem(GraphSystem.class).setGraph(levelGraph);
         // spawns and spawn manager
         Rectangle startPlayerSpawn = new Rectangle();
-        List<Rectangle> playerSpawns = levelMap.getObjectsOfLayer(PLAYER_SPAWNS).stream().map(playerSpawnObj -> {
+        List<Rectangle> playerSpawns = levelMap.getRectObjsOfLayer(PLAYER_SPAWNS).stream().map(playerSpawnObj -> {
             Rectangle rect = playerSpawnObj.getRectangle();
             if (playerSpawnObj.getName().equals("start")) {
                 startPlayerSpawn.set(rect);
             }
             return rect;
         }).toList();
-        List<Spawn> enemySpawns = levelMap.getObjectsOfLayer(ENEMY_SPAWNS).stream().map(enemySpawnObj ->
+        List<Spawn> enemySpawns = levelMap.getRectObjsOfLayer(ENEMY_SPAWNS).stream().map(enemySpawnObj ->
                 new Spawn(gameContext, getEnemySpawnSupplier(enemySpawnObj), enemySpawnObj.getRectangle())).toList();
         spawnManager = new SpawnManager(gameContext.getViewport(PLAYGROUND).getCamera(), playerSpawns, enemySpawns);
         spawnManager.setCurrentPlayerSpawn(startPlayerSpawn);
         // static blocks
-        levelMap.getObjectsOfLayer(STATIC_BLOCKS).forEach(staticBlockObj ->
+        levelMap.getRectObjsOfLayer(STATIC_BLOCKS).forEach(staticBlockObj ->
                 gameContext.addEntity(new Block(gameContext, staticBlockObj.getRectangle(), new Vector2(.035f, 0f))));
         // moving blocks
-        levelMap.getObjectsOfLayer(MOVING_BLOCKS).forEach(blockObj ->
+        levelMap.getRectObjsOfLayer(MOVING_BLOCKS).forEach(blockObj ->
             gameContext.addEntity(new Block(gameContext, blockObj, new Vector2(.035f, 0f),
                     false, false, true, true, true)));
         // wall slide sensors
-        levelMap.getObjectsOfLayer(WALL_SLIDE_SENSORS).forEach(wallSlideSensorObj ->
+        levelMap.getRectObjsOfLayer(WALL_SLIDE_SENSORS).forEach(wallSlideSensorObj ->
                 gameContext.addEntity(new WallSlideSensor(gameContext, wallSlideSensorObj.getRectangle())));
         // death sensors
-        levelMap.getObjectsOfLayer(DEATH_SENSORS).forEach(deathSensorObj ->
+        levelMap.getRectObjsOfLayer(DEATH_SENSORS).forEach(deathSensorObj ->
                 gameContext.addEntity(new DeathSensor(gameContext, deathSensorObj.getRectangle())));
         // specials
-        levelMap.getObjectsOfLayer(SPECIAL).forEach(specialObj ->
+        levelMap.getRectObjsOfLayer(SPECIAL).forEach(specialObj ->
             gameContext.addEntity(getSpecial(specialObj)));
         // hazards
-        levelMap.getObjectsOfLayer(HAZARDS).forEach(hazardObj ->
+        levelMap.getRectObjsOfLayer(HAZARDS).forEach(hazardObj ->
             gameContext.addEntity(getHazard(hazardObj)));
-        levelMap.getObjectsOfLayer(TEST).forEach(testObj -> {
+        // test
+        levelMap.getRectObjsOfLayer(TEST).forEach(testObj -> {
             if (testObj.getName().equals("TimberWoman")) {
-                Vector2 spawn = UtilMethods.bottomCenterPoint(testObj.getRectangle());
+                Vector2 spawn = bottomCenterPoint(testObj.getRectangle());
                 gameContext.addEntity(new TimberWoman(gameContext, spawn));
             }
         });
         // game rooms
         Map<Rectangle, String> gameRooms = new HashMap<>();
-        levelMap.getObjectsOfLayer(GAME_ROOMS).forEach(gameRoomObj ->
+        levelMap.getRectObjsOfLayer(GAME_ROOMS).forEach(gameRoomObj ->
                 gameRooms.put(gameRoomObj.getRectangle(), gameRoomObj.getName()));
         // level cam manager
         levelCameraManager = new LevelCameraManager(gameContext.getViewport(PLAYGROUND).getCamera(),
@@ -193,8 +195,6 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
     @Override
     public void render(float delta) {
         super.render(delta);
-        // TODO: Allow megaman to change weapons from menu
-
         if (gameContext.isJustPressed(START)) {
             boolean paused = gameContext.isLevelStatus(PAUSED);
             gameContext.setLevelStatus(paused ? UNPAUSED : PAUSED);
@@ -255,15 +255,18 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
                 spawnMegaman();
             }
         }
+        SpriteBatch spriteBatch = gameContext.getSpriteBatch();
         gameContext.setSpriteBatchProjectionMatrix(PLAYGROUND);
+        spriteBatch.begin();
         backgrounds.forEach(background -> {
             background.update(delta);
             background.draw(gameContext.getSpriteBatch());
         });
         levelMap.draw();
-        gameContext.updateSystems(delta);
         healthBar.draw();
         showFpsText();
+        spriteBatch.end();
+        gameContext.updateSystems(delta);
     }
 
     @Override
@@ -338,6 +341,9 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
         switch (spawnObj.getName()) {
             case "saw" -> {
                 return new Saw(gameContext, spawnObj);
+            }
+            case "laser_beamer" -> {
+                return new LaserBeamer(gameContext, centerPoint(spawnObj.getRectangle()));
             }
             default -> throw new IllegalStateException("Cannot find matching entity for <" + spawnObj.getName() + ">");
         }

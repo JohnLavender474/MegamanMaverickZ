@@ -87,14 +87,7 @@ public class MegaTextHandle implements Drawable {
 
     @Override
     public void draw(SpriteBatch spriteBatch) {
-        boolean isDrawing = spriteBatch.isDrawing();
-        if (!isDrawing) {
-            spriteBatch.begin();
-        }
         font.draw(spriteBatch, text.get(), position.x, position.y);
-        if (!isDrawing) {
-            spriteBatch.end();
-        }
     }
 
 }

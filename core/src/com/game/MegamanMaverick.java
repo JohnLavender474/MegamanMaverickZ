@@ -84,8 +84,7 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
     private final Map<RenderingGround, Viewport> viewports = new EnumMap<>(RenderingGround.class);
     private final Queue<KeyValuePair<Rectangle, Color>> debugQueue = new ArrayDeque<>();
     private final Map<Class<? extends System>, System> systems = new LinkedHashMap<>();
-    private final Map<GameScreen, Screen> screens = new EnumMap<>(GameScreen.class);
-    private final Set<MessageListener> messageListeners = new HashSet<>();
+    private final Map<GameScreen, Screen> screens = new EnumMap<>(GameScreen.class);private final Set<MessageListener> messageListeners = new HashSet<>();
     private final Queue<Message> messageQueue = new ArrayDeque<>();
     private final List<Disposable> disposables = new ArrayList<>();
     private final Map<String, Object> blackBoard = new HashMap<>();
@@ -146,17 +145,17 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
         addSystem(new HealthSystem());
         addSystem(new TrajectorySystem());
         addSystem(new WorldSystem(new WorldContactListenerImpl(), AIR_RESISTANCE, FIXED_TIME_STEP));
+        addSystem(new GraphSystem());
         addSystem(new PathfindingSystem(runOnShutdown));
         addSystem(new RotatingLineSystem());
         addSystem(new PendulumSystem());
         addSystem(new UpdatableSystem());
         addSystem(new BehaviorSystem());
-        addSystem(new GraphSystem());
-        addSystem(new SpriteSystem((OrthographicCamera) viewports.get(PLAYGROUND).getCamera(), getSpriteBatch()));
-        addSystem(new AnimationSystem());
         addSystem(new SoundSystem(this));
         addSystem(new DebugShapesSystem(viewports.get(PLAYGROUND).getCamera(), getShapeRenderer()));
         addSystem(new DebugLinesSystem(viewports.get(PLAYGROUND).getCamera(), getShapeRenderer()));
+        addSystem(new AnimationSystem());
+        addSystem(new SpriteSystem((OrthographicCamera) viewports.get(PLAYGROUND).getCamera(), getSpriteBatch()));
         Vector2[] debugMsgPosArray = new Vector2[5];
         for (int i = 0; i < 5; i++) {
             debugMsgPosArray[i] = new Vector2(PPM, PPM + PPM * i);
@@ -173,16 +172,14 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
         screens.put(BOSS_SELECT, new BossSelectScreen(this));
         screens.put(PAUSE_MENU, new PauseMenuScreen(this));
         screens.put(LEVEL_INTRO, new LevelIntroScreen(this));
-        screens.put(TEST_LEVEL_1, new LevelScreen(
-                this, "tiledmaps/tmx/test1.tmx", XENOBLADE_GAUR_PLAINS_MUSIC.getSrc()));
-        screens.put(TEST_LEVEL_2, new LevelScreen(
-                this, "tiledmaps/tmx/test2.tmx", MMZ_NEO_ARCADIA_MUSIC.getSrc()));
+        screens.put(TEST_STAGE, new LevelScreen(
+                this, "tiledmaps/tmx/Test.tmx", MMZ_NEO_ARCADIA_MUSIC.getSrc()));
         screens.put(TIMBER_WOMAN, new LevelScreen(
-                this, "tiledmaps/tmx/TimberWomanStage.tmx", XENOBLADE_GAUR_PLAINS_MUSIC.getSrc()));
-        // setBounds screen
-        setScreen(MAIN_MENU);
-        //((LevelIntroScreen) getScreen(LEVEL_INTRO)).set(Boss.TIMBER_WOMAN);
-        // setScreen(LEVEL_INTRO);
+                this, "tiledmaps/tmx/TimberWoman.tmx", XENOBLADE_GAUR_PLAINS_MUSIC.getSrc()));
+        // set screen
+        // setScreen(MAIN_MENU);
+        setScreen(TEST_STAGE);
+        // setScreen(TIMBER_WOMAN);
     }
 
     @Override

@@ -87,7 +87,7 @@ public class ChargedShotDisintegration extends Entity implements MessageListener
     private BodyComponent defineBodyComponent(Vector2 center) {
         BodyComponent bodyComponent = new BodyComponent(ABSTRACT);
         bodyComponent.setCenter(center);
-        Fixture damagerBox = new Fixture(this, new Rectangle(0f, 0f, PPM, PPM), DAMAGER_BOX);
+        Fixture damagerBox = new Fixture(this, new Rectangle(0f, 0f, PPM, PPM), DAMAGER);
         bodyComponent.addFixture(damagerBox);
         return bodyComponent;
     }

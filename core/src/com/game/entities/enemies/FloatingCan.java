@@ -68,10 +68,10 @@ public class FloatingCan extends AbstractEnemy {
         // model
         Rectangle model = new Rectangle(0f, 0f, .75f * PPM, .75f * PPM);
         // hitbox
-        Fixture hitbox = new Fixture(this, new Rectangle(model), DAMAGEABLE_BOX);
+        Fixture hitbox = new Fixture(this, new Rectangle(model), DAMAGEABLE);
         bodyComponent.addFixture(hitbox);
         // damagebox
-        Fixture damagebox = new Fixture(this, new Rectangle(model), DAMAGER_BOX);
+        Fixture damagebox = new Fixture(this, new Rectangle(model), DAMAGER);
         bodyComponent.addFixture(damagebox);
         return bodyComponent;
     }

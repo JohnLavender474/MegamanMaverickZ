@@ -1,31 +1,18 @@
 package com.game.utils;
 
 import com.badlogic.gdx.math.*;
-import com.game.utils.objects.Line;
 import com.game.utils.objects.Pair;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import static com.game.utils.UtilMethods.*;
 
 public class ShapeUtils {
 
     /**
-     * Supports centering for {@link Rectangle}, {@link Circle}, and {@link Line}.
-     *
-     * @param shape2D the shape
-     * @param center the center
-     */
-    public static void setCenter(Shape2D shape2D, Vector2 center) {
-        if (shape2D instanceof Rectangle rectangle) {
-            rectangle.setCenter(center);
-        } else if (shape2D instanceof Circle circle) {
-            circle.setPosition(center);
-        } else if (shape2D instanceof Line line) {
-
-            // TODO: Center line
-
-        }
-    }
-
-    /**
-     * Supports overlap detection for {@link Rectangle}, {@link Circle}, and {@link Line}.
+     * Supports overlap detection for {@link Rectangle}, {@link Circle}, and {@link Polyline}.
      *
      * @param s1 the first shape
      * @param s2 the second shape
@@ -37,16 +24,80 @@ public class ShapeUtils {
             return Intersector.overlaps((Rectangle) s1, (Rectangle) s2);
         } else if (mask(s1, s2, Circle.class)) {
             return Intersector.overlaps((Circle) s1, (Circle) s2);
-        } else if (mask(s1, s2, Line.class)) {
-            return ((Line) s1).overlaps((Line) s2);
+        } else if (mask(s1, s2, Polyline.class)) {
+            return overlapLines((Polyline) s1, (Polyline) s2);
         } else if (mask(s1, s2, Rectangle.class, Circle.class, p)) {
             return Intersector.overlaps((Circle) p.getSecond(), (Rectangle) p.getFirst());
-        } else if (mask(s1, s2, Rectangle.class, Line.class, p)) {
-            return ((Line) p.getSecond()).overlaps((Rectangle) p.getFirst());
-        } else if (mask(s1, s2, Circle.class, Line.class, p)) {
-            return ((Line) p.getSecond()).overlaps((Circle) p.getFirst());
+        } else if (mask(s1, s2, Rectangle.class, Polyline.class, p)) {
+            Polyline polyline = (Polyline) p.getSecond();
+            float[] v = polyline.getTransformedVertices();
+            return Intersector.intersectSegmentRectangle(new Vector2(v[0], v[1]), new Vector2(v[2], v[3]),
+                    (Rectangle) p.getFirst());
+        } else if (mask(s1, s2, Circle.class, Polyline.class, p)) {
+            Pair<Vector2> line = polylineToPointPair((Polyline) p.getSecond());
+            return Intersector.intersectSegmentCircle(line.getFirst(), line.getSecond(), (Circle) p.getFirst(), null);
         }
         return false;
+    }
+
+    public static Pair<Vector2> polylineToPointPair(Polyline polyline) {
+        float[] lv = polyline.getTransformedVertices();
+        Vector2 lp1 = new Vector2(lv[0], lv[1]);
+        Vector2 lp2 = new Vector2(lv[2], lv[3]);
+        return Pair.of(lp1, lp2);
+    }
+
+    public static boolean lineOverlapsRectangle(Rectangle rect, Pair<Vector2> line) {
+        return lineOverlapsRectangle(rect, line.getFirst(), line.getSecond());
+    }
+
+    public static boolean lineOverlapsRectangle(Rectangle rect, Vector2 linePoint1, Vector2 linePoint2) {
+        return lineOverlapsRectangle(rect, linePoint1, linePoint2, new Vector2());
+    }
+
+    public static boolean lineOverlapsRectangle(Rectangle rect, Vector2 linePoint1, Vector2 linePoint2, Vector2 inter) {
+        return rectToLines(rect).stream().anyMatch(l -> Intersector.intersectLines(
+                l.getFirst(), l.getSecond(), linePoint1, linePoint2, inter));
+    }
+
+    public static List<Pair<Vector2>> rectToLines(Rectangle rect) {
+        List<Pair<Vector2>> lines = new ArrayList<>();
+        lines.add(Pair.of(topLeftPoint(rect), topRightPoint(rect)));
+        lines.add(Pair.of(new Vector2(rect.x, rect.y), bottomRightPoint(rect)));
+        lines.add(Pair.of(new Vector2(rect.x, rect.y), topLeftPoint(rect)));
+        lines.add(Pair.of(bottomRightPoint(rect), topRightPoint(rect)));
+        return lines;
+    }
+
+    public static boolean intersectLineRect(Polyline polyline, Rectangle rectangle, Collection<Vector2> interPoints) {
+        float[] v = polyline.getTransformedVertices();
+        Pair<Vector2> line = new Pair<>(new Vector2(v[0], v[1]), new Vector2(v[2], v[3]));
+        return intersectLineRect(line, rectangle, interPoints);
+    }
+
+    public static boolean intersectLineRect(Pair<Vector2> line, Rectangle rectangle, Collection<Vector2> interPoints) {
+        List<Pair<Vector2>> rectToLines = rectToLines(rectangle);
+        boolean isIntersection = false;
+        for (Pair<Vector2> l : rectToLines) {
+            Vector2 intersection = new Vector2();
+            if (intersectLines(l, line, intersection)) {
+                isIntersection = true;
+                interPoints.add(intersection);
+            }
+        }
+        return isIntersection;
+    }
+
+    public static boolean overlapLines(Polyline line1, Polyline line2) {
+        return intersectLines(line1, line2, new Vector2());
+    }
+
+    public static boolean intersectLines(Polyline line1, Polyline line2, Vector2 intersection) {
+        return intersectLines(polylineToPointPair(line1), polylineToPointPair(line2), intersection);
+    }
+
+    public static boolean intersectLines(Pair<Vector2> l1, Pair<Vector2> l2, Vector2 intersection) {
+        return Intersector.intersectLines(l1.getFirst(), l1.getSecond(), l2.getFirst(), l2.getSecond(), intersection);
     }
 
     /**

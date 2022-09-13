@@ -9,8 +9,6 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import static com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.*;
-
 public class Graph {
 
     private final Vector2 dimensions = new Vector2();
@@ -104,10 +102,6 @@ public class Graph {
     }
 
     public void draw(ShapeRenderer shapeRenderer, Function<Node, Color> colorFunc) {
-        boolean isDrawing = shapeRenderer.isDrawing();
-        if (!isDrawing) {
-            shapeRenderer.begin(Line);
-        }
         forEach(node -> {
             Color color = colorFunc.apply(node);
             if (color == null) {
@@ -117,9 +111,6 @@ public class Graph {
             Rectangle bounds = node.getBounds();
             shapeRenderer.rect(bounds.x, bounds.y, bounds.width, bounds.height);
         });
-        if (!isDrawing) {
-            shapeRenderer.end();
-        }
     }
 
 }

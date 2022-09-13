@@ -10,14 +10,10 @@ import com.game.core.System;
 import java.util.List;
 import java.util.function.Supplier;
 
-import static com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.Line;
-
 public class DebugLinesSystem extends System {
 
     private final Camera camera;
     private final ShapeRenderer shapeRenderer;
-
-    private boolean isDrawing;
 
     public DebugLinesSystem(Camera camera, ShapeRenderer shapeRenderer) {
         super(DebugLinesComponent.class);
@@ -28,10 +24,7 @@ public class DebugLinesSystem extends System {
     @Override
     protected void preProcess(float delta) {
         shapeRenderer.setProjectionMatrix(camera.combined);
-        isDrawing = shapeRenderer.isDrawing();
-        if (!isDrawing) {
-            shapeRenderer.begin(Line);
-        }
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
     }
 
     @Override
@@ -44,7 +37,7 @@ public class DebugLinesSystem extends System {
             float thickness = debugLinesComponent.getThickness();
             shapeRenderer.set(debugLinesComponent.getShapeType());
             List<Vector2> points = pointsSupplier.get();
-            for (int i = 0; i < points.size() - 1; i++) {
+            for (int i = 0; i < points.size(); i += 2) {
                 Vector2 p1 = points.get(i);
                 Vector2 p2 = points.get(i + 1);
                 shapeRenderer.rectLine(p1, p2, thickness);
@@ -54,9 +47,7 @@ public class DebugLinesSystem extends System {
 
     @Override
     protected void postProcess(float delta) {
-        if (!isDrawing) {
-            shapeRenderer.end();
-        }
+        shapeRenderer.end();
     }
 
 }

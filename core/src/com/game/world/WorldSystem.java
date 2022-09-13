@@ -1,8 +1,6 @@
 package com.game.world;
 
-import com.badlogic.gdx.math.Intersector;
-import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.*;
 import com.game.core.Entity;
 import com.game.core.System;
 import com.game.utils.ShapeUtils;
@@ -13,6 +11,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.badlogic.gdx.math.Intersector.*;
+import static com.game.utils.ShapeUtils.*;
 import static java.lang.Math.*;
 
 /**
@@ -84,9 +84,16 @@ public class WorldSystem extends System {
                         bodyComponent.getVelocity().y * fixedTimeStep);
                 // Each Fixture is moved to conform to its position center from the center of the Body Component
                 bodyComponent.getFixtures().forEach(fixture -> {
-                    Vector2 center = bodyComponent.getCenter();
+                    Vector2 center = bodyComponent.getCenter().cpy();
                     center.add(fixture.getOffset());
-                    ShapeUtils.setCenter(fixture.getFixtureShape(), center);
+                    Shape2D shape = fixture.getFixtureShape();
+                    if (shape instanceof Rectangle rectangle) {
+                        rectangle.setCenter(center);
+                    } else if (shape instanceof Circle circle) {
+                        circle.setPosition(center);
+                    } else if (shape instanceof Polyline line) {
+                        line.setOrigin(center.x, center.y);
+                    }
                 });
             });
             // Handle collisions
@@ -95,7 +102,7 @@ public class WorldSystem extends System {
                     BodyComponent bc1 = bodies.get(i);
                     BodyComponent bc2 = bodies.get(j);
                     Rectangle overlap = new Rectangle();
-                    if (Intersector.intersectRectangles(bc1.getCollisionBox(), bc2.getCollisionBox(), overlap)) {
+                    if (intersectRectangles(bc1.getCollisionBox(), bc2.getCollisionBox(), overlap)) {
                         handleCollision(bc1, bc2, overlap);
                     }
                 }
@@ -106,7 +113,7 @@ public class WorldSystem extends System {
                         if (f1.isActive() && !f1.getEntity().isDead()) {
                             for (Fixture f2 : bodies.get(j).getFixtures()) {
                                 if (f2.isActive() && !f2.getEntity().isDead()) {
-                                    if (ShapeUtils.overlap(f1.getFixtureShape(), f2.getFixtureShape())) {
+                                    if (overlap(f1.getFixtureShape(), f2.getFixtureShape())) {
                                         currentContacts.add(new Contact(f1, f2));
                                     }
                                 }

@@ -99,7 +99,7 @@ public class Met extends AbstractEnemy implements Faceable {
                 bodyComponent.getFirstMatchingFixture(SHIELD).ifPresentOrElse(
                         shield -> shield.setActive(metBehavior == SHIELDING),
                         () -> {throw new IllegalStateException();});
-                bodyComponent.getFirstMatchingFixture(DAMAGEABLE_BOX).ifPresentOrElse(
+                bodyComponent.getFirstMatchingFixture(DAMAGEABLE).ifPresentOrElse(
                         hitBox -> hitBox.setActive(metBehavior != SHIELDING),
                         () -> {throw new IllegalStateException();});
                 switch (metBehavior) {
@@ -169,10 +169,10 @@ public class Met extends AbstractEnemy implements Faceable {
         // box model
         Rectangle boxModel = new Rectangle(0f, 0f, .75f * PPM, .75f * PPM);
         // hit box
-        Fixture hitBox = new Fixture(this, new Rectangle(boxModel), FixtureType.DAMAGEABLE_BOX);
+        Fixture hitBox = new Fixture(this, new Rectangle(boxModel), FixtureType.DAMAGEABLE);
         bodyComponent.addFixture(hitBox);
         // damage box
-        Fixture damageBox = new Fixture(this, new Rectangle(boxModel), FixtureType.DAMAGER_BOX);
+        Fixture damageBox = new Fixture(this, new Rectangle(boxModel), FixtureType.DAMAGER);
         bodyComponent.addFixture(damageBox);
         return bodyComponent;
     }

@@ -48,7 +48,7 @@ public class Fireball extends AbstractProjectile {
 
     @Override
     public void hit(Fixture fixture) {
-        if (fixture.isAnyFixtureType(BLOCK, DAMAGEABLE_BOX, SHIELD)) {
+        if (fixture.isAnyFixtureType(BLOCK, DAMAGEABLE, SHIELD)) {
             setLanded(true);
         }
     }
@@ -122,7 +122,7 @@ public class Fireball extends AbstractProjectile {
         Fixture projectile = new Fixture(this, new Rectangle(0f, 0f, .85f * PPM, .85f * PPM), HITTER_BOX);
         projectile.setOffset(0f, -.15f * PPM);
         bodyComponent.addFixture(projectile);
-        Fixture damageBox = new Fixture(this, new Rectangle(0f, 0f, PPM, PPM), DAMAGER_BOX);
+        Fixture damageBox = new Fixture(this, new Rectangle(0f, 0f, PPM, PPM), DAMAGER);
         bodyComponent.addFixture(damageBox);
         Fixture feet = new Fixture(this, new Rectangle(0f, 0f, PPM / 2f, 1f), FEET);
         feet.setOffset(0f, -PPM / 2f);

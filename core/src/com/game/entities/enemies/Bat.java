@@ -89,7 +89,7 @@ public class Bat extends AbstractEnemy implements Hitter {
 
     @Override
     public void hit(Fixture fixture) {
-        if (fixture.isFixtureType(DAMAGEABLE_BOX) && fixture.getEntity().equals(getMegaman())) {
+        if (fixture.isFixtureType(DAMAGEABLE) && fixture.getEntity().equals(getMegaman())) {
             setCurrentStatus(FLYING_TO_RETREAT);
         }
     }
@@ -168,10 +168,10 @@ public class Bat extends AbstractEnemy implements Hitter {
         Fixture hitterBox = new Fixture(this, new Rectangle(model), HITTER_BOX);
         bodyComponent.addFixture(hitterBox);
         // damageable box
-        Fixture damageableBox = new Fixture(this, new Rectangle(model), DAMAGEABLE_BOX);
+        Fixture damageableBox = new Fixture(this, new Rectangle(model), DAMAGEABLE);
         bodyComponent.addFixture(damageableBox);
         // damager box
-        Fixture damagerBox = new Fixture(this, new Rectangle(model), DAMAGER_BOX);
+        Fixture damagerBox = new Fixture(this, new Rectangle(model), DAMAGER);
         bodyComponent.addFixture(damagerBox);
         // shield
         Fixture shield = new Fixture(this, new Rectangle(model), SHIELD);

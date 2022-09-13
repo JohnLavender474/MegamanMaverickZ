@@ -125,10 +125,10 @@ public class SniperJoe extends AbstractEnemy implements Faceable {
         bodyComponent.setSize(PPM, 1.5f * PPM);
         setBottomCenterToPoint(bodyComponent.getCollisionBox(), spawn);
         // hit box
-        Fixture hitBox = new Fixture(this, new Rectangle(0f, 0f, .75f * PPM, 1.15f * PPM), DAMAGEABLE_BOX);
+        Fixture hitBox = new Fixture(this, new Rectangle(0f, 0f, .75f * PPM, 1.15f * PPM), DAMAGEABLE);
         bodyComponent.addFixture(hitBox);
         // damage Box
-        Fixture damageBox = new Fixture(this, new Rectangle(0f, 0f, .75f * PPM, 1.25f * PPM), DAMAGER_BOX);
+        Fixture damageBox = new Fixture(this, new Rectangle(0f, 0f, .75f * PPM, 1.25f * PPM), DAMAGER);
         bodyComponent.addFixture(damageBox);
         // shield
         Fixture shield = new Fixture(this, new Rectangle(0f, 0f, .35f * PPM, .85f * PPM), SHIELD);

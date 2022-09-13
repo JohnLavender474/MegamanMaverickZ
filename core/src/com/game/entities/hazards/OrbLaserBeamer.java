@@ -37,9 +37,7 @@ public class OrbLaserBeamer extends Entity {
             Rectangle camBounds = new Rectangle(camCenter.x - (ViewVals.VIEW_WIDTH * PPM) / 2f,
                     camCenter.y - (ViewVals.VIEW_HEIGHT * PPM) / 2f, VIEW_WIDTH * PPM, VIEW_HEIGHT * PPM);
             // check if laser line overlaps cam bounds
-            if (UtilMethods.lineOverlapsRectangle(camBounds, null)) {
-                // play sound if laser is active
-            }
+
         });
         return soundComponent;
     }

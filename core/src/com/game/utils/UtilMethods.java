@@ -1,6 +1,7 @@
 package com.game.utils;
 
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -9,10 +10,8 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 import com.game.utils.enums.Direction;
 import com.game.utils.enums.Position;
 import com.game.utils.interfaces.Positional;
-import com.game.utils.objects.Pair;
 
-import java.util.EnumMap;
-import java.util.Map;
+import java.util.Arrays;
 
 import static com.badlogic.gdx.graphics.Texture.TextureFilter.*;
 import static java.lang.Math.*;
@@ -22,26 +21,15 @@ import static java.lang.Math.*;
  */
 public class UtilMethods {
 
-    public static boolean lineOverlapsRectangle(Rectangle rect, Pair<Vector2> line) {
-        return lineOverlapsRectangle(rect, line.getFirst(), line.getSecond());
-    }
-
-    public static boolean lineOverlapsRectangle(Rectangle rect, Vector2 linePoint1, Vector2 linePoint2) {
-        return lineOverlapsRectangle(rect, linePoint1, linePoint2, new Vector2());
-    }
-
-    public static boolean lineOverlapsRectangle(Rectangle rect, Vector2 linePoint1, Vector2 linePoint2, Vector2 inter) {
-        return rectToLines(rect).values().stream().anyMatch(l -> Intersector.intersectLines(
-                l.getFirst(), l.getSecond(), linePoint1, linePoint2, inter));
-    }
-
-    public static Map<Direction, Pair<Vector2>> rectToLines(Rectangle rect) {
-        Map<Direction, Pair<Vector2>> rectToLinesMap = new EnumMap<>(Direction.class);
-        rectToLinesMap.put(Direction.DIR_UP, Pair.of(topLeftPoint(rect), topRightPoint(rect)));
-        rectToLinesMap.put(Direction.DIR_DOWN, Pair.of(new Vector2(rect.x, rect.y), bottomRightPoint(rect)));
-        rectToLinesMap.put(Direction.DIR_LEFT, Pair.of(new Vector2(rect.x, rect.y), topLeftPoint(rect)));
-        rectToLinesMap.put(Direction.DIR_RIGHT, Pair.of(bottomRightPoint(rect), topRightPoint(rect)));
-        return rectToLinesMap;
+    /**
+     * Determines the slope of the line between the two points.
+     *
+     * @param p1 the first point
+     * @param p2 the second point
+     * @return the slope
+     */
+    public static float getSlope(Vector2 p1, Vector2 p2) {
+        return (p1.y - p2.y) / (p1.x - p2.x);
     }
 
     /**

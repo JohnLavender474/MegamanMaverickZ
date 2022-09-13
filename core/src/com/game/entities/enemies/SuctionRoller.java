@@ -171,10 +171,10 @@ public class SuctionRoller extends AbstractEnemy implements Faceable {
         // box model
         Rectangle boxModel = new Rectangle(0f, 0f, .75f * PPM, PPM);
         // hit box
-        Fixture hitbox = new Fixture(this, new Rectangle(boxModel), DAMAGEABLE_BOX);
+        Fixture hitbox = new Fixture(this, new Rectangle(boxModel), DAMAGEABLE);
         bodyComponent.addFixture(hitbox);
         // damager box
-        Fixture damagerbox = new Fixture(this, new Rectangle(boxModel), DAMAGER_BOX);
+        Fixture damagerbox = new Fixture(this, new Rectangle(boxModel), DAMAGER);
         bodyComponent.addFixture(damagerbox);
         // feet
         Fixture feet = new Fixture(this, new Rectangle(0f, 0f, PPM / 4f, .75f), FEET);

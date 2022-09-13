@@ -48,10 +48,7 @@ public class SpriteSystem extends System {
     @Override
     protected void postProcess(float delta) {
         spriteBatch.setProjectionMatrix(camera.combined);
-        boolean isDrawing = spriteBatch.isDrawing();
-        if (!isDrawing) {
-            spriteBatch.begin();
-        }
+        spriteBatch.begin();
         while (!spriteComponentQueue.isEmpty()) {
             SpriteComponent spriteComponent = spriteComponentQueue.poll();
             Sprite sprite = spriteComponent.getSprite();
@@ -81,9 +78,7 @@ public class SpriteSystem extends System {
             spriteAdapter.update(sprite, delta);
             drawFiltered(sprite, spriteBatch);
         }
-        if (!isDrawing) {
-            spriteBatch.end();
-        }
+        spriteBatch.end();
     }
 
 }

@@ -54,14 +54,9 @@ public class DebugMessageSystem extends System {
     @Override
     protected void postProcess(float delta) {
         spriteBatch.setProjectionMatrix(camera.combined);
-        boolean isDrawing = spriteBatch.isDrawing();
-        if (!isDrawing) {
-            spriteBatch.begin();
-        }
+        spriteBatch.begin();
         debugMessageMegaTextHandles.forEach(debugMessage -> debugMessage.draw(spriteBatch));
-        if (!isDrawing) {
-            spriteBatch.end();
-        }
+        spriteBatch.end();
     }
 
 }

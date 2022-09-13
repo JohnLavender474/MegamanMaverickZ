@@ -17,6 +17,7 @@ import java.util.function.Consumer;
  */
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class Pair<T> {

@@ -10,16 +10,23 @@ import lombok.RequiredArgsConstructor;
 import java.util.function.Supplier;
 
 @Getter
-@RequiredArgsConstructor
 public class DebugShapesHandle {
 
-    private final Shape2D shape;
     private final ShapeType shapeType;
+    private final Supplier<Shape2D> shape;
     private final Supplier<Color> colorSupplier;
     private final UpdatableConsumer<Shape2D> updatableConsumer;
 
-    public DebugShapesHandle(Shape2D shape, ShapeType shapeType, Supplier<Color> colorSupplier) {
+    public DebugShapesHandle(Supplier<Shape2D> shape, ShapeType shapeType, Supplier<Color> colorSupplier) {
         this(shape, shapeType, colorSupplier, (shape1, delta) -> {});
+    }
+
+    public DebugShapesHandle(Supplier<Shape2D> shape, ShapeType shapeType, Supplier<Color> colorSupplier,
+                             UpdatableConsumer<Shape2D> updatableConsumer) {
+        this.shape = shape;
+        this.shapeType = shapeType;
+        this.colorSupplier = colorSupplier;
+        this.updatableConsumer = updatableConsumer;
     }
 
     public Color getColor() {

@@ -3,6 +3,7 @@ package com.game.movement;
 import com.game.core.Entity;
 import com.game.core.System;
 import com.game.utils.interfaces.UpdatableConsumer;
+import com.game.utils.objects.Pendulum;
 
 public class PendulumSystem extends System {
 
