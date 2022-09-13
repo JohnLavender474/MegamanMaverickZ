@@ -61,9 +61,9 @@ public abstract class MenuScreen extends ScreenAdapter {
     }
 
     /**
-     * Assigns map of {@link MenuButton} in the constructor.
+     * Assigns map pairOf {@link MenuButton} in the constructor.
      *
-     * @return the map of menu buttons
+     * @return the map pairOf menu buttons
      */
     protected abstract Map<String, MenuButton> defineMenuButtons();
 

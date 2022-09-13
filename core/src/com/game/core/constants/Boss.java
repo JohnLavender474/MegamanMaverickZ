@@ -77,11 +77,11 @@ public enum Boss {
         public String getBio() {
             return "Originally designed to be 'Timbre Woman', she was \n" +
                     "planned to be the finest a cappella singer in the world. \n" +
-                    "But one of the programmers screwed up and typed \n" +
-                    "'Timber' instead of 'Timbre' into her firmware, and \n" +
+                    "But one pairOf the programmers screwed up and typed \n" +
+                    "'Timber' instead pairOf 'Timbre' into her firmware, and \n" +
                     "as a result, she became the world's strongest \n" +
                     "lumberjack. She is an advocate for responsible \n" +
-                    "forestation practices and dreams of building a \n" +
+                    "forestation practices and dreams pairOf building a \n" +
                     "'City Among the Trees' should she ever hold \n" +
                     "a position in government.";
         }

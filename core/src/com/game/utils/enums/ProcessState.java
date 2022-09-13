@@ -1,7 +1,7 @@
 package com.game.utils.enums;
 
 /**
- * Enumeration of the various states of any process.
+ * Enumeration pairOf the various states pairOf any process.
  * <p>
  * {@link #END}: The process has just finished.
  * {@link #BEGIN}: The process has just commenced.

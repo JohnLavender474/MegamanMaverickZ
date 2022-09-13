@@ -17,7 +17,6 @@ import com.game.controllers.ControllerComponent;
 import com.game.damage.DamageNegotiation;
 import com.game.damage.Damageable;
 import com.game.damage.Damager;
-import com.game.debugging.DebugMessageComponent;
 import com.game.entities.contracts.Faceable;
 import com.game.entities.contracts.Facing;
 import com.game.entities.decorations.ExplosionOrb;
@@ -124,11 +123,10 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         megamanSpecialAbilities.add(WALL_JUMP);
         megamanSpecialAbilities.add(AIR_DASH);
 
-        // TODO: Remove three above lines of code
+        // TODO: Remove three above lines pairOf code
 
         setCurrentWeapon(MEGA_BUSTER);
         addComponent(defineHealthComponent(MEGAMAN_MAX_HEALTH));
-        addComponent(new DebugMessageComponent());
         addComponent(defineControllerComponent());
         addComponent(defineUpdatableComponent());
         addComponent(defineBodyComponent(spawn));

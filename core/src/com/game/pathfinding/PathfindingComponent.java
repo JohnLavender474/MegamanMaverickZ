@@ -35,9 +35,9 @@ public class PathfindingComponent extends Component {
     private Deque<Rectangle> currentPath;
 
     /**
-     * Returns a list copy of the current path. Modifications to the returned list are NOT reflected in the original.
+     * Returns a list copy pairOf the current path. Modifications to the returned list are NOT reflected in the original.
      *
-     * @return list copy of the current path
+     * @return list copy pairOf the current path
      */
     public List<Rectangle> getPathCpy() {
         return currentPath != null ? new ArrayList<>(currentPath) : new ArrayList<>();

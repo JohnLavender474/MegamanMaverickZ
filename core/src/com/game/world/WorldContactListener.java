@@ -1,7 +1,7 @@
 package com.game.world;
 
 /**
- * Defines the logic of handling {@link Contact} instances.
+ * Defines the logic pairOf handling {@link Contact} instances.
  */
 public interface WorldContactListener {
 

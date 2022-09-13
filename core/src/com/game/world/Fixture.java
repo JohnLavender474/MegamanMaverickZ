@@ -13,7 +13,7 @@ import java.util.*;
 import static com.badlogic.gdx.graphics.Color.*;
 
 /**
- * Defines a fixture sensor attached to a body. Offset is from the center of the body.
+ * Defines a fixture sensor attached to a body. Offset is from the center pairOf the body.
  */
 @Getter
 @Setter

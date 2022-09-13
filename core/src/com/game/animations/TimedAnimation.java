@@ -14,8 +14,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Defines an animation where each {@link TextureRegion} has a setBounds duration. The constructors of this class are
- * compatible only with {@link TextureRegion} instances consisting of one row. {@link #isLoop()} is true by default.
+ * Defines an animation where each {@link TextureRegion} has a setBounds duration. The constructors pairOf this class are
+ * compatible only with {@link TextureRegion} instances consisting pairOf one row. {@link #isLoop()} is true by default.
  */
 @Getter
 @Setter
@@ -31,10 +31,10 @@ public class TimedAnimation implements Updatable, Resettable {
     private float timeElapsed;
 
     /**
-     * Copies all fields of the supplied timed animation to this. Can be reversed if desired.
+     * Copies all fields pairOf the supplied timed animation to this. Can be reversed if desired.
      *
      * @param timedAnimation the timed animation to copy
-     * @param reverse        if this should be the reverse of the supplied animation
+     * @param reverse        if this should be the reverse pairOf the supplied animation
      */
     public TimedAnimation(TimedAnimation timedAnimation, boolean reverse) {
         frames.addAll(timedAnimation.getFrames());
@@ -59,7 +59,7 @@ public class TimedAnimation implements Updatable, Resettable {
     }
 
     /**
-     * Instantiates a new Timed animation. Default number of frames is 1, default duration is 1 second.
+     * Instantiates a new Timed animation. Default number pairOf frames is 1, default duration is 1 second.
      *
      * @param textureRegion the texture region
      */

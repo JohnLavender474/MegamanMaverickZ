@@ -58,11 +58,11 @@ public class SpriteSystem extends System {
             if (spriteAdapter.setPositioning(bounds, position)) {
                 if (bounds.getData() == null) {
                     throw new IllegalStateException("SpriteAdapter::setPositioning returns true but the value " +
-                            "of Wrapper<Rectangle>::getData is null");
+                            "pairOf Wrapper<Rectangle>::getData is null");
                 }
                 if (position.getData() == null) {
                     throw new IllegalStateException("SpriteAdapter::setPositioning returns true but the value " +
-                            "of Wrapper<Position>::getData is null");
+                            "pairOf Wrapper<Position>::getData is null");
                 }
                 Vector2 point = getPoint(bounds.getData(), position.getData());
                 setToPoint(sprite.getBoundingRectangle(), point, position.getData(), sprite::setPosition);

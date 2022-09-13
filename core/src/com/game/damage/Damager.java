@@ -18,8 +18,8 @@ public interface Damager {
     }
 
     /**
-     * On damage inflicted to {@link Damageable} instance. This method receives only the class of the instance
-     * because this method is not meant to modify the other object but merely for the "reaction" logic of this object.
+     * On damage inflicted to {@link Damageable} instance. This method receives only the class pairOf the instance
+     * because this method is not meant to modify the other object but merely for the "reaction" logic pairOf this object.
      *
      * @param damageable the damageable
      */

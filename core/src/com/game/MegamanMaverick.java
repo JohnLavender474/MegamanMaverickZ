@@ -13,7 +13,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -28,9 +27,8 @@ import com.game.controllers.ControllerSystem;
 import com.game.core.System;
 import com.game.cull.CullOnCamTransSystem;
 import com.game.cull.CullOnOutOfCamBoundsSystem;
-import com.game.debugging.DebugLinesSystem;
-import com.game.debugging.DebugMessageSystem;
-import com.game.debugging.DebugShapesSystem;
+import com.game.shapes.LineSystem;
+import com.game.shapes.ShapeSystem;
 import com.game.graph.GraphSystem;
 import com.game.health.HealthSystem;
 import com.game.screens.LevelScreen;
@@ -63,14 +61,12 @@ import static com.game.core.constants.LevelStatus.*;
 import static com.game.core.constants.MegamanVals.*;
 import static com.game.core.constants.MusicAsset.*;
 import static com.game.core.constants.RenderingGround.PLAYGROUND;
-import static com.game.core.constants.RenderingGround.UI;
 import static com.game.core.constants.ViewVals.*;
 import static com.game.core.constants.WorldVals.*;
 import static com.game.controllers.ButtonStatus.*;
 import static com.game.controllers.ControllerUtils.*;
 import static com.game.core.DebugLogger.DebugLevel.*;
 import static com.game.utils.UtilMethods.*;
-import static com.game.core.MegaTextHandle.*;
 
 /**
  * The entry point into the Megaman game. Initializes all assets and classes that need to be initialized before gameplay
@@ -152,16 +148,10 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
         addSystem(new UpdatableSystem());
         addSystem(new BehaviorSystem());
         addSystem(new SoundSystem(this));
-        addSystem(new DebugShapesSystem(viewports.get(PLAYGROUND).getCamera(), getShapeRenderer()));
-        addSystem(new DebugLinesSystem(viewports.get(PLAYGROUND).getCamera(), getShapeRenderer()));
         addSystem(new AnimationSystem());
         addSystem(new SpriteSystem((OrthographicCamera) viewports.get(PLAYGROUND).getCamera(), getSpriteBatch()));
-        Vector2[] debugMsgPosArray = new Vector2[5];
-        for (int i = 0; i < 5; i++) {
-            debugMsgPosArray[i] = new Vector2(PPM, PPM + PPM * i);
-        }
-        addSystem(new DebugMessageSystem(viewports.get(UI).getCamera(), getSpriteBatch(),
-                DEFAULT_TEXT, 8, debugMsgPosArray));
+        addSystem(new ShapeSystem(viewports.get(PLAYGROUND).getCamera(), getShapeRenderer()));
+        addSystem(new LineSystem(viewports.get(PLAYGROUND).getCamera(), getShapeRenderer()));
         // blackboard
         putBlackboardObject(MEGAMAN_GAME_INFO, new MegamanGameInfo());
         // add this as message listener

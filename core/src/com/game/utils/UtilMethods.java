@@ -22,7 +22,7 @@ import static java.lang.Math.*;
 public class UtilMethods {
 
     /**
-     * Determines the slope of the line between the two points.
+     * Determines the slope pairOf the line between the two points.
      *
      * @param p1 the first point
      * @param p2 the second point
@@ -77,11 +77,11 @@ public class UtilMethods {
     }
 
     /**
-     * Returns true if the test object is equal to any of the following supplied objects.
+     * Returns true if the test object is equal to any pairOf the following supplied objects.
      *
      * @param test the test object
-     * @param objs the var args of supplied objects to test against
-     * @return if the test object is equal to any of the following supplied objects
+     * @param objs the var args pairOf supplied objects to test against
+     * @return if the test object is equal to any pairOf the following supplied objects
      */
     public static boolean equalsAny(Object test, Object... objs) {
         for (Object obj : objs) {
@@ -124,10 +124,10 @@ public class UtilMethods {
     }
 
     /**
-     * Rounds the provided float to the number of decimal places specified.
+     * Rounds the provided float to the number pairOf decimal places specified.
      *
      * @param num the provided float
-     * @param decimals the number of decimal places
+     * @param decimals the number pairOf decimal places
      * @return the rounded float
      */
     public static float roundedFloat(float num, int decimals) {
@@ -136,10 +136,10 @@ public class UtilMethods {
     }
 
     /**
-     * Rounds the provided {@link Vector2} to the number of decimal places specified.
+     * Rounds the provided {@link Vector2} to the number pairOf decimal places specified.
      *
      * @param vector2 the vector2
-     * @param decimals the number of decimal places
+     * @param decimals the number pairOf decimal places
      */
     public static void roundedVector2(Vector2 vector2, int decimals) {
         vector2.x = roundedFloat(vector2.x, decimals);
@@ -147,7 +147,7 @@ public class UtilMethods {
     }
 
     /**
-     * Returns {@link BoundingBox} representation of {@link Rectangle}.
+     * Returns {@link BoundingBox} representation pairOf {@link Rectangle}.
      *
      * @param rectangle the rectangle
      * @return the bounding box representation
@@ -208,17 +208,17 @@ public class UtilMethods {
     }
 
     /**
-     * Fetches {@link Class#getSimpleName()} of the provided Object.
+     * Fetches {@link Class#getSimpleName()} pairOf the provided Object.
      *
      * @param o the Object
-     * @return the simple name of the Object
+     * @return the simple name pairOf the Object
      */
     public static String objName(Object o) {
         return o.getClass().getSimpleName();
     }
 
     /**
-     * Returns the interpolations of the x and y values of the two {@link Vector2} instances.
+     * Returns the interpolations pairOf the x and y values pairOf the two {@link Vector2} instances.
      * See {@link #interpolate(float, float, float)}.
      *
      * @param start  the starting coordinates
@@ -251,7 +251,7 @@ public class UtilMethods {
      *
      * @param toBePushed the Rectangle to be pushed
      * @param other      the other Rectangle
-     * @param overlap    the overlap of the two Rectangles
+     * @param overlap    the overlap pairOf the two Rectangles
      * @return null if there is no overlap, otherwise the direction in which the first Rectangle should be pushed
      */
     public static Direction getOverlapPushDirection(Rectangle toBePushed, Rectangle other, Rectangle overlap) {
@@ -270,9 +270,9 @@ public class UtilMethods {
      * Positions the first {@link Rectangle} onto the other in relation to the provided {@link Position} value.
      * The other Rectangle, named staticRectangle, is not moved. For example, if position equals
      * {@link Position#BOTTOM_CENTER}, then the Rectangle to be moved will be positioned so that its bottom center
-     * point will rest directly on the bottom center point of the static Rectangle. Second example: if position equals
+     * point will rest directly on the bottom center point pairOf the static Rectangle. Second example: if position equals
      * {@link Position#CENTER_LEFT}, then the Rectangle to be moved will be positioned so that its center left point
-     * will rest directly on the center left point of the static Rectangle. So on and so forth.
+     * will rest directly on the center left point pairOf the static Rectangle. So on and so forth.
      *
      * @param toBeMoved  the Rectangle to be moved onto the other
      * @param staticRect the Rectangle that is not moved and acts as a reference for the first Rectangle
@@ -380,7 +380,7 @@ public class UtilMethods {
     }
 
     /**
-     * Returns the bottom-right point of the {@link Rectangle} as a {@link Vector2}.
+     * Returns the bottom-right point pairOf the {@link Rectangle} as a {@link Vector2}.
      *
      * @param rectangle the rectangle
      * @return the bottom-right point
@@ -410,7 +410,7 @@ public class UtilMethods {
     }
 
     /**
-     * Returns the bottom-center point of the {@link Rectangle} as a {@link Vector2}.
+     * Returns the bottom-center point pairOf the {@link Rectangle} as a {@link Vector2}.
      *
      * @param rectangle the rectangle
      * @return the bottom-center point
@@ -440,7 +440,7 @@ public class UtilMethods {
     }
 
     /**
-     * Returns the center-right point of the {@link Rectangle} as a {@link Vector2}.
+     * Returns the center-right point pairOf the {@link Rectangle} as a {@link Vector2}.
      *
      * @param rectangle the rectangle
      * @return the center-right point
@@ -470,7 +470,7 @@ public class UtilMethods {
     }
 
     /**
-     * Returns the center point of the {@link Rectangle}.
+     * Returns the center point pairOf the {@link Rectangle}.
      *
      * @param rectangle the rectangle
      * @return the center point
@@ -482,7 +482,7 @@ public class UtilMethods {
     }
 
     /**
-     * Returns the center-left point of the {@link Rectangle} as a {@link Vector2}.
+     * Returns the center-left point pairOf the {@link Rectangle} as a {@link Vector2}.
      *
      * @param rectangle the rectangle
      * @return the center-left point
@@ -512,7 +512,7 @@ public class UtilMethods {
     }
 
     /**
-     * Returns the top-right point of the {@link Rectangle} as a {@link Vector2}.
+     * Returns the top-right point pairOf the {@link Rectangle} as a {@link Vector2}.
      *
      * @param rectangle the rectangle
      * @return the top-right point
@@ -542,7 +542,7 @@ public class UtilMethods {
     }
 
     /**
-     * Returns the top-center point of the {@link Rectangle} as a {@link Vector2}.
+     * Returns the top-center point pairOf the {@link Rectangle} as a {@link Vector2}.
      *
      * @param rectangle the rectangle
      * @return the top-center point
@@ -572,7 +572,7 @@ public class UtilMethods {
     }
 
     /**
-     * Returns the top-left point of the {@link Rectangle}.
+     * Returns the top-left point pairOf the {@link Rectangle}.
      *
      * @param rectangle the rectangle
      * @return the top-left point

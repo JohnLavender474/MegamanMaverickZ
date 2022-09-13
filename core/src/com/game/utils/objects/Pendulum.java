@@ -55,18 +55,4 @@ public class Pendulum implements Updatable {
         return point;
     }
 
-    public void debug(ShapeRenderer shapeRenderer, Color lineColor, Color ballColor) {
-        boolean isDrawing = shapeRenderer.isDrawing();
-        if (!isDrawing) {
-            shapeRenderer.begin(Line);
-        }
-        shapeRenderer.setColor(lineColor);
-        shapeRenderer.line(anchor, end);
-        shapeRenderer.setColor(ballColor);
-        shapeRenderer.circle(end.x, end.y, PPM / 2f);
-        if (!isDrawing) {
-            shapeRenderer.end();
-        }
-    }
-
 }

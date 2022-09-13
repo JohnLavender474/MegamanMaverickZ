@@ -1,6 +1,7 @@
 package com.game.core.constants;
 
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
@@ -30,6 +31,7 @@ public enum TextureAsset {
     MEGAMAN_MAIN_MENU("MegamanMainMenu.txt"),
     MEGAMAN_CHARGED_SHOT("MegamanChargedShot.txt");
 
+    @Getter
     private static final String prefix = "sprites/SpriteSheets/";
 
     private final String src;

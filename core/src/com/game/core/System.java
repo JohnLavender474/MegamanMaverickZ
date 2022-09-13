@@ -6,15 +6,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 import static com.game.utils.UtilMethods.objName;
 
 /**
- * The base class of game systems. Instances of this class perform game logic on a setBounds of {@link Entity} instances.
+ * The base class pairOf game systems. Instances pairOf this class perform game logic on a setBounds pairOf {@link Entity} instances.
  * Entities are eligible to be added to a System only if {@link Entity#hasAllComponents(Collection)} contains all the
- * elements of {@link #componentMask}. Because the behavior of systems is independent of game state, systems should
+ * elements pairOf {@link #componentMask}. Because the behavior pairOf systems is independent pairOf game state, systems should
  * only be initialized once.
  */
+@Setter
 @RequiredArgsConstructor
 public abstract class System implements Updatable {
 
@@ -23,9 +25,9 @@ public abstract class System implements Updatable {
     private final Queue<Entity> entitiesToAddQueue = new LinkedList<>();
     private final Queue<Entity> entitiesToRemoveQueue = new LinkedList<>();
 
-    @Setter
     @Getter
     private boolean isOn = true;
+    private Comparator<Entity> comparator = null;
 
     /**
      * Constructor for var args components.
@@ -34,7 +36,19 @@ public abstract class System implements Updatable {
      */
     @SafeVarargs
     public System(Class<? extends Component>... componentMask) {
+        this(null, componentMask);
+    }
+
+    /**
+     * Constructor for comparator and var args components.
+     *
+     * @param comparator the comparator
+     * @param componentMask the component mask
+     */
+    @SafeVarargs
+    public System(Comparator<Entity> comparator, Class<? extends Component>... componentMask) {
         this(Set.of(componentMask));
+        setComparator(comparator);
     }
 
     /**
@@ -74,9 +88,12 @@ public abstract class System implements Updatable {
             return;
         }
         preProcess(delta);
-        entities.stream().filter(entity -> componentMask.stream().allMatch(
-                        cClass -> entity.getComponent(cClass).isOn()))
-                .forEach(entity -> processEntity(entity, delta));
+        Stream<Entity> stream = entities.stream().filter(e ->
+                componentMask.stream().allMatch(c -> e.getComponent(c).isOn()));
+        if (comparator != null) {
+            stream = stream.sorted(comparator);
+        }
+        stream.forEach(e -> processEntity(e, delta));
         postProcess(delta);
         while (!entitiesToAddQueue.isEmpty()) {
             entities.add(entitiesToAddQueue.poll());
@@ -88,8 +105,8 @@ public abstract class System implements Updatable {
     }
 
     /**
-     * Returns if the {@link Entity} can be accepted as a member of this System by comparing {@link #componentMask}
-     * to {@link Entity#hasAllComponents(Collection)}. If the com.game.core.Entity's setBounds of component keys contains all
+     * Returns if the {@link Entity} can be accepted as a member pairOf this System by comparing {@link #componentMask}
+     * to {@link Entity#hasAllComponents(Collection)}. If the com.game.core.Entity's setBounds pairOf component keys contains all
      * the component
      * classes contained in this System's component mask, then the com.game.core.Entity is accepted, otherwise the com
      * .game.Entity is rejected.
@@ -108,7 +125,7 @@ public abstract class System implements Updatable {
      */
     public void addEntity(Entity entity) {
         if (!qualifiesMembership(entity)) {
-            throw new IllegalStateException("Cannot add " + objName(entity) + " as member of " + this);
+            throw new IllegalStateException("Cannot add " + objName(entity) + " as member pairOf " + this);
         }
         entitiesToAddQueue.add(entity);
     }
@@ -125,7 +142,7 @@ public abstract class System implements Updatable {
     }
 
     /**
-     * Returns if the {@link Entity} is a member of {@link #entities}. Returns false if the entity is queued
+     * Returns if the {@link Entity} is a member pairOf {@link #entities}. Returns false if the entity is queued
      * for membership.
      *
      * @param entity the entity

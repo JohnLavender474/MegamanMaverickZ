@@ -14,7 +14,7 @@ import static com.game.core.constants.ViewVals.PPM;
 import static com.game.utils.UtilMethods.drawFiltered;
 
 /**
- * Represents a grid of sprites to be used for repeating background images. Integer parameters are all scaled by
+ * Represents a grid pairOf sprites to be used for repeating background images. Integer parameters are all scaled by
  * {@link ViewVals#PPM}.
  */
 public class Background implements Updatable, Drawable {
@@ -50,10 +50,10 @@ public class Background implements Updatable, Drawable {
      * @param textureRegion the texture region
      * @param startX the starting x position in world units
      * @param startY the starting y position in world units
-     * @param width the width of each sprite in world units
-     * @param height the height of each sprite in world units
-     * @param rows the number of rows
-     * @param cols the number of colums
+     * @param width the width pairOf each sprite in world units
+     * @param height the height pairOf each sprite in world units
+     * @param rows the number pairOf rows
+     * @param cols the number pairOf colums
      */
     public Background(TextureRegion textureRegion, float startX, float startY,
                       float width, float height, int rows, int cols) {
@@ -97,7 +97,7 @@ public class Background implements Updatable, Drawable {
     }
 
     /**
-     * Translates the position of all sprites by the provided amounts. Float values are NOT scaled by
+     * Translates the position pairOf all sprites by the provided amounts. Float values are NOT scaled by
      * {@link ViewVals#PPM}.
      *
      * @param x the x amount to translate by

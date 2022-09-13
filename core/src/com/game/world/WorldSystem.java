@@ -16,7 +16,7 @@ import static com.game.utils.ShapeUtils.*;
 import static java.lang.Math.*;
 
 /**
- * {@link System} implementation that handles the logic of the "game world physics", i.e. gravity, collision handling,
+ * {@link System} implementation that handles the logic pairOf the "game world physics", i.e. gravity, collision handling,
  * and contact-event-handling.
  */
 public class WorldSystem extends System {
@@ -82,7 +82,7 @@ public class WorldSystem extends System {
                 // Translate
                 bodyComponent.translate(bodyComponent.getVelocity().x * fixedTimeStep,
                         bodyComponent.getVelocity().y * fixedTimeStep);
-                // Each Fixture is moved to conform to its position center from the center of the Body Component
+                // Each Fixture is moved to conform to its position center from the center pairOf the Body Component
                 bodyComponent.getFixtures().forEach(fixture -> {
                     Vector2 center = bodyComponent.getCenter().cpy();
                     center.add(fixture.getOffset());
@@ -146,7 +146,7 @@ public class WorldSystem extends System {
 
     /**
      * Handles collision between {@link BodyType#DYNAMIC} and {@link BodyType#STATIC} {@link BodyComponent} instances
-     * where parameter bc1 should be dynamic and bc2 static. Dynamic body is adjusted out of collision and has static
+     * where parameter bc1 should be dynamic and bc2 static. Dynamic body is adjusted out pairOf collision and has static
      * body's friction applied.
      *
      * @param bc1     the first body

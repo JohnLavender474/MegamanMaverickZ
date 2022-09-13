@@ -39,7 +39,7 @@ import static com.game.utils.UtilMethods.*;
 import static com.game.utils.enums.Direction.*;
 
 /**
- * Implementation of {@link MenuScreen} for the main menu of the game.
+ * Implementation pairOf {@link MenuScreen} for the main menu pairOf the game.
  */
 public class MainMenuScreen extends MenuScreen {
 

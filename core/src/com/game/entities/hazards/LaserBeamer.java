@@ -6,18 +6,17 @@ import com.badlogic.gdx.math.Vector2;
 import com.game.core.Entity;
 import com.game.core.GameContext2d;
 import com.game.damage.Damager;
-import com.game.debugging.DebugLinesComponent;
-import com.game.debugging.DebugShapesComponent;
-import com.game.debugging.DebugShapesHandle;
+import com.game.shapes.LineComponent;
+import com.game.shapes.LineHandle;
+import com.game.shapes.ShapeComponent;
+import com.game.shapes.ShapeHandle;
 import com.game.updatables.UpdatableComponent;
-import com.game.utils.objects.Pair;
 import com.game.utils.objects.RotatingLine;
 import com.game.utils.objects.Timer;
 import com.game.world.BodyComponent;
 import com.game.world.Fixture;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
@@ -35,23 +34,27 @@ public class LaserBeamer extends Entity implements Damager {
     public static final float SPEED = 2f;
     public static final float RADIUS = 10f;
     public static final float SWITCH_TIME = 1f;
+    public static final float FLASH_TIME = .02f;
     public static final float MIN_DEGREES = 200f;
     public static final float MAX_DEGREES = 340f;
     public static final float INIT_DEGREES = 270f;
-    public static final float THICKNESS = PPM / 16f;
+    public static final float THICKNESS = PPM / 32f;
 
     private final Queue<Vector2> blockContactPoints;
     private final Polyline laser = new Polyline();
     private final RotatingLine rotatingLine;
     private final Timer switchTimer;
+    private final Timer flashTimer;
 
     private boolean clockwise;
+    private boolean flash;
+
     private Circle blockHit;
 
     public LaserBeamer(GameContext2d gameContext, Vector2 spawn) {
         super(gameContext);
-        switchTimer = new Timer(SWITCH_TIME);
-        switchTimer.setToEnd();
+        switchTimer = new Timer(SWITCH_TIME, true);
+        flashTimer = new Timer(FLASH_TIME, true);
         rotatingLine = new RotatingLine(spawn, RADIUS * PPM, SPEED * PPM, INIT_DEGREES);
         float[] v = rotatingLine.getPolyline().getVertices();
         laser.setVertices(Arrays.copyOf(v, v.length));
@@ -59,7 +62,7 @@ public class LaserBeamer extends Entity implements Damager {
         blockContactPoints = new PriorityQueue<>((p1, p2) -> Float.compare(p1.dst2(spawn), p2.dst2(spawn)));
         addComponent(defineBodyComponent(spawn));
         addComponent(defineUpdatableComponent());
-        addComponent(defineDebugLinesComponent());
+        addComponent(defineLinesComponent());
         addComponent(defineDebugShapesComponent());
     }
 
@@ -75,23 +78,33 @@ public class LaserBeamer extends Entity implements Damager {
         return bodyComponent;
     }
 
-    private DebugShapesComponent defineDebugShapesComponent() {
-        return new DebugShapesComponent(new DebugShapesHandle(() -> blockHit, Filled, () -> WHITE));
+    private ShapeComponent defineDebugShapesComponent() {
+        ShapeHandle shapeHandle = new ShapeHandle();
+        shapeHandle.setShapeSupplier(() -> blockHit);
+        shapeHandle.setPrioritySupplier(() -> 2);
+        shapeHandle.setColorSupplier(() -> WHITE);
+        shapeHandle.setShapeTypeSupplier(() -> Filled);
+        return new ShapeComponent(shapeHandle);
     }
 
-    private DebugLinesComponent defineDebugLinesComponent() {
-        DebugLinesComponent debugLinesComponent = new DebugLinesComponent();
-        debugLinesComponent.setThickness(THICKNESS);
-        debugLinesComponent.setShapeType(Line);
-        debugLinesComponent.addDebugLine(() -> {
-            Pair<Vector2> p = polylineToPointPair(laser);
-            return List.of(p.getFirst(), p.getSecond());
-        }, () -> BLUE);
-        return debugLinesComponent;
+    private LineComponent defineLinesComponent() {
+        LineHandle lineHandle = new LineHandle();
+        lineHandle.setLineSupplier(() -> polylineToPointPair(laser));
+        lineHandle.setThicknessSupplier(() -> THICKNESS);
+        lineHandle.setShapeTypeSupplier(() -> Filled);
+        lineHandle.setColorSupplier(() -> RED);
+        lineHandle.setDoRenderSupplier(() -> flash);
+        return new LineComponent(lineHandle);
     }
 
     private UpdatableComponent defineUpdatableComponent() {
         return new UpdatableComponent(delta -> {
+            // flash
+            flashTimer.update(delta);
+            if (flashTimer.isFinished()) {
+                flash = !flash;
+                flashTimer.reset();
+            }
             // block contact
             Vector2 origin = rotatingLine.getPos();
             Vector2 endPos = rotatingLine.getEndPoint();

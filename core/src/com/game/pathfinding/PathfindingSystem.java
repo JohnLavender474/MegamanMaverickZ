@@ -55,18 +55,18 @@ public class PathfindingSystem extends System {
         EXCEPTION PARTIAL STACK TRACE WHEN PLAYER DIES
         ---------------------------------------------------------------------------------------
         java.util.concurrent.ExecutionException: java.lang.ArrayIndexOutOfBoundsException:
-            Index -1 out of bounds for length 20
+            Index -1 out pairOf bounds for length 20
 	    at java.base/java.util.concurrent.FutureTask.report(FutureTask.java:122)
     	at java.base/java.util.concurrent.FutureTask.get(FutureTask.java:191)
 	    at com.game.pathfinding.PathfindingSystem.postProcess(PathfindingSystem.java:59)
 	    ...
-        Caused by: java.lang.ArrayIndexOutOfBoundsException: Index -1 out of bounds for length 20
+        Caused by: java.lang.ArrayIndexOutOfBoundsException: Index -1 out pairOf bounds for length 20
 	    at com.game.graph.Graph.getNeighbors(Graph.java:47)
 	    at com.game.pathfinding.Pathfinder.call(Pathfinder.java:46)
 	    at com.game.pathfinding.Pathfinder.call(Pathfinder.java:20)
 	    at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
 	    at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
-        Caused by: java.lang.ArrayIndexOutOfBoundsException: Index -1 out of bounds for length 20
+        Caused by: java.lang.ArrayIndexOutOfBoundsException: Index -1 out pairOf bounds for length 20
         at com.game.graph.Graph.getNeighbors(Graph.java:47)
 	    at com.game.pathfinding.Pathfinder.call(Pathfinder.java:46)
 	    at com.game.pathfinding.Pathfinder.call(Pathfinder.java:20)

@@ -14,7 +14,7 @@ public interface IEntitiesAndSystemsManager {
     /**
      * Get {@link System}.
      *
-     * @param <S>    the type parameter of the system
+     * @param <S>    the type parameter pairOf the system
      * @param sClass the system class
      * @return the system
      */
@@ -52,14 +52,14 @@ public interface IEntitiesAndSystemsManager {
     }
 
     /**
-     * View of entities collection.
+     * View pairOf entities collection.
      *
      * @return the collection
      */
     Collection<Entity> getEntities();
 
     /**
-     * Should be called when leaving a level screen and all entities need to be disposed of.
+     * Should be called when leaving a level screen and all entities need to be disposed pairOf.
      */
     void purgeAllEntities();
 

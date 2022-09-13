@@ -1,7 +1,7 @@
 package com.game.world;
 
 /**
- * Defines the body type of {@link BodyComponent}.
+ * Defines the body type pairOf {@link BodyComponent}.
  * <p>
  * STATIC: Are immovable, cannot be passed through by dynamic bodies.
  * DYNAMIC: Cannot pass through static bodies.

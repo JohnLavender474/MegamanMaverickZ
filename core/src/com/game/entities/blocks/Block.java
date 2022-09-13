@@ -8,8 +8,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.core.Entity;
 import com.game.core.GameContext2d;
-import com.game.debugging.DebugShapesComponent;
-import com.game.debugging.DebugShapesHandle;
+import com.game.core.constants.TextureAsset;
 import com.game.entities.decorations.DecorativeSprite;
 import com.game.graph.GraphComponent;
 import com.game.movement.TrajectoryComponent;
@@ -19,9 +18,8 @@ import com.game.world.Fixture;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
-import static com.badlogic.gdx.graphics.Color.*;
-import static com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.*;
 import static com.game.core.constants.ViewVals.PPM;
 import static com.game.utils.UtilMethods.centerPoint;
 import static com.game.world.FixtureType.*;
@@ -46,7 +44,6 @@ public class Block extends Entity {
         addComponent(defineGraphComponent());
         addComponent(defineBodyComponent(bounds, friction, resistance, gravityOn,
                 wallSlideLeft, wallSlideRight, feetSticky));
-        addComponent(defineDebugShapesComponent());
     }
 
     private void setToBlockObj(GameContext2d gameContext, RectangleMapObject blockObj) {
@@ -55,8 +52,8 @@ public class Block extends Entity {
         if (properties.containsKey("src") && properties.containsKey("region")) {
             String decorativeSrc = properties.get("src", String.class);
             String decorativeRegion = properties.get("region", String.class);
-            TextureRegion textureRegion = gameContext.getAsset(decorativeSrc, TextureAtlas.class)
-                    .findRegion(decorativeRegion);
+            TextureRegion textureRegion = gameContext.getAsset(TextureAsset.getPrefix() + decorativeSrc,
+                            TextureAtlas.class).findRegion(decorativeRegion);
             gameContext.addEntities(generateDecorativeBlocks(textureRegion));
         }
         // trajectory
@@ -76,22 +73,18 @@ public class Block extends Entity {
 
     public List<DecorativeSprite> generateDecorativeBlocks(TextureRegion textureRegion) {
         List<DecorativeSprite> decorativeSprites = new ArrayList<>();
-        Vector2 size = getComponent(BodyComponent.class).getSize().scl(1f / PPM);
-        for (int i = 0; i < (int) size.x; i++) {
-            for (int j = 0; j < (int) size.y; j++) {
-                final int finalI = i; final int finalJ = j;
-                decorativeSprites.add(new DecorativeSprite(gameContext, textureRegion, new Vector2(PPM, PPM),
-                        () -> getComponent(BodyComponent.class).getCenter().add(finalI * PPM, finalJ * PPM)));
+        Rectangle bounds = getComponent(BodyComponent.class).getCollisionBox();
+        for (int i = 0; i < bounds.width / PPM; i++) {
+            for (int j = 0; j < bounds.height / PPM; j++) {
+                final int finalI = i;
+                final int finalJ = j;
+                Supplier<Vector2> posSupplier = () -> new Vector2(bounds.x + finalI * PPM, bounds.y + finalJ * PPM);
+                DecorativeSprite decorativeSprite = new DecorativeSprite(gameContext, textureRegion,
+                        new Vector2(PPM, PPM), posSupplier);
+                decorativeSprites.add(decorativeSprite);
             }
         }
         return decorativeSprites;
-    }
-
-    private DebugShapesComponent defineDebugShapesComponent() {
-        DebugShapesComponent debugShapesComponent = new DebugShapesComponent();
-        getComponent(BodyComponent.class).getFixtures().stream().filter(f -> f.isFixtureType(BLOCK)).forEach(f ->
-                debugShapesComponent.addDebugShapeHandle(new DebugShapesHandle(f::getFixtureShape, Line, () -> BLUE)));
-        return debugShapesComponent;
     }
 
     private BodyComponent defineBodyComponent(Rectangle bounds, Vector2 friction, boolean resistance, boolean gravityOn,

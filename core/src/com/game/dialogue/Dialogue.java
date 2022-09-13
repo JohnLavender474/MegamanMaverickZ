@@ -27,11 +27,11 @@ import static java.lang.Math.round;
 /**
  * Process:
  *    1. Black box is expanded until black box timer is finished
- *    2. For each block of dialogue, letters are "typed" out one at a time with sound playing for non-blank chars,
+ *    2. For each block pairOf dialogue, letters are "typed" out one at a time with sound playing for non-blank chars,
  *       letter anim timer is used for delay between letters
- *    3. When each block of dialogue is finished (except for the last), then pressing any button triggers the
+ *    3. When each block pairOf dialogue is finished (except for the last), then pressing any button triggers the
  *       next block
- *    4. When the last block of dialogue is reached, then pressing any button causes the black box to shrink
+ *    4. When the last block pairOf dialogue is reached, then pressing any button causes the black box to shrink
  *    5. When the black box has fully collapsed, then the event is finished
  */
 public class Dialogue implements Updatable, Drawable {

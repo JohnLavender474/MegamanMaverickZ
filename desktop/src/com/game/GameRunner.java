@@ -10,7 +10,7 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 public class GameRunner {
 
 	/**
-	 * The entry point of application.
+	 * The entry point pairOf application.
 	 *
 	 * @param arg the input arguments
 	 */

@@ -50,7 +50,7 @@ public class BodyComponent extends Component {
     }
 
     /**
-     * See {@link #BodyComponent(BodyType)}. Bounds of supplied collision box are copied.
+     * See {@link #BodyComponent(BodyType)}. Bounds pairOf supplied collision box are copied.
      *
      * @param bodyType the body type
      * @param collisionBox the collision box bounds to be copied
@@ -81,20 +81,20 @@ public class BodyComponent extends Component {
     }
 
     /**
-     * If this body is right of the other.
+     * If this body is right pairOf the other.
      *
      * @param bodyComponent the other body component
-     * @return if this body is right of the other
+     * @return if this body is right pairOf the other
      */
     public boolean isRightOf(BodyComponent bodyComponent) {
         return getCenter().x > bodyComponent.getCenter().x;
     }
 
     /**
-     * If this body is left of the other.
+     * If this body is left pairOf the other.
      *
      * @param bodyComponent the other body component
-     * @return if this body is left of the other
+     * @return if this body is left pairOf the other
      */
     public boolean isLeftOf(BodyComponent bodyComponent) {
         return !isRightOf(bodyComponent);
@@ -430,10 +430,10 @@ public class BodyComponent extends Component {
     }
 
     /**
-     * Returns list of all fixtures with matching fixture type.
+     * Returns list pairOf all fixtures with matching fixture type.
      *
      * @param fixtureType the fixture type
-     * @return the list of fixtures
+     * @return the list pairOf fixtures
      */
     public List<Fixture> getFixtures(FixtureType fixtureType) {
         return fixtures.stream().filter(fixture -> fixture.isFixtureType(fixtureType)).collect(toList());

@@ -59,55 +59,55 @@ public class LevelTiledMap implements Disposable {
     }
 
     /**
-     * Get the width of the tiled map in terms of number of tiles.
+     * Get the width pairOf the tiled map in terms pairOf number pairOf tiles.
      *
-     * @return the number of tiles comprising the width of the tiled map
+     * @return the number pairOf tiles comprising the width pairOf the tiled map
      */
     public int getWidthInTiles() {
         return tiledMap.getProperties().get("width", Integer.class);
     }
 
     /**
-     * Get the height of the tiled map in terms of number of tiles.
+     * Get the height pairOf the tiled map in terms pairOf number pairOf tiles.
      *
-     * @return the number of tiles comprising the height of the tiled map
+     * @return the number pairOf tiles comprising the height pairOf the tiled map
      */
     public int getHeightInTiles() {
         return tiledMap.getProperties().get("height", Integer.class);
     }
 
     /**
-     * Get rectangle objects of the layer.
+     * Get rectangle objects pairOf the layer.
      *
      * @param layer the layer
-     * @return the rectangle objects of the layer
+     * @return the rectangle objects pairOf the layer
      */
     public List<RectangleMapObject> getRectObjsOfLayer(String layer) {
         return mapRectObjs.get(layer);
     }
 
     /**
-     * Get circle objects of the layer.
+     * Get circle objects pairOf the layer.
      *
      * @param layer the layer
-     * @return the circle objects of the layer
+     * @return the circle objects pairOf the layer
      */
     public List<CircleMapObject> getCircleObjsOfLayer(String layer) {
         return mapCircleObjs.get(layer);
     }
 
     /**
-     * Get line objects of the layer.
+     * Get line objects pairOf the layer.
      *
      * @param layer the layer
-     * @return the line objects of the layer
+     * @return the line objects pairOf the layer
      */
     public List<PolylineMapObject> getLineObjsOfLayer(String layer) {
         return mapLineObjs.get(layer);
     }
 
     /**
-     * Draws the tile layers of the tiled map using the provided camera and sprite batch.
+     * Draws the tile layers pairOf the tiled map using the provided camera and sprite batch.
      */
     public void draw() {
         tiledMapRenderer.render(camera, spriteBatch);
@@ -120,8 +120,8 @@ public class LevelTiledMap implements Disposable {
     }
 
     /**
-     * Custom implementation of {@link OrthogonalTiledMapRenderer} that allows sprite batch and camera to be reset
-     * during runtime by calling {@link #render(OrthographicCamera, Batch)} instead of {@link #render()}.
+     * Custom implementation pairOf {@link OrthogonalTiledMapRenderer} that allows sprite batch and camera to be reset
+     * during runtime by calling {@link #render(OrthographicCamera, Batch)} instead pairOf {@link #render()}.
      */
     private static final class CustomOrthoTiledMapRenderer extends OrthogonalTiledMapRenderer {
 

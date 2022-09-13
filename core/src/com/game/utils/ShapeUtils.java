@@ -9,7 +9,9 @@ import java.util.List;
 
 import static com.badlogic.gdx.math.Intersector.*;
 import static com.game.utils.UtilMethods.*;
+import static com.game.utils.objects.Pair.pairOf;
 
+/** Util methods for shapes. */
 public class ShapeUtils {
 
     /**
@@ -41,41 +43,56 @@ public class ShapeUtils {
         return false;
     }
 
+    /**
+     * Converts the polyline to a pair of points.
+     *
+     * @param polyline the polyline
+     * @return the pair of points
+     */
     public static Pair<Vector2> polylineToPointPair(Polyline polyline) {
         float[] lv = polyline.getTransformedVertices();
         Vector2 lp1 = new Vector2(lv[0], lv[1]);
         Vector2 lp2 = new Vector2(lv[2], lv[3]);
-        return Pair.of(lp1, lp2);
+        return pairOf(lp1, lp2);
     }
 
-    public static boolean lineOverlapsRectangle(Rectangle rect, Pair<Vector2> line) {
-        return lineOverlapsRectangle(rect, line.getFirst(), line.getSecond());
-    }
-
-    public static boolean lineOverlapsRectangle(Rectangle rect, Vector2 linePoint1, Vector2 linePoint2) {
-        return lineOverlapsRectangle(rect, linePoint1, linePoint2, new Vector2());
-    }
-
-    public static boolean lineOverlapsRectangle(Rectangle rect, Vector2 linePoint1, Vector2 linePoint2, Vector2 inter) {
-        return rectToLines(rect).stream().anyMatch(l -> Intersector.intersectLines(
-                l.getFirst(), l.getSecond(), linePoint1, linePoint2, inter));
-    }
-
+    /**
+     * Returns a list of lines representing each side of the rectangle.
+     *
+     * @param rect the rectangle
+     * @return the list of lines
+     */
     public static List<Pair<Vector2>> rectToLines(Rectangle rect) {
         List<Pair<Vector2>> lines = new ArrayList<>();
-        lines.add(Pair.of(topLeftPoint(rect), topRightPoint(rect)));
-        lines.add(Pair.of(new Vector2(rect.x, rect.y), bottomRightPoint(rect)));
-        lines.add(Pair.of(new Vector2(rect.x, rect.y), topLeftPoint(rect)));
-        lines.add(Pair.of(bottomRightPoint(rect), topRightPoint(rect)));
+        lines.add(pairOf(topLeftPoint(rect), topRightPoint(rect)));
+        lines.add(pairOf(new Vector2(rect.x, rect.y), bottomRightPoint(rect)));
+        lines.add(pairOf(new Vector2(rect.x, rect.y), topLeftPoint(rect)));
+        lines.add(pairOf(bottomRightPoint(rect), topRightPoint(rect)));
         return lines;
     }
 
+    /**
+     * See {@link #intersectLineRect(Pair, Rectangle, Collection)}.
+     *
+     * @param polyline the polyline
+     * @param rectangle the rectangle
+     * @param interPoints the collection of intersection points
+     * @return if the polyline and rectangle intersect
+     */
     public static boolean intersectLineRect(Polyline polyline, Rectangle rectangle, Collection<Vector2> interPoints) {
         float[] v = polyline.getTransformedVertices();
-        Pair<Vector2> line = new Pair<>(new Vector2(v[0], v[1]), new Vector2(v[2], v[3]));
+        Pair<Vector2> line = pairOf(new Vector2(v[0], v[1]), new Vector2(v[2], v[3]));
         return intersectLineRect(line, rectangle, interPoints);
     }
 
+    /**
+     * Returns if the line and rectangle intersect, and adds each intersection point to the collection.
+     *
+     * @param line the line
+     * @param rectangle the rectangle
+     * @param interPoints the collection of intersection points
+     * @return if the line and rectangle intersect
+     */
     public static boolean intersectLineRect(Pair<Vector2> line, Rectangle rectangle, Collection<Vector2> interPoints) {
         List<Pair<Vector2>> rectToLines = rectToLines(rectangle);
         boolean isIntersection = false;
@@ -89,16 +106,31 @@ public class ShapeUtils {
         return isIntersection;
     }
 
+    /**
+     * Returns if the two lines overlap.
+     *
+     * @param line1 the first line
+     * @param line2 the second line
+     * @return if the two lines overlap
+     */
     public static boolean overlapLines(Polyline line1, Polyline line2) {
         return intersectLines(line1, line2, new Vector2());
     }
 
+    /**
+     * Returns if the two lines intersect, and sets the intersection if so.
+     *
+     * @param line1 the first line
+     * @param line2 the second line
+     * @param intersection the intersection point, set if the method returns true
+     * @return if the two lines intersect
+     */
     public static boolean intersectLines(Polyline line1, Polyline line2, Vector2 intersection) {
         return intersectLines(polylineToPointPair(line1), polylineToPointPair(line2), intersection);
     }
 
     /**
-     * Returns the result of {@link Intersector#intersectSegments(Vector2, Vector2, Vector2, Vector2, Vector2)}.
+     * Returns the result pairOf {@link Intersector#intersectSegments(Vector2, Vector2, Vector2, Vector2, Vector2)}.
      *
      * @param l1 the first point
      * @param l2 the second point

@@ -45,7 +45,6 @@ import com.game.spawns.Spawn;
 import com.game.spawns.SpawnLocation;
 import com.game.spawns.SpawnManager;
 import com.game.updatables.UpdatableSystem;
-import com.game.utils.UtilMethods;
 import com.game.utils.enums.Direction;
 import com.game.core.MegaTextHandle;
 import com.game.utils.objects.Timer;

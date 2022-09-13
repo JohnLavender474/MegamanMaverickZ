@@ -10,7 +10,6 @@ import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
 import com.game.damage.DamageNegotiation;
 import com.game.damage.Damager;
-import com.game.debugging.DebugMessageComponent;
 import com.game.entities.contracts.Faceable;
 import com.game.entities.contracts.Facing;
 import com.game.entities.megaman.Megaman;
@@ -19,7 +18,6 @@ import com.game.entities.projectiles.ChargedShot;
 import com.game.entities.projectiles.ChargedShotDisintegration;
 import com.game.entities.projectiles.Fireball;
 import com.game.sprites.SpriteComponent;
-import com.game.updatables.UpdatableComponent;
 import com.game.utils.enums.Position;
 import com.game.utils.objects.Timer;
 import com.game.utils.objects.Wrapper;
@@ -69,8 +67,6 @@ public class Dragonfly extends AbstractEnemy implements Faceable {
         addComponent(defineSpriteComponent());
         addComponent(defineAnimationComponent());
         addComponent(defineBodyComponent(spawn));
-        addComponent(defineUpdatableComponent());
-        addComponent(new DebugMessageComponent());
         currentBehavior = previousBehavior = MOVE_UP;
         camera = gameContext.getViewport(PLAYGROUND).getCamera();
     }
@@ -82,22 +78,6 @@ public class Dragonfly extends AbstractEnemy implements Faceable {
                 Fireball.class, new DamageNegotiation(30),
                 ChargedShot.class, new DamageNegotiation(30),
                 ChargedShotDisintegration.class, new DamageNegotiation(15));
-    }
-
-    @Override
-    public void onDeath() {
-        System.out.println("Culled dragonfly");
-    }
-
-    private UpdatableComponent defineUpdatableComponent() {
-        return new UpdatableComponent(new StandardEnemyUpdater() {
-            @Override
-            public void update(float delta) {
-                super.update(delta);
-                getComponent(DebugMessageComponent.class).debugMessage(1, "Current: " + currentBehavior);
-                getComponent(DebugMessageComponent.class).debugMessage(2, "Previous: " + previousBehavior);
-            }
-        });
     }
 
     private BodyComponent defineBodyComponent(Vector2 spawn) {
@@ -112,7 +92,7 @@ public class Dragonfly extends AbstractEnemy implements Faceable {
         // damager box
         Fixture damagerBox = new Fixture(this, new Rectangle(model), DAMAGER);
         bodyComponent.addFixture(damagerBox);
-        // out-of-bounds scanner
+        // out-pairOf-bounds scanner
         Fixture oobScanner = new Fixture(this, new Rectangle(0f, 0f, 1f, 1f), CUSTOM);
         bodyComponent.addFixture(oobScanner);
         // Megaman scanner

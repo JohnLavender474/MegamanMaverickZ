@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.9" tiledversion="1.9.0" orientation="orthogonal" renderorder="right-down" width="50" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="14" nextobjectid="21">
+<map version="1.9" tiledversion="1.9.0" orientation="orthogonal" renderorder="right-down" width="50" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="14" nextobjectid="23">
  <tileset firstgid="1" source="../tsx/Tileset1.tsx"/>
  <objectgroup id="5" name="Test"/>
- <objectgroup id="6" name="MovingBlocks"/>
+ <objectgroup id="6" name="MovingBlocks">
+  <object id="22" x="480" y="448" width="64" height="32">
+   <properties>
+    <property name="region" value="PurpleTile"/>
+    <property name="src" value="CustomTiles.txt"/>
+    <property name="trajectory" value="0,0,1;3,0,2;0,0,1;-3,0,2"/>
+   </properties>
+  </object>
+ </objectgroup>
  <objectgroup id="7" name="StaticBlocks">
   <object id="1" x="0" y="576" width="1600" height="64"/>
   <object id="2" x="0" y="0" width="64" height="640"/>
@@ -25,7 +33,7 @@
  </objectgroup>
  <objectgroup id="9" name="DeathSensors"/>
  <objectgroup id="10" name="PlayerSpawns">
-  <object id="7" name="start" x="224" y="544" width="32" height="32"/>
+  <object id="7" name="start" x="608" y="544" width="32" height="32"/>
  </objectgroup>
  <objectgroup id="11" name="EnemySpawns"/>
  <objectgroup id="12" name="Backgrounds"/>

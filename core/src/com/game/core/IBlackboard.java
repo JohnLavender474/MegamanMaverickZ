@@ -13,7 +13,7 @@ public interface IBlackboard {
     /**
      * Get blackboard object.
      *
-     * @param <T>    the type parameter of the object
+     * @param <T>    the type parameter pairOf the object
      * @param key    the key
      * @param tClass the class to cast the object to
      * @return the blackboard object

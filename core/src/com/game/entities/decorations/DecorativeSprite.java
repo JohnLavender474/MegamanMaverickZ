@@ -22,19 +22,14 @@ public class DecorativeSprite extends Entity {
     }
 
     public DecorativeSprite(GameContext2d gameContext, TextureRegion textureRegion, Vector2 dimensions,
-                            Supplier<Vector2> centerSupplier, Predicate<Float> isDead) {
+                            Supplier<Vector2> posSupplier, Predicate<Float> isDead) {
         this(gameContext, textureRegion, dimensions, new SpriteAdapter() {
             @Override
             public void update(Sprite sprite, float delta) {
-                Vector2 center = centerSupplier.get();
-                sprite.setCenter(center.x, center.y);
+                Vector2 pos = posSupplier.get();
+                sprite.setPosition(pos.x, pos.y);
             }
         }, isDead);
-    }
-
-    public DecorativeSprite(GameContext2d gameContext, TextureRegion textureRegion, Vector2 dimensions,
-                            SpriteAdapter spriteAdapter) {
-        this(gameContext, textureRegion, dimensions, spriteAdapter, delta -> false);
     }
 
     public DecorativeSprite(GameContext2d gameContext, TextureRegion textureRegion, Vector2 dimensions,

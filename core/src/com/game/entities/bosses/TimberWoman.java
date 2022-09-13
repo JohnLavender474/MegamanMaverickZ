@@ -1,6 +1,5 @@
 package com.game.entities.bosses;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Rectangle;
@@ -11,8 +10,8 @@ import com.game.core.Entity;
 import com.game.core.GameContext2d;
 import com.game.core.IAssetLoader;
 import com.game.core.constants.TextureAsset;
-import com.game.debugging.DebugShapesComponent;
-import com.game.debugging.DebugShapesHandle;
+import com.game.shapes.ShapeComponent;
+import com.game.shapes.ShapeHandle;
 import com.game.sprites.SpriteAdapter;
 import com.game.sprites.SpriteComponent;
 import com.game.utils.enums.Position;
@@ -23,6 +22,7 @@ import com.game.world.BodyType;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import static com.badlogic.gdx.graphics.Color.*;
 import static com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.*;
 import static com.game.core.constants.Boss.TIMBER_WOMAN;
 import static com.game.core.constants.ViewVals.PPM;
@@ -37,10 +37,12 @@ public class TimberWoman extends Entity {
         addComponent(defineDebugShapesComponent());
     }
 
-    private DebugShapesComponent defineDebugShapesComponent() {
-        Rectangle bodyRect = getComponent(BodyComponent.class).getCollisionBox();
-        DebugShapesHandle handle1 = new DebugShapesHandle(() -> bodyRect, Line, () -> Color.RED);
-        return new DebugShapesComponent(handle1);
+    private ShapeComponent defineDebugShapesComponent() {
+        ShapeHandle shapeHandle = new ShapeHandle();
+        shapeHandle.setShapeSupplier(() -> getComponent(BodyComponent.class).getCollisionBox());
+        shapeHandle.setColorSupplier(() -> RED);
+        shapeHandle.setShapeTypeSupplier(() -> Line);
+        return new ShapeComponent(shapeHandle);
     }
 
     private AnimationComponent defineAnimationComponent(IAssetLoader assetLoader) {

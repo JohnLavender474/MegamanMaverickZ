@@ -13,9 +13,10 @@ import com.game.animations.TimedAnimation;
 import com.game.core.Entity;
 import com.game.core.GameContext2d;
 import com.game.core.IAssetLoader;
-import com.game.debugging.DebugLinesComponent;
-import com.game.debugging.DebugShapesComponent;
-import com.game.debugging.DebugShapesHandle;
+import com.game.shapes.LineComponent;
+import com.game.shapes.LineHandle;
+import com.game.shapes.ShapeComponent;
+import com.game.shapes.ShapeHandle;
 import com.game.movement.PendulumComponent;
 import com.game.movement.RotatingLineComponent;
 import com.game.movement.TrajectoryComponent;
@@ -29,6 +30,7 @@ import com.game.utils.objects.Wrapper;
 import com.game.world.BodyComponent;
 import com.game.world.Fixture;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.badlogic.gdx.graphics.Color.*;
@@ -37,6 +39,7 @@ import static com.game.core.constants.TextureAsset.*;
 import static com.game.core.constants.ViewVals.PPM;
 import static com.game.utils.UtilMethods.*;
 import static com.game.utils.enums.Position.*;
+import static com.game.utils.objects.Pair.*;
 import static com.game.world.BodyType.*;
 import static com.game.world.FixtureType.*;
 import static java.lang.Float.parseFloat;
@@ -78,14 +81,25 @@ public class Saw extends Entity {
         UpdatableConsumer<Pendulum> updatableConsumer = (pendulum1, delta) ->
                 getComponent(BodyComponent.class).setCenter(pendulum1.getEnd());
         addComponent(new PendulumComponent(pendulum, updatableConsumer));
-        addComponent(new DebugLinesComponent(pendulum.getAnchor(), pendulum.getEnd(),
-                () -> DARK_GRAY, PPM / 8f, Filled));
+        LineHandle lineHandle = new LineHandle();
+        lineHandle.setLineSupplier(() -> pairOf(pendulum.getAnchor(), pendulum.getEnd()));
+        lineHandle.setColorSupplier(() -> DARK_GRAY);
+        lineHandle.setThicknessSupplier(() -> PPM / 8f);
+        lineHandle.setShapeTypeSupplier(() -> Filled);
         Circle circle1 = new Circle(pendulum.getAnchor(), PPM / 4f);
         Circle circle2 = new Circle();
         circle2.setRadius(PPM / 4f);
-        addComponent(new DebugShapesComponent(new DebugShapesHandle(() -> circle1, Filled, () -> DARK_GRAY),
-                new DebugShapesHandle(() -> circle2, Filled, () -> DARK_GRAY, (shape2D, delta) ->
-                        ((Circle) shape2D).setPosition(pendulum.getEnd()))));
+        List<ShapeHandle> shapeHandles = new ArrayList<>();
+        ShapeHandle shapeHandle1 = new ShapeHandle();
+        shapeHandle1.setShapeSupplier(() -> circle1);
+        shapeHandle1.setShapeTypeSupplier(() -> Filled);
+        shapeHandle1.setColorSupplier(() -> DARK_GRAY);
+        shapeHandles.add(shapeHandle1);
+        ShapeHandle shapeHandle2 = new ShapeHandle();
+        shapeHandle2.copyOf(shapeHandle1);
+        shapeHandle2.setShapeSupplier(() -> circle2);
+        shapeHandles.add(shapeHandle2);
+        addComponent(new ShapeComponent(shapeHandles));
     }
 
     private void setToRotation(MapProperties properties, Rectangle rect) {
@@ -95,17 +109,29 @@ public class Saw extends Entity {
         UpdatableConsumer<RotatingLine> updatableConsumer = (rotatingLine1, delta) ->
                 getComponent(BodyComponent.class).setCenter(rotatingLine1.getEndPoint());
         addComponent(new RotatingLineComponent(rotatingLine, updatableConsumer));
-        addComponent(new DebugLinesComponent(() -> List.of(rotatingLine.getPos(), rotatingLine.getEndPoint()),
-                () -> DARK_GRAY, PPM / 8f, Filled));
+        LineHandle lineHandle = new LineHandle();
+        lineHandle.setLineSupplier(() -> pairOf(rotatingLine.getPos(), rotatingLine.getEndPoint()));
+        lineHandle.setColorSupplier(() -> DARK_GRAY);
+        lineHandle.setThicknessSupplier(() -> PPM / 8f);
+        lineHandle.setShapeTypeSupplier(() -> Filled);
+        addComponent(new LineComponent(lineHandle));
         Circle circle1 = new Circle();
         circle1.setRadius(PPM / 4f);
         Circle circle2 = new Circle();
         circle2.setRadius(PPM / 4f);
-        addComponent(new DebugShapesComponent(
-                new DebugShapesHandle(() -> circle1, Filled, () -> DARK_GRAY, ((shape2D, delta) ->
-                        ((Circle) shape2D).setPosition(rotatingLine.getPos()))),
-                new DebugShapesHandle(() -> circle2, Filled, () -> DARK_GRAY, (shape2D, delta) ->
-                        ((Circle) shape2D).setPosition(rotatingLine.getEndPoint()))));
+        List<ShapeHandle> shapeHandles = new ArrayList<>();
+        ShapeHandle shapeHandle1 = new ShapeHandle();
+        shapeHandle1.setShapeSupplier(() -> circle1);
+        shapeHandle1.setShapeTypeSupplier(() -> Filled);
+        shapeHandle1.setColorSupplier(() -> DARK_GRAY);
+        shapeHandle1.setUpdatable(delta -> circle1.setPosition(rotatingLine.getPos()));
+        shapeHandles.add(shapeHandle1);
+        ShapeHandle shapeHandle2 = new ShapeHandle();
+        shapeHandle2.copyOf(shapeHandle1);
+        shapeHandle2.setShapeSupplier(() -> circle2);
+        shapeHandle2.setUpdatable(delta -> circle2.setPosition(rotatingLine.getEndPoint()));
+        shapeHandles.add(shapeHandle2);
+        addComponent(new ShapeComponent(shapeHandles));
     }
 
     private void setToTrajectory(MapProperties properties) {

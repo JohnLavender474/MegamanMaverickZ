@@ -16,16 +16,16 @@ public interface IRenderingManager {
     Viewport getViewport(RenderingGround renderingGround);
 
     /**
-     * Sets the sprite batch to the projection matrix of the specified viewport.
+     * Sets the sprite batch to the projection matrix pairOf the specified viewport.
      *
-     * @param renderingGround the rendering ground of the viewport to be used for the projection matrix
+     * @param renderingGround the rendering ground pairOf the viewport to be used for the projection matrix
      */
     void setSpriteBatchProjectionMatrix(RenderingGround renderingGround);
 
     /**
-     * Sets the shape renderer to the projection matrix of the specified viewport.
+     * Sets the shape renderer to the projection matrix pairOf the specified viewport.
      *
-     * @param renderingGround the rendering ground of the viewport to be used for the projection matrix
+     * @param renderingGround the rendering ground pairOf the viewport to be used for the projection matrix
      */
     void setShapeRendererProjectionMatrix(RenderingGround renderingGround);
 

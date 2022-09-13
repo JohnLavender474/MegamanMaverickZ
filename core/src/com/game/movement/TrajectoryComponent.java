@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@link Component} implementation for trajectories. This component sets the position of the {@link BodyComponent},
+ * {@link Component} implementation for trajectories. This component sets the position pairOf the {@link BodyComponent},
  * overriding any
  * settings for friction, velocity, etc.
  */

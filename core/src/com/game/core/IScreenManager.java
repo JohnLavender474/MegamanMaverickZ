@@ -6,7 +6,7 @@ import com.game.core.constants.GameScreen;
 public interface IScreenManager {
 
     /**
-     * Set screen. Previous screen should be disposed of.
+     * Set screen. Previous screen should be disposed pairOf.
      *
      * @param gameScreen the game screen
      */

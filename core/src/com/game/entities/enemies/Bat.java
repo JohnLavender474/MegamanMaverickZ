@@ -9,7 +9,6 @@ import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
 import com.game.damage.DamageNegotiation;
 import com.game.damage.Damager;
-import com.game.debugging.DebugMessageComponent;
 import com.game.entities.blocks.Block;
 import com.game.entities.contracts.Hitter;
 import com.game.entities.megaman.Megaman;
@@ -74,7 +73,6 @@ public class Bat extends AbstractEnemy implements Hitter {
         addComponent(defineBodyComponent(spawn));
         addComponent(defineAnimationComponent());
         addComponent(defineUpdatableComponent());
-        addComponent(new DebugMessageComponent());
         addComponent(definePathfindingComponent());
     }
 
@@ -121,11 +119,6 @@ public class Bat extends AbstractEnemy implements Hitter {
                 if (getCurrentStatus().equals(FLYING_TO_RETREAT) && bodyComponent.is(HEAD_TOUCHING_BLOCK)) {
                     setCurrentStatus(HANGING);
                 }
-                // debug message
-                DebugMessageComponent debugMessageComponent = getComponent(DebugMessageComponent.class);
-                debugMessageComponent.debugMessage(1, "Megaman: " + getMegaman().getFocus());
-                debugMessageComponent.debugMessage(2, "Behavior: " + getCurrentStatus());
-                debugMessageComponent.debugMessage(3, "Trajectory: " + trajectory);
             }
         });
     }

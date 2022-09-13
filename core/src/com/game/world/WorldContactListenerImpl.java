@@ -24,7 +24,7 @@ import static com.game.world.BodySense.*;
 import static com.game.world.FixtureType.*;
 
 /**
- * Implementation of {@link WorldContactListener}.
+ * Implementation pairOf {@link WorldContactListener}.
  */
 public class WorldContactListenerImpl implements WorldContactListener {
 

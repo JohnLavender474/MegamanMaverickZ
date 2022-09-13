@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * {@link Component} implementation for handling behaviors. Set of active behaviors is initialized as empty setBounds.
+ * {@link Component} implementation for handling behaviors. Set pairOf active behaviors is initialized as empty setBounds.
  */
 @Getter
 @Setter
@@ -32,10 +32,10 @@ public class BehaviorComponent extends Component {
     }
 
     /**
-     * Return if performing any of the provided behaviors.
+     * Return if performing any pairOf the provided behaviors.
      *
      * @param behaviorTypes the behavior types
-     * @return if performing any of the provided behaviors
+     * @return if performing any pairOf the provided behaviors
      */
     public boolean is(BehaviorType... behaviorTypes) {
         for (BehaviorType behaviorType : behaviorTypes) {

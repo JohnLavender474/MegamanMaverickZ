@@ -1,7 +1,7 @@
 package com.game.controllers;
 
 /**
- * The status of a {@link ControllerButton}.
+ * The status pairOf a {@link ControllerButton}.
  * <p>
  * {@link #IS_JUST_PRESSED}: The button was not pressed in the last update cycle and is pressed
  * in this update cycle.

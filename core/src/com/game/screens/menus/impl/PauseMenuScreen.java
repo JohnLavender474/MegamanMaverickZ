@@ -69,23 +69,15 @@ public class PauseMenuScreen extends MenuScreen {
         super.render(delta);
         // render background shape
         ShapeRenderer shapeRenderer = gameContext.getShapeRenderer();
-        boolean isShaping = shapeRenderer.isDrawing();
-        if (!isShaping) {
-            shapeRenderer.begin(Filled);
-        }
+        shapeRenderer.begin(Filled);
         gameContext.setShapeRendererProjectionMatrix(UI);
         shapeRenderer.setColor(BLUE);
         shapeRenderer.rect(0f, 0f, VIEW_WIDTH * PPM, VIEW_HEIGHT * PPM);
-        if (!isShaping) {
-            shapeRenderer.end();
-        }
+        shapeRenderer.end();
         // begin sprite batch
         SpriteBatch spriteBatch = gameContext.getSpriteBatch();
         gameContext.setSpriteBatchProjectionMatrix(UI);
-        boolean isDrawing = spriteBatch.isDrawing();
-        if (!isDrawing) {
-            spriteBatch.begin();
-        }
+        spriteBatch.begin();
 
         // TODO: Render background
 
@@ -108,10 +100,8 @@ public class PauseMenuScreen extends MenuScreen {
         creditsAmountText.setText("Credits: " + creditsSupplier.get());
         creditsAmountText.draw(spriteBatch);
 
-        // end sprite batch
-        if (!isDrawing) {
-            spriteBatch.end();
-        }
+        spriteBatch.end();
+
     }
 
     @Override
