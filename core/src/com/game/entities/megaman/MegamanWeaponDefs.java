@@ -73,7 +73,7 @@ public class MegamanWeaponDefs {
             return spawnPos;
         };
         megamanWeaponDefs.put(MEGA_BUSTER, new WeaponDef(() -> {
-            Vector2 trajectory = new Vector2(15f * (isFacing(F_LEFT) ? -PPM : PPM), 0f);
+            Vector2 trajectory = new Vector2(10f * (isFacing(F_LEFT) ? -PPM : PPM), 0f);
             if (isCharging()) {
                 return List.of(new ChargedShot(gameContext, megaman, trajectory, spawn.get(), getFacing()));
             } else {

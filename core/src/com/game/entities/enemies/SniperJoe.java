@@ -40,7 +40,7 @@ import static java.lang.Math.*;
 
 public class SniperJoe extends AbstractEnemy implements Faceable {
 
-    private static final float BULLET_SPEED = 15f;
+    private static final float BULLET_SPEED = 7.5f;
 
     private final Timer shieldedTimer = new Timer(1.75f);
     private final Timer shootingTimer = new Timer(1.5f, new TimeMarkedRunnable(.15f, this::shoot),
@@ -73,7 +73,7 @@ public class SniperJoe extends AbstractEnemy implements Faceable {
     private void shoot() {
         Vector2 trajectory = new Vector2(PPM * (isFacing(F_LEFT) ? -BULLET_SPEED : BULLET_SPEED), 0f);
         Vector2 spawn = getComponent(BodyComponent.class).getCenter().cpy().add(
-                (isFacing(F_LEFT) ? -5f : 5f), -3.25f);
+                (isFacing(F_LEFT) ? -.2f : .2f) * PPM, -.2f * PPM);
         gameContext.addEntity(new Bullet(gameContext, this, trajectory, spawn));
         getComponent(SoundComponent.class).requestSound(ENEMY_BULLET_SOUND);
     }
