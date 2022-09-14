@@ -9,7 +9,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
 import com.game.core.GameContext2d;
-import com.game.core.constants.TextureAsset;
 import com.game.entities.blocks.Block;
 import com.game.sprites.SpriteAdapter;
 import com.game.sprites.SpriteComponent;
