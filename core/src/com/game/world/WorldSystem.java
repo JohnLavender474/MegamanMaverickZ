@@ -3,7 +3,7 @@ package com.game.world;
 import com.badlogic.gdx.math.*;
 import com.game.core.Entity;
 import com.game.core.System;
-import com.game.utils.ShapeUtils;
+import com.game.shapes.custom.Triangle;
 import com.game.utils.interfaces.Updatable;
 
 import java.util.ArrayList;
@@ -93,6 +93,8 @@ public class WorldSystem extends System {
                         circle.setPosition(center);
                     } else if (shape instanceof Polyline line) {
                         line.setOrigin(center.x, center.y);
+                    } else if (shape instanceof Triangle triangle) {
+                        triangle.setOrigin(center.x, center.y);
                     }
                 });
             });

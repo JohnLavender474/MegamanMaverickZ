@@ -17,6 +17,13 @@ FlameThrower
   orig: 32, 32
   offset: 0, 0
   index: -1
+LaserBeamer
+  rotate: false
+  xy: 152, 0
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
 Saw
   rotate: false
   xy: 0, 111

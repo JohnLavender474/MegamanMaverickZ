@@ -173,6 +173,21 @@
         </struct>
         <key>individualSpriteSettings</key>
         <map type="IndividualSpriteSettingsMap">
+            <key type="filename">../Frames/CustomTiles/JeffBezosLittleDickRocket.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>112,16,224,32</rect>
+                <key>scale9Paddings</key>
+                <rect>112,16,224,32</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
             <key type="filename">../Frames/CustomTiles/PurpleTile.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
@@ -191,7 +206,7 @@
         </map>
         <key>fileList</key>
         <array>
-            <filename>../Frames/CustomTiles/PurpleTile.png</filename>
+            <filename>../Frames/CustomTiles</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

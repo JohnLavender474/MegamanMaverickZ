@@ -1,47 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.9" tiledversion="1.9.0" orientation="orthogonal" renderorder="right-down" width="50" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="14" nextobjectid="23">
+<map version="1.9" tiledversion="1.9.0" orientation="orthogonal" renderorder="right-down" width="50" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="14" nextobjectid="39">
  <tileset firstgid="1" source="../tsx/Tileset1.tsx"/>
  <objectgroup id="5" name="Test"/>
- <objectgroup id="6" name="MovingBlocks">
-  <object id="22" x="480" y="448" width="64" height="32">
-   <properties>
-    <property name="region" value="PurpleTile"/>
-    <property name="src" value="CustomTiles.txt"/>
-    <property name="trajectory" value="0,0,1;3,0,2;0,0,1;-3,0,2"/>
-   </properties>
-  </object>
- </objectgroup>
- <objectgroup id="7" name="StaticBlocks">
+ <objectgroup id="7" name="Blocks">
   <object id="1" x="0" y="576" width="1600" height="64"/>
   <object id="2" x="0" y="0" width="64" height="640"/>
   <object id="3" x="1536" y="0" width="64" height="640"/>
   <object id="4" x="0" y="0" width="1600" height="32"/>
   <object id="9" x="384" y="384" width="64" height="248"/>
   <object id="10" x="800" y="384" width="64" height="248"/>
-  <object id="11" x="608" y="320" width="32" height="32"/>
+  <object id="29" x="1035" y="326" width="11" height="18"/>
  </objectgroup>
  <objectgroup id="8" name="WallSlideSensors">
   <object id="5" x="56" y="32" width="8" height="544"/>
   <object id="6" x="1536" y="32" width="8" height="544"/>
   <object id="12" x="384" y="384" width="8" height="192"/>
   <object id="13" x="440" y="384" width="8" height="192"/>
-  <object id="14" x="800" y="384" width="8" height="192"/>
-  <object id="15" x="856" y="384" width="8" height="192"/>
-  <object id="16" x="640" y="320" height="32"/>
-  <object id="18" x="632" y="320" width="8" height="32"/>
-  <object id="19" x="608" y="320" width="8" height="32"/>
+  <object id="14" x="792" y="392" width="16" height="184"/>
+  <object id="15" x="856" y="392" width="16" height="184"/>
  </objectgroup>
  <objectgroup id="9" name="DeathSensors"/>
  <objectgroup id="10" name="PlayerSpawns">
-  <object id="7" name="start" x="608" y="544" width="32" height="32"/>
+  <object id="7" name="start" x="160" y="544" width="32" height="32"/>
  </objectgroup>
- <objectgroup id="11" name="EnemySpawns"/>
+ <objectgroup id="11" name="EnemySpawns">
+  <object id="34" name="suction_roller" x="496" y="560" width="16" height="16"/>
+  <object id="35" name="met" x="1360" y="560" width="16" height="16"/>
+ </objectgroup>
  <objectgroup id="12" name="Backgrounds"/>
  <objectgroup id="13" name="GameRooms" visible="0">
   <object id="8" x="0" y="0" width="1600" height="640"/>
  </objectgroup>
  <objectgroup id="4" name="Hazards">
-  <object id="20" name="laser_beamer" x="608" y="352" width="32" height="8"/>
+  <object id="27" name="laser_beamer" x="1024" y="320" width="32" height="32"/>
  </objectgroup>
  <objectgroup id="2" name="Special"/>
  <layer id="3" name="Background" width="50" height="20">
@@ -80,7 +71,7 @@
 335,336,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,335,336,
 303,304,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,303,304,
 335,336,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,335,336,
-303,304,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,190,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,303,304,
+303,304,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,303,304,
 335,336,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,335,336,
 303,304,0,0,0,0,0,0,0,0,0,0,303,304,0,0,0,0,0,0,0,0,0,0,0,303,304,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,303,304,
 335,336,0,0,0,0,0,0,0,0,0,0,335,336,0,0,0,0,0,0,0,0,0,0,0,335,336,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,335,336,

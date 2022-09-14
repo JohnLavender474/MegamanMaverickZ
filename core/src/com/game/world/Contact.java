@@ -118,6 +118,15 @@ public class Contact {
         return mask.getSecond();
     }
 
+    /**
+     * Returns if the entities of the fixtures are different.
+     *
+     * @return if the entities of the fixtures are different
+     */
+    public boolean areEntitiesDifferent() {
+        return !fixture1.getEntity().equals(fixture2.getEntity());
+    }
+
     @Override
     public boolean equals(Object o) {
         return o instanceof Contact contact &&

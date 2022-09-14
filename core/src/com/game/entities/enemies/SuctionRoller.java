@@ -31,7 +31,7 @@ import lombok.Setter;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import static com.game.core.constants.TextureAsset.ENEMIES;
+import static com.game.core.constants.TextureAsset.ENEMIES_1;
 import static com.game.core.constants.ViewVals.PPM;
 import static com.game.entities.contracts.Facing.F_LEFT;
 import static com.game.entities.contracts.Facing.F_RIGHT;
@@ -144,7 +144,7 @@ public class SuctionRoller extends AbstractEnemy implements Faceable {
     }
 
     private AnimationComponent defineAnimationComponent() {
-        TextureAtlas textureAtlas = gameContext.getAsset(ENEMIES.getSrc(), TextureAtlas.class);
+        TextureAtlas textureAtlas = gameContext.getAsset(ENEMIES_1.getSrc(), TextureAtlas.class);
         return new AnimationComponent(new TimedAnimation(textureAtlas.findRegion("SuctionRoller"), 5, .1f));
     }
 
@@ -163,7 +163,7 @@ public class SuctionRoller extends AbstractEnemy implements Faceable {
             }
             if (!isOnWall) {
                 if (wasOnWall) {
-                    bodyComponent.setVelocityY(0f);
+                    bodyComponent.setVelocityY(PPM);
                 }
                 bodyComponent.setVelocityX((isFacing(F_RIGHT) ? 2.5f : -2.5f) * PPM);
             }
@@ -181,14 +181,14 @@ public class SuctionRoller extends AbstractEnemy implements Faceable {
         feet.setOffset(0f, -PPM / 2f);
         bodyComponent.addFixture(feet);
         // side model
-        Rectangle sideModel = new Rectangle(0f, 0f, 1f, PPM - 1f);
+        Rectangle sideModel = new Rectangle(0f, 0f, 1f, PPM);
         // left
         Fixture left = new Fixture(this, new Rectangle(sideModel), LEFT);
-        left.setOffset(-.375f * PPM, 0f);
+        left.setOffset(-.375f * PPM, 1f);
         bodyComponent.addFixture(left);
         // right
         Fixture right = new Fixture(this, new Rectangle(sideModel), RIGHT);
-        right.setOffset(.375f * PPM, 0f);
+        right.setOffset(.375f * PPM, 1f);
         bodyComponent.addFixture(right);
         return bodyComponent;
     }

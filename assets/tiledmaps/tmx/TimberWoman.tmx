@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.9" tiledversion="1.9.0" orientation="orthogonal" renderorder="right-down" width="200" height="50" tilewidth="32" tileheight="32" infinite="0" nextlayerid="15" nextobjectid="36">
+<map version="1.9" tiledversion="1.9.0" orientation="orthogonal" renderorder="right-down" width="200" height="50" tilewidth="32" tileheight="32" infinite="0" nextlayerid="15" nextobjectid="39">
  <tileset firstgid="1" source="../tsx/Tileset1.tsx"/>
  <tileset firstgid="1025" source="../tsx/BFT - Mega Metroidvania Tileset.tsx"/>
  <tileset firstgid="1610" source="../tsx/mm3hard.tsx"/>
@@ -29,6 +29,8 @@
  <objectgroup id="5" name="EnemySpawns">
   <object id="13" name="bat" x="1104" y="224" width="8" height="8"/>
   <object id="14" name="bat" x="1168" y="224" width="8" height="8"/>
+  <object id="36" name="met" x="1712" y="336" width="16" height="16"/>
+  <object id="37" name="sniper_joe" x="1776" y="336" width="16" height="16"/>
  </objectgroup>
  <objectgroup id="4" name="Backgrounds">
   <object id="8" name="WindyClouds" x="0" y="544" width="32" height="32">

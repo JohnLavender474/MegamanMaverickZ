@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import static com.badlogic.gdx.math.MathUtils.*;
-import static com.game.core.constants.TextureAsset.ENEMIES;
+import static com.game.core.constants.TextureAsset.ENEMIES_1;
 import static com.game.core.constants.ViewVals.PPM;
 import static com.game.utils.UtilMethods.centerPoint;
 import static com.game.utils.UtilMethods.setBottomCenterToPoint;
@@ -123,7 +123,7 @@ public class FloatingCan extends AbstractEnemy {
     }
 
     private AnimationComponent defineAnimationComponent() {
-        TextureAtlas textureAtlas = gameContext.getAsset(ENEMIES.getSrc(), TextureAtlas.class);
+        TextureAtlas textureAtlas = gameContext.getAsset(ENEMIES_1.getSrc(), TextureAtlas.class);
         return new AnimationComponent(new TimedAnimation(textureAtlas.findRegion("FloatingCan"), 4, .15f));
     }
 

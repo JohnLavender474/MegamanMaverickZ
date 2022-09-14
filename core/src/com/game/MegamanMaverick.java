@@ -150,8 +150,8 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
         addSystem(new SoundSystem(this));
         addSystem(new AnimationSystem());
         addSystem(new SpriteSystem((OrthographicCamera) viewports.get(PLAYGROUND).getCamera(), getSpriteBatch()));
-        addSystem(new ShapeSystem(viewports.get(PLAYGROUND).getCamera(), getShapeRenderer()));
         addSystem(new LineSystem(viewports.get(PLAYGROUND).getCamera(), getShapeRenderer()));
+        addSystem(new ShapeSystem(viewports.get(PLAYGROUND).getCamera(), getShapeRenderer()));
         // blackboard
         putBlackboardObject(MEGAMAN_GAME_INFO, new MegamanGameInfo());
         // add this as message listener
@@ -170,6 +170,7 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
         // setScreen(MAIN_MENU);
         setScreen(TEST_STAGE);
         // setScreen(TIMBER_WOMAN);
+        // setScreen(new TestScreen(this));
     }
 
     @Override

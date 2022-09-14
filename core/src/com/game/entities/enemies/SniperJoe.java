@@ -29,7 +29,7 @@ import lombok.Setter;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import static com.game.core.constants.TextureAsset.ENEMIES;
+import static com.game.core.constants.TextureAsset.ENEMIES_1;
 import static com.game.core.constants.ViewVals.PPM;
 import static com.game.core.constants.SoundAsset.*;
 import static com.game.entities.contracts.Facing.*;
@@ -112,7 +112,7 @@ public class SniperJoe extends AbstractEnemy implements Faceable {
 
     private AnimationComponent defineAnimationComponent() {
         Supplier<String> keySupplier = () -> isShielded ? "Shielded" : "Shooting";
-        TextureAtlas textureAtlas = gameContext.getAsset(ENEMIES.getSrc(), TextureAtlas.class);
+        TextureAtlas textureAtlas = gameContext.getAsset(ENEMIES_1.getSrc(), TextureAtlas.class);
         Map<String, TimedAnimation> timedAnimations = Map.of(
             "Shooting", new TimedAnimation(textureAtlas.findRegion("SniperJoe/SniperJoeShooting")),
             "Shielded", new TimedAnimation(textureAtlas.findRegion("SniperJoe/SniperJoeShielded")));

@@ -137,7 +137,7 @@ public class Bat extends AbstractEnemy implements Hitter {
     }
 
     private AnimationComponent defineAnimationComponent() {
-        TextureAtlas textureAtlas = gameContext.getAsset(ENEMIES.getSrc(), TextureAtlas.class);
+        TextureAtlas textureAtlas = gameContext.getAsset(ENEMIES_1.getSrc(), TextureAtlas.class);
         Supplier<String> keySupplier = () -> currentStatus.getRegionName();
         Map<String, TimedAnimation> timedAnimations = Map.of(
                 "BatHang", new TimedAnimation(textureAtlas.findRegion("Bat/BatHang")),

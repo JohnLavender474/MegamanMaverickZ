@@ -1,0 +1,194 @@
+Enemies1.png
+size: 1536, 32
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Bat/BatFly
+  rotate: false
+  xy: 0, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+Bat/BatHang
+  rotate: false
+  xy: 64, 0
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+Bat/BatOpenEyes
+  rotate: false
+  xy: 96, 0
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+Bat/BatOpenWings
+  rotate: false
+  xy: 128, 0
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+CloudedTorpedo/CloudyTorpedo
+  rotate: false
+  xy: 160, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+CloudedTorpedo/TorpedoFire
+  rotate: false
+  xy: 224, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+CloudedTorpedo/UncloudedTorpedo
+  rotate: false
+  xy: 288, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+Dragonfly
+  rotate: false
+  xy: 352, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+FloatingCan
+  rotate: false
+  xy: 416, 0
+  size: 128, 32
+  orig: 128, 32
+  offset: 0, 0
+  index: -1
+HeliGrabber/HeliGrabberClosedClaws
+  rotate: false
+  xy: 544, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+HeliGrabber/HeliGrabberOpenClaws
+  rotate: false
+  xy: 608, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+LaserBeamer
+  rotate: false
+  xy: 672, 0
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+MagneHeli
+  rotate: false
+  xy: 704, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+Met/GetUp
+  rotate: false
+  xy: 768, 0
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+Met/LayDown
+  rotate: false
+  xy: 800, 0
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+Met/PopUp
+  rotate: false
+  xy: 832, 0
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+Met/Run
+  rotate: false
+  xy: 864, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+Met/RunNaked
+  rotate: false
+  xy: 928, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+Met/StandNaked
+  rotate: false
+  xy: 992, 0
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+PropellerFish/PropellerFishClosedMouth
+  rotate: false
+  xy: 1024, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+PropellerFish/PropellerFishOpenMouth
+  rotate: false
+  xy: 1088, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+SniperJoe/SniperJoeShielded
+  rotate: false
+  xy: 1152, 0
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+SniperJoe/SniperJoeShooting
+  rotate: false
+  xy: 1184, 0
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+SpringLoadedHeli/SpringLoadedHeliBottomPart
+  rotate: false
+  xy: 1216, 0
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+SpringLoadedHeli/SpringLoadedHeliFall
+  rotate: false
+  xy: 1248, 0
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+SpringLoadedHeli/SpringLoadedHeliLoadSpring
+  rotate: false
+  xy: 1280, 0
+  size: 96, 32
+  orig: 96, 32
+  offset: 0, 0
+  index: -1
+SuctionRoller
+  rotate: false
+  xy: 1376, 0
+  size: 160, 32
+  orig: 160, 32
+  offset: 0, 0
+  index: -1

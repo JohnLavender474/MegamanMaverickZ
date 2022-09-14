@@ -289,9 +289,12 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
                 }
                 BodyComponent bodyComponent = getComponent(BodyComponent.class);
                 BehaviorComponent behaviorComponent = getComponent(BehaviorComponent.class);
+                setFacing(behaviorComponent.is(WALL_SLIDING) ? F_RIGHT : F_LEFT);
+                /*
                 if (wallJumpImpetusTimer.isFinished()) {
                     setFacing(behaviorComponent.is(WALL_SLIDING) ? F_RIGHT : F_LEFT);
                 }
+                 */
                 behaviorComponent.set(RUNNING, !behaviorComponent.is(WALL_SLIDING));
                 if (bodyComponent.getVelocity().x > -4f * PPM) {
                     bodyComponent.applyImpulse(-PPM * 50f * delta, 0f);
@@ -320,9 +323,12 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
                 }
                 BodyComponent bodyComponent = getComponent(BodyComponent.class);
                 BehaviorComponent behaviorComponent = getComponent(BehaviorComponent.class);
+                setFacing(behaviorComponent.is(WALL_SLIDING) ? F_LEFT : F_RIGHT);
+                /*
                 if (wallJumpImpetusTimer.isFinished()) {
                     setFacing(behaviorComponent.is(WALL_SLIDING) ? F_LEFT : F_RIGHT);
                 }
+                 */
                 behaviorComponent.set(RUNNING, !behaviorComponent.is(WALL_SLIDING));
                 if (bodyComponent.getVelocity().x < 4f * PPM) {
                     bodyComponent.applyImpulse(PPM * 50f * delta, 0f);

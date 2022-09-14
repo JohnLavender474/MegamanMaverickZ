@@ -48,8 +48,7 @@ import com.game.updatables.UpdatableSystem;
 import com.game.utils.enums.Direction;
 import com.game.core.MegaTextHandle;
 import com.game.utils.objects.Timer;
-import com.game.world.BodyComponent;
-import com.game.world.WorldSystem;
+import com.game.world.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,11 +68,14 @@ import static com.game.core.constants.ViewVals.*;
 import static com.game.backgrounds.WindyClouds.WINDY_CLOUDS;
 import static com.game.utils.UtilMethods.*;
 import static com.game.utils.enums.Position.*;
+import static com.game.world.BodyType.*;
+import static com.game.world.FixtureType.*;
 import static java.lang.Math.*;
 
 public class LevelScreen extends ScreenAdapter implements MessageListener {
 
     private static final String TEST = "Test";
+    private static final String BLOCKS = "Blocks";
     private static final String SPECIAL = "Special";
     private static final String HAZARDS = "Hazards";
     private static final String GAME_ROOMS = "GameRooms";
@@ -81,9 +83,6 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
     private static final String ENEMY_SPAWNS = "EnemySpawns";
     private static final String PLAYER_SPAWNS = "PlayerSpawns";
     private static final String DEATH_SENSORS = "DeathSensors";
-    private static final String STATIC_BLOCKS = "StaticBlocks";
-    private static final String MOVING_BLOCKS = "MovingBlocks";
-    private static final String WALL_SLIDE_SENSORS = "WallSlideSensors";
 
     public static final float LEVEL_CAM_TRANS_DURATION = 1f;
     public static final float MEGAMAN_DELTA_ON_CAM_TRANS = 3f;
@@ -147,16 +146,9 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
                 new Spawn(gameContext, getEnemySpawnSupplier(enemySpawnObj), enemySpawnObj.getRectangle())).toList();
         spawnManager = new SpawnManager(gameContext.getViewport(PLAYGROUND).getCamera(), playerSpawns, enemySpawns);
         spawnManager.setCurrentPlayerSpawn(startPlayerSpawn);
-        // static blocks
-        levelMap.getRectObjsOfLayer(STATIC_BLOCKS).forEach(staticBlockObj ->
-                gameContext.addEntity(new Block(gameContext, staticBlockObj.getRectangle(), new Vector2(.035f, 0f))));
-        // moving blocks
-        levelMap.getRectObjsOfLayer(MOVING_BLOCKS).forEach(blockObj ->
-            gameContext.addEntity(new Block(gameContext, blockObj, new Vector2(.035f, 0f),
-                    false, false, true, true, true)));
-        // wall slide sensors
-        levelMap.getRectObjsOfLayer(WALL_SLIDE_SENSORS).forEach(wallSlideSensorObj ->
-                gameContext.addEntity(new WallSlideSensor(gameContext, wallSlideSensorObj.getRectangle())));
+        // blocks
+        levelMap.getRectObjsOfLayer(BLOCKS).forEach(blockObj ->
+                gameContext.addEntity(new Block(gameContext, blockObj)));
         // death sensors
         levelMap.getRectObjsOfLayer(DEATH_SENSORS).forEach(deathSensorObj ->
                 gameContext.addEntity(new DeathSensor(gameContext, deathSensorObj.getRectangle())));
@@ -342,7 +334,7 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
                 return new Saw(gameContext, spawnObj);
             }
             case "laser_beamer" -> {
-                return new LaserBeamer(gameContext, centerPoint(spawnObj.getRectangle()));
+                return new LaserBeamer(gameContext, spawnObj);
             }
             default -> throw new IllegalStateException("Cannot find matching entity for <" + spawnObj.getName() + ">");
         }
@@ -352,6 +344,17 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
         switch (spawnObj.getName()) {
             case "bounce" -> {
                 return new SpringyBouncer(gameContext, spawnObj);
+            }
+            case "shield" -> {
+                Entity entity = new Entity(gameContext);
+                BodyComponent bodyComponent = new BodyComponent(ABSTRACT);
+                bodyComponent.set(spawnObj.getRectangle());
+                Fixture shield = new Fixture(entity, spawnObj.getRectangle(), SHIELD);
+                String reflectDir = spawnObj.getProperties().get("reflectDir", String.class);
+                shield.putUserData("reflectDir", reflectDir);
+                bodyComponent.addFixture(shield);
+                entity.addComponent(bodyComponent);
+                return entity;
             }
             default -> throw new IllegalStateException("Cannot find matching entity for <" + spawnObj.getName() + ">");
         }

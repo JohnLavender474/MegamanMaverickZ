@@ -124,7 +124,7 @@
             <key>data</key>
             <struct type="DataFile">
                 <key>name</key>
-                <filename>Hazards1.txt</filename>
+                <filename>../SpriteSheets/Hazards1.txt</filename>
             </struct>
         </map>
         <key>multiPack</key>
@@ -189,6 +189,7 @@
                 <false/>
             </struct>
             <key type="filename">../Frames/Hazards1/FlameThrower.png</key>
+            <key type="filename">../Frames/Hazards1/LaserBeamer.png</key>
             <key type="filename">../Frames/Hazards1/Spike4.png</key>
             <key type="filename">../Frames/Hazards1/Spike5.png</key>
             <struct type="IndividualSpriteSettings">

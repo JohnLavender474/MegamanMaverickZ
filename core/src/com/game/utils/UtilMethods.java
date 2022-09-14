@@ -1,7 +1,6 @@
 package com.game.utils;
 
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -10,8 +9,6 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 import com.game.utils.enums.Direction;
 import com.game.utils.enums.Position;
 import com.game.utils.interfaces.Positional;
-
-import java.util.Arrays;
 
 import static com.badlogic.gdx.graphics.Texture.TextureFilter.*;
 import static java.lang.Math.*;
@@ -155,21 +152,6 @@ public class UtilMethods {
     public static BoundingBox rectToBBox(Rectangle rectangle) {
         return new BoundingBox(new Vector3(rectangle.getX(), rectangle.getY(), 0.0f),
                 new Vector3(rectangle.getX() + rectangle.getWidth(), rectangle.getY() + rectangle.getHeight(), 0.0f));
-    }
-
-    /**
-     * Converts the rectangle into a polygon
-     *
-     * @param rect the rectangle
-     * @return the polygon
-     */
-    public static Polygon rectToPoly(Rectangle rect) {
-        return new Polygon(new float[]{
-                rect.x, rect.y,
-                rect.x + rect.width, rect.y,
-                rect.x + rect.width, rect.y + rect.height,
-                rect.x, rect.y + rect.height
-        });
     }
 
     /**

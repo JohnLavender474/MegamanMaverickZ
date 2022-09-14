@@ -1,9 +1,11 @@
 package com.game.utils;
 
 import com.badlogic.gdx.math.*;
+import com.game.shapes.custom.Triangle;
 import com.game.utils.objects.Pair;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -13,6 +15,21 @@ import static com.game.utils.objects.Pair.pairOf;
 
 /** Util methods for shapes. */
 public class ShapeUtils {
+
+    /**
+     * Converts the points to an array of vertices.
+     *
+     * @param points the points
+     * @return the array of vertices
+     */
+    public static float[] pointsToVertices(Vector2... points) {
+        float[] v = new float[points.length * 2];
+        for (int i = 0; i < points.length; i++) {
+            v[i * 2] = points[i].x;
+            v[(i * 2) + 1] = points[i].y;
+        }
+        return v;
+    }
 
     /**
      * Supports overlap detection for {@link Rectangle}, {@link Circle}, and {@link Polyline}.
@@ -44,16 +61,72 @@ public class ShapeUtils {
     }
 
     /**
-     * Converts the polyline to a pair of points.
+     * Converts the rectangle into a polygon
+     *
+     * @param rect the rectangle
+     * @return the polygon
+     */
+    public static Polygon rectToPoly(Rectangle rect) {
+        return new Polygon(new float[]{
+                rect.x, rect.y,
+                rect.x + rect.width, rect.y,
+                rect.x + rect.width, rect.y + rect.height,
+                rect.x, rect.y + rect.height
+        });
+    }
+
+    /**
+     * See {@link #polylineToPointPair(float[])}.
      *
      * @param polyline the polyline
      * @return the pair of points
      */
     public static Pair<Vector2> polylineToPointPair(Polyline polyline) {
-        float[] lv = polyline.getTransformedVertices();
-        Vector2 lp1 = new Vector2(lv[0], lv[1]);
-        Vector2 lp2 = new Vector2(lv[2], lv[3]);
-        return pairOf(lp1, lp2);
+        float[] v = polyline.getTransformedVertices();
+        return polylineToPointPair(v);
+    }
+
+    /**
+     * Converts the polyline to a pair of points. Meant only for lines with two points.
+     *
+     * @param v the vertex array
+     * @return the pair of points
+     */
+    public static Pair<Vector2> polylineToPointPair(float[] v) {
+        Vector2 p1 = new Vector2(v[0], v[1]);
+        Vector2 p2 = new Vector2(v[2], v[3]);
+        return pairOf(p1, p2);
+    }
+
+    /**
+     * Converts the polyline to a list of point pairs. Uses the transformed vertices of the polyline.
+     * Meant for polylines with more than two points. Use {@link #polylineToPointPair(Polyline)}
+     * instead if the line has only two points.
+     *
+     * @param polyline the polyline
+     * @return the list of point pairs
+     */
+    public static List<Pair<Vector2>> polylineToPointPairs(Polyline polyline) {
+        return polylineToPointPairs(polyline.getTransformedVertices());
+    }
+
+    /**
+     * Converts the vertex array to a list of point pairs.
+     *
+     * @param v the vertex array
+     * @return list of point pairs
+     */
+    public static List<Pair<Vector2>> polylineToPointPairs(float[] v) {
+        List<Pair<Vector2>> pairs = new ArrayList<>();
+        int n = v.length;
+        for (int i = 0; i <= n - 4; i += 2) {
+            float[] c = Arrays.copyOfRange(v, i, i + 4);
+            pairs.add(polylineToPointPair(c));
+        }
+        if (v.length > 4) {
+            pairs.add(pairOf(new Vector2(v[0], v[1]), new Vector2(v[n - 2], v[n - 1])));
+        }
+        return pairs;
     }
 
     /**
@@ -81,6 +154,19 @@ public class ShapeUtils {
      */
     public static boolean intersectLineRect(Polyline polyline, Rectangle rectangle, Collection<Vector2> interPoints) {
         float[] v = polyline.getTransformedVertices();
+        return intersectLineRect(v, rectangle, interPoints);
+    }
+
+    /**
+     * See {@link #intersectLineRect(Pair, Rectangle, Collection)}. Should be called only when the vertex array
+     * describes a line with only two points.
+     *
+     * @param v the vertex array
+     * @param rectangle the rectangle
+     * @param interPoints the intersection points
+     * @return if the polyline and rectangle intersect
+     */
+    public static boolean intersectLineRect(float[] v, Rectangle rectangle, Collection<Vector2> interPoints) {
         Pair<Vector2> line = pairOf(new Vector2(v[0], v[1]), new Vector2(v[2], v[3]));
         return intersectLineRect(line, rectangle, interPoints);
     }
@@ -122,7 +208,7 @@ public class ShapeUtils {
      *
      * @param line1 the first line
      * @param line2 the second line
-     * @param intersection the intersection point, set if the method returns true
+     * @param intersection the intersection point, setVertices if the method returns true
      * @return if the two lines intersect
      */
     public static boolean intersectLines(Polyline line1, Polyline line2, Vector2 intersection) {

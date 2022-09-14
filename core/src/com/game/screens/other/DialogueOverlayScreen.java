@@ -30,7 +30,7 @@ public class DialogueOverlayScreen extends ScreenAdapter {
     @Override
     public void show() {
         if (dialogue == null) {
-            throw new IllegalStateException("Dialogue has not yet been set");
+            throw new IllegalStateException("Dialogue has not yet been setVertices");
         }
     }
 

@@ -96,7 +96,7 @@ public class LevelIntroScreen extends ScreenAdapter {
     @Override
     public void show() {
         if (!set) {
-            throw new IllegalStateException("LevelIntroScreen.java requires method 'set' to be called before " +
+            throw new IllegalStateException("LevelIntroScreen.java requires method 'setVertices' to be called before " +
                     "the screen can be shown");
         }
         durationTimer.reset();
@@ -124,7 +124,7 @@ public class LevelIntroScreen extends ScreenAdapter {
         });
         // bars
         bars.forEach(b -> drawFiltered(b, spriteBatch));
-        // Sprite falls if dropdown timer is not finished, set to final pos if timer is just finished
+        // Sprite falls if dropdown timer is not finished, setVertices to final pos if timer is just finished
         Sprite bossSprite = bossAnimDef.key();
         bossDropDownTimer.update(delta);
         if (!bossDropDownTimer.isFinished()) {
@@ -150,7 +150,7 @@ public class LevelIntroScreen extends ScreenAdapter {
         }
         playBoomSound = !emptyBefore && bossLettersAnimQ.isEmpty();
         bossLetters.draw(spriteBatch);
-        // Handle anim q, if timer is finished then poll, update timer and timed anim, set and draw sprite
+        // Handle anim q, if timer is finished then poll, update timer and timed anim, setVertices and draw sprite
         Queue<KeyValuePair<TimedAnimation, Timer>> bossAnimQ = bossAnimDef.value();
         if (bossAnimQ.size() > 1 && bossAnimQ.peek().value().isFinished()) {
             bossAnimQ.poll();

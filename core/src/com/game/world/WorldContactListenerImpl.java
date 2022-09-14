@@ -92,11 +92,9 @@ public class WorldContactListenerImpl implements WorldContactListener {
             contact.mask1stBody().setIs(TOUCHING_WALL_SLIDE_LEFT);
         } else if (contact.acceptMask(RIGHT, WALL_SLIDE_SENSOR)) {
             contact.mask1stBody().setIs(TOUCHING_WALL_SLIDE_RIGHT);
-        } else if (contact.acceptMask(LEFT, DAMAGEABLE) &&
-                !contact.mask1stEntity().equals(contact.mask2ndEntity())) {
+        } else if (contact.acceptMask(LEFT, DAMAGEABLE) && contact.areEntitiesDifferent()) {
             contact.mask1stBody().setIs(TOUCHING_HITBOX_LEFT);
-        } else if (contact.acceptMask(RIGHT, DAMAGEABLE) &&
-                !contact.mask1stEntity().equals(contact.mask2ndEntity())) {
+        } else if (contact.acceptMask(RIGHT, DAMAGEABLE) && contact.areEntitiesDifferent()) {
             contact.mask1stBody().setIs(TOUCHING_HITBOX_RIGHT);
         } else if (contact.acceptMask(FEET, BLOCK)) {
             Entity entity = contact.mask1stEntity();
@@ -116,7 +114,7 @@ public class WorldContactListenerImpl implements WorldContactListener {
             damager.onDamageInflictedTo(damageable);
         } else if (contact.acceptMask(HITTER_BOX) && contact.mask1stEntity() instanceof Hitter hitter) {
             hitter.hit(contact.getMask().getSecond());
-        } else if (contact.acceptMask(LASER, BLOCK)) {
+        } else if (contact.acceptMask(LASER, BLOCK) && contact.areEntitiesDifferent()) {
             Fixture first = contact.mask1stFixture();
             Fixture second = contact.mask2ndFixture();
             Collection<Vector2> contactPoints = first.getUserData(BLOCK_CONTACT_POINTS, Collection.class);
@@ -137,11 +135,9 @@ public class WorldContactListenerImpl implements WorldContactListener {
             contact.mask1stBody().setIsNot(TOUCHING_WALL_SLIDE_LEFT);
         } else if (contact.acceptMask(RIGHT, WALL_SLIDE_SENSOR)) {
             contact.mask1stBody().setIsNot(TOUCHING_WALL_SLIDE_RIGHT);
-        } else if (contact.acceptMask(LEFT, DAMAGEABLE) &&
-                !contact.mask1stEntity().equals(contact.mask2ndEntity())) {
+        } else if (contact.acceptMask(LEFT, DAMAGEABLE) && contact.areEntitiesDifferent()) {
             contact.mask1stBody().setIsNot(TOUCHING_HITBOX_LEFT);
-        } else if (contact.acceptMask(RIGHT, DAMAGEABLE) &&
-                !contact.mask1stEntity().equals(contact.mask2ndEntity())) {
+        } else if (contact.acceptMask(RIGHT, DAMAGEABLE) && contact.areEntitiesDifferent()) {
             contact.mask1stBody().setIsNot(TOUCHING_HITBOX_RIGHT);
         } else if (contact.acceptMask(FEET, BLOCK)) {
             contact.mask1stBody().setIsNot(FEET_ON_GROUND);
