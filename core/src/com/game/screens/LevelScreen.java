@@ -20,6 +20,7 @@ import com.game.cull.CullOnCamTransComponent;
 import com.game.cull.CullOnCamTransSystem;
 import com.game.cull.CullOutOfCamBoundsComponent;
 import com.game.entities.blocks.Block;
+import com.game.entities.blocks.impl.JeffBezosLittleDickRocket;
 import com.game.entities.bosses.TimberWoman;
 import com.game.entities.enemies.*;
 import com.game.entities.hazards.LaserBeamer;
@@ -147,8 +148,15 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
         spawnManager = new SpawnManager(gameContext.getViewport(PLAYGROUND).getCamera(), playerSpawns, enemySpawns);
         spawnManager.setCurrentPlayerSpawn(startPlayerSpawn);
         // blocks
-        levelMap.getRectObjsOfLayer(BLOCKS).forEach(blockObj ->
-                gameContext.addEntity(new Block(gameContext, blockObj)));
+        levelMap.getRectObjsOfLayer(BLOCKS).forEach(blockObj -> {
+            if (blockObj.getName() != null) {
+                if (blockObj.getName().equals("Jeffy")) {
+                    gameContext.addEntity(new JeffBezosLittleDickRocket(gameContext, blockObj));
+                }
+            } else {
+                gameContext.addEntity(new Block(gameContext, blockObj));
+            }
+        });
         // death sensors
         levelMap.getRectObjsOfLayer(DEATH_SENSORS).forEach(deathSensorObj ->
                 gameContext.addEntity(new DeathSensor(gameContext, deathSensorObj.getRectangle())));

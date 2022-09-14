@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.9" tiledversion="1.9.0" orientation="orthogonal" renderorder="right-down" width="50" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="14" nextobjectid="39">
+<map version="1.9" tiledversion="1.9.0" orientation="orthogonal" renderorder="right-down" width="50" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="14" nextobjectid="40">
  <tileset firstgid="1" source="../tsx/Tileset1.tsx"/>
  <objectgroup id="5" name="Test"/>
  <objectgroup id="7" name="Blocks">
@@ -10,21 +10,18 @@
   <object id="9" x="384" y="384" width="64" height="248"/>
   <object id="10" x="800" y="384" width="64" height="248"/>
   <object id="29" x="1035" y="326" width="11" height="18"/>
- </objectgroup>
- <objectgroup id="8" name="WallSlideSensors">
-  <object id="5" x="56" y="32" width="8" height="544"/>
-  <object id="6" x="1536" y="32" width="8" height="544"/>
-  <object id="12" x="384" y="384" width="8" height="192"/>
-  <object id="13" x="440" y="384" width="8" height="192"/>
-  <object id="14" x="792" y="392" width="16" height="184"/>
-  <object id="15" x="856" y="392" width="16" height="184"/>
+  <object id="39" name="Jeffy" x="488" y="384" width="16" height="16">
+   <properties>
+    <property name="trajectory" value="0,0,1;3,0,2;0,0,1;-3,0,2;"/>
+   </properties>
+  </object>
  </objectgroup>
  <objectgroup id="9" name="DeathSensors"/>
  <objectgroup id="10" name="PlayerSpawns">
-  <object id="7" name="start" x="160" y="544" width="32" height="32"/>
+  <object id="7" name="start" x="576" y="544" width="32" height="32"/>
  </objectgroup>
  <objectgroup id="11" name="EnemySpawns">
-  <object id="34" name="suction_roller" x="496" y="560" width="16" height="16"/>
+  <object id="34" name="suction_roller" x="928" y="560" width="16" height="16"/>
   <object id="35" name="met" x="1360" y="560" width="16" height="16"/>
  </objectgroup>
  <objectgroup id="12" name="Backgrounds"/>
