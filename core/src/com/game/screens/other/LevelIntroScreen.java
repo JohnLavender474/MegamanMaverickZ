@@ -40,6 +40,7 @@ public class LevelIntroScreen extends ScreenAdapter {
     private final GameContext2d gameContext;
 
     private final Music music;
+    private final TimedAnimation barAnimation;
     private final List<Stars> stars = new ArrayList<>();
     private final List<Sprite> bars = new ArrayList<>();
     private final Timer durationTimer = new Timer(DURATION);
@@ -50,7 +51,6 @@ public class LevelIntroScreen extends ScreenAdapter {
     private final Timer bossLettersTimer = new Timer(.2f);
 
     private boolean set;
-    private boolean playBoomSound;
     private GameScreen nextScreen;
     private Queue<Runnable> bossLettersAnimQ;
     private KeyValuePair<Sprite, Queue<KeyValuePair<TimedAnimation, Timer>>> bossAnimDef;
@@ -62,9 +62,10 @@ public class LevelIntroScreen extends ScreenAdapter {
             stars.add(new Stars(gameContext, 0f, i * PPM * VIEW_HEIGHT / 4f, i + 1));
         }
         TextureRegion barRegion = gameContext.getAsset(STAGE_SELECT.getSrc(), TextureAtlas.class)
-                .findRegion("BlackBar");
+                .findRegion("Bar");
+        barAnimation = new TimedAnimation(barRegion, new float[]{.3f, .15f, .15f, .15f});
         for (int i = 0; i < 4; i++) {
-            Sprite bar = new Sprite(barRegion);
+            Sprite bar = new Sprite();
             bar.setBounds((i * VIEW_WIDTH * PPM / 3f) - 5f, VIEW_HEIGHT * PPM / 3f,
                     (VIEW_WIDTH * PPM / 3f) + 5f, VIEW_HEIGHT * PPM / 3f);
             bars.add(bar);
@@ -123,7 +124,12 @@ public class LevelIntroScreen extends ScreenAdapter {
             s.draw(spriteBatch);
         });
         // bars
-        bars.forEach(b -> drawFiltered(b, spriteBatch));
+        barAnimation.update(delta);
+        TextureRegion barRegion = barAnimation.getCurrentT();
+        bars.forEach(b -> {
+            b.setRegion(barRegion);
+            drawFiltered(b, spriteBatch);
+        });
         // Sprite falls if dropdown timer is not finished, setVertices to final pos if timer is just finished
         Sprite bossSprite = bossAnimDef.key();
         bossDropDownTimer.update(delta);
@@ -137,7 +143,6 @@ public class LevelIntroScreen extends ScreenAdapter {
         }
         // boss letters
         bossLettersDelay.update(delta);
-        boolean emptyBefore = bossLettersAnimQ.isEmpty();
         if (bossLettersDelay.isFinished() && bossDropDownTimer.isFinished() && !bossLettersAnimQ.isEmpty()) {
             bossLettersTimer.update(delta);
             if (bossLettersTimer.isFinished()) {
@@ -145,10 +150,6 @@ public class LevelIntroScreen extends ScreenAdapter {
                 bossLettersTimer.reset();
             }
         }
-        if (playBoomSound) {
-            gameContext.playSound(gameContext.getAsset(SoundAsset.MEGAMAN_DAMAGE_SOUND.getSrc(), Sound.class));
-        }
-        playBoomSound = !emptyBefore && bossLettersAnimQ.isEmpty();
         bossLetters.draw(spriteBatch);
         // Handle anim q, if timer is finished then poll, update timer and timed anim, setVertices and draw sprite
         Queue<KeyValuePair<TimedAnimation, Timer>> bossAnimQ = bossAnimDef.value();

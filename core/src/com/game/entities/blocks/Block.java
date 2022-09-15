@@ -36,16 +36,12 @@ public class Block extends Entity {
         if (properties.containsKey("frictionY")) {
             friction.y = properties.get("frictionY", Float.class);
         }
-        boolean resistance = false, gravityOn = false, isAbstract = false,
-                wallSlideLeft = true, wallSlideRight = true, feetSticky = false;
+        boolean resistance = false, gravityOn = false, wallSlideLeft = true, wallSlideRight = true, feetSticky = false;
         if (properties.containsKey("resistance")) {
             resistance = properties.get("resist", Boolean.class);
         }
         if (properties.containsKey("gravityOn")) {
             gravityOn = properties.get("gravityOn", Boolean.class);
-        }
-        if (properties.containsKey("isAbstract")) {
-            isAbstract = properties.get("isAbstract", Boolean.class);
         }
         if (properties.containsKey("wallSlide")) {
             wallSlideLeft = wallSlideRight = properties.get("wallSlide", Boolean.class);
@@ -59,15 +55,13 @@ public class Block extends Entity {
         if (properties.containsKey("feetSticky")) {
             feetSticky = properties.get("feetSticky", Boolean.class);
         }
-        set(bounds, properties, friction, resistance,
-                gravityOn, isAbstract, wallSlideLeft, wallSlideRight, feetSticky);
+        set(bounds, properties, friction, resistance, gravityOn, wallSlideLeft, wallSlideRight, feetSticky);
     }
 
     private void set(Rectangle bounds, MapProperties properties, Vector2 friction, boolean resistance,
-                     boolean gravityOn, boolean isAbstract, boolean wallSlideLeft,
-                     boolean wallSlideRight, boolean feetSticky) {
+                     boolean gravityOn, boolean wallSlideLeft, boolean wallSlideRight, boolean feetSticky) {
         addComponent(defineGraphComponent());
-        addComponent(defineBodyComponent(bounds, friction, resistance, gravityOn, isAbstract,
+        addComponent(defineBodyComponent(bounds, friction, resistance, gravityOn,
                 wallSlideLeft, wallSlideRight, feetSticky));
         if (properties != null && properties.containsKey("trajectory")) {
             String[] trajectories = properties.get("trajectory", String.class).split(";");
@@ -87,17 +81,14 @@ public class Block extends Entity {
         return trajectoryComponent;
     }
 
-    private BodyComponent defineBodyComponent(Rectangle bounds, Vector2 friction, boolean resistance,
-                                              boolean gravityOn, boolean isAbstract, boolean wallSlideLeft,
-                                              boolean wallSlideRight, boolean feetSticky) {
+    private BodyComponent defineBodyComponent(Rectangle bounds, Vector2 friction, boolean resistance, boolean gravityOn,
+                                              boolean wallSlideLeft, boolean wallSlideRight, boolean feetSticky) {
         BodyComponent bodyComponent = new BodyComponent(BodyType.STATIC);
         bodyComponent.set(bounds);
         bodyComponent.setFriction(friction);
         bodyComponent.setGravityOn(gravityOn);
         bodyComponent.setAffectedByResistance(resistance);
-        if (!isAbstract) {
-            bodyComponent.addFixture(new Fixture(this, bodyComponent.getCollisionBox(), BLOCK));
-        }
+        bodyComponent.addFixture(new Fixture(this, bodyComponent.getCollisionBox(), BLOCK));
         if (wallSlideLeft) {
             Fixture leftWallSlide = new Fixture(this, new Rectangle(0f, 0f, PPM / 3f,
                     bodyComponent.getCollisionBox().height), WALL_SLIDE_SENSOR);

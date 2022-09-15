@@ -167,8 +167,8 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
         screens.put(TIMBER_WOMAN, new LevelScreen(
                 this, "tiledmaps/tmx/TimberWoman.tmx", XENOBLADE_GAUR_PLAINS_MUSIC.getSrc()));
         // set screen
-        // setScreen(MAIN_MENU);
-        setScreen(TEST_STAGE);
+        setScreen(MAIN_MENU);
+        // setScreen(TEST_STAGE);
         // setScreen(TIMBER_WOMAN);
         // setScreen(new TestScreen(this));
     }

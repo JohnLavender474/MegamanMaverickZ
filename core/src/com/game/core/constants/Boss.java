@@ -10,7 +10,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayDeque;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Queue;
 
@@ -46,16 +45,10 @@ public enum Boss {
 
         @Override
         public Map<String, TimedAnimation> getAnimations(TextureAtlas textureAtlas) {
-            float[] stand = new float[12];
-            Arrays.fill(stand, .175f);
-            stand[9] = .075f;
-            stand[11] = .075f;
             return Map.of(
-                    "Stand", new TimedAnimation(textureAtlas.findRegion("Stand"), stand),
-                    "JustLand", new TimedAnimation(textureAtlas.findRegion("JustLand"), new float[]{
-                            .15f, .12f, .15f, .125f, .125f, .15f, .15f, .125f}, false),
-                    "AboutToSwing", new TimedAnimation(textureAtlas.findRegion("AboutToSwing"),
-                            new float[]{.1f, .1f, .175f}, false),
+                    "Stand", new TimedAnimation(textureAtlas.findRegion("Stand"), new float[]{1.5f, .15f}),
+                    "JustLand", new TimedAnimation(textureAtlas.findRegion("JustLand"), 6, .1f),
+                    "AboutToSwing", new TimedAnimation(textureAtlas.findRegion("AboutToSwing"), 3, .15f, false),
                     "Swing", new TimedAnimation(textureAtlas.findRegion("Swing"),
                             new float[]{.15f, .15f, .1f, .075f}, false),
                     "Jump", new TimedAnimation(textureAtlas.findRegion("Jump"), 6, BOSS_DROP_DOWN / 12));
@@ -66,7 +59,7 @@ public enum Boss {
             Map<String, TimedAnimation> anims = getAnimations(textureAtlas);
             return new ArrayDeque<>() {{
                 add(KeyValuePair.of(anims.get("Jump"), new Timer(BOSS_DROP_DOWN)));
-                add(KeyValuePair.of(anims.get("JustLand"), new Timer(1.275f)));
+                add(KeyValuePair.of(anims.get("JustLand"), new Timer(.6f)));
                 add(KeyValuePair.of(anims.get("Stand"), new Timer(1.75f)));
                 add(KeyValuePair.of(anims.get("AboutToSwing"), new Timer(.375f)));
                 add(KeyValuePair.of(anims.get("Swing"), new Timer(4f)));

@@ -189,20 +189,6 @@
                 <false/>
             </struct>
             <key type="filename">../Frames/Bosses/Timber Woman/Jump.png</key>
-            <struct type="IndividualSpriteSettings">
-                <key>pivotPoint</key>
-                <point_f>0.5,0.5</point_f>
-                <key>spriteScale</key>
-                <double>1</double>
-                <key>scale9Enabled</key>
-                <false/>
-                <key>scale9Borders</key>
-                <rect>96,16,192,32</rect>
-                <key>scale9Paddings</key>
-                <rect>96,16,192,32</rect>
-                <key>scale9FromFile</key>
-                <false/>
-            </struct>
             <key type="filename">../Frames/Bosses/Timber Woman/JustLand.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
@@ -212,9 +198,9 @@
                 <key>scale9Enabled</key>
                 <false/>
                 <key>scale9Borders</key>
-                <rect>128,16,256,32</rect>
+                <rect>96,16,192,32</rect>
                 <key>scale9Paddings</key>
-                <rect>128,16,256,32</rect>
+                <rect>96,16,192,32</rect>
                 <key>scale9FromFile</key>
                 <false/>
             </struct>

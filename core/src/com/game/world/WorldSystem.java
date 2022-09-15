@@ -164,10 +164,11 @@ public class WorldSystem extends System {
                 if (floor(bc2.getVelocity().y) > 1f) {
                     bc2.applyResistanceX(bc1.getFriction().x);
                 }
-                // If one is dynamic and the other static, handle collision
-                if (bc1.getBodyType() == BodyType.DYNAMIC && bc2.getBodyType() == BodyType.STATIC) {
+                if ((bc1.getBodyType() == BodyType.DYNAMIC && bc2.getBodyType() == BodyType.STATIC) ||
+                        bc1.isMaskedForCollisionWith(bc2)) {
                     bc1.getCollisionBox().y += overlap.getHeight();
-                } else if (bc2.getBodyType() == BodyType.DYNAMIC && bc1.getBodyType() == BodyType.STATIC) {
+                } else if ((bc2.getBodyType() == BodyType.DYNAMIC && bc1.getBodyType() == BodyType.STATIC) ||
+                        bc2.isMaskedForCollisionWith(bc1)) {
                     bc2.getCollisionBox().y -= overlap.getHeight();
                 }
             } else {
@@ -177,26 +178,29 @@ public class WorldSystem extends System {
                 if (ceil(bc2.getVelocity().y) < -1f) {
                     bc2.applyResistanceX(bc1.getFriction().x);
                 }
-                // If one is dynamic and the other static, handle collision
-                if (bc1.getBodyType() == BodyType.DYNAMIC && bc2.getBodyType() == BodyType.STATIC) {
+                if ((bc1.getBodyType() == BodyType.DYNAMIC && bc2.getBodyType() == BodyType.STATIC) ||
+                        bc1.isMaskedForCollisionWith(bc2)) {
                     bc1.getCollisionBox().y -= overlap.getHeight();
-                } else if (bc2.getBodyType() == BodyType.DYNAMIC && bc1.getBodyType() == BodyType.STATIC) {
+                } else if ((bc2.getBodyType() == BodyType.DYNAMIC && bc1.getBodyType() == BodyType.STATIC) ||
+                        bc2.isMaskedForCollisionWith(bc1)) {
                     bc2.getCollisionBox().y += overlap.getHeight();
                 }
             }
         } else {
             if (bc1.getCollisionBox().getX() > bc2.getCollisionBox().getX()) {
-                // If one is dynamic and the other static, handle collision
-                if (bc1.getBodyType() == BodyType.DYNAMIC && bc2.getBodyType() == BodyType.STATIC) {
+                if ((bc1.getBodyType() == BodyType.DYNAMIC && bc2.getBodyType() == BodyType.STATIC) ||
+                        bc1.isMaskedForCollisionWith(bc2)) {
                     bc1.getCollisionBox().x += overlap.getWidth();
-                } else if (bc2.getBodyType() == BodyType.DYNAMIC && bc1.getBodyType() == BodyType.STATIC) {
+                } else if ((bc2.getBodyType() == BodyType.DYNAMIC && bc1.getBodyType() == BodyType.STATIC) ||
+                        bc2.isMaskedForCollisionWith(bc1)) {
                     bc2.getCollisionBox().x -= overlap.getWidth();
                 }
             } else {
-                // If one is dynamic and the other static, handle collision
-                if (bc1.getBodyType() == BodyType.DYNAMIC && bc2.getBodyType() == BodyType.STATIC) {
+                if ((bc1.getBodyType() == BodyType.DYNAMIC && bc2.getBodyType() == BodyType.STATIC) ||
+                        bc1.isMaskedForCollisionWith(bc2)) {
                     bc1.getCollisionBox().x -= overlap.getWidth();
-                } else if (bc2.getBodyType() == BodyType.DYNAMIC && bc1.getBodyType() == BodyType.STATIC) {
+                } else if ((bc2.getBodyType() == BodyType.DYNAMIC && bc1.getBodyType() == BodyType.STATIC) ||
+                        bc2.isMaskedForCollisionWith(bc1)) {
                     bc2.getCollisionBox().x += overlap.getWidth();
                 }
             }

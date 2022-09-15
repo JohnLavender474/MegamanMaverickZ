@@ -19,6 +19,7 @@ import com.game.core.GameContext2d;
 import com.game.cull.CullOnCamTransComponent;
 import com.game.cull.CullOnCamTransSystem;
 import com.game.cull.CullOutOfCamBoundsComponent;
+import com.game.entities.AbstractBounds;
 import com.game.entities.blocks.Block;
 import com.game.entities.blocks.impl.JeffBezosLittleDickRocket;
 import com.game.entities.bosses.TimberWoman;
@@ -27,7 +28,6 @@ import com.game.entities.hazards.LaserBeamer;
 import com.game.entities.hazards.Saw;
 import com.game.entities.megaman.Megaman;
 import com.game.entities.sensors.DeathSensor;
-import com.game.entities.sensors.WallSlideSensor;
 import com.game.entities.specials.SpringyBouncer;
 import com.game.graph.Graph;
 import com.game.graph.GraphSystem;
@@ -84,6 +84,7 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
     private static final String ENEMY_SPAWNS = "EnemySpawns";
     private static final String PLAYER_SPAWNS = "PlayerSpawns";
     private static final String DEATH_SENSORS = "DeathSensors";
+    private static final String ABSTRACT_BOUNDS = AbstractBounds.ABSTRACT_BOUNDS;
 
     public static final float LEVEL_CAM_TRANS_DURATION = 1f;
     public static final float MEGAMAN_DELTA_ON_CAM_TRANS = 3f;
@@ -147,6 +148,9 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
                 new Spawn(gameContext, getEnemySpawnSupplier(enemySpawnObj), enemySpawnObj.getRectangle())).toList();
         spawnManager = new SpawnManager(gameContext.getViewport(PLAYGROUND).getCamera(), playerSpawns, enemySpawns);
         spawnManager.setCurrentPlayerSpawn(startPlayerSpawn);
+        // abstract bounds
+        levelMap.getRectObjsOfLayer(ABSTRACT_BOUNDS).forEach(abstractObj ->
+                gameContext.addEntity(new AbstractBounds(gameContext, abstractObj.getRectangle())));
         // blocks
         levelMap.getRectObjsOfLayer(BLOCKS).forEach(blockObj -> {
             if (blockObj.getName() != null) {

@@ -26,12 +26,15 @@ public class BodyComponent extends Component {
     private final Rectangle collisionBox = new Rectangle();
     private final List<Fixture> fixtures = new ArrayList<>();
     private final Rectangle priorCollisionBox = new Rectangle();
+    private final Set<String> customCollisionMask = new HashSet<>();
     private final Set<BodySense> bodySenses = EnumSet.noneOf(BodySense.class);
     private final Map<Direction, Boolean> collisionFlags = new EnumMap<>(Direction.class) {{
         for (Direction direction : Direction.values()) {
             put(direction, false);
         }
     }};
+
+    private String customCollisionBit = null;
 
     private float gravity;
     private BodyType bodyType;
@@ -454,6 +457,38 @@ public class BodyComponent extends Component {
      */
     public void setPriorCollisionBoxToCurrent() {
         priorCollisionBox.set(collisionBox);
+    }
+
+
+    /**
+     * Adds each custom collision bit mask to this body. If a body component has {@link #getCustomCollisionBit()} equal
+     * to any of the provided bits, then this body component will be offset.
+     *
+     * @param bits the custom collision bits to mask
+     */
+    public void maskForCustomCollisions(String... bits) {
+        customCollisionMask.addAll(Arrays.asList(bits));
+    }
+
+    /**
+     * Returns if this body component is set to be offset when colliding with the provided body.
+     *
+     * @param bc the other body
+     * @return if set to offset when colliding with other body
+     */
+    public boolean isMaskedForCollisionWith(BodyComponent bc) {
+        String bit = bc.getCustomCollisionBit();
+        return bit != null && isCustomCollisionMask(bc.getCustomCollisionBit());
+    }
+
+    /**
+     * Returns if this is masking for the custom collision bit.
+     *
+     * @param bit the custom collision mask bit
+     * @return if this is masking for the custom collision bit
+     */
+    public boolean isCustomCollisionMask(String bit) {
+        return customCollisionMask.contains(bit);
     }
 
 }

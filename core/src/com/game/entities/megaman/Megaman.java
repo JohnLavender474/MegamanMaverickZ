@@ -52,6 +52,7 @@ import static com.game.core.constants.TextureAsset.MEGAMAN;
 import static com.game.core.constants.ViewVals.PPM;
 import static com.game.behaviors.BehaviorType.*;
 import static com.game.controllers.ControllerButton.*;
+import static com.game.entities.AbstractBounds.ABSTRACT_BOUNDS;
 import static com.game.entities.contracts.Facing.*;
 import static com.game.entities.megaman.Megaman.AButtonTask.*;
 import static com.game.entities.megaman.Megaman.AButtonTask._AIR_DASH;
@@ -555,6 +556,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
 
     private BodyComponent defineBodyComponent(Vector2 spawn) {
         BodyComponent bodyComponent = new BodyComponent(DYNAMIC);
+        bodyComponent.maskForCustomCollisions(ABSTRACT_BOUNDS);
         bodyComponent.setPosition(spawn);
         bodyComponent.setWidth(.8f * PPM);
         // feet

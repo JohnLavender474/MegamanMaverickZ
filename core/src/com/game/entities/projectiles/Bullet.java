@@ -44,7 +44,9 @@ public class Bullet extends AbstractProjectile {
 
     public void disintegrate() {
         gameContext.addEntity(new Disintegration(gameContext, getComponent(BodyComponent.class).getCenter()));
-        getComponent(SoundComponent.class).requestSound(THUMP_SOUND);
+        if (isInGameCamBounds()) {
+            getComponent(SoundComponent.class).requestSound(THUMP_SOUND);
+        }
         setDead(true);
     }
 

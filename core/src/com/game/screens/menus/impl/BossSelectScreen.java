@@ -95,8 +95,7 @@ public class BossSelectScreen extends MenuScreen {
             this.bossName = bossName;
             this.bossAnimation = bossAnimation;
             // setBounds pane animations
-            TextureAtlas decorationAtlas = assetLoader.getAsset(
-                    STAGE_SELECT.getSrc(), TextureAtlas.class);
+            TextureAtlas decorationAtlas = assetLoader.getAsset(STAGE_SELECT.getSrc(), TextureAtlas.class);
             TextureRegion paneUnhighlighted = decorationAtlas.findRegion("Pane");
             this.paneUnhighlightedAnimation = new TimedAnimation(paneUnhighlighted);
             TextureRegion paneBlinking = decorationAtlas.findRegion("PaneBlinking");
