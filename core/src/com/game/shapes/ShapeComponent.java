@@ -1,9 +1,11 @@
 package com.game.shapes;
 
+import com.badlogic.gdx.math.Shape2D;
 import com.game.core.Component;
 import lombok.Getter;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /** Component for rendering shapes. */
 @Getter
@@ -18,6 +20,15 @@ public class ShapeComponent extends Component {
      */
     public ShapeComponent(ShapeHandle... shapeHandles) {
         this(Arrays.asList(shapeHandles));
+    }
+
+    /**
+     * Add simple var arg shape handles with only shape field set.
+     *
+     * @param shapes the shapes
+     */
+    public ShapeComponent(Shape2D... shapes) {
+        this(Arrays.stream(shapes).map(ShapeHandle::new).collect(Collectors.toList()));
     }
 
     /**

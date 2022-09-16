@@ -11,7 +11,11 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile;
+import com.badlogic.gdx.math.Polygon;
+import com.badlogic.gdx.math.Polyline;
+import com.badlogic.gdx.math.Shape2D;
 import com.badlogic.gdx.utils.Disposable;
+import com.game.shapes.custom.Triangle;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,6 +60,32 @@ public class LevelTiledMap implements Disposable {
                 }
             }
         });
+    }
+
+    /**
+     * Returns the shape of the map object. Can be rectangle, circle, polyline, triangle, or polygon.
+     * Returns polyline if there are four vertices, triangle if there are six, and polygon if there are any
+     * other number of vertices.
+     *
+     * @param mapObj the map object
+     * @return the shape of the map object (rectangle, circle, polyline, triangle, or polygon)
+     */
+    public static Shape2D getMapObjShape(MapObject mapObj) {
+        if (mapObj instanceof RectangleMapObject rectMapObj) {
+            return rectMapObj.getRectangle();
+        } else if (mapObj instanceof CircleMapObject circleMapObj) {
+            return circleMapObj.getCircle();
+        } else if (mapObj instanceof PolylineMapObject polyMapObj) {
+            Polyline polyline = polyMapObj.getPolyline();
+            if (polyline.getVertices().length == 4) {
+                return polyline;
+            } else if (polyline.getVertices().length == 6) {
+                return new Triangle(polyline.getVertices());
+            } else {
+                return new Polygon(polyline.getVertices());
+            }
+        }
+        return null;
     }
 
     /**

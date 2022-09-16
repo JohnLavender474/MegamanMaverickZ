@@ -1,0 +1,19 @@
+MegamanHalfChargedShot.png
+size: 160, 32
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Collide
+  rotate: false
+  xy: 0, 0
+  size: 96, 32
+  orig: 96, 32
+  offset: 0, 0
+  index: -1
+Shoot
+  rotate: false
+  xy: 96, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1

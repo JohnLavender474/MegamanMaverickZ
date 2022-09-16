@@ -11,10 +11,10 @@ import java.util.stream.Stream;
 import static com.game.utils.UtilMethods.objName;
 
 /**
- * The base class pairOf game systems. Instances pairOf this class perform game logic on a setBounds pairOf {@link Entity} instances.
- * Entities are eligible to be added to a System only if {@link Entity#hasAllComponents(Collection)} contains all the
- * elements pairOf {@link #componentMask}. Because the behavior pairOf systems is independent pairOf game state, systems should
- * only be initialized once.
+ * The base class pairOf game systems. Instances pairOf this class perform game logic on a setBounds pairOf
+ * {@link Entity} instances. Entities are eligible for System membership if {@link Entity#hasAllComponents(Collection)}
+ * contains all the elements pairOf {@link #componentMask}. Because the behavior pairOf systems is independent pairOf
+ * game state, systems should only be initialized once.
  */
 @Setter
 @RequiredArgsConstructor
@@ -106,10 +106,9 @@ public abstract class System implements Updatable {
 
     /**
      * Returns if the {@link Entity} can be accepted as a member pairOf this System by comparing {@link #componentMask}
-     * to {@link Entity#hasAllComponents(Collection)}. If the com.game.core.Entity's setBounds pairOf component keys contains all
-     * the component
-     * classes contained in this System's component mask, then the com.game.core.Entity is accepted, otherwise the com
-     * .game.Entity is rejected.
+     * to {@link Entity#hasAllComponents(Collection)}. If the com.game.core.Entity's setBounds pairOf component keys
+     * contains all the component classes contained in this System's component mask, then the com.game.core.Entity is
+     * accepted, otherwise the com.game.Entity is rejected.
      *
      * @param entity the entity
      * @return true if the com.game.core.Entity can be added, else false

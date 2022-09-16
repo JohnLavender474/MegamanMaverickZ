@@ -11,6 +11,7 @@ import lombok.Setter;
 
 import java.util.*;
 
+import static java.lang.Float.*;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -26,6 +27,7 @@ public class BodyComponent extends Component {
     private final Rectangle collisionBox = new Rectangle();
     private final List<Fixture> fixtures = new ArrayList<>();
     private final Rectangle priorCollisionBox = new Rectangle();
+    private final Vector2 clamp = new Vector2(MAX_VALUE, MAX_VALUE);
     private final Set<String> customCollisionMask = new HashSet<>();
     private final Set<BodySense> bodySenses = EnumSet.noneOf(BodySense.class);
     private final Map<Direction, Boolean> collisionFlags = new EnumMap<>(Direction.class) {{
@@ -261,6 +263,25 @@ public class BodyComponent extends Component {
         Vector2 priorPos = UtilMethods.centerPoint(priorCollisionBox);
         Vector2 currentPos = UtilMethods.centerPoint(collisionBox);
         return currentPos.sub(priorPos);
+    }
+
+    /**
+     * Sets the clamp of the velocity.
+     *
+     * @param clamp the clamp
+     */
+    public void setClamp(Vector2 clamp) {
+        setClamp(clamp.x, clamp.y);
+    }
+
+    /**
+     * Sets the clamp of the velocity.
+     *
+     * @param x the x clamp
+     * @param y the y clamp
+     */
+    public void setClamp(float x, float y) {
+        clamp.set(x, y);
     }
 
     /**

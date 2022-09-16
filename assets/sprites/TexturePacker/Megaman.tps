@@ -177,9 +177,11 @@
             <key type="filename">../Frames/Megaman/Beam.png</key>
             <key type="filename">../Frames/Megaman/ClimbShoot.png</key>
             <key type="filename">../Frames/Megaman/FinishClimb.png</key>
+            <key type="filename">../Frames/Megaman/FinishClimbHalfCharging.png</key>
             <key type="filename">../Frames/Megaman/GroundSlide.png</key>
             <key type="filename">../Frames/Megaman/InitRun.png</key>
             <key type="filename">../Frames/Megaman/InitRunCharging.png</key>
+            <key type="filename">../Frames/Megaman/InitRunHalfCharging.png</key>
             <key type="filename">../Frames/Megaman/Jump.png</key>
             <key type="filename">../Frames/Megaman/JumpShoot.png</key>
             <key type="filename">../Frames/Megaman/LayDownDamaged.png</key>
@@ -203,17 +205,24 @@
                 <false/>
             </struct>
             <key type="filename">../Frames/Megaman/AirDashCharging.png</key>
+            <key type="filename">../Frames/Megaman/AirDashHalfCharging.png</key>
             <key type="filename">../Frames/Megaman/BeamLand.png</key>
             <key type="filename">../Frames/Megaman/Climb.png</key>
             <key type="filename">../Frames/Megaman/ClimbCharging.png</key>
+            <key type="filename">../Frames/Megaman/ClimbHalfCharging.png</key>
             <key type="filename">../Frames/Megaman/Damaged.png</key>
             <key type="filename">../Frames/Megaman/FinishClimbCharging.png</key>
             <key type="filename">../Frames/Megaman/GroundSlideCharging.png</key>
+            <key type="filename">../Frames/Megaman/GroundSlideHalfCharging.png</key>
             <key type="filename">../Frames/Megaman/JumpCharging.png</key>
+            <key type="filename">../Frames/Megaman/JumpHalfCharging.png</key>
             <key type="filename">../Frames/Megaman/SlipSlideCharging.png</key>
+            <key type="filename">../Frames/Megaman/SlipSlideHalfCharging.png</key>
             <key type="filename">../Frames/Megaman/Stand.png</key>
             <key type="filename">../Frames/Megaman/StandCharging.png</key>
+            <key type="filename">../Frames/Megaman/StandHalfCharging.png</key>
             <key type="filename">../Frames/Megaman/WallSlideCharging.png</key>
+            <key type="filename">../Frames/Megaman/WallSlideHalfCharging.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>
@@ -230,6 +239,7 @@
             </struct>
             <key type="filename">../Frames/Megaman/Run.png</key>
             <key type="filename">../Frames/Megaman/RunCharging.png</key>
+            <key type="filename">../Frames/Megaman/RunHalfCharging.png</key>
             <key type="filename">../Frames/Megaman/RunShoot.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>

@@ -65,13 +65,23 @@ public class Fixture {
     /**
      * Get user data.
      *
+     * @param key the key
+     * @return the data
+     */
+    public Object getUserData(String key) {
+        return userData.get(key);
+    }
+
+    /**
+     * Get user data.
+     *
      * @param key    the key
      * @param tClass the class
      * @param <T>    the data type
      * @return the data
      */
     public <T> T getUserData(String key, Class<T> tClass) {
-        return tClass.cast(userData.get(key));
+        return tClass.cast(getUserData(key));
     }
 
     /**

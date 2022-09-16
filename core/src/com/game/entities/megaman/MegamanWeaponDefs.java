@@ -54,6 +54,10 @@ public class MegamanWeaponDefs {
     private boolean isCharging() {
         return megaman.isCharging();
     }
+
+    private boolean isChargingFully() {
+        return megaman.isChargingFully();
+    }
     
     private Facing getFacing() {
         return megaman.getFacing();
@@ -68,14 +72,15 @@ public class MegamanWeaponDefs {
             if (behaviorComponent.is(WALL_SLIDING)) {
                 spawnPos.y += .15f * PPM;
             } else if (!bodyComponent.is(FEET_ON_GROUND)) {
-                spawnPos.y += PPM / 8f + bodyComponent.getPosDelta().y;
+                spawnPos.y += PPM / 4f;
             }
             return spawnPos;
         };
         megamanWeaponDefs.put(MEGA_BUSTER, new WeaponDef(() -> {
             Vector2 trajectory = new Vector2(10f * (isFacing(F_LEFT) ? -PPM : PPM), 0f);
             if (isCharging()) {
-                return List.of(new ChargedShot(gameContext, megaman, trajectory, spawn.get(), getFacing()));
+                return List.of(new ChargedShot(gameContext, megaman, trajectory, spawn.get(),
+                        getFacing(), isChargingFully()));
             } else {
                 return List.of(new Bullet(gameContext, megaman, trajectory, spawn.get()));
             }

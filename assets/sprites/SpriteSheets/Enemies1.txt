@@ -1,30 +1,30 @@
 Enemies1.png
-size: 1536, 32
+size: 992, 72
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
-Bat/BatFly
+Bat/Fly
   rotate: false
   xy: 0, 0
   size: 64, 32
   orig: 64, 32
   offset: 0, 0
   index: -1
-Bat/BatHang
+Bat/Hang
   rotate: false
   xy: 64, 0
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
-Bat/BatOpenEyes
+Bat/OpenEyes
   rotate: false
   xy: 96, 0
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
-Bat/BatOpenWings
+Bat/OpenWings
   rotate: false
   xy: 128, 0
   size: 32, 32
@@ -66,14 +66,35 @@ FloatingCan
   orig: 128, 32
   offset: 0, 0
   index: -1
-HeliGrabber/HeliGrabberClosedClaws
+FlyBoy/Fly
+  rotate: false
+  xy: 824, 32
+  size: 80, 40
+  orig: 80, 40
+  offset: 0, 0
+  index: -1
+FlyBoy/PrepareToFly
+  rotate: false
+  xy: 904, 32
+  size: 40, 40
+  orig: 40, 40
+  offset: 0, 0
+  index: -1
+FlyBoy/Stand
+  rotate: false
+  xy: 944, 32
+  size: 40, 40
+  orig: 40, 40
+  offset: 0, 0
+  index: -1
+FlyPincher/Open
   rotate: false
   xy: 544, 0
   size: 64, 32
   orig: 64, 32
   offset: 0, 0
   index: -1
-HeliGrabber/HeliGrabberOpenClaws
+FlyPincher/Pinch
   rotate: false
   xy: 608, 0
   size: 64, 32
@@ -92,6 +113,13 @@ MagneHeli
   xy: 704, 0
   size: 64, 32
   orig: 64, 32
+  offset: 0, 0
+  index: -1
+Matasaburo
+  rotate: false
+  xy: 608, 32
+  size: 216, 36
+  orig: 216, 36
   offset: 0, 0
   index: -1
 Met/GetUp
@@ -131,63 +159,56 @@ Met/RunNaked
   index: -1
 Met/StandNaked
   rotate: false
-  xy: 992, 0
+  xy: 0, 32
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
-PropellerFish/PropellerFishClosedMouth
+PropFish/AgapeMouth
   rotate: false
-  xy: 1024, 0
+  xy: 32, 32
   size: 64, 32
   orig: 64, 32
   offset: 0, 0
   index: -1
-PropellerFish/PropellerFishOpenMouth
+PropFish/ClosedMouth
   rotate: false
-  xy: 1088, 0
+  xy: 96, 32
   size: 64, 32
   orig: 64, 32
   offset: 0, 0
   index: -1
-SniperJoe/SniperJoeShielded
+SniperJoe/Shielded
   rotate: false
-  xy: 1152, 0
+  xy: 160, 32
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
-SniperJoe/SniperJoeShooting
+SniperJoe/Shooting
   rotate: false
-  xy: 1184, 0
+  xy: 192, 32
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
-SpringLoadedHeli/SpringLoadedHeliBottomPart
+SpringHead/Compressed
   rotate: false
-  xy: 1216, 0
+  xy: 224, 32
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
-SpringLoadedHeli/SpringLoadedHeliFall
+SpringHead/Unleashed
   rotate: false
-  xy: 1248, 0
-  size: 32, 32
-  orig: 32, 32
-  offset: 0, 0
-  index: -1
-SpringLoadedHeli/SpringLoadedHeliLoadSpring
-  rotate: false
-  xy: 1280, 0
-  size: 96, 32
-  orig: 96, 32
+  xy: 256, 32
+  size: 192, 32
+  orig: 192, 32
   offset: 0, 0
   index: -1
 SuctionRoller
   rotate: false
-  xy: 1376, 0
+  xy: 448, 32
   size: 160, 32
   orig: 160, 32
   offset: 0, 0

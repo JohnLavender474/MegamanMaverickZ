@@ -2,6 +2,7 @@ package com.game.entities.projectiles;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.core.Entity;
@@ -24,6 +25,7 @@ import lombok.Setter;
 
 import static com.game.core.constants.SoundAsset.*;
 import static com.game.core.constants.TextureAsset.MEGAMAN_CHARGED_SHOT;
+import static com.game.core.constants.TextureAsset.MEGAMAN_HALF_CHARGED_SHOT;
 import static com.game.core.constants.ViewVals.PPM;
 import static com.game.entities.contracts.Facing.F_LEFT;
 import static com.game.world.BodyType.*;
@@ -34,11 +36,14 @@ import static com.game.world.FixtureType.*;
 public class ChargedShot extends AbstractProjectile implements Faceable {
 
     private final Vector2 trajectory = new Vector2();
+    private final boolean fullyCharged;
 
     private Facing facing;
 
-    public ChargedShot(GameContext2d gameContext, Entity owner, Vector2 trajectory, Vector2 spawn, Facing facing) {
+    public ChargedShot(GameContext2d gameContext, Entity owner, Vector2 trajectory, Vector2 spawn,
+                       Facing facing, boolean fullyCharged) {
         super(gameContext, owner, .15f);
+        this.fullyCharged = fullyCharged;
         this.trajectory.set(trajectory);
         setFacing(facing);
         addComponent(defineAnimationComponent());
@@ -55,7 +60,7 @@ public class ChargedShot extends AbstractProjectile implements Faceable {
     public void onDamageInflictedTo(Damageable damageable) {
         setDead(true);
         gameContext.addEntity(new ChargedShotDisintegration(
-                gameContext, getComponent(BodyComponent.class).getCenter(), isFacing(F_LEFT)));
+                gameContext, getComponent(BodyComponent.class).getCenter(), isFacing(F_LEFT), fullyCharged));
     }
 
     @Override
@@ -64,10 +69,10 @@ public class ChargedShot extends AbstractProjectile implements Faceable {
                 (owner instanceof Damager && fixture.getEntity() instanceof Damager)) {
             return;
         }
-        if (fixture.isFixtureType(BLOCK)) {
+        if (fixture.isAnyFixtureType(BLOCK, DAMAGEABLE)) {
             setDead(true);
             gameContext.addEntity(new ChargedShotDisintegration(
-                    gameContext, getComponent(BodyComponent.class).getCenter(), isFacing(F_LEFT)));
+                    gameContext, getComponent(BodyComponent.class).getCenter(), isFacing(F_LEFT), fullyCharged));
         } else if (fixture.isFixtureType(SHIELD)) {
             setOwner(fixture.getEntity());
             swapFacing();
@@ -83,14 +88,24 @@ public class ChargedShot extends AbstractProjectile implements Faceable {
     }
 
     private AnimationComponent defineAnimationComponent() {
-        TextureAtlas textureAtlas = gameContext.getAsset(
-                MEGAMAN_CHARGED_SHOT.getSrc(), TextureAtlas.class);
-        return new AnimationComponent(new TimedAnimation(textureAtlas.findRegion("MegamanChargedShot"), 2, .05f));
+        TextureRegion textureRegion;
+        if (fullyCharged) {
+            textureRegion = gameContext.getAsset(MEGAMAN_CHARGED_SHOT.getSrc(), TextureAtlas.class)
+                    .findRegion("MegamanChargedShot");
+        } else {
+            textureRegion = gameContext.getAsset(MEGAMAN_HALF_CHARGED_SHOT.getSrc(), TextureAtlas.class)
+                    .findRegion("Shoot");
+        }
+        return new AnimationComponent(new TimedAnimation(textureRegion, 2, .05f));
     }
 
     private SpriteComponent defineSpriteComponent() {
         Sprite sprite = new Sprite();
-        sprite.setSize(PPM * 1.75f, PPM * 1.75f);
+        if (fullyCharged) {
+            sprite.setSize(PPM * 1.75f, PPM * 1.75f);
+        } else {
+            sprite.setSize(PPM * 1.25f, PPM * 1.25f);
+        }
         return new SpriteComponent(sprite, new SpriteAdapter() {
 
             @Override
@@ -111,10 +126,14 @@ public class ChargedShot extends AbstractProjectile implements Faceable {
     private BodyComponent defineBodyComponent(Vector2 spawn) {
         BodyComponent bodyComponent = new BodyComponent(DYNAMIC);
         bodyComponent.setPreProcess(delta -> bodyComponent.setVelocity(trajectory));
-        bodyComponent.setSize(PPM, PPM);
+        if (fullyCharged) {
+            bodyComponent.setSize(PPM, PPM);
+        } else {
+            bodyComponent.setSize(.5f * PPM, .5f * PPM);
+        }
         bodyComponent.setCenter(spawn.x, spawn.y);
         // model
-        Rectangle model = new Rectangle(0f, 0f, PPM, PPM);
+        Rectangle model = new Rectangle(0f, 0f, fullyCharged ? PPM : .5f * PPM, fullyCharged ? PPM : .5f * PPM);
         Fixture projectile = new Fixture(this, new Rectangle(model), HITTER_BOX);
         bodyComponent.addFixture(projectile);
         Fixture damageBox = new Fixture(this, new Rectangle(model), DAMAGER);

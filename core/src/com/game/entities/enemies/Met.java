@@ -151,7 +151,7 @@ public class Met extends AbstractEnemy implements Faceable {
         BodyComponent bodyComponent = new BodyComponent(DYNAMIC);
         bodyComponent.setSize(.75f * PPM, .75f * PPM);
         setBottomCenterToPoint(bodyComponent.getCollisionBox(), spawn);
-        bodyComponent.setGravity(-50f * PPM);
+        bodyComponent.setGravity(-PPM * .5f);
         // side model
         Rectangle sideModel = new Rectangle(0f, 0f, .1f * PPM, .75f * PPM);
         // left

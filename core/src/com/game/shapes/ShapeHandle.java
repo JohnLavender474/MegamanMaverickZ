@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Shape2D;
 import com.game.utils.interfaces.Updatable;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.function.Supplier;
@@ -15,14 +16,24 @@ import static com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.*;
 /** handle object containing the information pertinent to rendering a shape. */
 @Getter
 @Setter
+@NoArgsConstructor
 public class ShapeHandle implements Comparable<ShapeHandle> {
 
     private Updatable updatable = null;
-    private Supplier<Color> colorSupplier = () -> BLACK;
+    private Supplier<Color> colorSupplier = () -> RED;
     private Supplier<Integer> prioritySupplier = () -> 0;
     private Supplier<Shape2D> shapeSupplier = () -> null;
     private Supplier<Boolean> doRenderSupplier = () -> true;
     private Supplier<ShapeType> shapeTypeSupplier = () -> Line;
+
+    /**
+     * Constructs new Shape Handle with just the shape supplier set to supply the given shape.
+     *
+     * @param shape the shape to be supplied
+     */
+    public ShapeHandle(Shape2D shape) {
+        setShapeSupplier(() -> shape);
+    }
 
     /**
      * Copies all fields from the provided shape handle.

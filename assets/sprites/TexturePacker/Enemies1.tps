@@ -124,7 +124,7 @@
             <key>data</key>
             <struct type="DataFile">
                 <key>name</key>
-                <filename>../SpriteSheets/Enemies.txt</filename>
+                <filename>../SpriteSheets/Enemies1.txt</filename>
             </struct>
         </map>
         <key>multiPack</key>
@@ -173,18 +173,18 @@
         </struct>
         <key>individualSpriteSettings</key>
         <map type="IndividualSpriteSettingsMap">
-            <key type="filename">../Frames/Enemies1/Bat/BatFly.png</key>
+            <key type="filename">../Frames/Enemies1/Bat/Fly.png</key>
             <key type="filename">../Frames/Enemies1/CloudedTorpedo/CloudyTorpedo.png</key>
             <key type="filename">../Frames/Enemies1/CloudedTorpedo/TorpedoFire.png</key>
             <key type="filename">../Frames/Enemies1/CloudedTorpedo/UncloudedTorpedo.png</key>
             <key type="filename">../Frames/Enemies1/Dragonfly.png</key>
-            <key type="filename">../Frames/Enemies1/HeliGrabber/HeliGrabberClosedClaws.png</key>
-            <key type="filename">../Frames/Enemies1/HeliGrabber/HeliGrabberOpenClaws.png</key>
+            <key type="filename">../Frames/Enemies1/FlyPincher/Open.png</key>
+            <key type="filename">../Frames/Enemies1/FlyPincher/Pinch.png</key>
             <key type="filename">../Frames/Enemies1/MagneHeli.png</key>
             <key type="filename">../Frames/Enemies1/Met/Run.png</key>
             <key type="filename">../Frames/Enemies1/Met/RunNaked.png</key>
-            <key type="filename">../Frames/Enemies1/PropellerFish/PropellerFishClosedMouth.png</key>
-            <key type="filename">../Frames/Enemies1/PropellerFish/PropellerFishOpenMouth.png</key>
+            <key type="filename">../Frames/Enemies1/PropFish/AgapeMouth.png</key>
+            <key type="filename">../Frames/Enemies1/PropFish/ClosedMouth.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>
@@ -199,18 +199,17 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
-            <key type="filename">../Frames/Enemies1/Bat/BatHang.png</key>
-            <key type="filename">../Frames/Enemies1/Bat/BatOpenEyes.png</key>
-            <key type="filename">../Frames/Enemies1/Bat/BatOpenWings.png</key>
+            <key type="filename">../Frames/Enemies1/Bat/Hang.png</key>
+            <key type="filename">../Frames/Enemies1/Bat/OpenEyes.png</key>
+            <key type="filename">../Frames/Enemies1/Bat/OpenWings.png</key>
             <key type="filename">../Frames/Enemies1/LaserBeamer.png</key>
             <key type="filename">../Frames/Enemies1/Met/GetUp.png</key>
             <key type="filename">../Frames/Enemies1/Met/LayDown.png</key>
             <key type="filename">../Frames/Enemies1/Met/PopUp.png</key>
             <key type="filename">../Frames/Enemies1/Met/StandNaked.png</key>
-            <key type="filename">../Frames/Enemies1/SniperJoe/SniperJoeShielded.png</key>
-            <key type="filename">../Frames/Enemies1/SniperJoe/SniperJoeShooting.png</key>
-            <key type="filename">../Frames/Enemies1/SpringLoadedHeli/SpringLoadedHeliBottomPart.png</key>
-            <key type="filename">../Frames/Enemies1/SpringLoadedHeli/SpringLoadedHeliFall.png</key>
+            <key type="filename">../Frames/Enemies1/SniperJoe/Shielded.png</key>
+            <key type="filename">../Frames/Enemies1/SniperJoe/Shooting.png</key>
+            <key type="filename">../Frames/Enemies1/SpringHead/Compressed.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>
@@ -240,7 +239,7 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
-            <key type="filename">../Frames/Enemies1/SpringLoadedHeli/SpringLoadedHeliLoadSpring.png</key>
+            <key type="filename">../Frames/Enemies1/FlyBoy/Fly.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>
@@ -249,9 +248,55 @@
                 <key>scale9Enabled</key>
                 <false/>
                 <key>scale9Borders</key>
-                <rect>24,8,48,16</rect>
+                <rect>20,10,40,20</rect>
                 <key>scale9Paddings</key>
-                <rect>24,8,48,16</rect>
+                <rect>20,10,40,20</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">../Frames/Enemies1/FlyBoy/PrepareToFly.png</key>
+            <key type="filename">../Frames/Enemies1/FlyBoy/Stand.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>10,10,20,20</rect>
+                <key>scale9Paddings</key>
+                <rect>10,10,20,20</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">../Frames/Enemies1/Matasaburo.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>96,16,192,32</rect>
+                <key>scale9Paddings</key>
+                <rect>96,16,192,32</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">../Frames/Enemies1/SpringHead/Unleashed.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>48,8,96,16</rect>
+                <key>scale9Paddings</key>
+                <rect>48,8,96,16</rect>
                 <key>scale9FromFile</key>
                 <false/>
             </struct>

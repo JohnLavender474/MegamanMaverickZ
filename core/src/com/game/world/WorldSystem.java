@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.badlogic.gdx.math.Intersector.*;
+import static com.game.core.constants.ViewVals.PPM;
 import static com.game.utils.ShapeUtils.*;
 import static java.lang.Math.*;
 
@@ -62,26 +63,39 @@ public class WorldSystem extends System {
         while (accumulator >= fixedTimeStep) {
             accumulator -= fixedTimeStep;
             bodies.forEach(bodyComponent -> {
-                if (abs(bodyComponent.getVelocity().x) < .25f) {
-                    bodyComponent.getVelocity().x = 0f;
+                // set velocity to zero is below threshold
+                Vector2 velocity = bodyComponent.getVelocity();
+                if (abs(velocity.x) < PPM * .01f) {
+                    bodyComponent.setVelocityX(0f);
                 }
-                if (abs(bodyComponent.getVelocity().y) < .25f) {
-                    bodyComponent.getVelocity().y = 0f;
+                if (abs(velocity.y) < PPM * .01f) {
+                    bodyComponent.setVelocityY(0f);
+                }
+                // clamp velocity
+                Vector2 clamp = bodyComponent.getClamp();
+                if (velocity.x > 0f && velocity.x > abs(clamp.x / fixedTimeStep)) {
+                    bodyComponent.setVelocityX(abs(clamp.x));
+                } else if (velocity.x < 0f && velocity.x < -abs(clamp.x / fixedTimeStep)) {
+                    bodyComponent.setVelocityX(-abs(clamp.x));
+                }
+                if (velocity.y > 0f && velocity.y > abs(clamp.y / fixedTimeStep)) {
+                    bodyComponent.setVelocityY(abs(clamp.y));
+                } else if (velocity.y < 0f && velocity.y < -abs(clamp.y / fixedTimeStep)) {
+                    bodyComponent.setVelocityY(-abs(clamp.y));
                 }
                 // Apply resistance
                 if (bodyComponent.isAffectedByResistance()) {
-                    bodyComponent.getVelocity().x /= max(1f, bodyComponent.getResistance().x);
-                    bodyComponent.getVelocity().y /= max(1f, bodyComponent.getResistance().y);
+                    velocity.x /= max(1f, bodyComponent.getResistance().x);
+                    velocity.y /= max(1f, bodyComponent.getResistance().y);
                 }
                 // Reset resistance
                 bodyComponent.setResistance(airResistance);
                 // If gravity on, apply gravity
                 if (bodyComponent.isGravityOn()) {
-                    bodyComponent.applyImpulse(0f, bodyComponent.getGravity() * fixedTimeStep);
+                    bodyComponent.applyImpulse(0f, bodyComponent.getGravity());
                 }
                 // Translate
-                bodyComponent.translate(bodyComponent.getVelocity().x * fixedTimeStep,
-                        bodyComponent.getVelocity().y * fixedTimeStep);
+                bodyComponent.translate(velocity.x * fixedTimeStep, velocity.y * fixedTimeStep);
                 // Each Fixture is moved to conform to its position center from the center pairOf the Body Component
                 bodyComponent.getFixtures().forEach(fixture -> {
                     Vector2 center = bodyComponent.getCenter().cpy();
@@ -112,9 +126,9 @@ public class WorldSystem extends System {
             for (int i = 0; i < bodies.size(); i++) {
                 for (int j = i + 1; j < bodies.size(); j++) {
                     for (Fixture f1 : bodies.get(i).getFixtures()) {
-                        if (f1.isActive() && !f1.getEntity().isDead()) {
+                        if (f1.isActive()) {
                             for (Fixture f2 : bodies.get(j).getFixtures()) {
-                                if (f2.isActive() && !f2.getEntity().isDead()) {
+                                if (f2.isActive()) {
                                     if (overlap(f1.getFixtureShape(), f2.getFixtureShape())) {
                                         currentContacts.add(new Contact(f1, f2));
                                     }

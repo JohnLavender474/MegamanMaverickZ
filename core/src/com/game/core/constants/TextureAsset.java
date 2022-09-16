@@ -29,7 +29,8 @@ public enum TextureAsset {
     BACKGROUNDS_1("Backgrounds1.txt"),
     BACKGROUNDS_2("Backgrounds2.txt"),
     MEGAMAN_MAIN_MENU("MegamanMainMenu.txt"),
-    MEGAMAN_CHARGED_SHOT("MegamanChargedShot.txt");
+    MEGAMAN_CHARGED_SHOT("MegamanChargedShot.txt"),
+    MEGAMAN_HALF_CHARGED_SHOT("MegamanHalfChargedShot.txt");
 
     @Getter
     private static final String prefix = "sprites/SpriteSheets/";

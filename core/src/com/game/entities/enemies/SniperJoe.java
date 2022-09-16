@@ -73,8 +73,10 @@ public class SniperJoe extends AbstractEnemy implements Faceable {
         return Map.of(
                 Bullet.class, new DamageNegotiation(5),
                 Fireball.class, new DamageNegotiation(15),
-                ChargedShot.class, new DamageNegotiation(30, this::explode),
-                ChargedShotDisintegration.class, new DamageNegotiation(15, this::explode));
+                ChargedShot.class, new DamageNegotiation(damager ->
+                        ((ChargedShot) damager).isFullyCharged() ? 15 : 10),
+                ChargedShotDisintegration.class, new DamageNegotiation(damager ->
+                        ((ChargedShotDisintegration) damager).isFullyCharged() ? 15 : 10));
     }
 
     private void shoot() {
@@ -122,6 +124,7 @@ public class SniperJoe extends AbstractEnemy implements Faceable {
         Sprite sprite = new Sprite();
         sprite.setSize(1.35f * PPM, 1.35f * PPM);
         return new SpriteComponent(sprite, new StandardEnemySpriteAdapter() {
+
             @Override
             public boolean setPositioning(Wrapper<Rectangle> bounds, Wrapper<Position> position) {
                 bounds.setData(getComponent(BodyComponent.class).getCollisionBox());
@@ -131,13 +134,9 @@ public class SniperJoe extends AbstractEnemy implements Faceable {
 
             @Override
             public boolean isFlipX() {
-                return isFacing(F_RIGHT);
+                return isFacing(F_LEFT);
             }
 
-            @Override
-            public float getOffsetY() {
-                return -PPM / 8f;
-            }
         });
     }
 
@@ -145,14 +144,14 @@ public class SniperJoe extends AbstractEnemy implements Faceable {
         Supplier<String> keySupplier = () -> isShielded ? "Shielded" : "Shooting";
         TextureAtlas textureAtlas = gameContext.getAsset(ENEMIES_1.getSrc(), TextureAtlas.class);
         Map<String, TimedAnimation> timedAnimations = Map.of(
-            "Shooting", new TimedAnimation(textureAtlas.findRegion("SniperJoe/SniperJoeShooting")),
-            "Shielded", new TimedAnimation(textureAtlas.findRegion("SniperJoe/SniperJoeShielded")));
+            "Shooting", new TimedAnimation(textureAtlas.findRegion("SniperJoe/Shooting")),
+            "Shielded", new TimedAnimation(textureAtlas.findRegion("SniperJoe/Shielded")));
         return new AnimationComponent(keySupplier, timedAnimations::get);
     }
 
     private BodyComponent defineBodyComponent(Vector2 spawn) {
         BodyComponent bodyComponent = new BodyComponent(DYNAMIC);
-        bodyComponent.setGravity(-50f * PPM);
+        bodyComponent.setGravity(-PPM * .5f);
         bodyComponent.setSize(PPM, 1.25f * PPM);
         setBottomCenterToPoint(bodyComponent.getCollisionBox(), spawn);
         // hit box

@@ -80,7 +80,8 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
     private final Map<RenderingGround, Viewport> viewports = new EnumMap<>(RenderingGround.class);
     private final Queue<KeyValuePair<Rectangle, Color>> debugQueue = new ArrayDeque<>();
     private final Map<Class<? extends System>, System> systems = new LinkedHashMap<>();
-    private final Map<GameScreen, Screen> screens = new EnumMap<>(GameScreen.class);private final Set<MessageListener> messageListeners = new HashSet<>();
+    private final Map<GameScreen, Screen> screens = new EnumMap<>(GameScreen.class);
+    private final Set<MessageListener> messageListeners = new HashSet<>();
     private final Queue<Message> messageQueue = new ArrayDeque<>();
     private final List<Disposable> disposables = new ArrayList<>();
     private final Map<String, Object> blackBoard = new HashMap<>();
@@ -162,13 +163,17 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
         screens.put(BOSS_SELECT, new BossSelectScreen(this));
         screens.put(PAUSE_MENU, new PauseMenuScreen(this));
         screens.put(LEVEL_INTRO, new LevelIntroScreen(this));
+        /*
         screens.put(TEST_STAGE, new LevelScreen(
-                this, "tiledmaps/tmx/Test.tmx", MMZ_NEO_ARCADIA_MUSIC.getSrc()));
+                this, "tiledmaps/tmx/Test1.tmx", MMZ_NEO_ARCADIA_MUSIC.getSrc()));
+         */
+        screens.put(TEST_STAGE, new LevelScreen(
+                this, "tiledmaps/tmx/Test2.tmx", MMZ_NEO_ARCADIA_MUSIC.getSrc()));
         screens.put(TIMBER_WOMAN, new LevelScreen(
                 this, "tiledmaps/tmx/TimberWoman.tmx", XENOBLADE_GAUR_PLAINS_MUSIC.getSrc()));
         // set screen
-        setScreen(MAIN_MENU);
-        // setScreen(TEST_STAGE);
+        // setScreen(MAIN_MENU);
+        setScreen(TEST_STAGE);
         // setScreen(TIMBER_WOMAN);
         // setScreen(new TestScreen(this));
     }

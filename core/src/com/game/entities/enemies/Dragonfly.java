@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Shape2D;
 import com.badlogic.gdx.math.Vector2;
 import com.game.core.GameContext2d;
 import com.game.animations.AnimationComponent;
@@ -17,7 +18,9 @@ import com.game.entities.projectiles.Bullet;
 import com.game.entities.projectiles.ChargedShot;
 import com.game.entities.projectiles.ChargedShotDisintegration;
 import com.game.entities.projectiles.Fireball;
+import com.game.shapes.ShapeComponent;
 import com.game.sprites.SpriteComponent;
+import com.game.updatables.UpdatableComponent;
 import com.game.utils.enums.Position;
 import com.game.utils.objects.Timer;
 import com.game.utils.objects.Wrapper;
@@ -67,6 +70,8 @@ public class Dragonfly extends AbstractEnemy implements Faceable {
         addComponent(defineSpriteComponent());
         addComponent(defineAnimationComponent());
         addComponent(defineBodyComponent(spawn));
+        addComponent(defineShapeComponent());
+        addComponent(new UpdatableComponent(new StandardEnemyUpdater()));
         currentBehavior = previousBehavior = MOVE_UP;
         camera = gameContext.getViewport(PLAYGROUND).getCamera();
     }
@@ -80,19 +85,23 @@ public class Dragonfly extends AbstractEnemy implements Faceable {
                 ChargedShotDisintegration.class, new DamageNegotiation(15));
     }
 
+    private ShapeComponent defineShapeComponent() {
+        Shape2D damageBox = getComponent(BodyComponent.class).getFirstMatchingFixture(DAMAGEABLE)
+                .orElseThrow().getFixtureShape();
+        return new ShapeComponent(damageBox);
+    }
+
     private BodyComponent defineBodyComponent(Vector2 spawn) {
         BodyComponent bodyComponent = new BodyComponent(ABSTRACT);
         bodyComponent.setSize(.75f * PPM, .75f * PPM);
         bodyComponent.setCenter(spawn);
-        // model
-        Rectangle model = new Rectangle(0f, 0f, .75f * PPM, .75f * PPM);
         // damageable box
-        Fixture damageableBox = new Fixture(this, new Rectangle(model), DAMAGEABLE);
+        Fixture damageableBox = new Fixture(this, new Rectangle(0f, 0f, PPM, PPM), DAMAGEABLE);
         bodyComponent.addFixture(damageableBox);
         // damager box
-        Fixture damagerBox = new Fixture(this, new Rectangle(model), DAMAGER);
+        Fixture damagerBox = new Fixture(this, new Rectangle(0f, 0f, .75f * PPM, .75f * PPM), DAMAGER);
         bodyComponent.addFixture(damagerBox);
-        // out-pairOf-bounds scanner
+        // out-of-bounds scanner
         Fixture oobScanner = new Fixture(this, new Rectangle(0f, 0f, 1f, 1f), CUSTOM);
         bodyComponent.addFixture(oobScanner);
         // Megaman scanner
@@ -172,7 +181,7 @@ public class Dragonfly extends AbstractEnemy implements Faceable {
 
             @Override
             public boolean isFlipX() {
-                return isFacing(F_RIGHT);
+                return isFacing(F_LEFT);
             }
 
         });

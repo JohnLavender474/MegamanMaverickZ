@@ -32,14 +32,11 @@ import static com.game.world.FixtureType.SHIELD;
 @Setter
 public class Bullet extends AbstractProjectile {
 
-    private final Vector2 trajectory = new Vector2();
-
     public Bullet(GameContext2d gameContext, Entity owner, Vector2 trajectory, Vector2 spawn) {
         super(gameContext, owner, .15f);
-        this.trajectory.set(trajectory);
         addComponent(new SoundComponent());
         addComponent(defineSpriteComponent());
-        addComponent(defineBodyComponent(spawn));
+        addComponent(defineBodyComponent(spawn, trajectory));
     }
 
     public void disintegrate() {
@@ -60,12 +57,13 @@ public class Bullet extends AbstractProjectile {
             disintegrate();
         } else if (fixture.isFixtureType(SHIELD)) {
             setOwner(fixture.getEntity());
-            trajectory.x *= -1f;
+            Vector2 velocity = getComponent(BodyComponent.class).getVelocity();
+            velocity.x *= -1f;
             String reflectDir = fixture.getUserData("reflectDir", String.class);
             if (reflectDir == null || reflectDir.equals("straight")) {
-                trajectory.y = 0f;
+                velocity.y = 0f;
             } else {
-                trajectory.y = 5f * PPM * (reflectDir.equals("down") ? -1f : 1f);
+                velocity.y = 5f * PPM * (reflectDir.equals("down") ? -1f : 1f);
             }
             getComponent(SoundComponent.class).requestSound(DINK_SOUND);
         }
@@ -87,18 +85,20 @@ public class Bullet extends AbstractProjectile {
         });
     }
 
-    private BodyComponent defineBodyComponent(Vector2 spawn) {
+    private BodyComponent defineBodyComponent(Vector2 spawn, Vector2 trajectory) {
         BodyComponent bodyComponent = new BodyComponent(DYNAMIC);
-        bodyComponent.setPreProcess(delta -> bodyComponent.setVelocity(trajectory));
+        bodyComponent.setVelocity(trajectory);
         bodyComponent.setSize(.1f * PPM, .1f * PPM);
         bodyComponent.setCenter(spawn.x, spawn.y);
-        // model
-        Rectangle model = new Rectangle(0f, 0f, .1f * PPM, .1f * PPM);
+        bodyComponent.setAffectedByResistance(false);
         // projectile
-        Fixture projectile = new Fixture(this, new Rectangle(model), HITTER_BOX);
+        Fixture projectile = new Fixture(this, new Rectangle(0f, 0f, .1f * PPM, .1f * PPM), HITTER_BOX);
         bodyComponent.addFixture(projectile);
+        // force listener
+        Fixture forceListener = new Fixture(this, new Rectangle(0f, 0f, .1f * PPM, .1f * PPM), FORCE_LISTENER);
+        bodyComponent.addFixture(forceListener);
         // damager box
-        Fixture damageBox = new Fixture(this, new Rectangle(model), DAMAGER);
+        Fixture damageBox = new Fixture(this, new Rectangle(0f, 0f, .2f * PPM, .2f * PPM), DAMAGER);
         bodyComponent.addFixture(damageBox);
         return bodyComponent;
     }

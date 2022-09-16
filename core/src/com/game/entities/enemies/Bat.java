@@ -51,8 +51,8 @@ public class Bat extends AbstractEnemy implements Hitter {
     @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     public enum BatStatus {
         
-        HANGING("BatHang"), OPEN_EYES("BatOpenEyes"), OPEN_WINGS("BatOpenWings"), 
-        FLYING_TO_ATTACK("BatFly"), FLYING_TO_RETREAT("BatFly");
+        HANGING("Hang"), OPEN_EYES("OpenEyes"), OPEN_WINGS("OpenWings"),
+        FLYING_TO_ATTACK("Fly"), FLYING_TO_RETREAT("Fly");
         
         private final String regionName;
         
@@ -140,10 +140,10 @@ public class Bat extends AbstractEnemy implements Hitter {
         TextureAtlas textureAtlas = gameContext.getAsset(ENEMIES_1.getSrc(), TextureAtlas.class);
         Supplier<String> keySupplier = () -> currentStatus.getRegionName();
         Map<String, TimedAnimation> timedAnimations = Map.of(
-                "BatHang", new TimedAnimation(textureAtlas.findRegion("Bat/BatHang")),
-                "BatFly", new TimedAnimation(textureAtlas.findRegion("Bat/BatFly"), 2, .1f),
-                "BatOpenEyes", new TimedAnimation(textureAtlas.findRegion("Bat/BatOpenEyes")),
-                "BatOpenWings", new TimedAnimation(textureAtlas.findRegion("Bat/BatOpenWings")));
+                "Hang", new TimedAnimation(textureAtlas.findRegion("Bat/Hang")),
+                "Fly", new TimedAnimation(textureAtlas.findRegion("Bat/Fly"), 2, .1f),
+                "OpenEyes", new TimedAnimation(textureAtlas.findRegion("Bat/OpenEyes")),
+                "OpenWings", new TimedAnimation(textureAtlas.findRegion("Bat/OpenWings")));
         return new AnimationComponent(keySupplier, timedAnimations::get);
     }
 

@@ -116,7 +116,7 @@ public class Fireball extends AbstractProjectile {
             }
         });
         bodyComponent.applyImpulse(impulse);
-        bodyComponent.setGravity(-50f * PPM);
+        bodyComponent.setGravity(-PPM * .35f);
         bodyComponent.setSize(PPM, PPM);
         bodyComponent.setCenter(spawn.x, spawn.y);
         Fixture projectile = new Fixture(this, new Rectangle(0f, 0f, .85f * PPM, .85f * PPM), HITTER_BOX);

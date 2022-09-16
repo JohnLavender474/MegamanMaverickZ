@@ -28,7 +28,8 @@ import com.game.entities.hazards.LaserBeamer;
 import com.game.entities.hazards.Saw;
 import com.game.entities.megaman.Megaman;
 import com.game.entities.sensors.DeathSensor;
-import com.game.entities.specials.SpringyBouncer;
+import com.game.entities.special.Force;
+import com.game.entities.special.SpringyBouncer;
 import com.game.graph.Graph;
 import com.game.graph.GraphSystem;
 import com.game.health.HealthComponent;
@@ -331,10 +332,16 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
                         getPoint(spawnObj.getRectangle(), BOTTOM_CENTER)));
             }
             case "bat" -> {
-                return () -> new Bat(gameContext, () -> megaman, getPoint(spawnObj.getRectangle(), TOP_CENTER));
+                return () -> new Bat(gameContext, () -> megaman,
+                        getPoint(spawnObj.getRectangle(), TOP_CENTER));
             }
             case "dragonfly" -> {
-                return () -> new Dragonfly(gameContext, () -> megaman, getPoint(spawnObj.getRectangle(), CENTER));
+                return () -> new Dragonfly(gameContext, () -> megaman,
+                        getPoint(spawnObj.getRectangle(), CENTER));
+            }
+            case "matasaburo" -> {
+                return () -> new Matasaburo(gameContext, () -> megaman,
+                        getPoint(spawnObj.getRectangle(), BOTTOM_CENTER));
             }
             default -> throw new IllegalStateException("Cannot find matching entity for <" + spawnObj.getName() + ">");
         }
@@ -356,6 +363,9 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
         switch (spawnObj.getName()) {
             case "bounce" -> {
                 return new SpringyBouncer(gameContext, spawnObj);
+            }
+            case "force" -> {
+                return new Force(gameContext, spawnObj);
             }
             case "shield" -> {
                 Entity entity = new Entity(gameContext);

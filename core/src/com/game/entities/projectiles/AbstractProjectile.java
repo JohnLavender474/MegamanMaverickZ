@@ -23,7 +23,7 @@ import static com.game.utils.UtilMethods.*;
 
 @Getter
 @Setter
-public abstract class AbstractProjectile extends Entity implements MessageListener, Hitter, Damager {
+public abstract class AbstractProjectile extends Entity implements Hitter, Damager {
 
     protected Entity owner;
 
@@ -41,25 +41,6 @@ public abstract class AbstractProjectile extends Entity implements MessageListen
         gameContext.removeMessageListener(this);
     }
 
-    @Override
-    public void listenToMessage(Object owner, Object message, float delta) {
-        if (message.equals(LEVEL_PAUSED)) {
-            getComponents().values().forEach(component -> {
-                if (component instanceof CullOutOfCamBoundsComponent || component instanceof CullOnCamTransComponent) {
-                    return;
-                }
-                component.setOn(false);
-            });
-        } else if (message.equals(LEVEL_UNPAUSED)) {
-            getComponents().values().forEach(component -> {
-                if (component instanceof CullOutOfCamBoundsComponent || component instanceof CullOnCamTransComponent) {
-                    return;
-                }
-                component.setOn(true);
-            });
-        }
-    }
-
     public boolean isInGameCamBounds() {
         return isInCamBounds(gameContext.getViewport(PLAYGROUND).getCamera(),
                 getComponent(BodyComponent.class).getCollisionBox());
@@ -71,7 +52,8 @@ public abstract class AbstractProjectile extends Entity implements MessageListen
 
     @Override
     public boolean canDamage(Damageable damageable) {
-        return !owner.equals(damageable) && !(owner instanceof AbstractEnemy && damageable instanceof AbstractEnemy);
+        return owner == null ||
+                (!owner.equals(damageable) && !(owner instanceof AbstractEnemy && damageable instanceof AbstractEnemy));
     }
 
 }

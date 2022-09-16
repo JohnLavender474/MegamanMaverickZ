@@ -24,11 +24,15 @@ public class MegamanGameInfo {
     private final Percentage[] healthTanks = new Percentage[MAX_HEALTH_TANKS];
     private final Set<Boss> defeatedBosses = EnumSet.noneOf(Boss.class);
 
-    private boolean canCharge = false;
+    private boolean canChargeWeapons = true;
     private int credits = 0;
 
     public Supplier<Integer> getCreditsSupplier() {
         return () -> credits;
+    }
+
+    public Supplier<Boolean> canChargeWeaponsSupplier() {
+        return () -> canChargeWeapons;
     }
 
 }

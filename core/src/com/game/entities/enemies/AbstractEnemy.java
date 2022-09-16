@@ -16,6 +16,7 @@ import com.game.graph.GraphComponent;
 import com.game.health.HealthComponent;
 import com.game.sounds.SoundComponent;
 import com.game.sprites.SpriteAdapter;
+import com.game.updatables.UpdatableComponent;
 import com.game.utils.interfaces.Updatable;
 import com.game.utils.enums.Position;
 import com.game.utils.objects.Timer;
@@ -87,7 +88,7 @@ public abstract class AbstractEnemy extends Entity implements Damager, Damageabl
         }
         damageTimer.reset();
         damageNegotiation.runOnDamage();
-        getComponent(HealthComponent.class).sub(damageNegotiation.damage());
+        getComponent(HealthComponent.class).sub(damageNegotiation.getDamage(damager));
         getComponent(SoundComponent.class).requestSound(ENEMY_DAMAGE_SOUND);
     }
 

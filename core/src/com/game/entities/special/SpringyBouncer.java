@@ -1,4 +1,4 @@
-package com.game.entities.specials;
+package com.game.entities.special;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;

@@ -153,7 +153,7 @@ public class SuctionRoller extends AbstractEnemy implements Faceable {
         bodyComponent.setSize(.75f * PPM, PPM);
         setBottomCenterToPoint(bodyComponent.getCollisionBox(), spawn);
         bodyComponent.setPreProcess(delta -> {
-            bodyComponent.setGravity(bodyComponent.is(FEET_ON_GROUND) ? -PPM : -35f * PPM);
+            bodyComponent.setGravity(bodyComponent.is(FEET_ON_GROUND) ? -PPM * .05f: -PPM * .15f);
             if (isOnWall) {
                 if (!wasOnWall) {
                     bodyComponent.setVelocityX(0f);

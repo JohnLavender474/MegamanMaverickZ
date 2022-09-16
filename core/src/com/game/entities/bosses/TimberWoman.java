@@ -71,6 +71,7 @@ public class TimberWoman extends Entity {
     private BodyComponent defineBodyComponent(Vector2 spawn) {
         BodyComponent bodyComponent = new BodyComponent(BodyType.DYNAMIC);
         bodyComponent.setSize(1.2f * PPM, 2f * PPM);
+        bodyComponent.setGravity(-PPM * .5f);
         bodyComponent.setPosition(spawn);
         return bodyComponent;
     }

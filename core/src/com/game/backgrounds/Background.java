@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Vector2;
 import com.game.core.constants.ViewVals;
-import com.game.core.DebugLogger;
 import com.game.utils.interfaces.Updatable;
 import com.game.utils.interfaces.Drawable;
 
@@ -57,14 +56,6 @@ public class Background implements Updatable, Drawable {
      */
     public Background(TextureRegion textureRegion, float startX, float startY,
                       float width, float height, int rows, int cols) {
-        DebugLogger debugLogger = DebugLogger.getInstance();
-        debugLogger.info("Background:");
-        debugLogger.info("\tRows: " + rows);
-        debugLogger.info("\tCols: " + cols);
-        debugLogger.info("\tWidth: " + width);
-        debugLogger.info("\tHeight: " + height);
-        debugLogger.info("\tStart x: " + startX);
-        debugLogger.info("\tStart y: " + startY);
         this.rows = rows;
         this.cols = cols;
         this.width = width;
@@ -86,7 +77,6 @@ public class Background implements Updatable, Drawable {
      * Resets all sprites to their original positions.
      */
     public void resetPositions() {
-        DebugLogger.getInstance().info("Reset Background Positions");
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
                 float x = startX + (width * j * PPM);

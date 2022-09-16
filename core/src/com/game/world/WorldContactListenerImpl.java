@@ -8,11 +8,13 @@ import com.game.damage.Damageable;
 import com.game.damage.Damager;
 import com.game.entities.contracts.Hitter;
 import com.game.entities.megaman.Megaman;
+import com.game.entities.projectiles.AbstractProjectile;
 import com.game.health.HealthComponent;
 import com.game.sounds.SoundComponent;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.function.Supplier;
 
 import static com.game.core.constants.MiscellaneousVals.*;
 import static com.game.core.constants.SoundAsset.*;
@@ -112,6 +114,8 @@ public class WorldContactListenerImpl implements WorldContactListener {
                 damageable.canBeDamagedBy(damager) && damager.canDamage(damageable)) {
             damageable.takeDamageFrom(damager);
             damager.onDamageInflictedTo(damageable);
+        } else if (contact.acceptMask(HITTER_BOX, FORCE) && contact.mask1stEntity() instanceof AbstractProjectile p) {
+            p.setOwner(null);
         } else if (contact.acceptMask(HITTER_BOX) && contact.mask1stEntity() instanceof Hitter hitter) {
             hitter.hit(contact.getMask().getSecond());
         } else if (contact.acceptMask(LASER, BLOCK) && contact.areEntitiesDifferent()) {
@@ -122,6 +126,11 @@ public class WorldContactListenerImpl implements WorldContactListener {
             if (intersectLineRect((Polyline) first.getFixtureShape(), (Rectangle) second.getFixtureShape(), temp)) {
                 contactPoints.addAll(temp);
             }
+        } else if (contact.acceptMask(FORCE, FORCE_LISTENER)) {
+            Supplier<Vector2> forceSupplier = (Supplier<Vector2>) contact.mask1stFixture().getUserData(FORCE_SUPPLIER);
+            Vector2 force = forceSupplier.get();
+            BodyComponent bodyComponent = contact.mask2ndBody();
+            bodyComponent.applyImpulse(force);
         }
     }
 
