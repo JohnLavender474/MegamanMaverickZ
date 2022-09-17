@@ -53,7 +53,8 @@ public class ChargedShot extends AbstractProjectile implements Faceable {
 
     @Override
     public boolean canDamage(Damageable damageable) {
-        return !owner.equals(damageable) && !(owner instanceof Damager && damageable instanceof Damager);
+        return owner == null ||
+                (!owner.equals(damageable) && !(owner instanceof Damager && damageable instanceof Damager));
     }
 
     @Override

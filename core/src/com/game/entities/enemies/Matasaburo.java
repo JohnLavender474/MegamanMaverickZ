@@ -14,14 +14,14 @@ import com.game.damage.Damager;
 import com.game.entities.contracts.Faceable;
 import com.game.entities.contracts.Facing;
 import com.game.entities.megaman.Megaman;
+import com.game.entities.projectiles.Bullet;
+import com.game.entities.projectiles.ChargedShot;
+import com.game.entities.projectiles.ChargedShotDisintegration;
+import com.game.entities.projectiles.Fireball;
 import com.game.shapes.ShapeComponent;
 import com.game.shapes.ShapeHandle;
-import com.game.sprites.SpriteAdapter;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
-import com.game.utils.UtilMethods;
-import com.game.utils.enums.Position;
-import com.game.utils.objects.Wrapper;
 import com.game.world.BodyComponent;
 import com.game.world.Fixture;
 import lombok.Getter;
@@ -48,7 +48,7 @@ public class Matasaburo extends AbstractEnemy implements Faceable {
     private Facing facing;
 
     public Matasaburo(GameContext2d gameContext, Supplier<Megaman> megamanSupplier, Vector2 spawn) {
-        super(gameContext, megamanSupplier, .1f);
+        super(gameContext, megamanSupplier, .35f);
         addComponent(defineBodyComponent(spawn));
         addComponent(defineUpdatableComponent());
         addComponent(defineSpriteComponent());
@@ -58,7 +58,13 @@ public class Matasaburo extends AbstractEnemy implements Faceable {
 
     @Override
     protected Map<Class<? extends Damager>, DamageNegotiation> defineDamageNegotiations() {
-        return Map.of();
+        return Map.of(
+                Bullet.class, new DamageNegotiation(10),
+                Fireball.class, new DamageNegotiation(30),
+                ChargedShot.class, new DamageNegotiation(damager ->
+                        ((ChargedShot) damager).isFullyCharged() ? 30: 10),
+                ChargedShotDisintegration.class, new DamageNegotiation(damager ->
+                        ((ChargedShotDisintegration) damager).isFullyCharged() ? 15 : 5));
     }
 
     private UpdatableComponent defineUpdatableComponent() {
@@ -76,12 +82,13 @@ public class Matasaburo extends AbstractEnemy implements Faceable {
     private BodyComponent defineBodyComponent(Vector2 spawn) {
         BodyComponent bodyComponent = new BodyComponent(DYNAMIC);
         bodyComponent.setSize(PPM, PPM);
-
         setBottomCenterToPoint(bodyComponent.getCollisionBox(), spawn);
         Fixture blowFixture = new Fixture(this, new Rectangle(0f, 0f, 10f * PPM, PPM), FORCE);
         blowFixture.putUserData(FORCE_SUPPLIER, (Supplier<Vector2>) () -> isFacing(F_LEFT) ?
                 DEEP_BLOW_FORCE_LOL.cpy().scl(-PPM) : DEEP_BLOW_FORCE_LOL.cpy().scl(PPM));
         bodyComponent.addFixture(blowFixture);
+        bodyComponent.addFixture(new Fixture(this, bodyComponent.getCollisionBox(), DAMAGER));
+        bodyComponent.addFixture(new Fixture(this, bodyComponent.getCollisionBox(), DAMAGEABLE));
         bodyComponent.setPreProcess(delta -> {
             if (isFacing(F_LEFT)) {
                 blowFixture.setOffset(-5f * PPM, 0f);
