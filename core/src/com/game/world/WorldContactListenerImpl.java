@@ -11,6 +11,7 @@ import com.game.entities.megaman.Megaman;
 import com.game.entities.projectiles.AbstractProjectile;
 import com.game.health.HealthComponent;
 import com.game.sounds.SoundComponent;
+import com.game.updatables.UpdatableComponent;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -121,16 +122,27 @@ public class WorldContactListenerImpl implements WorldContactListener {
         } else if (contact.acceptMask(LASER, BLOCK) && contact.areEntitiesDifferent()) {
             Fixture first = contact.mask1stFixture();
             Fixture second = contact.mask2ndFixture();
-            Collection<Vector2> contactPoints = first.getUserData(BLOCK_CONTACT_POINTS, Collection.class);
+            Collection<Vector2> contactPoints = first.getUserData(COLLECTION, Collection.class);
             Collection<Vector2> temp = new ArrayList<>();
             if (intersectLineRect((Polyline) first.getFixtureShape(), (Rectangle) second.getFixtureShape(), temp)) {
                 contactPoints.addAll(temp);
             }
         } else if (contact.acceptMask(FORCE, FORCE_LISTENER)) {
-            Supplier<Vector2> forceSupplier = (Supplier<Vector2>) contact.mask1stFixture().getUserData(FORCE_SUPPLIER);
-            Vector2 force = forceSupplier.get();
-            BodyComponent bodyComponent = contact.mask2ndBody();
-            bodyComponent.applyImpulse(force);
+            Supplier<Vector2> forceSupplier = (Supplier<Vector2>) contact.mask1stFixture().getUserData(SUPPLIER);
+            Fixture forceListener = contact.mask2ndFixture();
+            BodyComponent forceListenerBody = contact.mask2ndBody();
+            if (forceListener.containsUserDataKey(CONTINUE) && forceListener.getUserData(CONTINUE, Boolean.class)) {
+                Supplier<Boolean> doUpdate = (Supplier<Boolean>) forceListener.getUserData(UPDATE + PREDICATE);
+                Supplier<Boolean> doRemove = (Supplier<Boolean>) forceListener.getUserData(REMOVE + PREDICATE);
+                Entity forceListenerEntity = contact.mask2ndEntity();
+                if (!forceListenerEntity.hasComponent(UpdatableComponent.class)) {
+                    forceListenerEntity.addComponent(new UpdatableComponent());
+                }
+                forceListenerEntity.getComponent(UpdatableComponent.class).putUpdatable(d ->
+                    forceListenerBody.applyImpulse(forceSupplier.get()), doUpdate, doRemove);
+            } else {
+                forceListenerBody.applyImpulse(forceSupplier.get());
+            }
         }
     }
 

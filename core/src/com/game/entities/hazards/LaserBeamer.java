@@ -31,7 +31,7 @@ import java.util.Queue;
 
 import static com.badlogic.gdx.graphics.Color.*;
 import static com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.*;
-import static com.game.core.constants.MiscellaneousVals.BLOCK_CONTACT_POINTS;
+import static com.game.core.constants.MiscellaneousVals.COLLECTION;
 import static com.game.core.constants.TextureAsset.*;
 import static com.game.core.constants.ViewVals.PPM;
 import static com.game.utils.ShapeUtils.*;
@@ -86,7 +86,7 @@ public class LaserBeamer extends Entity implements Damager {
         // rotating line laser
         Fixture laserFixture = new Fixture(this, rotatingLine.getPolyline(), LASER);
         laserFixture.setOffset(0f, PPM / 16f);
-        laserFixture.putUserData(BLOCK_CONTACT_POINTS, blockContactPoints);
+        laserFixture.putUserData(COLLECTION, blockContactPoints);
         bodyComponent.addFixture(laserFixture);
         // damager laser
         bodyComponent.addFixture(new Fixture(this, laser, DAMAGER));

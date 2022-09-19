@@ -19,6 +19,9 @@ import com.game.world.Fixture;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.function.Supplier;
+
+import static com.game.core.constants.MiscellaneousVals.*;
 import static com.game.core.constants.SoundAsset.*;
 import static com.game.core.constants.TextureAsset.OBJECTS;
 import static com.game.core.constants.ViewVals.PPM;
@@ -31,6 +34,8 @@ import static com.game.world.FixtureType.SHIELD;
 @Getter
 @Setter
 public class Bullet extends AbstractProjectile {
+
+    private static final float CLAMP = 10f;
 
     public Bullet(GameContext2d gameContext, Entity owner, Vector2 trajectory, Vector2 spawn) {
         super(gameContext, owner, .15f);
@@ -87,15 +92,20 @@ public class Bullet extends AbstractProjectile {
 
     private BodyComponent defineBodyComponent(Vector2 spawn, Vector2 trajectory) {
         BodyComponent bodyComponent = new BodyComponent(DYNAMIC);
-        bodyComponent.setVelocity(trajectory);
+        bodyComponent.setClamp(CLAMP * PPM, CLAMP * PPM);
         bodyComponent.setSize(.1f * PPM, .1f * PPM);
         bodyComponent.setCenter(spawn.x, spawn.y);
+        bodyComponent.setVelocity(trajectory);
         bodyComponent.setAffectedByResistance(false);
+        Rectangle model = new Rectangle(0f, 0f, .1f * PPM, .1f * PPM);
         // projectile
-        Fixture projectile = new Fixture(this, new Rectangle(0f, 0f, .1f * PPM, .1f * PPM), HITTER_BOX);
+        Fixture projectile = new Fixture(this, new Rectangle(model), HITTER_BOX);
         bodyComponent.addFixture(projectile);
         // force listener
-        Fixture forceListener = new Fixture(this, new Rectangle(0f, 0f, .1f * PPM, .1f * PPM), FORCE_LISTENER);
+        Fixture forceListener = new Fixture(this, new Rectangle(model), FORCE_LISTENER);
+        forceListener.putUserData(CONTINUE, true);
+        forceListener.putUserData(UPDATE + PREDICATE, (Supplier<Boolean>) () -> true);
+        forceListener.putUserData(REMOVE + PREDICATE, (Supplier<Boolean>) () -> false);
         bodyComponent.addFixture(forceListener);
         // damager box
         Fixture damageBox = new Fixture(this, new Rectangle(0f, 0f, .2f * PPM, .2f * PPM), DAMAGER);

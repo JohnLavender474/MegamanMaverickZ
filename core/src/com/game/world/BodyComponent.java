@@ -454,16 +454,6 @@ public class BodyComponent extends Component {
     }
 
     /**
-     * Returns list pairOf all fixtures with matching fixture type.
-     *
-     * @param fixtureType the fixture type
-     * @return the list pairOf fixtures
-     */
-    public List<Fixture> getFixtures(FixtureType fixtureType) {
-        return fixtures.stream().filter(fixture -> fixture.isFixtureType(fixtureType)).collect(toList());
-    }
-
-    /**
      * Returns first fixture that has matching fixture type.
      *
      * @param fixtureType the fixture type

@@ -2,7 +2,9 @@ package com.game.updatables;
 
 import com.game.core.Entity;
 import com.game.core.System;
+import com.game.utils.interfaces.Updatable;
 
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -16,11 +18,17 @@ public class UpdatableSystem extends System {
 
     @Override
     protected void processEntity(Entity entity, float delta) {
-        entity.getComponent(UpdatableComponent.class).getUpdatables().forEach((updatable, doUpdate) -> {
-            if (doUpdate.get()) {
+        UpdatableComponent updatableComponent = entity.getComponent(UpdatableComponent.class);
+        Iterator<QualifiedUpdatable> uIter = updatableComponent.getUpdatables().iterator();
+        while (uIter.hasNext()) {
+            QualifiedUpdatable updatable = uIter.next();
+            if (updatable.doUpdate()) {
                 updatable.update(delta);
             }
-        });
+            if (updatable.doRemove()) {
+                uIter.remove();
+            }
+        }
     }
 
 }

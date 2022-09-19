@@ -74,7 +74,20 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         _JUMP, _AIR_DASH
     }
 
+    private static final float CLAMP_X = 20f;
+    private static final float CLAMP_Y = 35f;
     private static final float RUN_SPEED = 4f;
+    // private static final float RUN_SPEED = 2f;
+    private static final float JUMP_VEL = 18f;
+    // private static final float JUMP_VEL = 25f;
+    private static final float AIR_DASH_VEL = 12f;
+    private static final float WALL_JUMP_VEL = 32f;
+    private static final float WALL_JUMP_HORIZ = 15f;
+    private static final float GROUND_SLIDE_VEL = 12f;
+    private static final float GROUNDED_GRAVITY = -.125f;
+    private static final float UNGROUNDED_GRAVITY = -.5f;
+    // private static final float UNGROUNDED_GRAVITY = -.25f;
+
     private static final float SHOOT_ANIM_TIME = .5f;
     private static final float DAMAGE_DURATION = .75f;
     private static final float MAX_AIR_DASH_TIME = .25f;
@@ -92,6 +105,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
             Bullet.class, new DamageNegotiation(10),
             Fireball.class, new DamageNegotiation(5),
             Dragonfly.class, new DamageNegotiation(5),
+            Matasaburo.class, new DamageNegotiation(5),
             SniperJoe.class, new DamageNegotiation(10),
             FloatingCan.class, new DamageNegotiation(10),
             LaserBeamer.class, new DamageNegotiation(10),
@@ -448,10 +462,11 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
                 behaviorComponent.setIs(JUMPING);
                 BodyComponent bodyComponent = getComponent(BodyComponent.class);
                 if (behaviorComponent.is(WALL_SLIDING)) {
-                    bodyComponent.applyImpulse((isFacing(F_LEFT) ? -1f : 1f) * 15f * PPM, 32f * PPM);
+                    bodyComponent.applyImpulse((isFacing(F_LEFT) ? -1f : 1f) * WALL_JUMP_HORIZ * PPM,
+                            WALL_JUMP_VEL * PPM);
                     wallJumpImpetusTimer.reset();
                 } else {
-                    bodyComponent.setVelocityY(18f * PPM);
+                    bodyComponent.setVelocityY(JUMP_VEL * PPM);
                 }
             }
 
@@ -497,7 +512,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
                         (isFacing(F_RIGHT) && bodyComponent.is(TOUCHING_BLOCK_RIGHT))) {
                     return;
                 }
-                float x = 12f * PPM;
+                float x = AIR_DASH_VEL * PPM;
                 if (isFacing(F_LEFT)) {
                     x *= -1f;
                 }
@@ -553,7 +568,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
                         (isFacing(F_RIGHT) && bodyComponent.is(TOUCHING_BLOCK_RIGHT))) {
                     return;
                 }
-                float x = 12f * PPM;
+                float x = GROUND_SLIDE_VEL * PPM;
                 if (isFacing(F_LEFT)) {
                     x *= -1f;
                 }
@@ -578,25 +593,38 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
 
     private BodyComponent defineBodyComponent(Vector2 spawn) {
         BodyComponent bodyComponent = new BodyComponent(DYNAMIC);
-        bodyComponent.setClamp(5f, 10f);
+        bodyComponent.setClamp(CLAMP_X * PPM, CLAMP_Y * PPM);
         bodyComponent.maskForCustomCollisions(ABSTRACT_BOUNDS);
         bodyComponent.setPosition(spawn);
         bodyComponent.setWidth(.8f * PPM);
-        // feet
-        Fixture feet = new Fixture(this, new Rectangle(0f, 0f, .625f * PPM, PPM / 16f), FEET, BOUNCEABLE);
+        Rectangle model1 = new Rectangle(0f, 0f, .625f * PPM, PPM / 16f);
+        // feet and bounceable
+        Fixture feet = new Fixture(this, new Rectangle(model1), FEET);
         bodyComponent.addFixture(feet);
+        Fixture feetBounceable = new Fixture(this, new Rectangle(model1), BOUNCEABLE);
+        bodyComponent.addFixture(feetBounceable);
         // head
-        Fixture head = new Fixture(this, new Rectangle(0f, 0f, .625f * PPM, PPM / 8f), HEAD, BOUNCEABLE);
+        Fixture head = new Fixture(this, new Rectangle(model1), HEAD);
         head.setOffset(0f, PPM / 2f);
         bodyComponent.addFixture(head);
+        Fixture headBounceable = new Fixture(this, new Rectangle(model1), BOUNCEABLE);
+        headBounceable.setOffset(0f, PPM / 2f);
+        bodyComponent.addFixture(headBounceable);
+        Rectangle model2 = new Rectangle(0f, 0f, PPM / 16f, PPM / 16f);
         // left
-        Fixture left = new Fixture(this, new Rectangle(0f, 0f, PPM / 16f, 0f), LEFT, BOUNCEABLE);
+        Fixture left = new Fixture(this, new Rectangle(model2), LEFT);
         left.setOffset(-.45f * PPM, .15f * PPM);
         bodyComponent.addFixture(left);
+        Fixture leftBounceable = new Fixture(this, new Rectangle(model2), BOUNCEABLE);
+        leftBounceable.setOffset(-.45f * PPM, .15f * PPM);
+        bodyComponent.addFixture(leftBounceable);
         // right
-        Fixture right = new Fixture(this, new Rectangle(0f, 0f, PPM / 16f, 0f), RIGHT, BOUNCEABLE);
+        Fixture right = new Fixture(this, new Rectangle(model2), RIGHT);
         right.setOffset(.45f * PPM, .15f * PPM);
         bodyComponent.addFixture(right);
+        Fixture rightBounceable = new Fixture(this, new Rectangle(model2), BOUNCEABLE);
+        rightBounceable.setOffset(.45f * PPM, .15f * PPM);
+        bodyComponent.addFixture(rightBounceable);
         // hitbox
         Fixture hitBox = new Fixture(this, new Rectangle(0f, 0f, .8f * PPM, .5f * PPM), DAMAGEABLE);
         bodyComponent.addFixture(hitBox);
@@ -618,9 +646,9 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
                 ((Rectangle) left.getFixtureShape()).setHeight(.35f * PPM);
             }
             if (bodyComponent.getVelocity().y < 0f && !bodyComponent.is(FEET_ON_GROUND)) {
-                bodyComponent.setGravity(-PPM * .5f);
+                bodyComponent.setGravity(UNGROUNDED_GRAVITY * PPM);
             } else {
-                bodyComponent.setGravity(-PPM / 8f);
+                bodyComponent.setGravity(GROUNDED_GRAVITY * PPM);
             }
         });
         return bodyComponent;

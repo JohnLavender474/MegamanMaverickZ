@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import static com.badlogic.gdx.graphics.Color.*;
-import static com.game.core.constants.MiscellaneousVals.FORCE_SUPPLIER;
+import static com.game.core.constants.MiscellaneousVals.SUPPLIER;
 import static com.game.core.constants.TextureAsset.*;
 import static com.game.core.constants.ViewVals.PPM;
 import static com.game.entities.contracts.Facing.*;
@@ -43,12 +43,13 @@ import static com.game.world.FixtureType.*;
 @Getter
 public class Matasaburo extends AbstractEnemy implements Faceable {
 
+    private static final float DAMAGE_DURATION = .35f;
     private static final Vector2 DEEP_BLOW_FORCE_LOL = new Vector2(.75f, 0f);
 
     private Facing facing;
 
     public Matasaburo(GameContext2d gameContext, Supplier<Megaman> megamanSupplier, Vector2 spawn) {
-        super(gameContext, megamanSupplier, .35f);
+        super(gameContext, megamanSupplier, DAMAGE_DURATION);
         addComponent(defineBodyComponent(spawn));
         addComponent(defineUpdatableComponent());
         addComponent(defineSpriteComponent());
@@ -84,7 +85,7 @@ public class Matasaburo extends AbstractEnemy implements Faceable {
         bodyComponent.setSize(PPM, PPM);
         setBottomCenterToPoint(bodyComponent.getCollisionBox(), spawn);
         Fixture blowFixture = new Fixture(this, new Rectangle(0f, 0f, 10f * PPM, PPM), FORCE);
-        blowFixture.putUserData(FORCE_SUPPLIER, (Supplier<Vector2>) () -> isFacing(F_LEFT) ?
+        blowFixture.putUserData(SUPPLIER, (Supplier<Vector2>) () -> isFacing(F_LEFT) ?
                 DEEP_BLOW_FORCE_LOL.cpy().scl(-PPM) : DEEP_BLOW_FORCE_LOL.cpy().scl(PPM));
         bodyComponent.addFixture(blowFixture);
         bodyComponent.addFixture(new Fixture(this, bodyComponent.getCollisionBox(), DAMAGER));

@@ -22,21 +22,15 @@ public class Fixture {
 
     private final Entity entity;
     private final Shape2D fixtureShape;
+    private final FixtureType fixtureType;
     private final Vector2 offset = new Vector2();
     private final Map<String, Object> userData = new HashMap<>();
-    private final Set<FixtureType> fixtureMask = EnumSet.noneOf(FixtureType.class);
 
     private boolean active = true;
     private Color debugColor = YELLOW;
 
-    public Fixture(Entity entity, Shape2D fixtureShape, FixtureType... fixtureTypes) {
-        this.entity = entity;
-        this.fixtureShape = fixtureShape;
-        addFixtureType(fixtureTypes);
-    }
-
     public boolean isFixtureType(FixtureType fixtureType) {
-        return fixtureMask.contains(fixtureType);
+        return this.fixtureType.equals(fixtureType);
     }
 
     public boolean isAnyFixtureType(FixtureType... fixtureTypes) {
@@ -46,10 +40,6 @@ public class Fixture {
             }
         }
         return false;
-    }
-
-    public void addFixtureType(FixtureType... fixtureTypes) {
-        fixtureMask.addAll(Arrays.asList(fixtureTypes));
     }
 
     /**
@@ -82,6 +72,16 @@ public class Fixture {
      */
     public <T> T getUserData(String key, Class<T> tClass) {
         return tClass.cast(getUserData(key));
+    }
+
+    /**
+     * Returns if there is user data mapped to the key.
+     *
+     * @param key the key
+     * @return if there is user data mapped to the key
+     */
+    public boolean containsUserDataKey(String key) {
+        return userData.containsKey(key);
     }
 
     /**

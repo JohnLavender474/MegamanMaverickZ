@@ -13,7 +13,7 @@ import lombok.Getter;
 
 import java.util.function.Supplier;
 
-import static com.game.core.constants.MiscellaneousVals.FORCE_SUPPLIER;
+import static com.game.core.constants.MiscellaneousVals.SUPPLIER;
 import static com.game.core.constants.ViewVals.PPM;
 import static com.game.world.BodyType.*;
 import static com.game.world.FixtureType.*;
@@ -43,7 +43,7 @@ public class Force extends Entity {
         BodyComponent bodyComponent = new BodyComponent(ABSTRACT);
         bodyComponent.set(bounds);
         Fixture forceFixture = new Fixture(this, bounds, FORCE);
-        forceFixture.putUserData(FORCE_SUPPLIER, forceSupplier);
+        forceFixture.putUserData(SUPPLIER, forceSupplier);
         bodyComponent.addFixture(forceFixture);
         return bodyComponent;
     }

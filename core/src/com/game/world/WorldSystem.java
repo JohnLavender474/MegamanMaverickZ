@@ -22,6 +22,8 @@ import static java.lang.Math.*;
  */
 public class WorldSystem extends System {
 
+    private static final float MIN_VEL = .01f;
+
     private final Set<Contact> priorContacts = new HashSet<>();
     private final Set<Contact> currentContacts = new HashSet<>();
     private final List<BodyComponent> bodies = new ArrayList<>();
@@ -63,25 +65,25 @@ public class WorldSystem extends System {
         while (accumulator >= fixedTimeStep) {
             accumulator -= fixedTimeStep;
             bodies.forEach(bodyComponent -> {
-                // set velocity to zero is below threshold
                 Vector2 velocity = bodyComponent.getVelocity();
-                if (abs(velocity.x) < PPM * .01f) {
-                    bodyComponent.setVelocityX(0f);
+                // set velocity to zero if below threshold
+                if (abs(velocity.x) < PPM * MIN_VEL) {
+                    velocity.x = 0f;
                 }
-                if (abs(velocity.y) < PPM * .01f) {
-                    bodyComponent.setVelocityY(0f);
+                if (abs(velocity.y) < PPM * MIN_VEL) {
+                    velocity.y = 0f;
                 }
                 // clamp velocity
                 Vector2 clamp = bodyComponent.getClamp();
-                if (velocity.x > 0f && velocity.x > abs(clamp.x / fixedTimeStep)) {
-                    bodyComponent.setVelocityX(abs(clamp.x));
-                } else if (velocity.x < 0f && velocity.x < -abs(clamp.x / fixedTimeStep)) {
-                    bodyComponent.setVelocityX(-abs(clamp.x));
+                if (velocity.x > 0f && velocity.x > abs(clamp.x)) {
+                    velocity.x = abs(clamp.x);
+                } else if (velocity.x < 0f && velocity.x < -abs(clamp.x)) {
+                    velocity.x = -abs(clamp.x);
                 }
-                if (velocity.y > 0f && velocity.y > abs(clamp.y / fixedTimeStep)) {
-                    bodyComponent.setVelocityY(abs(clamp.y));
-                } else if (velocity.y < 0f && velocity.y < -abs(clamp.y / fixedTimeStep)) {
-                    bodyComponent.setVelocityY(-abs(clamp.y));
+                if (velocity.y > 0f && velocity.y > abs(clamp.y)) {
+                    velocity.y = abs(clamp.y);
+                } else if (velocity.y < 0f && velocity.y < -abs(clamp.y)) {
+                    velocity.y = -abs(clamp.y);
                 }
                 // Apply resistance
                 if (bodyComponent.isAffectedByResistance()) {

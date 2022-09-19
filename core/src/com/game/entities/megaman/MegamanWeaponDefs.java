@@ -28,6 +28,10 @@ import static com.game.world.BodySense.FEET_ON_GROUND;
 
 public class MegamanWeaponDefs {
 
+    private static final float BULLET_VEL = 10f;
+    private static final float FLAME_TOSS_VEL_X = 35f;
+    private static final float FLAME_TOSS_VEL_Y = 10f;
+
     private final GameContext2d gameContext;
     private final Map<MegamanWeapon, WeaponDef> megamanWeaponDefs = new EnumMap<>(MegamanWeapon.class);
 
@@ -77,7 +81,7 @@ public class MegamanWeaponDefs {
             return spawnPos;
         };
         megamanWeaponDefs.put(MEGA_BUSTER, new WeaponDef(() -> {
-            Vector2 trajectory = new Vector2(10f * (isFacing(F_LEFT) ? -PPM : PPM), 0f);
+            Vector2 trajectory = new Vector2(BULLET_VEL * (isFacing(F_LEFT) ? -PPM : PPM), 0f);
             if (isCharging()) {
                 return List.of(new ChargedShot(gameContext, megaman, trajectory, spawn.get(),
                         getFacing(), isChargingFully()));
@@ -92,7 +96,7 @@ public class MegamanWeaponDefs {
             }
         }));
         megamanWeaponDefs.put(FLAME_TOSS, new WeaponDef(() -> {
-            Vector2 impulse = new Vector2(35f * (isFacing(F_LEFT) ? -PPM : PPM), 10f * PPM);
+            Vector2 impulse = new Vector2(FLAME_TOSS_VEL_X * (isFacing(F_LEFT) ? -PPM : PPM), FLAME_TOSS_VEL_Y * PPM);
             /*
             if (isCharging()) {
                 // TODO: return charging fireball
