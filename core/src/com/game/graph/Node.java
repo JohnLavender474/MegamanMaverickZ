@@ -11,17 +11,14 @@ import java.util.Set;
 import static com.game.utils.UtilMethods.*;
 
 @Getter
-public class Node {
+public class Node extends Coordinate {
 
-    private final int x;
-    private final int y;
     private final Graph graph;
     private final Rectangle bounds = new Rectangle();
     private final Set<Object> objects = new HashSet<>();
 
     public Node(int x, int y, Graph graph, Rectangle bounds) {
-        this.x = x;
-        this.y = y;
+        super(x, y);
         this.graph = graph;
         this.bounds.set(bounds);
     }
@@ -51,16 +48,8 @@ public class Node {
     }
 
     @Override
-    public boolean equals(Object o) {
-        return o instanceof Node node && x == node.getX() && y == node.getY();
-    }
-
-    @Override
-    public int hashCode() {
-        int hashcode = 7;
-        hashcode += 27 * x;
-        hashcode += 49 * y;
-        return hashcode;
+    public String toString() {
+        return super.toString() + ";" + bounds;
     }
 
 }

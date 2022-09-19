@@ -31,13 +31,13 @@ public class TimberWoman extends Entity {
 
     public TimberWoman(GameContext2d gameContext, Vector2 spawn) {
         super(gameContext);
-        addComponent(defineBodyComponent(spawn));
-        addComponent(defineSpriteComponent());
-        addComponent(defineAnimationComponent(gameContext));
-        addComponent(defineDebugShapesComponent());
+        addComponent(bodyComponent(spawn));
+        addComponent(spriteComponent());
+        addComponent(animationComponent(gameContext));
+        addComponent(shapeComponent());
     }
 
-    private ShapeComponent defineDebugShapesComponent() {
+    private ShapeComponent shapeComponent() {
         ShapeHandle shapeHandle = new ShapeHandle();
         shapeHandle.setShapeSupplier(() -> getComponent(BodyComponent.class).getCollisionBox());
         shapeHandle.setColorSupplier(() -> RED);
@@ -45,7 +45,7 @@ public class TimberWoman extends Entity {
         return new ShapeComponent(shapeHandle);
     }
 
-    private AnimationComponent defineAnimationComponent(IAssetLoader assetLoader) {
+    private AnimationComponent animationComponent(IAssetLoader assetLoader) {
         Supplier<String> keySupplier = () -> {
             return "Stand";
         };
@@ -54,7 +54,7 @@ public class TimberWoman extends Entity {
         return new AnimationComponent(keySupplier, timedAnimations::get);
     }
 
-    private SpriteComponent defineSpriteComponent() {
+    private SpriteComponent spriteComponent() {
         Sprite sprite = new Sprite();
         Vector2 size = TIMBER_WOMAN.getSize();
         sprite.setSize(size.x * PPM, size.y * PPM);
@@ -68,7 +68,7 @@ public class TimberWoman extends Entity {
         });
     }
 
-    private BodyComponent defineBodyComponent(Vector2 spawn) {
+    private BodyComponent bodyComponent(Vector2 spawn) {
         BodyComponent bodyComponent = new BodyComponent(BodyType.DYNAMIC);
         bodyComponent.setSize(1.2f * PPM, 2f * PPM);
         bodyComponent.setGravity(-PPM * .5f);

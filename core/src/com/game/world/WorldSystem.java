@@ -3,21 +3,23 @@ package com.game.world;
 import com.badlogic.gdx.math.*;
 import com.game.core.Entity;
 import com.game.core.System;
+import com.game.graph.Graph;
+import com.game.graph.Node;
+import com.game.levels.LevelTiledMap;
 import com.game.shapes.custom.Triangle;
 import com.game.utils.interfaces.Updatable;
+import com.game.utils.objects.Pair;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
-import static com.badlogic.gdx.math.Intersector.*;
+import static com.badlogic.gdx.math.Intersector.intersectRectangles;
 import static com.game.core.constants.ViewVals.PPM;
-import static com.game.utils.ShapeUtils.*;
+import static com.game.utils.ShapeUtils.overlap;
 import static java.lang.Math.*;
 
 /**
- * {@link System} implementation that handles the logic pairOf the "game world physics", i.e. gravity, collision handling,
+ * {@link System} implementation that handles the logic pairOf the "game world physics", i.e. gravity, collision
+ * handling,
  * and contact-event-handling.
  */
 public class WorldSystem extends System {
@@ -31,6 +33,8 @@ public class WorldSystem extends System {
     private final WorldContactListener worldContactListener;
     private final Vector2 airResistance;
     private final float fixedTimeStep;
+
+    private Graph graph;
     private float accumulator;
 
     public WorldSystem(WorldContactListener worldContactListener, Vector2 airResistance, float fixedTimeStep) {
@@ -38,6 +42,10 @@ public class WorldSystem extends System {
         this.airResistance = airResistance;
         this.fixedTimeStep = fixedTimeStep;
         this.worldContactListener = worldContactListener;
+    }
+
+    public void setWorldGraph(LevelTiledMap levelMap) {
+        graph = new Graph(new Vector2(PPM, PPM), levelMap.getWidthInTiles(), levelMap.getHeightInTiles());
     }
 
     @Override
@@ -85,21 +93,24 @@ public class WorldSystem extends System {
                 } else if (velocity.y < 0f && velocity.y < -abs(clamp.y)) {
                     velocity.y = -abs(clamp.y);
                 }
-                // Apply resistance
+                // apply resistance
                 if (bodyComponent.isAffectedByResistance()) {
                     velocity.x /= max(1f, bodyComponent.getResistance().x);
                     velocity.y /= max(1f, bodyComponent.getResistance().y);
                 }
-                // Reset resistance
+                // reset resistance
                 bodyComponent.setResistance(airResistance);
-                // If gravity on, apply gravity
+                // if gravity on, apply gravity
                 if (bodyComponent.isGravityOn()) {
                     bodyComponent.applyImpulse(0f, bodyComponent.getGravity());
                 }
-                // Translate
+                // translate
                 bodyComponent.translate(velocity.x * fixedTimeStep, velocity.y * fixedTimeStep);
-                // Each Fixture is moved to conform to its position center from the center pairOf the Body Component
+                // add body to graph
+                graph.addObjToNodes(bodyComponent, bodyComponent.getCollisionBox());
+                // set fixtures
                 bodyComponent.getFixtures().forEach(fixture -> {
+                    fixture.resetContactProcessStates();
                     Vector2 center = bodyComponent.getCenter().cpy();
                     center.add(fixture.getOffset());
                     Shape2D shape = fixture.getFixtureShape();
@@ -112,36 +123,25 @@ public class WorldSystem extends System {
                     } else if (shape instanceof Triangle triangle) {
                         triangle.setOrigin(center.x, center.y);
                     }
+                    // add fixture to graph if active
+                    if (fixture.isActive()) {
+                        graph.addObjToNodes(fixture, fixture.getFixtureShape());
+                    }
                 });
             });
-            // Handle collisions
-            for (int i = 0; i < bodies.size(); i++) {
-                for (int j = i + 1; j < bodies.size(); j++) {
-                    BodyComponent bc1 = bodies.get(i);
-                    BodyComponent bc2 = bodies.get(j);
-                    Rectangle overlap = new Rectangle();
-                    if (intersectRectangles(bc1.getCollisionBox(), bc2.getCollisionBox(), overlap)) {
-                        handleCollision(bc1, bc2, overlap);
-                    }
+            // handle collisions
+            bodies.forEach(body -> getBodiesOverlapping(body).forEach((b, r) -> {
+                if (intersectRectangles(body.getCollisionBox(), b.getCollisionBox(), r)) {
+                    handleCollision(body, b, r);
                 }
-            }
-            for (int i = 0; i < bodies.size(); i++) {
-                for (int j = i + 1; j < bodies.size(); j++) {
-                    for (Fixture f1 : bodies.get(i).getFixtures()) {
-                        if (f1.isActive()) {
-                            for (Fixture f2 : bodies.get(j).getFixtures()) {
-                                if (f2.isActive()) {
-                                    if (overlap(f1.getFixtureShape(), f2.getFixtureShape())) {
-                                        currentContacts.add(new Contact(f1, f2));
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            }));
+            // handle fixture contacts
+            bodies.forEach(body -> body.getActiveFixtures().forEach(f1 ->
+                    getFixturesOverlapping(f1).forEach(f2 -> currentContacts.add(new Contact(f1, f2)))));
+            // clear graph node objs
+            graph.clearNodeObjs();
         }
-        // Handle contacts in the current contacts setBounds
+        // handle contacts in the current contacts setBounds
         currentContacts.forEach(contact -> {
             if (priorContacts.contains(contact)) {
                 worldContactListener.continueContact(contact, delta);
@@ -149,22 +149,64 @@ public class WorldSystem extends System {
                 worldContactListener.beginContact(contact, delta);
             }
         });
-        // Handle contacts in the prior contacts setBounds
+        // handle contacts in the prior contacts setBounds
         priorContacts.forEach(contact -> {
             if (!currentContacts.contains(contact)) {
                 worldContactListener.endContact(contact, delta);
             }
         });
-        // Move current contacts to prior contacts setBounds, then clear the current contacts setBounds
+        // move current contacts to prior contacts setBounds, then clear the current contacts setBounds
         priorContacts.clear();
         priorContacts.addAll(currentContacts);
         currentContacts.clear();
         postProcess.forEach(postProcessable -> postProcessable.update(delta));
     }
 
+
+    private Map<BodyComponent, Rectangle> getBodiesOverlapping(BodyComponent bodyComponent) {
+        Pair<Pair<Integer>> indexes = graph.getNodeIndexes(bodyComponent.getCollisionBox());
+        Pair<Integer> min = indexes.getFirst();
+        Pair<Integer> max = indexes.getSecond();
+        Map<BodyComponent, Rectangle> map = new HashMap<>();
+        for (int i = min.getFirst(); i <= max.getFirst(); i++) {
+            for (int j = min.getSecond(); j <= max.getSecond(); j++) {
+                Node node = graph.getNode(i, j);
+                node.getObjects().stream().filter(o -> o instanceof BodyComponent).forEach(o -> {
+                    BodyComponent c = (BodyComponent) o;
+                    Rectangle overlap = new Rectangle();
+                    if (intersectRectangles(bodyComponent.getCollisionBox(), c.getCollisionBox(), overlap)) {
+                        map.put(c, overlap);
+                    }
+                });
+            }
+        }
+        return map;
+    }
+
+    private List<Fixture> getFixturesOverlapping(Fixture fixture) {
+        Pair<Pair<Integer>> indexes = graph.getNodeIndexes(fixture.getFixtureShape());
+        Pair<Integer> min = indexes.getFirst();
+        Pair<Integer> max = indexes.getSecond();
+        List<Fixture> fixtures = new ArrayList<>();
+        for (int i = min.getFirst(); i <= max.getFirst(); i++) {
+            for (int j = min.getSecond(); j <= max.getSecond(); j++) {
+                Node node = graph.getNode(i, j);
+                node.getObjects().stream().filter(o -> o instanceof Fixture).forEach(o -> {
+                    Fixture f = (Fixture) o;
+                    if (overlap(fixture.getFixtureShape(), f.getFixtureShape())) {
+                        fixtures.add(f);
+                    }
+                });
+            }
+        }
+        return fixtures;
+    }
+
     /**
-     * Handles collision between {@link BodyType#DYNAMIC} and {@link BodyType#STATIC} {@link BodyComponent} instances
-     * where parameter bc1 should be dynamic and bc2 static. Dynamic body is adjusted out pairOf collision and has static
+     * Handles collision between {@link BodyType#DYNAMIC} and {@link BodyType#STATIC} {@link BodyComponent}
+     * instances
+     * where parameter bc1 should be dynamic and bc2 static. Dynamic body is adjusted out pairOf collision and has
+     * static
      * body's friction applied.
      *
      * @param bc1     the first body

@@ -12,6 +12,7 @@ import com.game.entities.projectiles.AbstractProjectile;
 import com.game.health.HealthComponent;
 import com.game.sounds.SoundComponent;
 import com.game.updatables.UpdatableComponent;
+import com.game.utils.enums.ProcessState;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,6 +34,10 @@ public class WorldContactListenerImpl implements WorldContactListener {
 
     @Override
     public void beginContact(Contact contact, float delta) {
+        Fixture f1 = contact.getFixture1();
+        Fixture f2 = contact.getFixture2();
+        f1.addContactProcessState(f2.getFixtureType(), ProcessState.BEGIN);
+        f2.addContactProcessState(f1.getFixtureType(), ProcessState.BEGIN);
         if (contact.acceptMask(DAMAGEABLE, DEATH)) {
             contact.mask1stEntity().getComponent(HealthComponent.class).setHealth(0);
         } else if (contact.acceptMask(LEFT, BLOCK)) {
@@ -87,6 +92,10 @@ public class WorldContactListenerImpl implements WorldContactListener {
     @Override
     @SuppressWarnings("unchecked")
     public void continueContact(Contact contact, float delta) {
+        Fixture f1 = contact.getFixture1();
+        Fixture f2 = contact.getFixture2();
+        f1.addContactProcessState(f2.getFixtureType(), ProcessState.CONTINUE);
+        f2.addContactProcessState(f1.getFixtureType(), ProcessState.CONTINUE);
         if (contact.acceptMask(LEFT, BLOCK)) {
             contact.mask1stBody().setIs(TOUCHING_BLOCK_LEFT);
         } else if (contact.acceptMask(RIGHT, BLOCK)) {
@@ -148,6 +157,10 @@ public class WorldContactListenerImpl implements WorldContactListener {
 
     @Override
     public void endContact(Contact contact, float delta) {
+        Fixture f1 = contact.getFixture1();
+        Fixture f2 = contact.getFixture2();
+        f1.addContactProcessState(f2.getFixtureType(), ProcessState.END);
+        f2.addContactProcessState(f1.getFixtureType(), ProcessState.END);
         if (contact.acceptMask(LEFT, BLOCK)) {
             contact.mask1stBody().setIsNot(TOUCHING_BLOCK_LEFT);
         } else if (contact.acceptMask(RIGHT, BLOCK)) {

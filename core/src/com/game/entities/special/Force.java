@@ -35,11 +35,11 @@ public class Force extends Entity {
 
     public Force(GameContext2d gameContext, Rectangle bounds, Supplier<Vector2> forceSupplier) {
         super(gameContext);
-        addComponent(defineBodyComponent(bounds, forceSupplier));
+        addComponent(bodyComponent(bounds, forceSupplier));
         addComponent(new ShapeComponent(bounds));
     }
 
-    private BodyComponent defineBodyComponent(Rectangle bounds, Supplier<Vector2> forceSupplier) {
+    private BodyComponent bodyComponent(Rectangle bounds, Supplier<Vector2> forceSupplier) {
         BodyComponent bodyComponent = new BodyComponent(ABSTRACT);
         bodyComponent.set(bounds);
         Fixture forceFixture = new Fixture(this, bounds, FORCE);

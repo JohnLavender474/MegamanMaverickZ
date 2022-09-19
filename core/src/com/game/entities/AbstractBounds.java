@@ -13,10 +13,10 @@ public class AbstractBounds extends Entity {
 
     public AbstractBounds(GameContext2d gameContext, Rectangle bounds) {
         super(gameContext);
-        addComponent(defineBodyComponent(bounds));
+        addComponent(bodyComponent(bounds));
     }
 
-    private BodyComponent defineBodyComponent(Rectangle bounds) {
+    private BodyComponent bodyComponent(Rectangle bounds) {
         BodyComponent bodyComponent = new BodyComponent(ABSTRACT);
         bodyComponent.setCustomCollisionBit(ABSTRACT_BOUNDS);
         bodyComponent.set(bounds);

@@ -32,10 +32,10 @@ public class SpawnLocation extends Entity {
         this.bounds = bounds;
         this.camera = camera;
         this.max = max;
-        addComponent(defineUpdatableComponent());
+        addComponent(updatableComponent());
     }
 
-    private UpdatableComponent defineUpdatableComponent() {
+    private UpdatableComponent updatableComponent() {
         return new UpdatableComponent(delta -> {
             entities.removeIf(Entity::isDead);
             boolean isInCamBounds = camera.frustum.boundsInFrustum(rectToBBox(bounds));

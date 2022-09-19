@@ -46,9 +46,9 @@ public class ChargedShot extends AbstractProjectile implements Faceable {
         this.fullyCharged = fullyCharged;
         this.trajectory.set(trajectory);
         setFacing(facing);
-        addComponent(defineAnimationComponent());
-        addComponent(defineBodyComponent(spawn));
-        addComponent(defineSpriteComponent());
+        addComponent(animationComponent());
+        addComponent(bodyComponent(spawn));
+        addComponent(spriteComponent());
     }
 
     @Override
@@ -88,7 +88,7 @@ public class ChargedShot extends AbstractProjectile implements Faceable {
         }
     }
 
-    private AnimationComponent defineAnimationComponent() {
+    private AnimationComponent animationComponent() {
         TextureRegion textureRegion;
         if (fullyCharged) {
             textureRegion = gameContext.getAsset(MEGAMAN_CHARGED_SHOT.getSrc(), TextureAtlas.class)
@@ -100,7 +100,7 @@ public class ChargedShot extends AbstractProjectile implements Faceable {
         return new AnimationComponent(new TimedAnimation(textureRegion, 2, .05f));
     }
 
-    private SpriteComponent defineSpriteComponent() {
+    private SpriteComponent spriteComponent() {
         Sprite sprite = new Sprite();
         if (fullyCharged) {
             sprite.setSize(PPM * 1.75f, PPM * 1.75f);
@@ -124,7 +124,7 @@ public class ChargedShot extends AbstractProjectile implements Faceable {
         });
     }
 
-    private BodyComponent defineBodyComponent(Vector2 spawn) {
+    private BodyComponent bodyComponent(Vector2 spawn) {
         BodyComponent bodyComponent = new BodyComponent(DYNAMIC);
         bodyComponent.setPreProcess(delta -> bodyComponent.setVelocity(trajectory));
         if (fullyCharged) {

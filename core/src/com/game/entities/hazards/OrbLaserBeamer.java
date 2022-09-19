@@ -20,17 +20,17 @@ public class OrbLaserBeamer extends Entity {
 
     public OrbLaserBeamer(GameContext2d gameContext, Supplier<Megaman> megamanSupplier, Vector2 spawn) {
         super(gameContext);
-        addComponent(defineBodyComponent(spawn));
-        addComponent(defineSoundComponent(gameContext.getViewport(RenderingGround.PLAYGROUND).getCamera()));
+        addComponent(bodyComponent(spawn));
+        addComponent(soundComponent(gameContext.getViewport(RenderingGround.PLAYGROUND).getCamera()));
     }
 
-    private BodyComponent defineBodyComponent(Vector2 spawn) {
+    private BodyComponent bodyComponent(Vector2 spawn) {
         BodyComponent bodyComponent = new BodyComponent(BodyType.ABSTRACT);
 
         return bodyComponent;
     }
 
-    private SoundComponent defineSoundComponent(Camera camera) {
+    private SoundComponent soundComponent(Camera camera) {
         SoundComponent soundComponent = new SoundComponent();
         soundComponent.setUpdatable(delta -> {
             Vector2 camCenter = new Vector2(camera.position.x, camera.position.y);

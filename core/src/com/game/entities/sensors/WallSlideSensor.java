@@ -13,10 +13,10 @@ public class WallSlideSensor extends Entity {
 
     public WallSlideSensor(GameContext2d gameContext, Rectangle bounds) {
         super(gameContext);
-        addComponent(defineBodyComponent(bounds));
+        addComponent(bodyComponent(bounds));
     }
 
-    private BodyComponent defineBodyComponent(Rectangle bounds) {
+    private BodyComponent bodyComponent(Rectangle bounds) {
         BodyComponent bodyComponent = new BodyComponent(BodyType.ABSTRACT);
         bodyComponent.setAffectedByResistance(false);
         bodyComponent.setGravityOn(false);

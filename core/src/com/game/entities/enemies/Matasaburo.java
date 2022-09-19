@@ -50,11 +50,11 @@ public class Matasaburo extends AbstractEnemy implements Faceable {
 
     public Matasaburo(GameContext2d gameContext, Supplier<Megaman> megamanSupplier, Vector2 spawn) {
         super(gameContext, megamanSupplier, DAMAGE_DURATION);
-        addComponent(defineBodyComponent(spawn));
-        addComponent(defineUpdatableComponent());
-        addComponent(defineSpriteComponent());
-        addComponent(defineAnimationComponent(gameContext));
-        addComponent(defineShapeComponent());
+        addComponent(bodyComponent(spawn));
+        addComponent(updatableComponent());
+        addComponent(spriteComponent());
+        addComponent(animationComponent(gameContext));
+        addComponent(shapeComponent());
     }
 
     @Override
@@ -68,7 +68,7 @@ public class Matasaburo extends AbstractEnemy implements Faceable {
                         ((ChargedShotDisintegration) damager).isFullyCharged() ? 15 : 5));
     }
 
-    private UpdatableComponent defineUpdatableComponent() {
+    private UpdatableComponent updatableComponent() {
         return new UpdatableComponent(new StandardEnemyUpdater() {
             @Override
             public void update(float delta) {
@@ -80,7 +80,7 @@ public class Matasaburo extends AbstractEnemy implements Faceable {
         });
     }
 
-    private BodyComponent defineBodyComponent(Vector2 spawn) {
+    private BodyComponent bodyComponent(Vector2 spawn) {
         BodyComponent bodyComponent = new BodyComponent(DYNAMIC);
         bodyComponent.setSize(PPM, PPM);
         setBottomCenterToPoint(bodyComponent.getCollisionBox(), spawn);
@@ -100,7 +100,7 @@ public class Matasaburo extends AbstractEnemy implements Faceable {
         return bodyComponent;
     }
 
-    private SpriteComponent defineSpriteComponent() {
+    private SpriteComponent spriteComponent() {
         Sprite sprite = new Sprite();
         sprite.setSize(1.5f * PPM, 1.5f * PPM);
         return new SpriteComponent(sprite, new StandardEnemySpriteAdapter() {
@@ -113,13 +113,13 @@ public class Matasaburo extends AbstractEnemy implements Faceable {
         });
     }
 
-    private AnimationComponent defineAnimationComponent(IAssetLoader assetLoader) {
+    private AnimationComponent animationComponent(IAssetLoader assetLoader) {
         TextureRegion region = assetLoader.getAsset(ENEMIES_1.getSrc(), TextureAtlas.class).findRegion("Matasaburo");
         TimedAnimation animation = new TimedAnimation(region, 6, .1f);
         return new AnimationComponent(animation);
     }
 
-    private ShapeComponent defineShapeComponent() {
+    private ShapeComponent shapeComponent() {
         BodyComponent bodyComponent = getComponent(BodyComponent.class);
         ShapeHandle shapeHandle1 = new ShapeHandle();
         shapeHandle1.setShapeSupplier(bodyComponent::getCollisionBox);

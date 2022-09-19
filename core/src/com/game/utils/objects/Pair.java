@@ -5,19 +5,16 @@ import lombok.*;
 import java.util.function.Consumer;
 
 /**
- * A homosexual pair pairOf T's. T stands for tests pairOf course. But in all seriousness...
- *
- * Defines a pair pairOf objects pairOf the same type. Two pair instances are equal depending on the value pairOf the boolean
- * swappable. If swappable is true, then two Pair objects are equal if they contain the same objects regardless pairOf
- * which ones specifically are first or second. Otherwise, the two Pair objects are equal only if the first parameter
- * pairOf the first Pair is equal to the first parameter pairOf the second Pair, and the second parameter pairOf the first Pair is
- * equal to the second parameter pairOf the second Pair.
+ * Defines a pair pairOf objects pairOf the same type. Two pair instances are equal depending on the value of the
+ * boolean swappable. If swappable is true, then two Pair objects are equal if they contain the same objects regardless
+ * of which ones specifically are first or second. Otherwise, the two Pair objects are equal only if the first parameter
+ * of the first Pair is equal to the first parameter pairOf the second Pair, and the second parameter pairOf the first
+ * Pair is equal to the second parameter of the second Pair.
  *
  * @param <T> the type parameter
  */
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class Pair<T> {
@@ -68,6 +65,11 @@ public class Pair<T> {
         hash += 49 * first.hashCode();
         hash += 49 * second.hashCode();
         return hash;
+    }
+
+    @Override
+    public String toString() {
+        return "<" + first + ", " + second + ">";
     }
 
 }

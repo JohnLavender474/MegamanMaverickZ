@@ -1,11 +1,10 @@
 package com.game.graph;
 
+import com.badlogic.gdx.math.Rectangle;
 import com.game.core.Entity;
 import com.game.core.System;
+import com.game.utils.objects.Pair;
 import lombok.Setter;
-
-import java.util.List;
-import java.util.Set;
 
 @Setter
 public class GraphSystem extends System {
@@ -18,15 +17,25 @@ public class GraphSystem extends System {
 
     @Override
     protected void preProcess(float delta) {
-        graph.forEach(Node::clear);
+        graph.clearNodeObjs();
     }
 
     @Override
     protected void processEntity(Entity entity, float delta) {
         GraphComponent graphComponent = entity.getComponent(GraphComponent.class);
         graphComponent.getSuppliers().forEach((boundsSupplier, objsSupplier) -> {
-            List<Node> nodes = graph.getNodesOverlapping(boundsSupplier.get());
-            nodes.forEach(node -> node.addAll(objsSupplier.get()));
+            Rectangle bounds = boundsSupplier.get();
+            Pair<Pair<Integer>> indexes = graph.getNodeIndexes(bounds);
+            Pair<Integer> min = indexes.getFirst();
+            Pair<Integer> max = indexes.getSecond();
+            for (int i = min.getFirst(); i <= max.getFirst(); i++) {
+                for (int j = min.getSecond(); j <= max.getSecond(); j++) {
+                    Node node = graph.getNode(i, j);
+                    if (node.getBounds().overlaps(bounds)) {
+                        node.addAll(objsSupplier.get());
+                    }
+                }
+            }
         });
     }
 

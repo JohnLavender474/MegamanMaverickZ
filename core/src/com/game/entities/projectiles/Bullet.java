@@ -40,8 +40,8 @@ public class Bullet extends AbstractProjectile {
     public Bullet(GameContext2d gameContext, Entity owner, Vector2 trajectory, Vector2 spawn) {
         super(gameContext, owner, .15f);
         addComponent(new SoundComponent());
-        addComponent(defineSpriteComponent());
-        addComponent(defineBodyComponent(spawn, trajectory));
+        addComponent(spriteComponent());
+        addComponent(bodyComponent(spawn, trajectory));
     }
 
     public void disintegrate() {
@@ -74,7 +74,7 @@ public class Bullet extends AbstractProjectile {
         }
     }
 
-    private SpriteComponent defineSpriteComponent() {
+    private SpriteComponent spriteComponent() {
         TextureRegion textureRegion = gameContext.getAsset(OBJECTS.getSrc(), TextureAtlas.class)
                 .findRegion("YellowBullet");
         Sprite sprite = new Sprite();
@@ -90,7 +90,7 @@ public class Bullet extends AbstractProjectile {
         });
     }
 
-    private BodyComponent defineBodyComponent(Vector2 spawn, Vector2 trajectory) {
+    private BodyComponent bodyComponent(Vector2 spawn, Vector2 trajectory) {
         BodyComponent bodyComponent = new BodyComponent(DYNAMIC);
         bodyComponent.setClamp(CLAMP * PPM, CLAMP * PPM);
         bodyComponent.setSize(.1f * PPM, .1f * PPM);

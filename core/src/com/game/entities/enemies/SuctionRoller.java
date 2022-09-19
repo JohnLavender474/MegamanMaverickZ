@@ -53,11 +53,11 @@ public class SuctionRoller extends AbstractEnemy implements Faceable {
 
     public SuctionRoller(GameContext2d gameContext, Supplier<Megaman> megamanSupplier, Vector2 spawn) {
         super(gameContext, megamanSupplier, .05f);
-        addComponent(definePathfindingComponent());
-        addComponent(defineAnimationComponent());
-        addComponent(defineUpdatableComponent());
-        addComponent(defineBodyComponent(spawn));
-        addComponent(defineSpriteComponent());
+        addComponent(pathfindingComponent());
+        addComponent(animationComponent());
+        addComponent(updatableComponent());
+        addComponent(bodyComponent(spawn));
+        addComponent(spriteComponent());
     }
 
     protected Map<Class<? extends Damager>, DamageNegotiation> defineDamageNegotiations() {
@@ -68,7 +68,7 @@ public class SuctionRoller extends AbstractEnemy implements Faceable {
                 ChargedShotDisintegration.class, new DamageNegotiation(15));
     }
 
-    private UpdatableComponent defineUpdatableComponent() {
+    private UpdatableComponent updatableComponent() {
         return new UpdatableComponent(new StandardEnemyUpdater() {
            @Override
            public void update(float delta) {
@@ -92,7 +92,7 @@ public class SuctionRoller extends AbstractEnemy implements Faceable {
         });
     }
 
-    private PathfindingComponent definePathfindingComponent() {
+    private PathfindingComponent pathfindingComponent() {
         PathfindingComponent pathfindingComponent = new PathfindingComponent(
                 () -> getComponent(BodyComponent.class).getCenter(),
                 () -> getMegaman().getFocus(), nextTarget::set,
@@ -114,7 +114,7 @@ public class SuctionRoller extends AbstractEnemy implements Faceable {
         return pathfindingComponent;
     }
 
-    private SpriteComponent defineSpriteComponent() {
+    private SpriteComponent spriteComponent() {
         Sprite sprite = new Sprite();
         sprite.setSize(1.5f * PPM, 1.5f * PPM);
         return new SpriteComponent(sprite, new StandardEnemySpriteAdapter() {
@@ -143,12 +143,12 @@ public class SuctionRoller extends AbstractEnemy implements Faceable {
         });
     }
 
-    private AnimationComponent defineAnimationComponent() {
+    private AnimationComponent animationComponent() {
         TextureAtlas textureAtlas = gameContext.getAsset(ENEMIES_1.getSrc(), TextureAtlas.class);
         return new AnimationComponent(new TimedAnimation(textureAtlas.findRegion("SuctionRoller"), 5, .1f));
     }
 
-    private BodyComponent defineBodyComponent(Vector2 spawn) {
+    private BodyComponent bodyComponent(Vector2 spawn) {
         BodyComponent bodyComponent = new BodyComponent(DYNAMIC);
         bodyComponent.setSize(.75f * PPM, PPM);
         setBottomCenterToPoint(bodyComponent.getCollisionBox(), spawn);

@@ -33,9 +33,9 @@ public class JeffBezosLittleDickRocket extends Block {
 
     public JeffBezosLittleDickRocket(GameContext2d gameContext, RectangleMapObject rectObj) {
         super(gameContext, initBounds(rectObj), initProperties(rectObj.getProperties()));
-        addComponent(defineSpriteComponent());
-        addComponent(defineAnimationComponent());
-        addComponent(defineShapeComponent());
+        addComponent(spriteComponent());
+        addComponent(animationComponent());
+        addComponent(shapeComponent());
     }
 
     private static MapProperties initProperties(MapProperties mapProperties) {
@@ -48,7 +48,7 @@ public class JeffBezosLittleDickRocket extends Block {
         return new Rectangle(bottomCenter.x - (WIDTH  * PPM / 2f), bottomCenter.y, WIDTH * PPM, HEIGHT * PPM);
     }
 
-    private SpriteComponent defineSpriteComponent() {
+    private SpriteComponent spriteComponent() {
         Sprite sprite = new Sprite();
         sprite.setSize(4f * PPM, 4f * PPM);
         return new SpriteComponent(sprite, new SpriteAdapter() {
@@ -68,14 +68,14 @@ public class JeffBezosLittleDickRocket extends Block {
         });
     }
 
-    private AnimationComponent defineAnimationComponent() {
+    private AnimationComponent animationComponent() {
         TextureRegion region = gameContext.getAsset(CUSTOM_TILES.getSrc(), TextureAtlas.class)
                 .findRegion("JeffBezosLittleDickRocket");
         TimedAnimation animation = new TimedAnimation(region, 7, .05f);
         return new AnimationComponent(animation);
     }
 
-    private ShapeComponent defineShapeComponent() {
+    private ShapeComponent shapeComponent() {
         ShapeHandle shapeHandle = new ShapeHandle();
         shapeHandle.setShapeSupplier(() -> getComponent(BodyComponent.class).getCollisionBox());
         shapeHandle.setColorSupplier(() -> RED);

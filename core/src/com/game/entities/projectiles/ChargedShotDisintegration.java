@@ -45,10 +45,10 @@ public class ChargedShotDisintegration extends Entity implements Damager {
         this.fullyCharged = fullyCharged;
         timer = new Timer(fullyCharged ? FULLY_CHARGED_DURATION : HALFWAY_CHARGED_DURATION);
         addComponent(new SoundComponent());
-        addComponent(defineUpdatableComponent());
-        addComponent(defineBodyComponent(center));
-        addComponent(defineSpriteComponent(center, isLeft));
-        addComponent(defineAnimationComponent(gameContext));
+        addComponent(updatableComponent());
+        addComponent(bodyComponent(center));
+        addComponent(spriteComponent(center, isLeft));
+        addComponent(animationComponent(gameContext));
         gameContext.addMessageListener(this);
     }
 
@@ -57,7 +57,7 @@ public class ChargedShotDisintegration extends Entity implements Damager {
         gameContext.removeMessageListener(this);
     }
 
-    private UpdatableComponent defineUpdatableComponent() {
+    private UpdatableComponent updatableComponent() {
         return new UpdatableComponent(delta -> {
             soundTimer.update(delta);
             if (soundTimer.isJustFinished()) {
@@ -73,7 +73,7 @@ public class ChargedShotDisintegration extends Entity implements Damager {
         });
     }
 
-    private BodyComponent defineBodyComponent(Vector2 center) {
+    private BodyComponent bodyComponent(Vector2 center) {
         BodyComponent bodyComponent = new BodyComponent(ABSTRACT);
         bodyComponent.setCenter(center);
         Fixture damagerBox = new Fixture(this, new Rectangle(0f, 0f, PPM, PPM), DAMAGER);
@@ -81,7 +81,7 @@ public class ChargedShotDisintegration extends Entity implements Damager {
         return bodyComponent;
     }
 
-    private SpriteComponent defineSpriteComponent(Vector2 center, boolean isLeft) {
+    private SpriteComponent spriteComponent(Vector2 center, boolean isLeft) {
         Sprite sprite = new Sprite();
         if (fullyCharged) {
             sprite.setSize(1.75f * PPM, 1.75f * PPM);
@@ -97,7 +97,7 @@ public class ChargedShotDisintegration extends Entity implements Damager {
         });
     }
 
-    private AnimationComponent defineAnimationComponent(GameContext2d gameContext) {
+    private AnimationComponent animationComponent(GameContext2d gameContext) {
         TextureRegion textureRegion;
         if (fullyCharged) {
             textureRegion = gameContext.getAsset(MEGAMAN_CHARGED_SHOT.getSrc(), TextureAtlas.class)

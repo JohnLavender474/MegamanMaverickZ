@@ -49,7 +49,7 @@ public abstract class AbstractEnemy extends Entity implements Damager, Damageabl
         this.megamanSupplier = megamanSupplier;
         this.damageNegotiations = defineDamageNegotiations();
         addComponent(new SoundComponent());
-        addComponent(defineGraphComponent());
+        addComponent(graphComponent());
         addComponent(new CullOnCamTransComponent());
         addComponent(new HealthComponent(30, this::disintegrate));
         addComponent(new CullOutOfCamBoundsComponent(
@@ -66,7 +66,7 @@ public abstract class AbstractEnemy extends Entity implements Damager, Damageabl
         gameContext.removeMessageListener(this);
     }
 
-    protected GraphComponent defineGraphComponent() {
+    protected GraphComponent graphComponent() {
         return new GraphComponent(() -> getComponent(BodyComponent.class).getCollisionBox(), () -> List.of(this));
     }
 

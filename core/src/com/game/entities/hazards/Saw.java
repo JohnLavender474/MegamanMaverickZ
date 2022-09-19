@@ -56,9 +56,9 @@ public class Saw extends Entity {
 
     public Saw(GameContext2d gameContext, Vector2 center) {
         super(gameContext);
-        addComponent(defineAnimationComponent(gameContext));
-        addComponent(defineBodyComponent(center));
-        addComponent(defineSpriteComponent());
+        addComponent(animationComponent(gameContext));
+        addComponent(bodyComponent(center));
+        addComponent(spriteComponent());
     }
 
     public Saw(GameContext2d gameContext, RectangleMapObject sawObj) {
@@ -147,7 +147,7 @@ public class Saw extends Entity {
         addComponent(trajectoryComponent);
     }
 
-    private SpriteComponent defineSpriteComponent() {
+    private SpriteComponent spriteComponent() {
         Sprite sprite = new Sprite();
         sprite.setSize(2f * PPM, 2f * PPM);
         return new SpriteComponent(sprite, new SpriteAdapter() {
@@ -162,14 +162,14 @@ public class Saw extends Entity {
         });
     }
 
-    private AnimationComponent defineAnimationComponent(IAssetLoader assetLoader) {
+    private AnimationComponent animationComponent(IAssetLoader assetLoader) {
         TextureRegion textureRegion = assetLoader.getAsset(HAZARDS_1.getSrc(), TextureAtlas.class)
                 .findRegion("Saw");
         TimedAnimation timedAnimation = new TimedAnimation(textureRegion, 2, .1f);
         return new AnimationComponent(timedAnimation);
     }
 
-    private BodyComponent defineBodyComponent(Vector2 center) {
+    private BodyComponent bodyComponent(Vector2 center) {
         BodyComponent bodyComponent = new BodyComponent(ABSTRACT);
         bodyComponent.setSize(2f * PPM, 2f * PPM);
         bodyComponent.setCenter(center);

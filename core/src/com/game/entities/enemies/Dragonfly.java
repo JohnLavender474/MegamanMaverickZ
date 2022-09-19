@@ -67,10 +67,10 @@ public class Dragonfly extends AbstractEnemy implements Faceable {
 
     public Dragonfly(GameContext2d gameContext, Supplier<Megaman> megamanSupplier, Vector2 spawn) {
         super(gameContext, megamanSupplier, .1f, 3f);
-        addComponent(defineSpriteComponent());
-        addComponent(defineAnimationComponent());
-        addComponent(defineBodyComponent(spawn));
-        addComponent(defineShapeComponent());
+        addComponent(spriteComponent());
+        addComponent(animationComponent());
+        addComponent(bodyComponent(spawn));
+        addComponent(shapeComponent());
         addComponent(new UpdatableComponent(new StandardEnemyUpdater()));
         currentBehavior = previousBehavior = MOVE_UP;
         camera = gameContext.getViewport(PLAYGROUND).getCamera();
@@ -85,13 +85,13 @@ public class Dragonfly extends AbstractEnemy implements Faceable {
                 ChargedShotDisintegration.class, new DamageNegotiation(15));
     }
 
-    private ShapeComponent defineShapeComponent() {
+    private ShapeComponent shapeComponent() {
         Shape2D damageBox = getComponent(BodyComponent.class).getFirstMatchingFixture(DAMAGEABLE)
                 .orElseThrow().getFixtureShape();
         return new ShapeComponent(damageBox);
     }
 
-    private BodyComponent defineBodyComponent(Vector2 spawn) {
+    private BodyComponent bodyComponent(Vector2 spawn) {
         BodyComponent bodyComponent = new BodyComponent(ABSTRACT);
         bodyComponent.setSize(.75f * PPM, .75f * PPM);
         bodyComponent.setCenter(spawn);
@@ -160,7 +160,7 @@ public class Dragonfly extends AbstractEnemy implements Faceable {
         return bodyComponent;
     }
 
-    private SpriteComponent defineSpriteComponent() {
+    private SpriteComponent spriteComponent() {
         Sprite sprite = new Sprite();
         sprite.setSize(1.5f * PPM, 1.5f * PPM);
         return new SpriteComponent(sprite, new StandardEnemySpriteAdapter() {
@@ -187,7 +187,7 @@ public class Dragonfly extends AbstractEnemy implements Faceable {
         });
     }
 
-    private AnimationComponent defineAnimationComponent() {
+    private AnimationComponent animationComponent() {
         TextureAtlas textureAtlas = gameContext.getAsset(ENEMIES_1.getSrc(), TextureAtlas.class);
         return new AnimationComponent(new TimedAnimation(textureAtlas.findRegion("Dragonfly"), 2, .1f));
     }

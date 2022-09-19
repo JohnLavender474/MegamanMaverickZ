@@ -73,14 +73,14 @@ public class LaserBeamer extends Entity implements Damager {
         laser.setVertices(copyOf(v, v.length));
         laser.setOrigin(spawn.x, spawn.y);
         blockContactPoints = new PriorityQueue<>((p1, p2) -> Float.compare(p1.dst2(spawn), p2.dst2(spawn)));
-        addComponent(defineBodyComponent(spawn));
-        addComponent(defineUpdatableComponent());
-        addComponent(defineLinesComponent());
-        addComponent(defineSpriteComponent());
+        addComponent(bodyComponent(spawn));
+        addComponent(updatableComponent());
+        addComponent(linesComponent());
+        addComponent(spriteComponent());
         addComponent(defineDebugShapesComponent());
     }
 
-    private BodyComponent defineBodyComponent(Vector2 spawn) {
+    private BodyComponent bodyComponent(Vector2 spawn) {
         BodyComponent bodyComponent = new BodyComponent(ABSTRACT);
         bodyComponent.setPosition(spawn);
         // rotating line laser
@@ -100,7 +100,7 @@ public class LaserBeamer extends Entity implements Damager {
         return bodyComponent;
     }
 
-    public SpriteComponent defineSpriteComponent() {
+    public SpriteComponent spriteComponent() {
         TextureRegion laserBeamer = gameContext.getAsset(HAZARDS_1.getSrc(), TextureAtlas.class)
                 .findRegion("LaserBeamer");
         Sprite sprite = new Sprite(laserBeamer);
@@ -130,7 +130,7 @@ public class LaserBeamer extends Entity implements Damager {
         return new ShapeComponent(shapeHandle1, shapeHandle2);
     }
 
-    private LineComponent defineLinesComponent() {
+    private LineComponent linesComponent() {
         LineHandle lineHandle = new LineHandle();
         lineHandle.setLineSupplier(() -> polylineToPointPair(laser));
         lineHandle.setThicknessSupplier(() -> THICKNESS);
@@ -139,7 +139,7 @@ public class LaserBeamer extends Entity implements Damager {
         return new LineComponent(lineHandle);
     }
 
-    private UpdatableComponent defineUpdatableComponent() {
+    private UpdatableComponent updatableComponent() {
         return new UpdatableComponent(delta -> {
             // block hit flash
             blockHitTimer.update(delta);

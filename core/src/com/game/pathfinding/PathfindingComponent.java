@@ -34,14 +34,6 @@ public class PathfindingComponent extends Component {
     @Setter(AccessLevel.PACKAGE)
     private Deque<Rectangle> currentPath;
 
-    /**
-     * Returns a list copy pairOf the current path. Modifications to the returned list are NOT reflected in the original.
-     *
-     * @return list copy pairOf the current path
-     */
-    public List<Rectangle> getPathCpy() {
-        return currentPath != null ? new ArrayList<>(currentPath) : new ArrayList<>();
-    }
 
     public List<Vector2> getPathPoints() {
         return currentPath != null ? currentPath.stream().map(UtilMethods::centerPoint)

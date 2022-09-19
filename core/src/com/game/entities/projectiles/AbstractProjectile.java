@@ -32,7 +32,7 @@ public abstract class AbstractProjectile extends Entity implements Hitter, Damag
         this.owner = owner;
         addComponent(new SoundComponent());
         addComponent(new CullOnCamTransComponent());
-        addComponent(defineCullOutOfCamBoundsComponent(cullDuration));
+        addComponent(cullOutOfCamBoundsComponent(cullDuration));
         gameContext.addMessageListener(this);
     }
 
@@ -46,7 +46,7 @@ public abstract class AbstractProjectile extends Entity implements Hitter, Damag
                 getComponent(BodyComponent.class).getCollisionBox());
     }
 
-    private CullOutOfCamBoundsComponent defineCullOutOfCamBoundsComponent(float cullDuration) {
+    private CullOutOfCamBoundsComponent cullOutOfCamBoundsComponent(float cullDuration) {
         return new CullOutOfCamBoundsComponent(() -> getComponent(BodyComponent.class).getCollisionBox(), cullDuration);
     }
 

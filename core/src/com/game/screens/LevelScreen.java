@@ -132,7 +132,9 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
                 case WINDY_CLOUDS -> backgrounds.add(new WindyClouds(gameContext, backgroundObj));
             }
         });
-        // level graph
+        // set world graph
+        gameContext.getSystem(WorldSystem.class).setWorldGraph(levelMap);
+        // set graph for graph and pathfinding systems
         Graph levelGraph = new Graph(new Vector2(PPM, PPM), levelMap.getWidthInTiles(), levelMap.getHeightInTiles());
         gameContext.getSystem(PathfindingSystem.class).setGraph(levelGraph);
         gameContext.getSystem(GraphSystem.class).setGraph(levelGraph);

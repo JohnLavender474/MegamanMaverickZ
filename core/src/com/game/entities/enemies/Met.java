@@ -58,10 +58,10 @@ public class Met extends AbstractEnemy implements Faceable {
 
     public Met(GameContext2d gameContext, Supplier<Megaman> megamanSupplier, Vector2 spawn) {
         super(gameContext, megamanSupplier, .05f);
-        addComponent(defineSpriteComponent());
-        addComponent(defineUpdatableComponent());
-        addComponent(defineAnimationComponent());
-        addComponent(defineBodyComponent(spawn));
+        addComponent(spriteComponent());
+        addComponent(updatableComponent());
+        addComponent(animationComponent());
+        addComponent(bodyComponent(spawn));
         setMetBehavior(SHIELDING);
     }
 
@@ -87,7 +87,7 @@ public class Met extends AbstractEnemy implements Faceable {
         getComponent(SoundComponent.class).requestSound(ENEMY_BULLET_SOUND);
     }
 
-    private UpdatableComponent defineUpdatableComponent() {
+    private UpdatableComponent updatableComponent() {
         return new UpdatableComponent(new StandardEnemyUpdater() {
             @Override
             public void update(float delta) {
@@ -147,7 +147,7 @@ public class Met extends AbstractEnemy implements Faceable {
         });
     }
 
-    private BodyComponent defineBodyComponent(Vector2 spawn) {
+    private BodyComponent bodyComponent(Vector2 spawn) {
         BodyComponent bodyComponent = new BodyComponent(DYNAMIC);
         bodyComponent.setSize(.75f * PPM, .75f * PPM);
         setBottomCenterToPoint(bodyComponent.getCollisionBox(), spawn);
@@ -177,7 +177,7 @@ public class Met extends AbstractEnemy implements Faceable {
         return bodyComponent;
     }
 
-    private SpriteComponent defineSpriteComponent() {
+    private SpriteComponent spriteComponent() {
         Sprite sprite = new Sprite();
         sprite.setSize(1.5f * PPM, 1.5f * PPM);
         return new SpriteComponent(sprite, new StandardEnemySpriteAdapter() {
@@ -188,7 +188,7 @@ public class Met extends AbstractEnemy implements Faceable {
         });
     }
 
-    private AnimationComponent defineAnimationComponent() {
+    private AnimationComponent animationComponent() {
         Supplier<String> keySupplier = () -> switch (metBehavior) {
             case RUNNING -> "Run";
             case POP_UP -> "PopUp";

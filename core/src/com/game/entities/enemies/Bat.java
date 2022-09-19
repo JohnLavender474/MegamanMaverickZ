@@ -69,11 +69,11 @@ public class Bat extends AbstractEnemy implements Hitter {
 
     public Bat(GameContext2d gameContext, Supplier<Megaman> megamanSupplier, Vector2 spawn) {
         super(gameContext, megamanSupplier, .05f);
-        addComponent(defineSpriteComponent());
-        addComponent(defineBodyComponent(spawn));
-        addComponent(defineAnimationComponent());
-        addComponent(defineUpdatableComponent());
-        addComponent(definePathfindingComponent());
+        addComponent(spriteComponent());
+        addComponent(bodyComponent(spawn));
+        addComponent(animationComponent());
+        addComponent(updatableComponent());
+        addComponent(pathfindingComponent());
     }
 
     @Override
@@ -92,7 +92,7 @@ public class Bat extends AbstractEnemy implements Hitter {
         }
     }
 
-    private UpdatableComponent defineUpdatableComponent() {
+    private UpdatableComponent updatableComponent() {
         return new UpdatableComponent(new StandardEnemyUpdater() {
             @Override
             public void update(float delta) {
@@ -123,7 +123,7 @@ public class Bat extends AbstractEnemy implements Hitter {
         });
     }
 
-    private SpriteComponent defineSpriteComponent() {
+    private SpriteComponent spriteComponent() {
         Sprite sprite = new Sprite();
         sprite.setSize(1.5f * PPM, 1.5f * PPM);
         return new SpriteComponent(sprite, new StandardEnemySpriteAdapter() {
@@ -136,7 +136,7 @@ public class Bat extends AbstractEnemy implements Hitter {
         });
     }
 
-    private AnimationComponent defineAnimationComponent() {
+    private AnimationComponent animationComponent() {
         TextureAtlas textureAtlas = gameContext.getAsset(ENEMIES_1.getSrc(), TextureAtlas.class);
         Supplier<String> keySupplier = () -> currentStatus.getRegionName();
         Map<String, TimedAnimation> timedAnimations = Map.of(
@@ -147,7 +147,7 @@ public class Bat extends AbstractEnemy implements Hitter {
         return new AnimationComponent(keySupplier, timedAnimations::get);
     }
 
-    private BodyComponent defineBodyComponent(Vector2 spawn) {
+    private BodyComponent bodyComponent(Vector2 spawn) {
         BodyComponent bodyComponent = new BodyComponent(ABSTRACT);
         bodyComponent.setSize(.5f * PPM, .75f * PPM);
         setTopCenterToPoint(bodyComponent.getCollisionBox(), spawn);
@@ -184,7 +184,7 @@ public class Bat extends AbstractEnemy implements Hitter {
         return bodyComponent;
     }
 
-    private PathfindingComponent definePathfindingComponent() {
+    private PathfindingComponent pathfindingComponent() {
         PathfindingComponent pathfindingComponent = new PathfindingComponent(
                 () -> getComponent(BodyComponent.class).getCenter(), () -> getMegaman().getFocus(),
                 target -> {

@@ -66,6 +66,15 @@ public class BodyComponent extends Component {
     }
 
     /**
+     * Returns only the fixtures that are active.
+     *
+     * @return only the fixtures that are active
+     */
+    public List<Fixture> getActiveFixtures() {
+        return fixtures.stream().filter(Fixture::isActive).toList();
+    }
+
+    /**
      * If this body is above the other.
      *
      * @param bodyComponent the other body component
@@ -232,6 +241,15 @@ public class BodyComponent extends Component {
      */
     public void setCenter(Vector2 center) {
         setCenter(center.x, center.y);
+    }
+
+    /**
+     * Gets the max vals of the bounds.
+     *
+     * @return the max vals of the bounds
+     */
+    public Vector2 getBoundsMax() {
+        return new Vector2(collisionBox.x + collisionBox.width, collisionBox.y + collisionBox.height);
     }
 
     /**

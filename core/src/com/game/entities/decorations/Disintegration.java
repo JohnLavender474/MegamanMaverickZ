@@ -34,13 +34,13 @@ public class Disintegration extends Entity {
 
     public Disintegration(GameContext2d gameContext, Vector2 center) {
         super(gameContext);
-        addComponent(defineUpdatableComponent());
-        addComponent(defineBodyComponent(center));
-        addComponent(defineSpriteComponent(center));
-        addComponent(defineAnimationComponent(gameContext));
+        addComponent(updatableComponent());
+        addComponent(bodyComponent(center));
+        addComponent(spriteComponent(center));
+        addComponent(animationComponent(gameContext));
     }
 
-    private BodyComponent defineBodyComponent(Vector2 center) {
+    private BodyComponent bodyComponent(Vector2 center) {
         BodyComponent bodyComponent = new BodyComponent(ABSTRACT);
         bodyComponent.setFriction(0f, 0f);
         bodyComponent.setGravityOn(false);
@@ -49,19 +49,19 @@ public class Disintegration extends Entity {
         return bodyComponent;
     }
 
-    private SpriteComponent defineSpriteComponent(Vector2 center) {
+    private SpriteComponent spriteComponent(Vector2 center) {
         Sprite sprite = new Sprite();
         sprite.setSize(PPM, PPM);
         sprite.setCenter(center.x, center.y);
         return new SpriteComponent(sprite);
     }
 
-    private AnimationComponent defineAnimationComponent(GameContext2d gameContext) {
+    private AnimationComponent animationComponent(GameContext2d gameContext) {
         return new AnimationComponent(new TimedAnimation(gameContext.getAsset(
                 DECORATIONS.getSrc(), TextureAtlas.class).findRegion("Disintegration"), 3, 0.005f));
     }
 
-    private UpdatableComponent defineUpdatableComponent() {
+    private UpdatableComponent updatableComponent() {
         return new UpdatableComponent(delta -> {
             timer.update(delta);
             if (timer.isFinished()) {

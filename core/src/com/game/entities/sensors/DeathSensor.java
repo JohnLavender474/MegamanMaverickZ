@@ -14,10 +14,10 @@ public class DeathSensor extends Entity {
 
     public DeathSensor(GameContext2d gameContext, Rectangle bounds) {
         super(gameContext);
-        addComponent(defineBodyComponent(bounds));
+        addComponent(bodyComponent(bounds));
     }
 
-    private BodyComponent defineBodyComponent(Rectangle bounds) {
+    private BodyComponent bodyComponent(Rectangle bounds) {
         BodyComponent bodyComponent = new BodyComponent(BodyType.ABSTRACT);
         bodyComponent.setGravityOn(false);
         bodyComponent.setAffectedByResistance(false);

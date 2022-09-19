@@ -59,11 +59,11 @@ public class SniperJoe extends AbstractEnemy implements Faceable {
 
     public SniperJoe(GameContext2d gameContext, Supplier<Megaman> megamanSupplier, Vector2 spawn) {
         super(gameContext, megamanSupplier, .1f);
-        addComponent(defineSpriteComponent());
-        addComponent(defineAnimationComponent());
-        addComponent(defineUpdatableComponent());
-        addComponent(defineBodyComponent(spawn));
-        addComponent(defineShapeComponent());
+        addComponent(spriteComponent());
+        addComponent(animationComponent());
+        addComponent(updatableComponent());
+        addComponent(bodyComponent(spawn));
+        addComponent(shapeComponent());
         shieldedTimer.setToEnd();
         shootingTimer.setToEnd();
     }
@@ -92,7 +92,7 @@ public class SniperJoe extends AbstractEnemy implements Faceable {
         (isShielded ? shieldedTimer : shootingTimer).reset();
     }
 
-    private ShapeComponent defineShapeComponent() {
+    private ShapeComponent shapeComponent() {
         BodyComponent bodyComponent = getComponent(BodyComponent.class);
         ShapeHandle shapeHandle1 = new ShapeHandle();
         shapeHandle1.setShapeSupplier(bodyComponent::getCollisionBox);
@@ -104,7 +104,7 @@ public class SniperJoe extends AbstractEnemy implements Faceable {
         return new ShapeComponent(shapeHandle1, shapeHandle2);
     }
 
-    private UpdatableComponent defineUpdatableComponent() {
+    private UpdatableComponent updatableComponent() {
         return new UpdatableComponent(new StandardEnemyUpdater() {
             @Override
             public void update(float delta) {
@@ -120,7 +120,7 @@ public class SniperJoe extends AbstractEnemy implements Faceable {
         });
     }
 
-    private SpriteComponent defineSpriteComponent() {
+    private SpriteComponent spriteComponent() {
         Sprite sprite = new Sprite();
         sprite.setSize(1.35f * PPM, 1.35f * PPM);
         return new SpriteComponent(sprite, new StandardEnemySpriteAdapter() {
@@ -140,7 +140,7 @@ public class SniperJoe extends AbstractEnemy implements Faceable {
         });
     }
 
-    private AnimationComponent defineAnimationComponent() {
+    private AnimationComponent animationComponent() {
         Supplier<String> keySupplier = () -> isShielded ? "Shielded" : "Shooting";
         TextureAtlas textureAtlas = gameContext.getAsset(ENEMIES_1.getSrc(), TextureAtlas.class);
         Map<String, TimedAnimation> timedAnimations = Map.of(
@@ -149,7 +149,7 @@ public class SniperJoe extends AbstractEnemy implements Faceable {
         return new AnimationComponent(keySupplier, timedAnimations::get);
     }
 
-    private BodyComponent defineBodyComponent(Vector2 spawn) {
+    private BodyComponent bodyComponent(Vector2 spawn) {
         BodyComponent bodyComponent = new BodyComponent(DYNAMIC);
         bodyComponent.setGravity(-PPM * .5f);
         bodyComponent.setSize(PPM, 1.25f * PPM);

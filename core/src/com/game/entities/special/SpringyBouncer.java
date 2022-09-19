@@ -36,17 +36,17 @@ public class SpringyBouncer extends Entity {
         super(gameContext);
         bounceTimer.setToEnd();
         addComponent(new SoundComponent());
-        addComponent(defineUpdatableComponent());
-        addComponent(defineAnimationComponent());
-        addComponent(defineBodyComponent(bouncerObj));
-        addComponent(defineSpriteComponent(bouncerObj.getRectangle()));
+        addComponent(updatableComponent());
+        addComponent(animationComponent());
+        addComponent(bodyComponent(bouncerObj));
+        addComponent(spriteComponent(bouncerObj.getRectangle()));
     }
 
-    private UpdatableComponent defineUpdatableComponent() {
+    private UpdatableComponent updatableComponent() {
         return new UpdatableComponent(bounceTimer::update);
     }
 
-    private BodyComponent defineBodyComponent(RectangleMapObject bouncerObj) {
+    private BodyComponent bodyComponent(RectangleMapObject bouncerObj) {
         BodyComponent bodyComponent = new BodyComponent(ABSTRACT, bouncerObj.getRectangle());
         Float x = bouncerObj.getProperties().get("x", Float.class);
         Float y = bouncerObj.getProperties().get("y", Float.class);
@@ -65,7 +65,7 @@ public class SpringyBouncer extends Entity {
         return bodyComponent;
     }
 
-    private SpriteComponent defineSpriteComponent(Rectangle boundsRect) {
+    private SpriteComponent spriteComponent(Rectangle boundsRect) {
         Sprite sprite = new Sprite();
         sprite.setSize(1.5f * PPM, 1.5f * PPM);
         return new SpriteComponent(sprite, new SpriteAdapter() {
@@ -78,7 +78,7 @@ public class SpringyBouncer extends Entity {
         });
     }
 
-    private AnimationComponent defineAnimationComponent() {
+    private AnimationComponent animationComponent() {
         Supplier<String> keySupplier = () -> bounceTimer.isFinished() ? "still" : "bounce";
         TextureAtlas textureAtlas = gameContext.getAsset(OBJECTS.getSrc(), TextureAtlas.class);
         Map<String, TimedAnimation> animationMap = Map.of(

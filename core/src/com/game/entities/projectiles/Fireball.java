@@ -40,10 +40,10 @@ public class Fireball extends AbstractProjectile {
 
     public Fireball(GameContext2d gameContext, Entity owner, Vector2 impulse, Vector2 spawn) {
         super(gameContext, owner, .25f);
-        addComponent(defineSpriteComponent());
-        addComponent(defineAnimationComponent());
-        addComponent(defineUpdatableComponent());
-        addComponent(defineBodyComponent(spawn, impulse));
+        addComponent(spriteComponent());
+        addComponent(animationComponent());
+        addComponent(updatableComponent());
+        addComponent(bodyComponent(spawn, impulse));
     }
 
     @Override
@@ -53,7 +53,7 @@ public class Fireball extends AbstractProjectile {
         }
     }
 
-    private UpdatableComponent defineUpdatableComponent() {
+    private UpdatableComponent updatableComponent() {
         return new UpdatableComponent(delta -> {
             if (!wasLanded && isLanded) {
                 getComponent(SoundComponent.class).requestSound(ATOMIC_FIRE_SOUND);
@@ -66,7 +66,7 @@ public class Fireball extends AbstractProjectile {
         });
     }
 
-    private SpriteComponent defineSpriteComponent() {
+    private SpriteComponent spriteComponent() {
         Sprite sprite = new Sprite();
         sprite.setSize(1.25f * PPM, 1.25f * PPM);
         return new SpriteComponent(sprite, new SpriteAdapter() {
@@ -99,7 +99,7 @@ public class Fireball extends AbstractProjectile {
         });
     }
 
-    private AnimationComponent defineAnimationComponent() {
+    private AnimationComponent animationComponent() {
         TextureAtlas textureAtlas = gameContext.getAsset(FIRE.getSrc(), TextureAtlas.class);
         Supplier<String> keySupplier = () -> isLanded() ? "Flame" : "Fireball";
         Map<String, TimedAnimation> timedAnimations = Map.of(
@@ -108,7 +108,7 @@ public class Fireball extends AbstractProjectile {
         return new AnimationComponent(keySupplier, timedAnimations::get);
     }
 
-    private BodyComponent defineBodyComponent(Vector2 spawn, Vector2 impulse) {
+    private BodyComponent bodyComponent(Vector2 spawn, Vector2 impulse) {
         BodyComponent bodyComponent = new BodyComponent(BodyType.DYNAMIC);
         bodyComponent.setPreProcess(delta -> {
             if (isLanded()) {

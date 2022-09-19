@@ -45,11 +45,11 @@ public class FloatingCan extends AbstractEnemy {
     public FloatingCan(GameContext2d gameContext, Supplier<Megaman> megamanSupplier, Vector2 spawn) {
         super(gameContext, megamanSupplier, 0.05f);
         addComponent(new UpdatableComponent(new StandardEnemyUpdater()));
-        addComponent(definePathfindingComponent());
-        addComponent(defineAnimationComponent());
-        addComponent(defineBodyComponent(spawn));
-        addComponent(defineSpriteComponent());
-        addComponent(defineGraphComponent());
+        addComponent(pathfindingComponent());
+        addComponent(animationComponent());
+        addComponent(bodyComponent(spawn));
+        addComponent(spriteComponent());
+        addComponent(graphComponent());
     }
 
     protected Map<Class<? extends Damager>, DamageNegotiation> defineDamageNegotiations() {
@@ -60,7 +60,7 @@ public class FloatingCan extends AbstractEnemy {
                 ChargedShotDisintegration.class, new DamageNegotiation(15));
     }
 
-    private BodyComponent defineBodyComponent(Vector2 spawn) {
+    private BodyComponent bodyComponent(Vector2 spawn) {
         BodyComponent bodyComponent = new BodyComponent(ABSTRACT);
         bodyComponent.setSize(.75f * PPM, .75f * PPM);
         setBottomCenterToPoint(bodyComponent.getCollisionBox(), spawn);
@@ -76,7 +76,7 @@ public class FloatingCan extends AbstractEnemy {
         return bodyComponent;
     }
 
-    private PathfindingComponent definePathfindingComponent() {
+    private PathfindingComponent pathfindingComponent() {
         PathfindingComponent pathfindingComponent = new PathfindingComponent(
                 () -> getComponent(BodyComponent.class).getCenter(), () -> getMegaman().getFocus(),
                 target -> {
@@ -102,7 +102,7 @@ public class FloatingCan extends AbstractEnemy {
         return pathfindingComponent;
     }
 
-    private SpriteComponent defineSpriteComponent() {
+    private SpriteComponent spriteComponent() {
         Sprite sprite = new Sprite();
         sprite.setSize(1.5f * PPM, 1.5f * PPM);
         return new SpriteComponent(sprite, new StandardEnemySpriteAdapter() {
@@ -122,7 +122,7 @@ public class FloatingCan extends AbstractEnemy {
         });
     }
 
-    private AnimationComponent defineAnimationComponent() {
+    private AnimationComponent animationComponent() {
         TextureAtlas textureAtlas = gameContext.getAsset(ENEMIES_1.getSrc(), TextureAtlas.class);
         return new AnimationComponent(new TimedAnimation(textureAtlas.findRegion("FloatingCan"), 4, .15f));
     }

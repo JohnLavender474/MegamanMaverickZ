@@ -3,12 +3,17 @@ package com.game.shapes;
 import com.badlogic.gdx.math.Shape2D;
 import com.game.core.Component;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.util.Arrays.*;
+import static java.util.stream.Collectors.*;
+
 /** Component for rendering shapes. */
 @Getter
+@NoArgsConstructor
 public class ShapeComponent extends Component {
 
     private final List<ShapeHandle> shapeHandles = new ArrayList<>();
@@ -19,7 +24,7 @@ public class ShapeComponent extends Component {
      * @param shapeHandles the shape handles
      */
     public ShapeComponent(ShapeHandle... shapeHandles) {
-        this(Arrays.asList(shapeHandles));
+        this(asList(shapeHandles));
     }
 
     /**
@@ -28,7 +33,7 @@ public class ShapeComponent extends Component {
      * @param shapes the shapes
      */
     public ShapeComponent(Shape2D... shapes) {
-        this(Arrays.stream(shapes).map(ShapeHandle::new).collect(Collectors.toList()));
+        this(stream(shapes).map(ShapeHandle::new).collect(toList()));
     }
 
     /**
@@ -37,7 +42,7 @@ public class ShapeComponent extends Component {
      * @param shapeHandles the shape handles
      */
     public ShapeComponent(Collection<ShapeHandle> shapeHandles) {
-        shapeHandles.forEach(this::addDebugShapeHandle);
+        shapeHandles.forEach(this::addShapeHandle);
     }
 
     /**
@@ -45,8 +50,13 @@ public class ShapeComponent extends Component {
      *
      * @param shapeHandle the shape handle
      */
-    public void addDebugShapeHandle(ShapeHandle shapeHandle) {
+    public void addShapeHandle(ShapeHandle shapeHandle) {
         shapeHandles.add(shapeHandle);
+    }
+
+    /** Clears shape handles. */
+    public void clearShapeHandles() {
+        shapeHandles.clear();
     }
 
 }

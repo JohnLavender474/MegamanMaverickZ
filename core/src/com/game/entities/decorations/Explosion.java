@@ -25,26 +25,26 @@ public class Explosion extends Entity {
 
     public Explosion(GameContext2d gameContext, Vector2 center) {
         super(gameContext);
-        addComponent(defineAnimationComponent(gameContext));
-        addComponent(defineSpriteComponent(center));
-        addComponent(defineUpdatableComponent());
+        addComponent(animationComponent(gameContext));
+        addComponent(spriteComponent(center));
+        addComponent(updatableComponent());
     }
 
-    private SpriteComponent defineSpriteComponent(Vector2 center) {
+    private SpriteComponent spriteComponent(Vector2 center) {
         Sprite sprite = new Sprite();
         sprite.setSize(2.5f * PPM, 2.5f * PPM);
         sprite.setCenter(center.x, center.y);
         return new SpriteComponent(sprite);
     }
 
-    private AnimationComponent defineAnimationComponent(IAssetLoader assetLoader) {
+    private AnimationComponent animationComponent(IAssetLoader assetLoader) {
         timedAnimation = new TimedAnimation(assetLoader.getAsset(
                 DECORATIONS.getSrc(), TextureAtlas.class).findRegion("Explosion"), 11, .025f);
         timedAnimation.setLoop(false);
         return new AnimationComponent(timedAnimation);
     }
 
-    private UpdatableComponent defineUpdatableComponent() {
+    private UpdatableComponent updatableComponent() {
         return new UpdatableComponent(delta -> {
             if (timedAnimation.isFinished()) {
                 setDead(true);

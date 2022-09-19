@@ -7,7 +7,11 @@ import com.badlogic.gdx.math.Vector2;
 import com.game.core.Entity;
 import com.game.core.GameContext2d;
 import com.game.graph.GraphComponent;
+import com.game.graph.Node;
 import com.game.movement.TrajectoryComponent;
+import com.game.shapes.ShapeComponent;
+import com.game.shapes.ShapeHandle;
+import com.game.updatables.UpdatableComponent;
 import com.game.world.BodyComponent;
 import com.game.world.BodyType;
 import com.game.world.Fixture;
@@ -16,6 +20,7 @@ import java.util.List;
 
 import static com.game.core.constants.ViewVals.PPM;
 import static com.game.utils.UtilMethods.centerPoint;
+import static com.game.world.BodyType.*;
 import static com.game.world.FixtureType.*;
 import static java.lang.Float.parseFloat;
 
@@ -60,16 +65,16 @@ public class Block extends Entity {
 
     private void set(Rectangle bounds, MapProperties properties, Vector2 friction, boolean resistance,
                      boolean gravityOn, boolean wallSlideLeft, boolean wallSlideRight, boolean feetSticky) {
-        addComponent(defineGraphComponent());
-        addComponent(defineBodyComponent(bounds, friction, resistance, gravityOn,
+        addComponent(graphComponent());
+        addComponent(bodyComponent(bounds, friction, resistance, gravityOn,
                 wallSlideLeft, wallSlideRight, feetSticky));
         if (properties != null && properties.containsKey("trajectory")) {
             String[] trajectories = properties.get("trajectory", String.class).split(";");
-            addComponent(defineTrajectoryComponent(trajectories));
+            addComponent(trajectoryComponent(trajectories));
         }
     }
 
-    private TrajectoryComponent defineTrajectoryComponent(String[] trajectories) {
+    private TrajectoryComponent trajectoryComponent(String[] trajectories) {
         TrajectoryComponent trajectoryComponent = new TrajectoryComponent();
         for (String trajectory : trajectories) {
             String[] params = trajectory.split(",");
@@ -81,9 +86,9 @@ public class Block extends Entity {
         return trajectoryComponent;
     }
 
-    private BodyComponent defineBodyComponent(Rectangle bounds, Vector2 friction, boolean resistance, boolean gravityOn,
+    private BodyComponent bodyComponent(Rectangle bounds, Vector2 friction, boolean resistance, boolean gravityOn,
                                               boolean wallSlideLeft, boolean wallSlideRight, boolean feetSticky) {
-        BodyComponent bodyComponent = new BodyComponent(BodyType.STATIC);
+        BodyComponent bodyComponent = new BodyComponent(STATIC);
         bodyComponent.set(bounds);
         bodyComponent.setFriction(friction);
         bodyComponent.setGravityOn(gravityOn);
@@ -110,7 +115,7 @@ public class Block extends Entity {
         return bodyComponent;
     }
 
-    private GraphComponent defineGraphComponent() {
+    private GraphComponent graphComponent() {
         GraphComponent graphComponent = new GraphComponent();
         graphComponent.addSupplier(() -> getComponent(BodyComponent.class).getCollisionBox(), () -> List.of(this));
         graphComponent.addSupplier(() -> {

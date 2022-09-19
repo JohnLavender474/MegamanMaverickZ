@@ -17,8 +17,8 @@ public class DecorativeSprite extends Entity {
     public DecorativeSprite(GameContext2d gameContext, TextureRegion textureRegion, Vector2 dimensions,
                             SpriteAdapter spriteAdapter, Predicate<Float> isDead) {
         super(gameContext);
-        addComponent(defineSpriteComponent(textureRegion, dimensions, spriteAdapter));
-        addComponent(defineUpdatableComponent(isDead));
+        addComponent(spriteComponent(textureRegion, dimensions, spriteAdapter));
+        addComponent(updatableComponent(isDead));
     }
 
     public DecorativeSprite(GameContext2d gameContext, TextureRegion textureRegion, Vector2 dimensions,
@@ -37,7 +37,7 @@ public class DecorativeSprite extends Entity {
         this(gameContext, textureRegion, dimensions, centerSupplier, delta -> false);
     }
 
-    private UpdatableComponent defineUpdatableComponent(Predicate<Float> isDead) {
+    private UpdatableComponent updatableComponent(Predicate<Float> isDead) {
         return new UpdatableComponent(delta -> {
             if (isDead.test(delta)) {
                 setDead(true);
@@ -45,7 +45,7 @@ public class DecorativeSprite extends Entity {
         });
     }
 
-    private SpriteComponent defineSpriteComponent(TextureRegion textureRegion, Vector2 dimensions,
+    private SpriteComponent spriteComponent(TextureRegion textureRegion, Vector2 dimensions,
                                                   SpriteAdapter spriteAdapter) {
         Sprite sprite = new Sprite(textureRegion);
         sprite.setSize(dimensions.x, dimensions.y);
