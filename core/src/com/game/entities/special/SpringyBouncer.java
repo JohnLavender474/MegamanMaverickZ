@@ -19,6 +19,7 @@ import com.game.world.BodyComponent;
 import com.game.world.Fixture;
 
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static com.game.core.constants.SoundAsset.*;
@@ -48,14 +49,14 @@ public class SpringyBouncer extends Entity {
 
     private BodyComponent bodyComponent(RectangleMapObject bouncerObj) {
         BodyComponent bodyComponent = new BodyComponent(ABSTRACT, bouncerObj.getRectangle());
-        Float x = bouncerObj.getProperties().get("x", Float.class);
-        Float y = bouncerObj.getProperties().get("y", Float.class);
+        Float x = bouncerObj.getProperties().get("xBounce", Float.class);
+        Float y = bouncerObj.getProperties().get("yBounce", Float.class);
         Fixture bouncer = new Fixture(this, new Rectangle(bouncerObj.getRectangle()), BOUNCER);
         if (x != null) {
-            bouncer.putUserData("x", x);
+            bouncer.putUserData("xFunc", (Function<Entity, Float>) e -> x);
         }
         if (y != null) {
-            bouncer.putUserData("y", y);
+            bouncer.putUserData("yFunc", (Function<Entity, Float>) e -> y);
         }
         bouncer.putUserData("onBounce", (Runnable) () -> {
             bounceTimer.reset();

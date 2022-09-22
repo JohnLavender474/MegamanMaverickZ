@@ -110,7 +110,6 @@ public class WorldSystem extends System {
                 graph.addObjToNodes(bodyComponent, bodyComponent.getCollisionBox());
                 // set fixtures
                 bodyComponent.getFixtures().forEach(fixture -> {
-                    fixture.resetContactProcessStates();
                     Vector2 center = bodyComponent.getCenter().cpy();
                     center.add(fixture.getOffset());
                     Shape2D shape = fixture.getFixtureShape();

@@ -52,8 +52,8 @@
  <objectgroup id="2" name="Special">
   <object id="1" name="bounce" x="608" y="448" width="32" height="32">
    <properties>
-    <property name="x" type="float" value="0"/>
-    <property name="y" type="float" value="30"/>
+    <property name="xBounce" type="float" value="0"/>
+    <property name="yBounce" type="float" value="30"/>
    </properties>
   </object>
  </objectgroup>

@@ -66,15 +66,6 @@ public class BodyComponent extends Component {
     }
 
     /**
-     * Returns only the fixtures that are active.
-     *
-     * @return only the fixtures that are active
-     */
-    public List<Fixture> getActiveFixtures() {
-        return fixtures.stream().filter(Fixture::isActive).toList();
-    }
-
-    /**
      * If this body is above the other.
      *
      * @param bodyComponent the other body component
@@ -479,6 +470,26 @@ public class BodyComponent extends Component {
      */
     public Optional<Fixture> getFirstMatchingFixture(FixtureType fixtureType) {
         return fixtures.stream().filter(fixture -> fixture.isFixtureType(fixtureType)).findFirst();
+    }
+
+    /**
+     * Returns the collection of fixtures matching the specified fixture type
+     *
+     * @param fixtureType the fixture type
+     * @return the matching fixtures
+     */
+    public Collection<Fixture> getFixturesOfType(FixtureType fixtureType) {
+        return fixtures.stream().filter(fixture -> fixture.getFixtureType().equals(fixtureType)).collect(toList());
+    }
+
+
+    /**
+     * Returns only the fixtures that are active.
+     *
+     * @return only the fixtures that are active
+     */
+    public List<Fixture> getActiveFixtures() {
+        return fixtures.stream().filter(Fixture::isActive).toList();
     }
 
     /**

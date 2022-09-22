@@ -158,7 +158,7 @@ public class Bat extends AbstractEnemy implements Hitter {
         // model
         Rectangle model = new Rectangle(0f, 0f, .75f * PPM, .75f * PPM);
         // hitter box
-        Fixture hitterBox = new Fixture(this, new Rectangle(model), HITTER_BOX);
+        Fixture hitterBox = new Fixture(this, new Rectangle(model), HITTER);
         bodyComponent.addFixture(hitterBox);
         // damageable box
         Fixture damageableBox = new Fixture(this, new Rectangle(model), DAMAGEABLE);

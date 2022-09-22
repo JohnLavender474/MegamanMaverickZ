@@ -8,28 +8,24 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.behaviors.BehaviorSystem;
 import com.game.controllers.ControllerSystem;
 import com.game.core.DebugLogger;
-import com.game.core.Entity;
 import com.game.core.GameContext2d;
 import com.game.cull.CullOnCamTransComponent;
 import com.game.cull.CullOnCamTransSystem;
 import com.game.cull.CullOutOfCamBoundsComponent;
 import com.game.entities.AbstractBounds;
+import com.game.entities.EnemyFactory;
+import com.game.entities.HazardFactory;
+import com.game.entities.SpecialFactory;
 import com.game.entities.blocks.Block;
 import com.game.entities.blocks.impl.JeffBezosLittleDickRocket;
 import com.game.entities.bosses.TimberWoman;
-import com.game.entities.enemies.*;
-import com.game.entities.hazards.LaserBeamer;
-import com.game.entities.hazards.Saw;
 import com.game.entities.megaman.Megaman;
 import com.game.entities.sensors.DeathSensor;
-import com.game.entities.special.Force;
-import com.game.entities.special.SpringyBouncer;
 import com.game.graph.Graph;
 import com.game.graph.GraphSystem;
 import com.game.health.HealthComponent;
@@ -44,7 +40,6 @@ import com.game.movement.TrajectorySystem;
 import com.game.pathfinding.PathfindingSystem;
 import com.game.sounds.SoundSystem;
 import com.game.spawns.Spawn;
-import com.game.spawns.SpawnLocation;
 import com.game.spawns.SpawnManager;
 import com.game.updatables.UpdatableSystem;
 import com.game.utils.enums.Direction;
@@ -56,7 +51,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 
 import static com.game.controllers.ControllerButton.START;
 import static com.game.core.constants.Events.*;
@@ -68,10 +62,8 @@ import static com.game.core.constants.SoundAsset.MEGAMAN_DEFEAT_SOUND;
 import static com.game.core.constants.TextureAsset.BITS;
 import static com.game.core.constants.ViewVals.*;
 import static com.game.backgrounds.WindyClouds.WINDY_CLOUDS;
-import static com.game.utils.UtilMethods.*;
-import static com.game.utils.enums.Position.*;
-import static com.game.world.BodyType.*;
-import static com.game.world.FixtureType.*;
+
+import static com.game.utils.UtilMethods.bottomCenterPoint;
 import static java.lang.Math.*;
 
 public class LevelScreen extends ScreenAdapter implements MessageListener {
@@ -148,7 +140,8 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
             return rect;
         }).toList();
         List<Spawn> enemySpawns = levelMap.getRectObjsOfLayer(ENEMY_SPAWNS).stream().map(enemySpawnObj ->
-                new Spawn(gameContext, getEnemySpawnSupplier(enemySpawnObj), enemySpawnObj.getRectangle())).toList();
+                new Spawn(gameContext, EnemyFactory.get(gameContext, enemySpawnObj, () -> megaman),
+                        enemySpawnObj.getRectangle())).toList();
         spawnManager = new SpawnManager(gameContext.getViewport(PLAYGROUND).getCamera(), playerSpawns, enemySpawns);
         spawnManager.setCurrentPlayerSpawn(startPlayerSpawn);
         // abstract bounds
@@ -169,10 +162,10 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
                 gameContext.addEntity(new DeathSensor(gameContext, deathSensorObj.getRectangle())));
         // specials
         levelMap.getRectObjsOfLayer(SPECIAL).forEach(specialObj ->
-            gameContext.addEntity(getSpecial(specialObj)));
+            gameContext.addEntity(SpecialFactory.get(gameContext, specialObj)));
         // hazards
         levelMap.getRectObjsOfLayer(HAZARDS).forEach(hazardObj ->
-            gameContext.addEntity(getHazard(hazardObj)));
+            gameContext.addEntity(HazardFactory.get(gameContext, hazardObj)));
         // test
         levelMap.getRectObjsOfLayer(TEST).forEach(testObj -> {
             if (testObj.getName().equals("TimberWoman")) {
@@ -312,76 +305,6 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
         SpriteBatch spriteBatch = gameContext.getSpriteBatch();
         spriteBatch.setProjectionMatrix(gameContext.getViewport(UI).getCamera().combined);
         fpsText.draw(spriteBatch);
-    }
-
-    private Supplier<Entity> getEnemySpawnSupplier(RectangleMapObject spawnObj) {
-        switch (spawnObj.getName()) {
-            case "met" -> {
-                return () -> new Met(gameContext, () -> megaman,
-                        getPoint(spawnObj.getRectangle(), BOTTOM_CENTER));
-            }
-            case "sniper_joe" -> {
-                return () -> new SniperJoe(gameContext, () -> megaman,
-                        getPoint(spawnObj.getRectangle(), BOTTOM_CENTER));
-            }
-            case "suction_roller" -> {
-                return () -> new SuctionRoller(gameContext, () -> megaman,
-                        getPoint(spawnObj.getRectangle(), BOTTOM_CENTER));
-            }
-            case "floating_can" -> {
-                return () -> new SpawnLocation(gameContext, gameContext.getViewport(PLAYGROUND).getCamera(),
-                        spawnObj.getRectangle(), 4, 3f, () -> new FloatingCan(gameContext, () -> megaman,
-                        getPoint(spawnObj.getRectangle(), BOTTOM_CENTER)));
-            }
-            case "bat" -> {
-                return () -> new Bat(gameContext, () -> megaman,
-                        getPoint(spawnObj.getRectangle(), TOP_CENTER));
-            }
-            case "dragonfly" -> {
-                return () -> new Dragonfly(gameContext, () -> megaman,
-                        getPoint(spawnObj.getRectangle(), CENTER));
-            }
-            case "matasaburo" -> {
-                return () -> new Matasaburo(gameContext, () -> megaman,
-                        getPoint(spawnObj.getRectangle(), BOTTOM_CENTER));
-            }
-            default -> throw new IllegalStateException("Cannot find matching entity for <" + spawnObj.getName() + ">");
-        }
-    }
-
-    private Entity getHazard(RectangleMapObject spawnObj) {
-        switch (spawnObj.getName()) {
-            case "saw" -> {
-                return new Saw(gameContext, spawnObj);
-            }
-            case "laser_beamer" -> {
-                return new LaserBeamer(gameContext, spawnObj);
-            }
-            default -> throw new IllegalStateException("Cannot find matching entity for <" + spawnObj.getName() + ">");
-        }
-    }
-
-    private Entity getSpecial(RectangleMapObject spawnObj) {
-        switch (spawnObj.getName()) {
-            case "bounce" -> {
-                return new SpringyBouncer(gameContext, spawnObj);
-            }
-            case "force" -> {
-                return new Force(gameContext, spawnObj);
-            }
-            case "shield" -> {
-                Entity entity = new Entity(gameContext);
-                BodyComponent bodyComponent = new BodyComponent(ABSTRACT);
-                bodyComponent.set(spawnObj.getRectangle());
-                Fixture shield = new Fixture(entity, spawnObj.getRectangle(), SHIELD);
-                String reflectDir = spawnObj.getProperties().get("reflectDir", String.class);
-                shield.putUserData("reflectDir", reflectDir);
-                bodyComponent.addFixture(shield);
-                entity.addComponent(bodyComponent);
-                return entity;
-            }
-            default -> throw new IllegalStateException("Cannot find matching entity for <" + spawnObj.getName() + ">");
-        }
     }
 
 }

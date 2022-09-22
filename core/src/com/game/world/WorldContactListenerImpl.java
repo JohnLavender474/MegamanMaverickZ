@@ -12,18 +12,19 @@ import com.game.entities.projectiles.AbstractProjectile;
 import com.game.health.HealthComponent;
 import com.game.sounds.SoundComponent;
 import com.game.updatables.UpdatableComponent;
-import com.game.utils.enums.ProcessState;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static com.game.core.constants.MiscellaneousVals.*;
-import static com.game.core.constants.SoundAsset.*;
+import static com.game.core.constants.SoundAsset.MEGAMAN_LAND_SOUND;
 import static com.game.core.constants.ViewVals.PPM;
-import static com.game.entities.megaman.Megaman.*;
-import static com.game.entities.megaman.Megaman.AButtonTask.*;
-import static com.game.utils.ShapeUtils.*;
+import static com.game.entities.megaman.Megaman.AButtonTask;
+import static com.game.entities.megaman.Megaman.AButtonTask._AIR_DASH;
+import static com.game.entities.megaman.Megaman.AButtonTask._JUMP;
+import static com.game.utils.ShapeUtils.intersectLineRect;
 import static com.game.world.BodySense.*;
 import static com.game.world.FixtureType.*;
 
@@ -33,11 +34,8 @@ import static com.game.world.FixtureType.*;
 public class WorldContactListenerImpl implements WorldContactListener {
 
     @Override
+    @SuppressWarnings("unchecked")
     public void beginContact(Contact contact, float delta) {
-        Fixture f1 = contact.getFixture1();
-        Fixture f2 = contact.getFixture2();
-        f1.addContactProcessState(f2.getFixtureType(), ProcessState.BEGIN);
-        f2.addContactProcessState(f1.getFixtureType(), ProcessState.BEGIN);
         if (contact.acceptMask(DAMAGEABLE, DEATH)) {
             contact.mask1stEntity().getComponent(HealthComponent.class).setHealth(0);
         } else if (contact.acceptMask(LEFT, BLOCK)) {
@@ -69,33 +67,52 @@ public class WorldContactListenerImpl implements WorldContactListener {
                 damageable.canBeDamagedBy(damager) && damager.canDamage(damageable)) {
             damageable.takeDamageFrom(damager);
             damager.onDamageInflictedTo(damageable);
-        } else if (contact.acceptMask(HITTER_BOX) && contact.mask1stEntity() instanceof Hitter hitter) {
+        } else if (contact.acceptMask(HITTER) && contact.mask1stEntity() instanceof Hitter hitter) {
             hitter.hit(contact.mask2ndFixture());
         } else if (contact.acceptMask(BOUNCEABLE, BOUNCER)) {
             Fixture bouncer = contact.mask2ndFixture();
-            Float x = bouncer.getUserData("x", Float.class);
-            Float y = bouncer.getUserData("y", Float.class);
-            BodyComponent bounceable = contact.mask1stBody();
-            if (x != null) {
-                bounceable.setVelocityX(x * PPM);
+            Function<Entity, Float> xFunc = (Function<Entity, Float>) bouncer.getUserData("xFunc");
+            Function<Entity, Float> yFunc = (Function<Entity, Float>) bouncer.getUserData("yFunc");
+            Entity bounceableEntity = contact.mask1stEntity();
+            BodyComponent bounceableBody = contact.mask1stBody();
+            if (xFunc != null) {
+                float x = xFunc.apply(bounceableEntity);
+                bounceableBody.setVelocityX(x * PPM);
             }
-            if (y != null) {
-                bounceable.setVelocityY(y * PPM);
+            if (yFunc != null) {
+                float y = yFunc.apply(bounceableEntity);
+                bounceableBody.setVelocityY(y * PPM);
             }
             Runnable runnable = contact.mask2ndFixture().getUserData("onBounce", Runnable.class);
             if (runnable != null) {
                 runnable.run();
             }
+        } else if (contact.acceptMask(FORCE, FORCE_LISTENER)) {
+            Supplier<Vector2> forceSupplier = (Supplier<Vector2>) contact.mask1stFixture().getUserData(SUPPLIER);
+            Fixture forceListener = contact.mask2ndFixture();
+            BodyComponent forceListenerBody = contact.mask2ndBody();
+            if (forceListener.containsUserDataKey(CONTINUE) && forceListener.getUserData(CONTINUE, Boolean.class)) {
+                Supplier<Boolean> doUpdate = (Supplier<Boolean>) forceListener.getUserData(UPDATE + PREDICATE);
+                Supplier<Boolean> doRemove = (Supplier<Boolean>) forceListener.getUserData(REMOVE + PREDICATE);
+                Entity forceListenerEntity = contact.mask2ndEntity();
+                if (!forceListenerEntity.hasComponent(UpdatableComponent.class)) {
+                    forceListenerEntity.addComponent(new UpdatableComponent());
+                }
+                forceListenerEntity.getComponent(UpdatableComponent.class).putUpdatable(d ->
+                        forceListenerBody.applyImpulse(forceSupplier.get()), doUpdate, doRemove);
+            } else {
+                forceListenerBody.applyImpulse(forceSupplier.get());
+            }
+        } else if (contact.acceptMask(SCANNER)) {
+            Fixture scannerFixture = contact.mask1stFixture();
+            Fixture other = contact.mask2ndFixture();
+            ((Collection<FixtureType>) scannerFixture.getUserData(COLLECTION)).add(other.getFixtureType());
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public void continueContact(Contact contact, float delta) {
-        Fixture f1 = contact.getFixture1();
-        Fixture f2 = contact.getFixture2();
-        f1.addContactProcessState(f2.getFixtureType(), ProcessState.CONTINUE);
-        f2.addContactProcessState(f1.getFixtureType(), ProcessState.CONTINUE);
         if (contact.acceptMask(LEFT, BLOCK)) {
             contact.mask1stBody().setIs(TOUCHING_BLOCK_LEFT);
         } else if (contact.acceptMask(RIGHT, BLOCK)) {
@@ -124,9 +141,9 @@ public class WorldContactListenerImpl implements WorldContactListener {
                 damageable.canBeDamagedBy(damager) && damager.canDamage(damageable)) {
             damageable.takeDamageFrom(damager);
             damager.onDamageInflictedTo(damageable);
-        } else if (contact.acceptMask(HITTER_BOX, FORCE) && contact.mask1stEntity() instanceof AbstractProjectile p) {
+        } else if (contact.acceptMask(HITTER, FORCE) && contact.mask1stEntity() instanceof AbstractProjectile p) {
             p.setOwner(null);
-        } else if (contact.acceptMask(HITTER_BOX) && contact.mask1stEntity() instanceof Hitter hitter) {
+        } else if (contact.acceptMask(HITTER) && contact.mask1stEntity() instanceof Hitter hitter) {
             hitter.hit(contact.getMask().getSecond());
         } else if (contact.acceptMask(LASER, BLOCK) && contact.areEntitiesDifferent()) {
             Fixture first = contact.mask1stFixture();
@@ -140,27 +157,18 @@ public class WorldContactListenerImpl implements WorldContactListener {
             Supplier<Vector2> forceSupplier = (Supplier<Vector2>) contact.mask1stFixture().getUserData(SUPPLIER);
             Fixture forceListener = contact.mask2ndFixture();
             BodyComponent forceListenerBody = contact.mask2ndBody();
-            if (forceListener.containsUserDataKey(CONTINUE) && forceListener.getUserData(CONTINUE, Boolean.class)) {
-                Supplier<Boolean> doUpdate = (Supplier<Boolean>) forceListener.getUserData(UPDATE + PREDICATE);
-                Supplier<Boolean> doRemove = (Supplier<Boolean>) forceListener.getUserData(REMOVE + PREDICATE);
-                Entity forceListenerEntity = contact.mask2ndEntity();
-                if (!forceListenerEntity.hasComponent(UpdatableComponent.class)) {
-                    forceListenerEntity.addComponent(new UpdatableComponent());
-                }
-                forceListenerEntity.getComponent(UpdatableComponent.class).putUpdatable(d ->
-                    forceListenerBody.applyImpulse(forceSupplier.get()), doUpdate, doRemove);
-            } else {
+            if (!forceListener.containsUserDataKey(CONTINUE) || !forceListener.getUserData(CONTINUE, Boolean.class)) {
                 forceListenerBody.applyImpulse(forceSupplier.get());
             }
+        } else if (contact.acceptMask(SCANNER)) {
+            Fixture scannerFixture = contact.mask1stFixture();
+            Fixture other = contact.mask2ndFixture();
+            ((Collection<FixtureType>) scannerFixture.getUserData(COLLECTION)).add(other.getFixtureType());
         }
     }
 
     @Override
     public void endContact(Contact contact, float delta) {
-        Fixture f1 = contact.getFixture1();
-        Fixture f2 = contact.getFixture2();
-        f1.addContactProcessState(f2.getFixtureType(), ProcessState.END);
-        f2.addContactProcessState(f1.getFixtureType(), ProcessState.END);
         if (contact.acceptMask(LEFT, BLOCK)) {
             contact.mask1stBody().setIsNot(TOUCHING_BLOCK_LEFT);
         } else if (contact.acceptMask(RIGHT, BLOCK)) {

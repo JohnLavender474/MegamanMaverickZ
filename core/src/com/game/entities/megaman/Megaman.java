@@ -8,8 +8,6 @@ import com.game.core.Entity;
 import com.game.core.GameContext2d;
 import com.game.core.MegamanGameInfo;
 import com.game.entities.hazards.LaserBeamer;
-import com.game.graph.Graph;
-import com.game.graph.GraphComponent;
 import com.game.messages.Message;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
@@ -75,25 +73,25 @@ import static com.game.world.FixtureType.*;
 @Setter
 public class Megaman extends Entity implements Damageable, Faceable, CameraFocusable {
 
-    private static final Debugger debugger = new Debugger(true);
-
     public enum AButtonTask {
         _JUMP, _AIR_DASH
     }
 
+    private static final Debugger debugger = new Debugger(true);
+
     private static final float CLAMP_X = 20f;
     private static final float CLAMP_Y = 35f;
     private static final float RUN_SPEED = 4f;
-    // private static final float RUN_SPEED = 2f;
+    // private static final float WATER_RUN_SPEED = 2f;
     private static final float JUMP_VEL = 18f;
-    // private static final float JUMP_VEL = 25f;
+    // private static final float WATER_JUMP_VEL = 25f;
     private static final float AIR_DASH_VEL = 12f;
     private static final float WALL_JUMP_VEL = 32f;
     private static final float WALL_JUMP_HORIZ = 15f;
     private static final float GROUND_SLIDE_VEL = 12f;
     private static final float GROUNDED_GRAVITY = -.125f;
     private static final float UNGROUNDED_GRAVITY = -.5f;
-    // private static final float UNGROUNDED_GRAVITY = -.25f;
+    // private static final float WATER_UNGROUNDED_GRAVITY = -.25f;
 
     private static final float SHOOT_ANIM_TIME = .5f;
     private static final float DAMAGE_DURATION = .75f;
@@ -106,17 +104,19 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
     private static final float TIME_TO_FULLY_CHARGED = 1.25f;
     private static final float DAMAGE_RECOVERY_FLASH_DURATION = .05f;
 
-    private static final Map<Class<? extends Damager>, DamageNegotiation> damageNegotiations = Map.of(
-            Bat.class, new DamageNegotiation(5),
-            Met.class, new DamageNegotiation(5),
-            Bullet.class, new DamageNegotiation(10),
-            Fireball.class, new DamageNegotiation(5),
-            Dragonfly.class, new DamageNegotiation(5),
-            Matasaburo.class, new DamageNegotiation(5),
-            SniperJoe.class, new DamageNegotiation(10),
-            FloatingCan.class, new DamageNegotiation(10),
-            LaserBeamer.class, new DamageNegotiation(10),
-            SuctionRoller.class, new DamageNegotiation(10));
+    private static final Map<Class<? extends Damager>, DamageNegotiation> damageNegotiations = new HashMap<>() {{
+        put(Bat.class, new DamageNegotiation(5));
+        put(Met.class, new DamageNegotiation(5));
+        put(Bullet.class, new DamageNegotiation(10));
+        put(Fireball.class, new DamageNegotiation(5));
+        put(Dragonfly.class, new DamageNegotiation(5));
+        put(Matasaburo.class, new DamageNegotiation(5));
+        put(SniperJoe.class, new DamageNegotiation(10));
+        put(SpringHead.class, new DamageNegotiation(5));
+        put(FloatingCan.class, new DamageNegotiation(10));
+        put(LaserBeamer.class, new DamageNegotiation(10));
+        put(SuctionRoller.class, new DamageNegotiation(10));
+    }};
 
     private final Percentage[] healthTanks;
     private final Supplier<Boolean> canChargeWeapons;
@@ -158,7 +158,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         megamanSpecialAbilities.add(WALL_JUMP);
         megamanSpecialAbilities.add(AIR_DASH);
 
-        // TODO: Remove three above lines pairOf code
+        // TODO: Remove three above lines of code
 
         setCurrentWeapon(MEGA_BUSTER);
         addComponent(healthComponent(MEGAMAN_MAX_HEALTH));
@@ -170,14 +170,21 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         addComponent(spriteComponent());
         addComponent(new SoundComponent());
         addComponent(new ShapeComponent());
-
-        // addComponent(graphComponent());
-
         damageTimer.setToEnd();
         shootAnimationTimer.setToEnd();
         damageRecoveryTimer.setToEnd();
         wallJumpImpetusTimer.setToEnd();
-        gameContext.addMessageListener(this);
+        addComponent(shapeComponent());
+    }
+
+    private ShapeComponent shapeComponent() {
+        List<ShapeHandle> shapeHandles = new ArrayList<>();
+        getComponent(BodyComponent.class).getFixturesOfType(BOUNCEABLE).forEach(f -> {
+            ShapeHandle shapeHandle = new ShapeHandle();
+            shapeHandle.setShapeSupplier(f::getFixtureShape);
+            shapeHandles.add(shapeHandle);
+        });
+        return new ShapeComponent(shapeHandles);
     }
 
     @Override
@@ -302,13 +309,6 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         });
     }
 
-    private GraphComponent graphComponent() {
-        GraphComponent graphComponent = new GraphComponent();
-        BodyComponent bodyComponent = getComponent(BodyComponent.class);
-        graphComponent.addSupplier(bodyComponent::getCollisionBox, () -> List.of(this));
-        return graphComponent;
-    }
-
     private UpdatableComponent updatableComponent() {
         return new UpdatableComponent(delta -> {
             // charging timer
@@ -334,21 +334,13 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
                 }
             }
             if (damageRecoveryTimer.isJustFinished()) {
-                recoveryBlink = false;
+                setRecoveryBlink(false);
             }
             // anim and wall jump impetus timers
             shootAnimationTimer.update(delta);
             wallJumpImpetusTimer.update(delta);
             // update weapon cool down timer
             megamanWeaponDefs.get(currentWeapon).updateCooldownTimer(delta);
-            // graph node shape debug
-            /*
-            ShapeComponent shapeComponent = getComponent(ShapeComponent.class);
-            shapeComponent.clearShapeHandles();
-            getComponent(GraphComponent.class).getNodes().forEach(n -> {
-                shapeComponent.addShapeHandle(new ShapeHandle(n.getBounds()));
-            });
-             */
         });
     }
 
@@ -646,14 +638,14 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         left.setOffset(-.45f * PPM, .15f * PPM);
         bodyComponent.addFixture(left);
         Fixture leftBounceable = new Fixture(this, new Rectangle(model2), BOUNCEABLE);
-        leftBounceable.setOffset(-.45f * PPM, .15f * PPM);
+        leftBounceable.setOffset(-.25f * PPM, .15f * PPM);
         bodyComponent.addFixture(leftBounceable);
         // right
         Fixture right = new Fixture(this, new Rectangle(model2), RIGHT);
         right.setOffset(.45f * PPM, .15f * PPM);
         bodyComponent.addFixture(right);
         Fixture rightBounceable = new Fixture(this, new Rectangle(model2), BOUNCEABLE);
-        rightBounceable.setOffset(.45f * PPM, .15f * PPM);
+        rightBounceable.setOffset(.25f * PPM, .15f * PPM);
         bodyComponent.addFixture(rightBounceable);
         // hitbox
         Fixture hitBox = new Fixture(this, new Rectangle(0f, 0f, .8f * PPM, .5f * PPM), DAMAGEABLE);
@@ -667,11 +659,13 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
             if (behaviorComponent.is(GROUND_SLIDING)) {
                 bodyComponent.setHeight(.45f * PPM);
                 feet.setOffset(0f, -PPM / 4f);
+                feetBounceable.setOffset(0f, -PPM / 5f);
                 ((Rectangle) right.getFixtureShape()).setHeight(.15f * PPM);
                 ((Rectangle) left.getFixtureShape()).setHeight(.15f * PPM);
             } else {
                 bodyComponent.setHeight(.95f * PPM);
                 feet.setOffset(0f, -PPM / 2f);
+                feetBounceable.setOffset(0f, -PPM / 4f);
                 ((Rectangle) right.getFixtureShape()).setHeight(.35f * PPM);
                 ((Rectangle) left.getFixtureShape()).setHeight(.35f * PPM);
             }

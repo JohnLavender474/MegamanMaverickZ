@@ -99,7 +99,7 @@ public class Bullet extends AbstractProjectile {
         bodyComponent.setAffectedByResistance(false);
         Rectangle model = new Rectangle(0f, 0f, .1f * PPM, .1f * PPM);
         // projectile
-        Fixture projectile = new Fixture(this, new Rectangle(model), HITTER_BOX);
+        Fixture projectile = new Fixture(this, new Rectangle(model), HITTER);
         bodyComponent.addFixture(projectile);
         // force listener
         Fixture forceListener = new Fixture(this, new Rectangle(model), FORCE_LISTENER);

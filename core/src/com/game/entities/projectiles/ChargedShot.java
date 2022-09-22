@@ -135,7 +135,7 @@ public class ChargedShot extends AbstractProjectile implements Faceable {
         bodyComponent.setCenter(spawn.x, spawn.y);
         // model
         Rectangle model = new Rectangle(0f, 0f, fullyCharged ? PPM : .5f * PPM, fullyCharged ? PPM : .5f * PPM);
-        Fixture projectile = new Fixture(this, new Rectangle(model), HITTER_BOX);
+        Fixture projectile = new Fixture(this, new Rectangle(model), HITTER);
         bodyComponent.addFixture(projectile);
         Fixture damageBox = new Fixture(this, new Rectangle(model), DAMAGER);
         bodyComponent.addFixture(damageBox);
