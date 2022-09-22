@@ -50,8 +50,8 @@ public class SpringHead extends AbstractEnemy implements Hitter, Faceable {
     private static final float DAMAGE_DURATION = .5f;
     private static final float BOUNCE_DURATION = 1f;
     private static final float TURN_DELAY = .35f;
-    private static final float X_BOUNCE = 5f;
-    private static final float Y_BOUNCE = 10f;
+    private static final float X_BOUNCE = .125f;
+    private static final float Y_BOUNCE = .5f;
     private static final float SPEED_NORMAL = 1.5f;
     private static final float SPEED_SUPER = 6f;
 
