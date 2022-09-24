@@ -1,8 +1,8 @@
 package com.game.dialogue;
 
 import com.badlogic.gdx.audio.Sound;
-import com.game.core.GameContext2d;
-import com.game.core.MegaTextHandle;
+import com.game.GameContext2d;
+import com.game.text.MegaTextHandle;
 
 import java.util.LinkedList;
 import java.util.Queue;

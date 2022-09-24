@@ -10,9 +10,8 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
-import com.game.core.Entity;
-import com.game.core.GameContext2d;
-import com.game.core.IAssetLoader;
+import com.game.Entity;
+import com.game.GameContext2d;
 import com.game.shapes.LineComponent;
 import com.game.shapes.LineHandle;
 import com.game.shapes.ShapeComponent;
@@ -35,8 +34,8 @@ import java.util.List;
 
 import static com.badlogic.gdx.graphics.Color.*;
 import static com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.*;
-import static com.game.constants.TextureAsset.*;
-import static com.game.constants.ViewVals.PPM;
+import static com.game.assets.TextureAsset.*;
+import static com.game.ViewVals.PPM;
 import static com.game.utils.UtilMethods.*;
 import static com.game.utils.enums.Position.*;
 import static com.game.utils.objects.Pair.*;
@@ -162,8 +161,8 @@ public class Saw extends Entity {
         });
     }
 
-    private AnimationComponent animationComponent(IAssetLoader assetLoader) {
-        TextureRegion textureRegion = assetLoader.getAsset(HAZARDS_1.getSrc(), TextureAtlas.class)
+    private AnimationComponent animationComponent(GameContext2d gameContext) {
+        TextureRegion textureRegion = gameContext.getAsset(HAZARDS_1.getSrc(), TextureAtlas.class)
                 .findRegion("Saw");
         TimedAnimation timedAnimation = new TimedAnimation(textureRegion, 2, .1f);
         return new AnimationComponent(timedAnimation);

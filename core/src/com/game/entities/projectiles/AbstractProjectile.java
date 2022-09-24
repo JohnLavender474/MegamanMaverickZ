@@ -1,7 +1,7 @@
 package com.game.entities.projectiles;
 
-import com.game.core.Entity;
-import com.game.core.GameContext2d;
+import com.game.Entity;
+import com.game.GameContext2d;
 import com.game.cull.CullOnCamTransComponent;
 import com.game.cull.CullOutOfCamBoundsComponent;
 import com.game.damage.Damageable;
@@ -13,7 +13,7 @@ import com.game.world.BodyComponent;
 import lombok.Getter;
 import lombok.Setter;
 
-import static com.game.constants.RenderingGround.*;
+import static com.game.sprites.RenderingGround.*;
 import static com.game.utils.UtilMethods.*;
 
 @Getter
@@ -28,12 +28,12 @@ public abstract class AbstractProjectile extends Entity implements Hitter, Damag
         addComponent(new SoundComponent());
         addComponent(new CullOnCamTransComponent());
         addComponent(cullOutOfCamBoundsComponent(cullDuration));
-        gameContext.addMessageListener(this);
+        gameContext.addEventListener(this);
     }
 
     @Override
     public void onDeath() {
-        gameContext.removeMessageListener(this);
+        gameContext.removeEventListener(this);
     }
 
     public boolean isInGameCamBounds() {

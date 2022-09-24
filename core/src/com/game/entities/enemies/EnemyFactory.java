@@ -1,14 +1,14 @@
 package com.game.entities.enemies;
 
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
-import com.game.core.Entity;
-import com.game.core.GameContext2d;
+import com.game.Entity;
+import com.game.GameContext2d;
 import com.game.entities.megaman.Megaman;
 import com.game.spawns.SpawnLocation;
 
 import java.util.function.Supplier;
 
-import static com.game.constants.RenderingGround.PLAYGROUND;
+import static com.game.sprites.RenderingGround.PLAYGROUND;
 import static com.game.utils.UtilMethods.*;
 
 public class EnemyFactory {

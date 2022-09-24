@@ -1,13 +1,12 @@
 package com.game.graph;
 
 import com.badlogic.gdx.math.Rectangle;
-import com.game.core.Component;
+import com.game.Component;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.*;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor

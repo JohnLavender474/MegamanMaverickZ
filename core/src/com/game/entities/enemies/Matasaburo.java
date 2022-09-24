@@ -7,9 +7,8 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
-import com.game.core.Entity;
-import com.game.core.GameContext2d;
-import com.game.core.IAssetLoader;
+import com.game.Entity;
+import com.game.GameContext2d;
 import com.game.damage.DamageNegotiation;
 import com.game.damage.Damager;
 import com.game.entities.contracts.Faceable;
@@ -35,10 +34,10 @@ import java.util.function.Supplier;
 
 import static com.badlogic.gdx.graphics.Color.BLUE;
 import static com.badlogic.gdx.graphics.Color.GREEN;
-import static com.game.constants.MiscellaneousVals.FUNCTION;
-import static com.game.constants.StatVals.MAX_HEALTH;
-import static com.game.constants.TextureAsset.ENEMIES_1;
-import static com.game.constants.ViewVals.PPM;
+import static com.game.GlobalKeys.FUNCTION;
+import static com.game.health.HealthVals.MAX_HEALTH;
+import static com.game.assets.TextureAsset.ENEMIES_1;
+import static com.game.ViewVals.PPM;
 import static com.game.entities.contracts.Facing.F_LEFT;
 import static com.game.entities.contracts.Facing.F_RIGHT;
 import static com.game.utils.UtilMethods.setBottomCenterToPoint;
@@ -120,8 +119,8 @@ public class Matasaburo extends AbstractEnemy implements Faceable {
         });
     }
 
-    private AnimationComponent animationComponent(IAssetLoader assetLoader) {
-        TextureRegion region = assetLoader.getAsset(ENEMIES_1.getSrc(), TextureAtlas.class).findRegion("Matasaburo");
+    private AnimationComponent animationComponent(GameContext2d gameContext) {
+        TextureRegion region = gameContext.getAsset(ENEMIES_1.getSrc(), TextureAtlas.class).findRegion("Matasaburo");
         TimedAnimation animation = new TimedAnimation(region, 6, .1f);
         return new AnimationComponent(animation);
     }

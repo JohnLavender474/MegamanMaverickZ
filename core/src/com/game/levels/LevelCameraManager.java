@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.function.Supplier;
 
-import static com.game.constants.ViewVals.PPM;
+import static com.game.ViewVals.PPM;
 import static com.game.utils.UtilMethods.*;
 import static com.game.utils.enums.ProcessState.*;
 import static java.lang.Math.*;

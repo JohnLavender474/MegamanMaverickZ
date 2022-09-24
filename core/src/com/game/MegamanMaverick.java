@@ -17,16 +17,21 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.game.constants.*;
-import com.game.core.*;
+import com.game.assets.MusicAsset;
+import com.game.assets.SoundAsset;
+import com.game.assets.TextureAsset;
+import com.game.controllers.ControllerUtils;
 import com.game.animations.AnimationSystem;
 import com.game.behaviors.BehaviorSystem;
 import com.game.controllers.ButtonStatus;
 import com.game.controllers.ControllerButton;
 import com.game.controllers.ControllerSystem;
-import com.game.core.System;
 import com.game.cull.CullOnCamTransSystem;
 import com.game.cull.CullOnOutOfCamBoundsSystem;
+import com.game.entities.megaman.MegamanGameInfo;
+import com.game.levels.LevelStatus;
+import com.game.messages.Message;
+import com.game.messages.MessageListener;
 import com.game.shapes.LineSystem;
 import com.game.shapes.ShapeSystem;
 import com.game.graph.GraphSystem;
@@ -36,16 +41,18 @@ import com.game.menus.impl.BossSelectScreen;
 import com.game.menus.impl.ExtrasScreen;
 import com.game.menus.impl.MainMenuScreen;
 import com.game.menus.impl.PauseMenuScreen;
-import com.game.messages.Message;
-import com.game.messages.MessageListener;
+import com.game.events.Event;
+import com.game.events.EventListener;
 import com.game.movement.PendulumSystem;
 import com.game.movement.RotatingLineSystem;
 import com.game.pathfinding.PathfindingSystem;
 import com.game.levels.BossIntroScreen;
 import com.game.sounds.SoundSystem;
+import com.game.sprites.RenderingGround;
 import com.game.sprites.SpriteSystem;
 import com.game.movement.TrajectorySystem;
 import com.game.updatables.UpdatableSystem;
+import com.game.utils.DebugLogger;
 import com.game.utils.objects.KeyValuePair;
 import com.game.world.WorldContactListenerImpl;
 import com.game.world.WorldSystem;
@@ -55,18 +62,19 @@ import lombok.Setter;
 import java.util.*;
 
 import static com.badlogic.gdx.Gdx.*;
-import static com.game.constants.Events.*;
-import static com.game.constants.GameScreen.*;
-import static com.game.constants.LevelStatus.*;
-import static com.game.constants.MegamanVals.*;
-import static com.game.constants.MusicAsset.*;
-import static com.game.constants.RenderingGround.PLAYGROUND;
-import static com.game.constants.ViewVals.*;
-import static com.game.constants.WorldVals.*;
+import static com.game.events.EventType.*;
+import static com.game.GameScreen.*;
+import static com.game.levels.LevelStatus.*;
+import static com.game.entities.megaman.MegamanVals.*;
+import static com.game.assets.MusicAsset.*;
+import static com.game.sprites.RenderingGround.PLAYGROUND;
+import static com.game.ViewVals.*;
+import static com.game.world.WorldVals.*;
 import static com.game.controllers.ButtonStatus.*;
 import static com.game.controllers.ControllerUtils.*;
-import static com.game.core.DebugLogger.DebugLevel.*;
+import static com.game.utils.DebugLogger.DebugLevel.*;
 import static com.game.utils.UtilMethods.*;
+import static java.util.Collections.*;
 
 /**
  * The entry point into the Megaman game. Initializes all assets and classes that need to be initialized before gameplay
@@ -74,19 +82,28 @@ import static com.game.utils.UtilMethods.*;
  * {@link com.badlogic.gdx.Screen#render(float)} on {@link #getScreen()} every frame.
  */
 @Getter
-public class MegamanMaverick extends Game implements GameContext2d, MessageListener {
+public class MegamanMaverick extends Game implements GameContext2d, EventListener {
+
+    private final Map<Class<? extends System>, System> systems = new LinkedHashMap<>();
+    private final Set<Entity> entities = new HashSet<>();
 
     private final Map<ControllerButton, ButtonStatus> controllerButtons = new EnumMap<>(ControllerButton.class);
+
     private final Map<RenderingGround, Viewport> viewports = new EnumMap<>(RenderingGround.class);
-    private final Queue<KeyValuePair<Rectangle, Color>> debugQueue = new ArrayDeque<>();
-    private final Map<Class<? extends System>, System> systems = new LinkedHashMap<>();
     private final Map<GameScreen, Screen> screens = new EnumMap<>(GameScreen.class);
-    private final Set<MessageListener> messageListeners = new HashSet<>();
-    private final Queue<Message> messageQueue = new ArrayDeque<>();
-    private final List<Disposable> disposables = new ArrayList<>();
+
     private final Map<String, Object> blackBoard = new HashMap<>();
+
+    private final Set<MessageListener> messageListeners = new HashSet<>();
+    private final Queue<Message> messageQueue = new LinkedList<>();
+
+    private final Set<EventListener> eventListeners = new HashSet<>();
+    private final Queue<Event> eventQueue = new LinkedList<>();
+
+    private final List<Disposable> disposables = new ArrayList<>();
     private final List<Runnable> runOnShutdown = new ArrayList<>();
-    private final Set<Entity> entities = new HashSet<>();
+
+    private final Queue<KeyValuePair<Rectangle, Color>> debugQueue = new ArrayDeque<>();
 
     private GameScreen currentScreenKey;
     private ShapeRenderer shapeRenderer;
@@ -136,7 +153,7 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
         }
         assetManager.finishLoading();
         // systems
-        addSystem(new ControllerSystem(this));
+        addSystem(new ControllerSystem(this::isControllerButtonPressed));
         addSystem(new CullOnCamTransSystem());
         addSystem(new CullOnOutOfCamBoundsSystem(getViewport(PLAYGROUND).getCamera()));
         addSystem(new HealthSystem());
@@ -154,9 +171,9 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
         addSystem(new LineSystem(viewports.get(PLAYGROUND).getCamera(), getShapeRenderer()));
         addSystem(new ShapeSystem(viewports.get(PLAYGROUND).getCamera(), getShapeRenderer()));
         // blackboard
-        putBlackboardObject(MEGAMAN_GAME_INFO, new MegamanGameInfo());
+        putBlackboardObject(MEGAMAN_INFO, new MegamanGameInfo());
         // add this as message listener
-        addMessageListener(this);
+        addEventListener(this);
         // define screens
         screens.put(MAIN_MENU, new MainMenuScreen(this));
         screens.put(EXTRAS, new ExtrasScreen(this));
@@ -199,8 +216,13 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
     }
 
     @Override
+    public void removeEntity(Entity entity) {
+        entities.remove(entity);
+    }
+
+    @Override
     public Collection<Entity> getEntities() {
-        return Collections.unmodifiableCollection(entities);
+        return unmodifiableCollection(entities);
     }
 
     @Override
@@ -311,18 +333,18 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
     }
 
     @Override
-    public boolean isJustPressed(ControllerButton controllerButton) {
+    public boolean isControllerButtonJustPressed(ControllerButton controllerButton) {
         return controllerButtons.get(controllerButton) == IS_JUST_PRESSED;
     }
 
     @Override
-    public boolean isPressed(ControllerButton controllerButton) {
+    public boolean isControllerButtonPressed(ControllerButton controllerButton) {
         ButtonStatus buttonStatus = controllerButtons.get(controllerButton);
         return equalsAny(buttonStatus, IS_JUST_PRESSED, IS_PRESSED);
     }
 
     @Override
-    public boolean isJustReleased(ControllerButton controllerButton) {
+    public boolean isControllerButtonJustReleased(ControllerButton controllerButton) {
         return controllerButtons.get(controllerButton) == IS_JUST_RELEASED;
     }
 
@@ -331,7 +353,7 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
         for (ControllerButton controllerButton : ControllerButton.values()) {
             ButtonStatus status = controllerButtons.get(controllerButton);
             boolean isControllerButtonPressed = isControllerConnected() ?
-                    isControllerButtonPressed(controllerButton.getControllerBindingCode()) :
+                    ControllerUtils.isControllerButtonPressed(controllerButton.getControllerBindingCode()) :
                     isKeyboardButtonPressed(controllerButton.getKeyboardBindingCode());
             if (isControllerButtonPressed) {
                 if (equalsAny(status, IS_RELEASED, IS_JUST_RELEASED)) {
@@ -353,6 +375,21 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
     }
 
     @Override
+    public void addEventListener(EventListener eventListener) {
+        eventListeners.add(eventListener);
+    }
+
+    @Override
+    public void removeEventListener(EventListener eventListener) {
+        eventListeners.remove(eventListener);
+    }
+
+    @Override
+    public void addEvent(Event event) {
+        eventQueue.add(event);
+    }
+
+    @Override
     public void addMessageListener(MessageListener messageListener) {
         messageListeners.add(messageListener);
     }
@@ -368,19 +405,10 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
     }
 
     @Override
-    public void updateMessageDispatcher(float delta) {
-        while (!messageQueue.isEmpty()) {
-            Message message = messageQueue.poll();
-            messageListeners.forEach(listener ->
-                    listener.listenToMessage(message.getKey(), message.getOwner(), message.getContent(), delta));
-        }
-    }
-
-    @Override
-    public void listenToMessage(String key, Object owner, Object message, float delta) {
-        if (message.equals(LEVEL_PAUSED)) {
+    public void listenToEvent(Event event, float delta) {
+        if (event.is(LEVEL_PAUSED)) {
             setLevelStatus(PAUSED);
-        } else if (message.equals(LEVEL_UNPAUSED)) {
+        } else if (event.is(LEVEL_UNPAUSED)) {
             setLevelStatus(UNPAUSED);
         }
     }
@@ -388,7 +416,7 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
     @Override
     public void setSoundEffectsVolume(int soundEffectsVolume) {
         this.soundEffectsVolume = soundEffectsVolume;
-        addMessage(new Message(null, SOUND_VOLUME_CHANGE));
+        addEvent(new Event(SOUND_VOLUME_CHANGE));
     }
 
     @Override
@@ -401,6 +429,7 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
 
     @Override
     public void render() {
+        float delta = graphics.getDeltaTime();
         gl20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
         if (input.isKeyJustPressed(Input.Keys.ESCAPE)) {
@@ -409,10 +438,17 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
         if (doUpdateController()) {
             updateController();
         }
-        updateMessageDispatcher(graphics.getDeltaTime());
+        while (!eventQueue.isEmpty()) {
+            Event event = eventQueue.poll();
+            eventListeners.forEach(eventListener -> eventListener.listenToEvent(event, delta));
+        }
+        while (!messageQueue.isEmpty()) {
+            Message message = messageQueue.poll();
+            messageListeners.forEach(messageListener -> messageListener.listenToMessage(message, delta));
+        }
         super.render();
         if (overlayScreen != null) {
-            overlayScreen.render(graphics.getDeltaTime());
+            overlayScreen.render(delta);
         }
         viewports.values().forEach(Viewport::apply);
     }

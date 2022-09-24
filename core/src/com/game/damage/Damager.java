@@ -1,6 +1,6 @@
 package com.game.damage;
 
-import com.game.core.Entity;
+import com.game.Entity;
 
 /**
  * Interface for {@link Entity} instances that are able to inflict damage.

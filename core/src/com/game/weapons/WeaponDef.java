@@ -1,6 +1,6 @@
 package com.game.weapons;
 
-import com.game.core.Entity;
+import com.game.Entity;
 import com.game.utils.objects.Percentage;
 import com.game.utils.objects.Timer;
 import lombok.Getter;

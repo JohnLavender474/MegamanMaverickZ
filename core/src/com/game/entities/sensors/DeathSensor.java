@@ -1,9 +1,8 @@
 package com.game.entities.sensors;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.math.Rectangle;
-import com.game.core.Entity;
-import com.game.core.GameContext2d;
+import com.game.Entity;
+import com.game.GameContext2d;
 import com.game.world.BodyComponent;
 import com.game.world.BodyType;
 import com.game.world.Fixture;

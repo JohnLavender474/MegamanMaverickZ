@@ -8,9 +8,8 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
-import com.game.core.Entity;
-import com.game.core.GameContext2d;
-import com.game.core.IAssetLoader;
+import com.game.Entity;
+import com.game.GameContext2d;
 import com.game.damage.DamageNegotiation;
 import com.game.damage.Damager;
 import com.game.entities.contracts.Faceable;
@@ -36,9 +35,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static com.badlogic.gdx.graphics.Color.*;
-import static com.game.constants.MiscellaneousVals.*;
-import static com.game.constants.TextureAsset.*;
-import static com.game.constants.ViewVals.*;
+import static com.game.GlobalKeys.*;
+import static com.game.assets.TextureAsset.*;
+import static com.game.ViewVals.*;
 import static com.game.entities.contracts.Facing.*;
 import static com.game.utils.UtilMethods.*;
 import static com.game.utils.enums.Position.*;
@@ -215,8 +214,8 @@ public class SpringHead extends AbstractEnemy implements Hitter, Faceable {
         });
     }
     
-    private AnimationComponent animationComponent(IAssetLoader assetLoader) {
-        TextureAtlas textureAtlas = assetLoader.getAsset(ENEMIES_1.getSrc(), TextureAtlas.class);
+    private AnimationComponent animationComponent(GameContext2d gameContext) {
+        TextureAtlas textureAtlas = gameContext.getAsset(ENEMIES_1.getSrc(), TextureAtlas.class);
         Supplier<String> keySupplier = () -> isBouncing() ? "Unleashed" : "Compressed";
         Map<String, TimedAnimation> timedAnimations = Map.of(
                 "Unleashed", new TimedAnimation(textureAtlas.findRegion("SpringHead/Unleashed"), 6, .1f),

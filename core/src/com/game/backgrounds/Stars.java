@@ -1,10 +1,10 @@
 package com.game.backgrounds;
 
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.game.core.GameContext2d;
+import com.game.GameContext2d;
 
-import static com.game.constants.TextureAsset.*;
-import static com.game.constants.ViewVals.*;
+import static com.game.assets.TextureAsset.*;
+import static com.game.ViewVals.*;
 
 public class Stars extends Background {
 

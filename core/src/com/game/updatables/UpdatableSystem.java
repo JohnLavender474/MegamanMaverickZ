@@ -1,11 +1,9 @@
 package com.game.updatables;
 
-import com.game.core.Entity;
-import com.game.core.System;
-import com.game.utils.interfaces.Updatable;
+import com.game.Entity;
+import com.game.System;
 
 import java.util.Iterator;
-import java.util.Set;
 
 /**
  * {@link System} implementation for handling {@link UpdatableComponent} instances.

@@ -13,8 +13,12 @@ import com.badlogic.gdx.math.Vector2;
 import com.game.backgrounds.BackgroundFactory;
 import com.game.behaviors.BehaviorSystem;
 import com.game.controllers.ControllerSystem;
-import com.game.core.DebugLogger;
-import com.game.core.GameContext2d;
+import com.game.entities.interactive.Gateway;
+import com.game.messages.Message;
+import com.game.messages.MessageListener;
+import com.game.messages.MessageType;
+import com.game.utils.DebugLogger;
+import com.game.GameContext2d;
 import com.game.cull.CullOnCamTransComponent;
 import com.game.cull.CullOnCamTransSystem;
 import com.game.cull.CullOutOfCamBoundsComponent;
@@ -29,8 +33,8 @@ import com.game.graph.Graph;
 import com.game.graph.GraphSystem;
 import com.game.health.HealthComponent;
 import com.game.backgrounds.Background;
-import com.game.messages.Message;
-import com.game.messages.MessageListener;
+import com.game.events.Event;
+import com.game.events.EventListener;
 import com.game.movement.TrajectorySystem;
 import com.game.pathfinding.PathfindingSystem;
 import com.game.sounds.SoundSystem;
@@ -38,7 +42,7 @@ import com.game.spawns.Spawn;
 import com.game.spawns.SpawnManager;
 import com.game.updatables.UpdatableSystem;
 import com.game.utils.enums.Direction;
-import com.game.core.MegaTextHandle;
+import com.game.text.MegaTextHandle;
 import com.game.utils.objects.Timer;
 import com.game.world.*;
 
@@ -47,20 +51,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.game.GlobalKeys.NEXT;
 import static com.game.controllers.ControllerButton.START;
-import static com.game.constants.Events.*;
-import static com.game.constants.GameScreen.PAUSE_MENU;
-import static com.game.constants.LevelStatus.*;
-import static com.game.constants.RenderingGround.PLAYGROUND;
-import static com.game.constants.RenderingGround.UI;
-import static com.game.constants.SoundAsset.MEGAMAN_DEFEAT_SOUND;
-import static com.game.constants.TextureAsset.BITS;
-import static com.game.constants.ViewVals.*;
+import static com.game.events.EventType.*;
+import static com.game.GameScreen.PAUSE_MENU;
+import static com.game.levels.LevelStatus.*;
+import static com.game.messages.MessageType.*;
+import static com.game.sprites.RenderingGround.PLAYGROUND;
+import static com.game.sprites.RenderingGround.UI;
+import static com.game.assets.SoundAsset.MEGAMAN_DEFEAT_SOUND;
+import static com.game.assets.TextureAsset.BITS;
+import static com.game.ViewVals.*;
 
 import static com.game.utils.UtilMethods.bottomCenterPoint;
 import static java.lang.Math.*;
 
-public class LevelScreen extends ScreenAdapter implements MessageListener {
+public class LevelScreen extends ScreenAdapter implements EventListener, MessageListener {
 
     private static final String TEST = "Test";
     private static final String BLOCKS = "Blocks";
@@ -100,6 +106,7 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
     public void show() {
         DebugLogger.getInstance().info("Entities size at level screen show init: " + gameContext.getEntities().size());
         // init
+        gameContext.addEventListener(this);
         gameContext.addMessageListener(this);
         gameContext.setLevelStatus(UNPAUSED);
         gameContext.setDoUpdateController(true);
@@ -172,7 +179,7 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
     @Override
     public void render(float delta) {
         super.render(delta);
-        if (gameContext.isJustPressed(START)) {
+        if (gameContext.isControllerButtonJustPressed(START)) {
             boolean paused = gameContext.isLevelStatus(PAUSED);
             gameContext.setLevelStatus(paused ? UNPAUSED : PAUSED);
             if (paused) {
@@ -187,7 +194,7 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
                 gameContext.getSystem(BehaviorSystem.class).setOn(paused);
                 gameContext.getSystem(WorldSystem.class).setOn(paused);
             }
-            gameContext.addMessage(new Message(this, paused ? LEVEL_UNPAUSED : LEVEL_PAUSED));
+            gameContext.addEvent(new Event(paused ? LEVEL_UNPAUSED : LEVEL_PAUSED));
         } else if (!gameContext.isLevelStatus(PAUSED)) {
             levelCameraManager.update(delta);
             if (levelCameraManager.getTransState() == null) {
@@ -195,6 +202,7 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
             } else {
                 switch (levelCameraManager.getTransState()) {
                     case BEGIN -> {
+                        gameContext.addEvent(new Event(BEGIN_GAME_ROOM_TRANS));
                         gameContext.getSystem(ControllerSystem.class).setOn(false);
                         gameContext.getSystem(TrajectorySystem.class).setOn(false);
                         gameContext.getSystem(UpdatableSystem.class).setOn(false);
@@ -204,6 +212,7 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
                         megaman.getComponent(BodyComponent.class).getVelocity().setZero();
                     }
                     case CONTINUE -> {
+                        gameContext.addEvent(new Event(CONTINUE_GAME_ROOM_TRANS));
                         Direction direction = levelCameraManager.getTransDirection();
                         BodyComponent bodyComponent = megaman.getComponent(BodyComponent.class);
                         switch (direction) {
@@ -218,6 +227,7 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
                         }
                     }
                     case END -> {
+                        gameContext.addEvent(new Event(END_GAME_ROOM_TRANS));
                         gameContext.getSystem(ControllerSystem.class).setOn(true);
                         gameContext.getSystem(TrajectorySystem.class).setOn(true);
                         gameContext.getSystem(UpdatableSystem.class).setOn(true);
@@ -247,21 +257,30 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
     }
 
     @Override
-    public void listenToMessage(String key, Object owner, Object message, float delta) {
-        if (owner.equals(megaman) && message.equals(PLAYER_DEAD)) {
+    public void listenToEvent(Event event, float delta) {
+        if (event.is(PLAYER_DEAD)) {
             gameContext.getSystem(SoundSystem.class).requestToStopAllLoopingSounds();
             gameContext.getAsset(MEGAMAN_DEFEAT_SOUND.getSrc(), Sound.class).play();
-            deathTimer.reset();
             gameContext.stopMusic(levelMusic);
+            deathTimer.reset();
+        }
+    }
+
+    @Override
+    public void listenToMessage(Message message, float delta) {
+        if (message.is(NEXT_GAME_ROOM_REQUEST)) {
+            String nextGameRoom = message.getContent(NEXT, String.class);
+            levelCameraManager.transToGameRoomWithName(nextGameRoom);
         }
     }
 
     @Override
     public void dispose() {
-        gameContext.stopMusic(levelMusic);
         levelMap.dispose();
         gameContext.purgeAllEntities();
         gameContext.setLevelStatus(NONE);
+        gameContext.stopMusic(levelMusic);
+        gameContext.removeEventListener(this);
         gameContext.removeMessageListener(this);
     }
 
@@ -276,6 +295,7 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
                 entity.setDead(true);
             }
         });
+        gameContext.addEvent(new Event(PLAYER_SPAWN));
     }
 
     private void showFpsText() {

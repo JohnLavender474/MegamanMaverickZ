@@ -4,12 +4,12 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
-import com.game.core.GameContext2d;
-import com.game.core.MegamanGameInfo;
+import com.game.GameContext2d;
+import com.game.entities.megaman.MegamanGameInfo;
 import com.game.entities.megaman.MegamanWeapon;
 import com.game.menus.MenuButton;
 import com.game.menus.MenuScreen;
-import com.game.core.MegaTextHandle;
+import com.game.text.MegaTextHandle;
 import com.game.utils.objects.Percentage;
 
 import java.util.Map;
@@ -18,10 +18,10 @@ import java.util.function.Supplier;
 
 import static com.badlogic.gdx.graphics.Color.*;
 import static com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.*;
-import static com.game.constants.MegamanVals.*;
-import static com.game.constants.RenderingGround.*;
-import static com.game.constants.ViewVals.*;
-import static com.game.core.MegamanGameInfo.*;
+import static com.game.entities.megaman.MegamanVals.*;
+import static com.game.sprites.RenderingGround.*;
+import static com.game.ViewVals.*;
+import static com.game.entities.megaman.MegamanGameInfo.*;
 import static com.game.entities.megaman.MegamanWeapon.*;
 
 public class PauseMenuScreen extends MenuScreen {
@@ -41,7 +41,7 @@ public class PauseMenuScreen extends MenuScreen {
      */
     public PauseMenuScreen(GameContext2d gameContext) {
         super(gameContext, MEGA_BUSTER.name());
-        MegamanGameInfo gameInfo = gameContext.getBlackboardObject(MEGAMAN_GAME_INFO, MegamanGameInfo.class);
+        MegamanGameInfo gameInfo = gameContext.getBlackboardObject(MEGAMAN_INFO, MegamanGameInfo.class);
         this.weaponsAttained = gameInfo.getMegamanWeaponsAttained();
         this.creditsSupplier = gameInfo.getCreditsSupplier();
         this.healthTanks = gameInfo.getHealthTanks();

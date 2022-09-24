@@ -10,11 +10,11 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.game.animations.TimedAnimation;
 import com.game.backgrounds.Stars;
-import com.game.core.GameContext2d;
-import com.game.core.MegaTextHandle;
-import com.game.constants.Boss;
-import com.game.constants.GameScreen;
-import com.game.constants.SoundAsset;
+import com.game.GameContext2d;
+import com.game.text.MegaTextHandle;
+import com.game.entities.bosses.BossEnum;
+import com.game.GameScreen;
+import com.game.assets.SoundAsset;
 import com.game.dialogue.DialogueAnimQ;
 import com.game.utils.objects.KeyValuePair;
 import com.game.utils.objects.Timer;
@@ -23,10 +23,10 @@ import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static com.game.constants.MusicAsset.MM2_BOSS_INTRO;
-import static com.game.constants.RenderingGround.UI;
-import static com.game.constants.TextureAsset.STAGE_SELECT;
-import static com.game.constants.ViewVals.*;
+import static com.game.assets.MusicAsset.MM2_BOSS_INTRO;
+import static com.game.sprites.RenderingGround.UI;
+import static com.game.assets.TextureAsset.STAGE_SELECT;
+import static com.game.ViewVals.*;
 import static com.game.utils.UtilMethods.drawFiltered;
 import static java.lang.Math.round;
 
@@ -35,7 +35,7 @@ public class BossIntroScreen extends ScreenAdapter {
     public static final float DURATION = 7f;
     public static final float BOSS_DROP_DOWN = .25f;
 
-    private static Map<Boss, Supplier<Queue<KeyValuePair<TimedAnimation, Timer>>>> bossIntroAnims = null;
+    private static Map<BossEnum, Supplier<Queue<KeyValuePair<TimedAnimation, Timer>>>> bossIntroAnims = null;
 
     private final GameContext2d gameContext;
 
@@ -73,25 +73,25 @@ public class BossIntroScreen extends ScreenAdapter {
         bossLetters = new MegaTextHandle(round(PPM / 2f),
                 new Vector2((VIEW_WIDTH * PPM / 3f) - PPM, VIEW_HEIGHT * PPM / 3f));
         if (bossIntroAnims == null) {
-            bossIntroAnims = new EnumMap<>(Boss.class);
-            for (Boss boss : Boss.values()) {
-                bossIntroAnims.put(boss, () -> boss.getIntroAnimsQ(
-                                gameContext.getAsset(boss.getTextureAtlas(), TextureAtlas.class))
+            bossIntroAnims = new EnumMap<>(BossEnum.class);
+            for (BossEnum bossEnum : BossEnum.values()) {
+                bossIntroAnims.put(bossEnum, () -> bossEnum.getIntroAnimsQ(
+                                gameContext.getAsset(bossEnum.getTextureAtlas(), TextureAtlas.class))
                         .stream().map(i -> KeyValuePair.of(new TimedAnimation(i.key()), new Timer(i.value())))
                         .collect(Collectors.toCollection(ArrayDeque::new)));
             }
         }
     }
 
-    public void set(Boss boss) {
+    public void set(BossEnum bossEnum) {
         set = true;
-        nextScreen = boss.getGameScreen();
+        nextScreen = bossEnum.getGameScreen();
         Sprite sprite = new Sprite();
-        Vector2 size = boss.getSize();
+        Vector2 size = bossEnum.getSize();
         sprite.setSize(size.x * PPM, size.y * PPM);
-        bossAnimDef = new KeyValuePair<>(sprite, bossIntroAnims.get(boss).get());
+        bossAnimDef = new KeyValuePair<>(sprite, bossIntroAnims.get(bossEnum).get());
         Sound thump = gameContext.getAsset(SoundAsset.THUMP_SOUND.getSrc(), Sound.class);
-        bossLettersAnimQ = DialogueAnimQ.getDialogueAnimQ(gameContext, bossLetters, boss.getBossName(), thump);
+        bossLettersAnimQ = DialogueAnimQ.getDialogueAnimQ(gameContext, bossLetters, bossEnum.getBossName(), thump);
     }
 
     @Override

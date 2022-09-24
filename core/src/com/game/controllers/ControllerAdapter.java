@@ -8,27 +8,23 @@ public interface ControllerAdapter {
     /**
      * On just pressed.
      */
-    default void onJustPressed() {
-    }
+    default void onJustPressed() {}
 
     /**
      * On press continued.
      *
      * @param delta the delta time
      */
-    default void onPressContinued(float delta) {
-    }
+    default void onPressContinued(float delta) {}
 
     /**
      * On just released.
      */
-    default void onJustReleased() {
-    }
+    default void onJustReleased() {}
 
     /**
      * On release continued.
      */
-    default void onReleaseContinued() {
-    }
+    default void onReleaseContinued() {}
 
 }

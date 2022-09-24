@@ -5,8 +5,8 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.core.Entity;
-import com.game.core.GameContext2d;
+import com.game.Entity;
+import com.game.GameContext2d;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
 import com.game.damage.Damager;
@@ -19,10 +19,10 @@ import com.game.world.BodyComponent;
 import com.game.world.Fixture;
 import lombok.Getter;
 
-import static com.game.constants.SoundAsset.*;
-import static com.game.constants.TextureAsset.MEGAMAN_CHARGED_SHOT;
-import static com.game.constants.TextureAsset.MEGAMAN_HALF_CHARGED_SHOT;
-import static com.game.constants.ViewVals.PPM;
+import static com.game.assets.SoundAsset.*;
+import static com.game.assets.TextureAsset.MEGAMAN_CHARGED_SHOT;
+import static com.game.assets.TextureAsset.MEGAMAN_HALF_CHARGED_SHOT;
+import static com.game.ViewVals.PPM;
 import static com.game.world.BodyType.*;
 import static com.game.world.FixtureType.*;
 
@@ -49,12 +49,12 @@ public class ChargedShotDisintegration extends Entity implements Damager {
         addComponent(bodyComponent(center));
         addComponent(spriteComponent(center, isLeft));
         addComponent(animationComponent(gameContext));
-        gameContext.addMessageListener(this);
+        gameContext.addEventListener(this);
     }
 
     @Override
     public void onDeath() {
-        gameContext.removeMessageListener(this);
+        gameContext.removeEventListener(this);
     }
 
     private UpdatableComponent updatableComponent() {

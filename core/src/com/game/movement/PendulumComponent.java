@@ -1,6 +1,6 @@
 package com.game.movement;
 
-import com.game.core.Component;
+import com.game.Component;
 import com.game.utils.interfaces.UpdatableConsumer;
 import com.game.utils.objects.Pendulum;
 import lombok.AllArgsConstructor;

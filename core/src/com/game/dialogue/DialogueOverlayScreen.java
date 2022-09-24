@@ -2,9 +2,8 @@ package com.game.dialogue;
 
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.game.core.GameContext2d;
-import com.game.constants.RenderingGround;
-import com.game.dialogue.Dialogue;
+import com.game.GameContext2d;
+import com.game.sprites.RenderingGround;
 
 import java.util.Collection;
 import java.util.function.Supplier;

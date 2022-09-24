@@ -1,7 +1,7 @@
 package com.game.cull;
 
 import com.badlogic.gdx.math.Rectangle;
-import com.game.core.Component;
+import com.game.Component;
 import com.game.utils.objects.Timer;
 import lombok.Getter;
 

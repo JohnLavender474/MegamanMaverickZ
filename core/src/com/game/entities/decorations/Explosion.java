@@ -3,19 +3,18 @@ package com.game.entities.decorations;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
-import com.game.core.Entity;
-import com.game.core.GameContext2d;
+import com.game.Entity;
+import com.game.GameContext2d;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
-import com.game.core.IAssetLoader;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
-import static com.game.constants.TextureAsset.DECORATIONS;
-import static com.game.constants.ViewVals.PPM;
+import static com.game.assets.TextureAsset.DECORATIONS;
+import static com.game.ViewVals.PPM;
 
 public class Explosion extends Entity {
 
@@ -37,8 +36,8 @@ public class Explosion extends Entity {
         return new SpriteComponent(sprite);
     }
 
-    private AnimationComponent animationComponent(IAssetLoader assetLoader) {
-        timedAnimation = new TimedAnimation(assetLoader.getAsset(
+    private AnimationComponent animationComponent(GameContext2d gameContext) {
+        timedAnimation = new TimedAnimation(gameContext.getAsset(
                 DECORATIONS.getSrc(), TextureAtlas.class).findRegion("Explosion"), 11, .025f);
         timedAnimation.setLoop(false);
         return new AnimationComponent(timedAnimation);

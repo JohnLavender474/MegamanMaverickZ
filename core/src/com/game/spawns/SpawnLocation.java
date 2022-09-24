@@ -2,8 +2,8 @@ package com.game.spawns;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.Rectangle;
-import com.game.core.Entity;
-import com.game.core.GameContext2d;
+import com.game.Entity;
+import com.game.GameContext2d;
 import com.game.updatables.UpdatableComponent;
 import com.game.utils.objects.Timer;
 

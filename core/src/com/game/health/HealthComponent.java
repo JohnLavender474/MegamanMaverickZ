@@ -1,6 +1,6 @@
 package com.game.health;
 
-import com.game.core.Component;
+import com.game.Component;
 import com.game.utils.interfaces.Resettable;
 import lombok.Getter;
 import lombok.Setter;

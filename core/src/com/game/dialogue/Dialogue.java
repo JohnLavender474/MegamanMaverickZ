@@ -6,10 +6,10 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
-import com.game.core.GameContext2d;
-import com.game.core.MegaTextHandle;
-import com.game.constants.SoundAsset;
-import com.game.constants.TextureAsset;
+import com.game.GameContext2d;
+import com.game.text.MegaTextHandle;
+import com.game.assets.SoundAsset;
+import com.game.assets.TextureAsset;
 import com.game.utils.interfaces.Drawable;
 import com.game.utils.interfaces.Updatable;
 import com.game.utils.objects.Timer;
@@ -20,7 +20,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.function.Supplier;
 
-import static com.game.constants.ViewVals.PPM;
+import static com.game.ViewVals.PPM;
 import static com.game.utils.UtilMethods.drawFiltered;
 import static java.lang.Math.round;
 

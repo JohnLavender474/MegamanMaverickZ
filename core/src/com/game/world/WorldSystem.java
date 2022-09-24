@@ -1,8 +1,8 @@
 package com.game.world;
 
 import com.badlogic.gdx.math.*;
-import com.game.core.Entity;
-import com.game.core.System;
+import com.game.Entity;
+import com.game.System;
 import com.game.graph.Graph;
 import com.game.graph.Node;
 import com.game.levels.LevelTiledMap;
@@ -13,7 +13,7 @@ import com.game.utils.objects.Pair;
 import java.util.*;
 
 import static com.badlogic.gdx.math.Intersector.intersectRectangles;
-import static com.game.constants.ViewVals.PPM;
+import static com.game.ViewVals.PPM;
 import static com.game.utils.ShapeUtils.overlap;
 import static java.lang.Math.*;
 

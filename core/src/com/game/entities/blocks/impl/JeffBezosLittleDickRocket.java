@@ -9,7 +9,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
-import com.game.core.GameContext2d;
+import com.game.GameContext2d;
 import com.game.entities.blocks.Block;
 import com.game.shapes.ShapeComponent;
 import com.game.shapes.ShapeHandle;
@@ -20,8 +20,8 @@ import com.game.utils.objects.Wrapper;
 import com.game.world.BodyComponent;
 
 import static com.badlogic.gdx.graphics.Color.*;
-import static com.game.constants.TextureAsset.*;
-import static com.game.constants.ViewVals.PPM;
+import static com.game.assets.TextureAsset.*;
+import static com.game.ViewVals.PPM;
 import static com.game.utils.UtilMethods.*;
 import static com.game.utils.enums.Position.*;
 

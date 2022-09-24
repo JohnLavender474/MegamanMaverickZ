@@ -1,10 +1,8 @@
 package com.game.cull;
 
 import com.badlogic.gdx.graphics.Camera;
-import com.game.core.Entity;
-import com.game.core.System;
-
-import java.util.Set;
+import com.game.Entity;
+import com.game.System;
 
 import static com.game.utils.UtilMethods.*;
 

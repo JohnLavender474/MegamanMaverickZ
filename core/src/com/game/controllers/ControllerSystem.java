@@ -1,26 +1,25 @@
 package com.game.controllers;
 
-import com.game.core.Entity;
-import com.game.core.System;
-import com.game.core.IController;
+import com.game.Entity;
+import com.game.System;
 
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.Set;
+import java.util.function.Predicate;
 
 /**
  * {@link System} implementation for handling {@link ControllerComponent} instances.
  */
 public class ControllerSystem extends System {
 
-    private final IController iController;
+    private final Predicate<ControllerButton> isPressedPredicate;
 
     private Map<ControllerButton, Boolean> thisFrame;
     private Map<ControllerButton, Boolean> previousFrame;
 
-    public ControllerSystem(IController iController) {
+    public ControllerSystem(Predicate<ControllerButton> isPressedPredicate) {
         super(ControllerComponent.class);
-        this.iController = iController;
+        this.isPressedPredicate = isPressedPredicate;
         this.thisFrame = new EnumMap<>(ControllerButton.class) {{
             for (ControllerButton controllerButton : ControllerButton.values()) {
                 put(controllerButton, false);
@@ -32,7 +31,7 @@ public class ControllerSystem extends System {
     protected void preProcess(float delta) {
         previousFrame = new EnumMap<>(thisFrame);
         for (ControllerButton controllerButton : ControllerButton.values()) {
-            thisFrame.replace(controllerButton, iController.isPressed(controllerButton));
+            thisFrame.replace(controllerButton, isPressedPredicate.test(controllerButton));
         }
     }
 

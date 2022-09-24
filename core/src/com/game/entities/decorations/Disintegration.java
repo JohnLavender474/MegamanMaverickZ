@@ -3,9 +3,9 @@ package com.game.entities.decorations;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
-import com.game.core.Component;
-import com.game.core.Entity;
-import com.game.core.GameContext2d;
+import com.game.Component;
+import com.game.Entity;
+import com.game.GameContext2d;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
 import com.game.sprites.SpriteComponent;
@@ -18,8 +18,8 @@ import lombok.Setter;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.game.constants.TextureAsset.DECORATIONS;
-import static com.game.constants.ViewVals.PPM;
+import static com.game.assets.TextureAsset.DECORATIONS;
+import static com.game.ViewVals.PPM;
 import static com.game.world.BodyType.*;
 
 @Getter

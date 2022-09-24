@@ -4,14 +4,14 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.game.constants.RenderingGround;
-import com.game.core.GameContext2d;
+import com.game.sprites.RenderingGround;
+import com.game.GameContext2d;
 import com.game.utils.enums.Direction;
 import lombok.Getter;
 
 import java.util.Map;
 
-import static com.game.constants.ViewVals.*;
+import static com.game.ViewVals.*;
 import static com.game.controllers.ControllerButton.*;
 import static com.game.utils.enums.Direction.*;
 
@@ -107,20 +107,20 @@ public abstract class MenuScreen extends ScreenAdapter {
         }
         MenuButton menuButton = menuButtons.get(currentMenuButtonKey);
         if (menuButton != null) {
-            if (gameContext.isJustPressed(DPAD_UP)) {
+            if (gameContext.isControllerButtonJustPressed(DPAD_UP)) {
                 onAnyMovement(DIR_UP);
                 menuButton.onNavigate(DIR_UP, delta);
-            } else if (gameContext.isJustPressed(DPAD_DOWN)) {
+            } else if (gameContext.isControllerButtonJustPressed(DPAD_DOWN)) {
                 onAnyMovement(DIR_DOWN);
                 menuButton.onNavigate(DIR_DOWN, delta);
-            } else if (gameContext.isJustPressed(DPAD_LEFT)) {
+            } else if (gameContext.isControllerButtonJustPressed(DPAD_LEFT)) {
                 onAnyMovement(DIR_LEFT);
                 menuButton.onNavigate(DIR_LEFT, delta);
-            } else if (gameContext.isJustPressed(DPAD_RIGHT)) {
+            } else if (gameContext.isControllerButtonJustPressed(DPAD_RIGHT)) {
                 onAnyMovement(DIR_RIGHT);
                 menuButton.onNavigate(DIR_RIGHT, delta);
             }
-            if (gameContext.isJustPressed(X) || gameContext.isJustPressed(A) || gameContext.isJustPressed(START)) {
+            if (gameContext.isControllerButtonJustPressed(X) || gameContext.isControllerButtonJustPressed(A) || gameContext.isControllerButtonJustPressed(START)) {
                 onAnySelection();
                 selectionMade = menuButton.onSelect(delta);
             }

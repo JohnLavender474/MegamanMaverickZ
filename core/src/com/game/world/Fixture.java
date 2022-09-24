@@ -3,9 +3,7 @@ package com.game.world;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Shape2D;
 import com.badlogic.gdx.math.Vector2;
-import com.game.core.Entity;
-import com.game.utils.enums.ProcessState;
-import com.game.utils.objects.Process;
+import com.game.Entity;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -13,7 +11,6 @@ import lombok.Setter;
 import java.util.*;
 
 import static com.badlogic.gdx.graphics.Color.*;
-import static java.util.Collections.*;
 
 /**
  * Defines a fixture sensor attached to a body. Offset is from the center pairOf the body.

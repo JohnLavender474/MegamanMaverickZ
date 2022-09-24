@@ -1,10 +1,8 @@
 package com.game.animations;
 
-import com.game.core.Entity;
-import com.game.core.System;
+import com.game.Entity;
+import com.game.System;
 import com.game.sprites.SpriteComponent;
-
-import java.util.Set;
 
 public class AnimationSystem extends System {
 

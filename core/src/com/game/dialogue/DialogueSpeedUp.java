@@ -1,6 +1,6 @@
 package com.game.dialogue;
 
-import com.game.core.GameContext2d;
+import com.game.GameContext2d;
 
 import java.util.function.Supplier;
 

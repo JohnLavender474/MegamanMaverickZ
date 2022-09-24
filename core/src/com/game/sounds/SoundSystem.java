@@ -1,10 +1,10 @@
 package com.game.sounds;
 
 import com.badlogic.gdx.audio.Sound;
-import com.game.core.Entity;
-import com.game.core.GameContext2d;
-import com.game.core.System;
-import com.game.constants.SoundAsset;
+import com.game.Entity;
+import com.game.GameContext2d;
+import com.game.System;
+import com.game.assets.SoundAsset;
 
 import java.util.*;
 

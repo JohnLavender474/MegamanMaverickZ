@@ -4,14 +4,14 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
-import com.game.core.IAssetLoader;
+import com.game.GameContext2d;
 import com.game.utils.interfaces.Updatable;
 import com.game.utils.interfaces.Drawable;
 import com.game.utils.objects.Timer;
 import lombok.Getter;
 
-import static com.game.constants.TextureAsset.*;
-import static com.game.constants.ViewVals.PPM;
+import static com.game.assets.TextureAsset.*;
+import static com.game.ViewVals.PPM;
 import static com.game.utils.UtilMethods.drawFiltered;
 
 @Getter
@@ -25,9 +25,9 @@ public class BlinkingArrow implements Updatable, Drawable {
 
     private boolean arrowVisible;
 
-    public BlinkingArrow(IAssetLoader assetLoader, Vector2 center) {
+    public BlinkingArrow(GameContext2d gameContext, Vector2 center) {
         this.center = center;
-        arrowSprite.setRegion(assetLoader.getAsset(DECORATIONS.getSrc(), TextureAtlas.class)
+        arrowSprite.setRegion(gameContext.getAsset(DECORATIONS.getSrc(), TextureAtlas.class)
                 .findRegion("Arrow"));
         arrowSprite.setSize(PPM / 2f, PPM / 2f);
         arrowSprite.setCenter(center.x, center.y);

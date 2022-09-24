@@ -3,8 +3,8 @@ package com.game.shapes;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
-import com.game.core.Entity;
-import com.game.core.System;
+import com.game.Entity;
+import com.game.System;
 import com.game.utils.objects.Pair;
 
 import static com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.*;

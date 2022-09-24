@@ -1,22 +1,23 @@
 package com.game.updatables;
 
-import com.game.core.Component;
+import com.game.Component;
 import com.game.utils.interfaces.Updatable;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Supplier;
 
 import static java.util.Arrays.stream;
+import static lombok.AccessLevel.*;
 
-/** @link Component} implementation for pre-processing. */
-@Getter
+/** {@link Component} implementation for updates that do not pertain to any other component type. */
+@Getter(PACKAGE)
 @NoArgsConstructor
 public class UpdatableComponent extends Component {
 
-    private final Set<QualifiedUpdatable> updatables = new HashSet<>();
+    private final List<QualifiedUpdatable> updatables = new ArrayList<>();
 
     public UpdatableComponent(Updatable... updatables) {
         stream(updatables).forEach(this::addUpdatable);

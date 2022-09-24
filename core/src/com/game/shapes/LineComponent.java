@@ -1,6 +1,6 @@
 package com.game.shapes;
 
-import com.game.core.Component;
+import com.game.Component;
 import lombok.Getter;
 import lombok.Setter;
 

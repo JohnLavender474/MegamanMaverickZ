@@ -172,27 +172,10 @@
             <false/>
         </struct>
         <key>individualSpriteSettings</key>
-        <map type="IndividualSpriteSettingsMap">
-            <key type="filename">../../../../../Desktop/510keQATmdL._AC_.jpg</key>
-            <struct type="IndividualSpriteSettings">
-                <key>pivotPoint</key>
-                <point_f>0.5,0.5</point_f>
-                <key>spriteScale</key>
-                <double>1</double>
-                <key>scale9Enabled</key>
-                <false/>
-                <key>scale9Borders</key>
-                <rect>84,123,167,247</rect>
-                <key>scale9Paddings</key>
-                <rect>84,123,167,247</rect>
-                <key>scale9FromFile</key>
-                <false/>
-            </struct>
-        </map>
+        <map type="IndividualSpriteSettingsMap"/>
         <key>fileList</key>
         <array>
             <filename>../Frames/Spikes</filename>
-            <filename>../../../../../Desktop/510keQATmdL._AC_.jpg</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

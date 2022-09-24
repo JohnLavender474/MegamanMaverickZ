@@ -1,6 +1,6 @@
 package com.game.damage;
 
-import com.game.core.Entity;
+import com.game.Entity;
 
 import java.util.Set;
 

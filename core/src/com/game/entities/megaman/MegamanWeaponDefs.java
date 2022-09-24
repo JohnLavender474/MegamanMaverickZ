@@ -1,8 +1,8 @@
 package com.game.entities.megaman;
 
 import com.badlogic.gdx.math.Vector2;
-import com.game.core.Component;
-import com.game.core.GameContext2d;
+import com.game.Component;
+import com.game.GameContext2d;
 import com.game.behaviors.BehaviorComponent;
 import com.game.entities.contracts.Facing;
 import com.game.entities.projectiles.Bullet;
@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import static com.game.constants.SoundAsset.*;
-import static com.game.constants.ViewVals.PPM;
+import static com.game.assets.SoundAsset.*;
+import static com.game.ViewVals.PPM;
 import static com.game.behaviors.BehaviorType.WALL_SLIDING;
 import static com.game.entities.contracts.Facing.F_LEFT;
 import static com.game.entities.megaman.MegamanWeapon.FLAME_TOSS;

@@ -5,8 +5,8 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.core.Entity;
-import com.game.core.System;
+import com.game.Entity;
+import com.game.System;
 import com.game.utils.enums.Position;
 import com.game.utils.objects.Wrapper;
 
@@ -58,11 +58,11 @@ public class SpriteSystem extends System {
             if (spriteProcessor.setPositioning(bounds, position)) {
                 if (bounds.getData() == null) {
                     throw new IllegalStateException("SpriteProcessor::setPositioning returns true but the value " +
-                            "pairOf Wrapper<Rectangle>::getData is null");
+                            "pairOf Wrapper<Rectangle>::getDetails is null");
                 }
                 if (position.getData() == null) {
                     throw new IllegalStateException("SpriteProcessor::setPositioning returns true but the value " +
-                            "pairOf Wrapper<Position>::getData is null");
+                            "pairOf Wrapper<Position>::getDetails is null");
                 }
                 Vector2 point = getPoint(bounds.getData(), position.getData());
                 setToPoint(sprite.getBoundingRectangle(), point, position.getData(), sprite::setPosition);

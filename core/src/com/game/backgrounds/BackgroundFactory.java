@@ -1,7 +1,7 @@
 package com.game.backgrounds;
 
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
-import com.game.core.GameContext2d;
+import com.game.GameContext2d;
 
 import java.util.Collection;
 

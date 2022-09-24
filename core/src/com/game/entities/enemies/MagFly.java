@@ -9,9 +9,8 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
-import com.game.core.Entity;
-import com.game.core.GameContext2d;
-import com.game.core.IAssetLoader;
+import com.game.Entity;
+import com.game.GameContext2d;
 import com.game.damage.DamageNegotiation;
 import com.game.damage.Damager;
 import com.game.entities.contracts.Faceable;
@@ -23,7 +22,6 @@ import com.game.entities.projectiles.ChargedShotDisintegration;
 import com.game.entities.projectiles.Fireball;
 import com.game.shapes.ShapeComponent;
 import com.game.shapes.ShapeHandle;
-import com.game.sprites.SpriteProcessor;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
 import com.game.utils.enums.Position;
@@ -40,11 +38,11 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static com.badlogic.gdx.graphics.Color.*;
-import static com.game.constants.MiscellaneousVals.*;
-import static com.game.constants.StatVals.MAX_HEALTH;
-import static com.game.constants.TextureAsset.*;
-import static com.game.constants.ViewVals.PPM;
-import static com.game.constants.ViewVals.VIEW_HEIGHT;
+import static com.game.GlobalKeys.*;
+import static com.game.health.HealthVals.MAX_HEALTH;
+import static com.game.assets.TextureAsset.*;
+import static com.game.ViewVals.PPM;
+import static com.game.ViewVals.VIEW_HEIGHT;
 import static com.game.entities.contracts.Facing.F_LEFT;
 import static com.game.entities.contracts.Facing.F_RIGHT;
 import static com.game.utils.UtilMethods.*;
@@ -210,8 +208,8 @@ public class MagFly extends AbstractEnemy implements Faceable {
         });
     }
 
-    private AnimationComponent animationComponent(IAssetLoader assetLoader) {
-        TextureRegion textureRegion = assetLoader.getAsset(ENEMIES_1.getSrc(), TextureAtlas.class).findRegion("MagFly");
+    private AnimationComponent animationComponent(GameContext2d gameContext) {
+        TextureRegion textureRegion = gameContext.getAsset(ENEMIES_1.getSrc(), TextureAtlas.class).findRegion("MagFly");
         TimedAnimation animation = new TimedAnimation(textureRegion, 2, .1f);
         return new AnimationComponent(animation);
     }

@@ -1,7 +1,7 @@
 package com.game.movement;
 
 import com.badlogic.gdx.math.Vector2;
-import com.game.core.Component;
+import com.game.Component;
 import com.game.utils.objects.KeyValuePair;
 import com.game.utils.objects.Timer;
 import com.game.world.BodyComponent;

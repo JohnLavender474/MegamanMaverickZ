@@ -1,7 +1,7 @@
 package com.game.menus.impl;
 
-import com.game.core.MegaTextHandle;
-import com.game.core.GameContext2d;
+import com.game.text.MegaTextHandle;
+import com.game.GameContext2d;
 import com.game.menus.MenuButton;
 import com.game.menus.MenuScreen;
 

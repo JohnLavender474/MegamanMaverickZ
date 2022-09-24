@@ -6,10 +6,9 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
-import com.game.core.Entity;
-import com.game.core.GameContext2d;
-import com.game.core.IAssetLoader;
-import com.game.constants.TextureAsset;
+import com.game.Entity;
+import com.game.GameContext2d;
+import com.game.assets.TextureAsset;
 import com.game.shapes.ShapeComponent;
 import com.game.shapes.ShapeHandle;
 import com.game.sprites.SpriteProcessor;
@@ -24,8 +23,8 @@ import java.util.function.Supplier;
 
 import static com.badlogic.gdx.graphics.Color.*;
 import static com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.*;
-import static com.game.constants.Boss.TIMBER_WOMAN;
-import static com.game.constants.ViewVals.PPM;
+import static com.game.entities.bosses.BossEnum.TIMBER_WOMAN;
+import static com.game.ViewVals.PPM;
 
 public class TimberWoman extends Entity {
 
@@ -45,11 +44,11 @@ public class TimberWoman extends Entity {
         return new ShapeComponent(shapeHandle);
     }
 
-    private AnimationComponent animationComponent(IAssetLoader assetLoader) {
+    private AnimationComponent animationComponent(GameContext2d gameContext) {
         Supplier<String> keySupplier = () -> {
             return "Stand";
         };
-        TextureAtlas textureAtlas = assetLoader.getAsset(TextureAsset.TIMBER_WOMAN.getSrc(), TextureAtlas.class);
+        TextureAtlas textureAtlas = gameContext.getAsset(TextureAsset.TIMBER_WOMAN.getSrc(), TextureAtlas.class);
         Map<String, TimedAnimation> timedAnimations = TIMBER_WOMAN.getAnimations(textureAtlas);
         return new AnimationComponent(keySupplier, timedAnimations::get);
     }

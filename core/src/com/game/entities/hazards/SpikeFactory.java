@@ -3,12 +3,12 @@ package com.game.entities.hazards;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.core.GameContext2d;
+import com.game.GameContext2d;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.game.constants.ViewVals.PPM;
+import static com.game.ViewVals.PPM;
 import static com.game.utils.UtilMethods.*;
 import static com.game.utils.enums.Position.*;
 

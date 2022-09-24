@@ -2,7 +2,7 @@ package com.game.pathfinding;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.core.Component;
+import com.game.Component;
 import com.game.graph.Node;
 import com.game.utils.UtilMethods;
 import lombok.AccessLevel;

@@ -5,11 +5,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Vector2;
-import com.game.constants.ViewVals;
+import com.game.ViewVals;
 import com.game.utils.interfaces.Updatable;
 import com.game.utils.interfaces.Drawable;
 
-import static com.game.constants.ViewVals.PPM;
+import static com.game.ViewVals.PPM;
 import static com.game.utils.UtilMethods.drawFiltered;
 
 /**

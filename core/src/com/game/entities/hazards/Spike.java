@@ -2,12 +2,12 @@ package com.game.entities.hazards;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.core.Entity;
-import com.game.core.GameContext2d;
+import com.game.Entity;
+import com.game.GameContext2d;
 import com.game.world.BodyComponent;
 import com.game.world.Fixture;
 
-import static com.game.constants.ViewVals.PPM;
+import static com.game.ViewVals.PPM;
 import static com.game.world.BodyType.*;
 import static com.game.world.FixtureType.*;
 
@@ -29,8 +29,8 @@ public class Spike extends Entity {
     }
 
     /*
-    private SpriteComponent spriteComponent(IAssetLoader assetLoader, String textureKey) {
-        TextureRegion textureRegion = assetLoader.getAsset(SPIKES.getSrc(), TextureAtlas.class).findRegion(textureKey);
+    private SpriteComponent spriteComponent(GameContext2d gameContext, String textureKey) {
+        TextureRegion textureRegion = gameContext.getAsset(SPIKES.getSrc(), TextureAtlas.class).findRegion(textureKey);
         Sprite sprite = new Sprite(textureRegion);
         sprite.setSize(PPM, PPM);
         return new SpriteComponent(sprite, new SpriteProcessor() {

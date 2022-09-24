@@ -1,8 +1,8 @@
 package com.game.entities.special;
 
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
-import com.game.core.Entity;
-import com.game.core.GameContext2d;
+import com.game.Entity;
+import com.game.GameContext2d;
 import com.game.world.BodyComponent;
 import com.game.world.Fixture;
 

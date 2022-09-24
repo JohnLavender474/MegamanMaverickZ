@@ -1,11 +1,10 @@
 package com.game.cull;
 
-import com.game.core.Entity;
-import com.game.core.System;
+import com.game.Entity;
+import com.game.System;
 import com.game.utils.enums.ProcessState;
 import lombok.Setter;
 
-import java.util.Set;
 import java.util.function.Supplier;
 
 @Setter

@@ -1,9 +1,7 @@
 package com.game.health;
 
-import com.game.core.Entity;
-import com.game.core.System;
-
-import java.util.Set;
+import com.game.Entity;
+import com.game.System;
 
 /**
  * {@link System} implementation for entity health.

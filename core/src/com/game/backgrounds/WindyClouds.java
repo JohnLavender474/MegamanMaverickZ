@@ -2,10 +2,10 @@ package com.game.backgrounds;
 
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
-import com.game.core.IAssetLoader;
+import com.game.GameContext2d;
 
-import static com.game.constants.TextureAsset.*;
-import static com.game.constants.ViewVals.PPM;
+import static com.game.assets.TextureAsset.*;
+import static com.game.ViewVals.PPM;
 
 /**
  * Windy clouds background.
@@ -20,14 +20,14 @@ public class WindyClouds extends Background {
 
     private float dist;
 
-    public WindyClouds(IAssetLoader assetLoader, RectangleMapObject backgroundObj) {
-        this(assetLoader, backgroundObj.getRectangle().x, backgroundObj.getRectangle().y,
+    public WindyClouds(GameContext2d gameContext, RectangleMapObject backgroundObj) {
+        this(gameContext, backgroundObj.getRectangle().x, backgroundObj.getRectangle().y,
                 backgroundObj.getProperties().get(ROWS_KEY, Integer.class),
                 backgroundObj.getProperties().get(COLS_KEY, Integer.class));
     }
 
-    public WindyClouds(IAssetLoader assetLoader, float startX, float startY, int rows, int cols) {
-        super(assetLoader.getAsset(BACKGROUNDS_1.getSrc(), TextureAtlas.class).findRegion("BKG04"),
+    public WindyClouds(GameContext2d gameContext, float startX, float startY, int rows, int cols) {
+        super(gameContext.getAsset(BACKGROUNDS_1.getSrc(), TextureAtlas.class).findRegion("BKG04"),
                 startX, startY, WIDTH, HEIGHT, rows, cols);
     }
 

@@ -1,7 +1,7 @@
 package com.game.sounds;
 
-import com.game.core.Component;
-import com.game.constants.SoundAsset;
+import com.game.Component;
+import com.game.assets.SoundAsset;
 import com.game.utils.interfaces.Updatable;
 import lombok.AccessLevel;
 import lombok.Getter;

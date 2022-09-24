@@ -7,13 +7,13 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.core.GameContext2d;
-import com.game.constants.TextureAsset;
+import com.game.GameContext2d;
+import com.game.assets.TextureAsset;
 import lombok.Setter;
 
 import java.util.function.Supplier;
 
-import static com.game.constants.RenderingGround.*;
+import static com.game.sprites.RenderingGround.*;
 
 /**
  * Container class for ui gameplay bits bar for health or weapon energy.

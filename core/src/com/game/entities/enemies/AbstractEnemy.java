@@ -2,9 +2,10 @@ package com.game.entities.enemies;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
-import com.game.core.Entity;
-import com.game.core.GameContext2d;
+import com.game.Entity;
+import com.game.GameContext2d;
 import com.game.cull.CullOnCamTransComponent;
+import com.game.cull.CullOnPlayerDeathComponent;
 import com.game.cull.CullOutOfCamBoundsComponent;
 import com.game.damage.DamageNegotiation;
 import com.game.damage.Damageable;
@@ -27,8 +28,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import static com.game.constants.SoundAsset.*;
-import static com.game.constants.StatVals.*;
+import static com.game.assets.SoundAsset.*;
+import static com.game.health.HealthVals.*;
 import static com.game.entities.contracts.Facing.*;
 import static com.game.utils.enums.Position.*;
 import static java.util.Collections.unmodifiableSet;
@@ -50,20 +51,21 @@ public abstract class AbstractEnemy extends Entity implements Damager, Damageabl
         this.damageNegotiations = defineDamageNegotiations();
         addComponent(new SoundComponent());
         addComponent(graphComponent());
+        addComponent(new CullOnPlayerDeathComponent());
         addComponent(new CullOnCamTransComponent());
-        addComponent(new HealthComponent(MAX_HEALTH, this::disintegrate));
         addComponent(new CullOutOfCamBoundsComponent(
                 () -> getComponent(BodyComponent.class).getCollisionBox(), cullDuration));
+        addComponent(new HealthComponent(MAX_HEALTH, this::disintegrate));
         damageTimer.setToEnd();
         damageTimer.setDuration(damageDuration);
-        gameContext.addMessageListener(this);
+        gameContext.addEventListener(this);
     }
 
     protected abstract Map<Class<? extends Damager>, DamageNegotiation> defineDamageNegotiations();
 
     @Override
     public void onDeath() {
-        gameContext.removeMessageListener(this);
+        gameContext.removeEventListener(this);
     }
 
     protected GraphComponent graphComponent() {

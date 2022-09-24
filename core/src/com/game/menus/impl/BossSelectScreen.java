@@ -7,22 +7,21 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.game.constants.ConstFuncs;
-import com.game.core.GameContext2d;
-import com.game.constants.Boss;
+import com.game.ConstFuncs;
+import com.game.GameContext2d;
+import com.game.entities.bosses.BossEnum;
 import com.game.menus.MenuButton;
 import com.game.menus.MenuScreen;
 import com.game.menus.utils.BlinkingArrow;
 import com.game.levels.BossIntroScreen;
 import com.game.utils.objects.TimeMarkedRunnable;
 import com.game.animations.TimedAnimation;
-import com.game.core.IAssetLoader;
 import com.game.menus.utils.ScreenSlide;
 import com.game.utils.interfaces.Updatable;
 import com.game.utils.enums.Direction;
 import com.game.utils.enums.Position;
 import com.game.utils.interfaces.Drawable;
-import com.game.core.MegaTextHandle;
+import com.game.text.MegaTextHandle;
 import com.game.utils.objects.Timer;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,13 +30,13 @@ import java.util.*;
 import java.util.function.Supplier;
 
 import static com.badlogic.gdx.graphics.Texture.TextureFilter.Nearest;
-import static com.game.constants.Boss.*;
-import static com.game.constants.GameScreen.*;
-import static com.game.constants.MusicAsset.*;
-import static com.game.constants.RenderingGround.*;
-import static com.game.constants.SoundAsset.*;
-import static com.game.constants.TextureAsset.*;
-import static com.game.constants.ViewVals.*;
+import static com.game.entities.bosses.BossEnum.*;
+import static com.game.GameScreen.*;
+import static com.game.assets.MusicAsset.*;
+import static com.game.sprites.RenderingGround.*;
+import static com.game.assets.SoundAsset.*;
+import static com.game.assets.TextureAsset.*;
+import static com.game.ViewVals.*;
 import static com.game.utils.UtilMethods.centerPoint;
 import static com.game.utils.enums.Position.*;
 import static java.lang.Math.round;
@@ -72,30 +71,30 @@ public class BossSelectScreen extends MenuScreen {
 
         private BossPaneStatus bossPaneStatus = BossPaneStatus.UNHIGHLIGHTED;
 
-        public BossPane(IAssetLoader assetLoader, Boss boss) {
-            this(assetLoader, new TimedAnimation(assetLoader.getAsset(BOSS_FACES.getSrc(),
-                    TextureAtlas.class).findRegion(boss.getBossName())), boss.getBossName(), boss.getPosition());
+        public BossPane(GameContext2d gameContext, BossEnum bossEnum) {
+            this(gameContext, new TimedAnimation(gameContext.getAsset(BOSS_FACES.getSrc(),
+                    TextureAtlas.class).findRegion(bossEnum.getBossName())), bossEnum.getBossName(), bossEnum.getPosition());
         }
 
-        public BossPane(IAssetLoader assetLoader, TimedAnimation timedAnimation, String bossName, Position position) {
-            this(assetLoader, timedAnimation, bossName, position.getX(), position.getY());
+        public BossPane(GameContext2d gameContext, TimedAnimation timedAnimation, String bossName, Position position) {
+            this(gameContext, timedAnimation, bossName, position.getX(), position.getY());
         }
 
-        public BossPane(IAssetLoader assetLoader, TimedAnimation bossAnimation, String bossName, int x, int y) {
-            this(assetLoader, () -> bossAnimation, bossName, x, y);
+        public BossPane(GameContext2d gameContext, TimedAnimation bossAnimation, String bossName, int x, int y) {
+            this(gameContext, () -> bossAnimation, bossName, x, y);
         }
 
-        public BossPane(IAssetLoader assetLoader, Supplier<TimedAnimation> bossAnimation,
+        public BossPane(GameContext2d gameContext, Supplier<TimedAnimation> bossAnimation,
                         String bossName, Position position) {
-            this(assetLoader, bossAnimation, bossName, position.getX(), position.getY());
+            this(gameContext, bossAnimation, bossName, position.getX(), position.getY());
         }
 
-        public BossPane(IAssetLoader assetLoader, Supplier<TimedAnimation> bossAnimation,
+        public BossPane(GameContext2d gameContext, Supplier<TimedAnimation> bossAnimation,
                         String bossName, int x, int y) {
             this.bossName = bossName;
             this.bossAnimation = bossAnimation;
             // setBounds pane animations
-            TextureAtlas decorationAtlas = assetLoader.getAsset(STAGE_SELECT.getSrc(), TextureAtlas.class);
+            TextureAtlas decorationAtlas = gameContext.getAsset(STAGE_SELECT.getSrc(), TextureAtlas.class);
             TextureRegion paneUnhighlighted = decorationAtlas.findRegion("Pane");
             this.paneUnhighlightedAnimation = new TimedAnimation(paneUnhighlighted);
             TextureRegion paneBlinking = decorationAtlas.findRegion("PaneBlinking");
@@ -148,8 +147,8 @@ public class BossSelectScreen extends MenuScreen {
 
     private static final Vector3 INTRO_BLOCKS_TRANS = new Vector3(15f, 0f, 0f).scl(PPM);
     private static final Set<String> bossNames = new HashSet<>() {{
-       for (Boss boss : Boss.values()) {
-           add(boss.getBossName());
+       for (BossEnum bossEnum : BossEnum.values()) {
+           add(bossEnum.getBossName());
        }
     }};
     private static final String MEGAMAN_FACE = "MegamanFace";
@@ -168,7 +167,7 @@ public class BossSelectScreen extends MenuScreen {
 
     private boolean outro;
     private boolean blink;
-    private Boss bossSelection;
+    private BossEnum bossEnumSelection;
 
     private final Timer outroTimer = new Timer(1.05f, new ArrayList<>() {{
         for (int i = 1; i <= 10; i++) {
@@ -198,17 +197,17 @@ public class BossSelectScreen extends MenuScreen {
             megamanFaceAnimations.put(position, new TimedAnimation(region));
         }
         Supplier<TimedAnimation> megamanAnimSupplier = () -> {
-            Boss boss = findByName(getCurrentMenuButtonKey());
-            if (boss == null) {
+            BossEnum bossEnum = findByName(getCurrentMenuButtonKey());
+            if (bossEnum == null) {
                 return megamanFaceAnimations.get(CENTER);
             }
-            return megamanFaceAnimations.get(boss.getPosition());
+            return megamanFaceAnimations.get(bossEnum.getPosition());
         };
         BossPane megamanPane = new BossPane(gameContext, megamanAnimSupplier, MEGAMAN_FACE, CENTER);
         bossPanes.add(megamanPane);
         // boss bossPanes
-        for (Boss boss : Boss.values()) {
-            BossPane bossPane = new BossPane(gameContext, boss);
+        for (BossEnum bossEnum : BossEnum.values()) {
+            BossPane bossPane = new BossPane(gameContext, bossEnum);
             bossPanes.add(bossPane);
         }
         // text and blinking arrows
@@ -304,7 +303,7 @@ public class BossSelectScreen extends MenuScreen {
         spriteBatch.end();
         // if outro is finished, setBounds screen
         if (outroTimer.isFinished()) {
-            ((BossIntroScreen) gameContext.getScreen(LEVEL_INTRO)).set(bossSelection);
+            ((BossIntroScreen) gameContext.getScreen(LEVEL_INTRO)).set(bossEnumSelection);
             gameContext.setScreen(LEVEL_INTRO);
         }
     }
@@ -347,13 +346,13 @@ public class BossSelectScreen extends MenuScreen {
             }
 
         });
-        for (Boss boss : Boss.values()) {
-            menuButtons.put(boss.getBossName(), new MenuButton() {
+        for (BossEnum bossEnum : BossEnum.values()) {
+            menuButtons.put(bossEnum.getBossName(), new MenuButton() {
 
                 @Override
                 public boolean onSelect(float delta) {
                     gameContext.getAsset(BEAM_OUT_SOUND.getSrc(), Sound.class).play();
-                    bossSelection = boss;
+                    bossEnumSelection = bossEnum;
                     outro = true;
                     music.stop();
                     return true;
@@ -361,8 +360,8 @@ public class BossSelectScreen extends MenuScreen {
 
                 @Override
                 public void onNavigate(Direction direction, float delta) {
-                    int x = boss.getPosition().getX();
-                    int y = boss.getPosition().getY();
+                    int x = bossEnum.getPosition().getX();
+                    int y = bossEnum.getPosition().getY();
                     switch (direction) {
                         case DIR_UP -> y += 1;
                         case DIR_DOWN -> y -= 1;
