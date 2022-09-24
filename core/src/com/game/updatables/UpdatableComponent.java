@@ -5,11 +5,11 @@ import com.game.utils.interfaces.Updatable;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
+
+import static java.util.Arrays.stream;
 
 /** @link Component} implementation for pre-processing. */
 @Getter
@@ -18,28 +18,36 @@ public class UpdatableComponent extends Component {
 
     private final Set<QualifiedUpdatable> updatables = new HashSet<>();
 
-    public UpdatableComponent(Updatable updatable) {
-        putUpdatable(updatable);
+    public UpdatableComponent(Updatable... updatables) {
+        stream(updatables).forEach(this::addUpdatable);
+    }
+
+    public UpdatableComponent(QualifiedUpdatable... qualifiedUpdatables) {
+        stream(qualifiedUpdatables).forEach(this::addUpdatable);
     }
 
     public UpdatableComponent(Updatable updatable, Supplier<Boolean> doUpdate) {
-        putUpdatable(updatable, doUpdate);
+        addUpdatable(updatable, doUpdate);
     }
 
     public UpdatableComponent(Updatable updatable, Supplier<Boolean> doUpdate, Supplier<Boolean> doRemove) {
-        putUpdatable(updatable, doUpdate, doRemove);
+        addUpdatable(updatable, doUpdate, doRemove);
     }
 
-    public void putUpdatable(Updatable updatable) {
-        updatables.add(new QualifiedUpdatable(updatable));
+    public void addUpdatable(QualifiedUpdatable qualifiedUpdatable) {
+        updatables.add(qualifiedUpdatable);
     }
 
-    public void putUpdatable(Updatable updatable, Supplier<Boolean> doUpdate) {
-        updatables.add(new QualifiedUpdatable(updatable, doUpdate, () -> false));
+    public void addUpdatable(Updatable updatable) {
+        addUpdatable(new QualifiedUpdatable(updatable));
     }
 
-    public void putUpdatable(Updatable updatable, Supplier<Boolean> doUpdate, Supplier<Boolean> doRemove) {
-        updatables.add(new QualifiedUpdatable(updatable, doUpdate, doRemove));
+    public void addUpdatable(Updatable updatable, Supplier<Boolean> doUpdate) {
+        addUpdatable(new QualifiedUpdatable(updatable, doUpdate, () -> false));
+    }
+
+    public void addUpdatable(Updatable updatable, Supplier<Boolean> doUpdate, Supplier<Boolean> doRemove) {
+        addUpdatable(new QualifiedUpdatable(updatable, doUpdate, doRemove));
     }
 
 }

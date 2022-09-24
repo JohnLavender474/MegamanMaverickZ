@@ -13,7 +13,7 @@ import com.game.utils.objects.Pair;
 import java.util.*;
 
 import static com.badlogic.gdx.math.Intersector.intersectRectangles;
-import static com.game.core.constants.ViewVals.PPM;
+import static com.game.constants.ViewVals.PPM;
 import static com.game.utils.ShapeUtils.overlap;
 import static java.lang.Math.*;
 

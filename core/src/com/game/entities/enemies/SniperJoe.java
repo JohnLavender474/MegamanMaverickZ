@@ -30,13 +30,14 @@ import com.game.world.Fixture;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
 import static com.badlogic.gdx.graphics.Color.*;
-import static com.game.core.constants.TextureAsset.ENEMIES_1;
-import static com.game.core.constants.ViewVals.PPM;
-import static com.game.core.constants.SoundAsset.*;
+import static com.game.constants.TextureAsset.ENEMIES_1;
+import static com.game.constants.ViewVals.PPM;
+import static com.game.constants.SoundAsset.*;
 import static com.game.entities.contracts.Facing.*;
 import static com.game.utils.UtilMethods.setBottomCenterToPoint;
 import static com.game.utils.enums.Position.*;
@@ -46,6 +47,7 @@ import static java.lang.Math.*;
 
 public class SniperJoe extends AbstractEnemy implements Faceable {
 
+    private static final float DAMAGE_DURATION = .15f;
     private static final float BULLET_SPEED = 7.5f;
 
     private final Timer shieldedTimer = new Timer(1.75f);
@@ -58,7 +60,7 @@ public class SniperJoe extends AbstractEnemy implements Faceable {
     private boolean isShielded = true;
 
     public SniperJoe(GameContext2d gameContext, Supplier<Megaman> megamanSupplier, Vector2 spawn) {
-        super(gameContext, megamanSupplier, .1f);
+        super(gameContext, megamanSupplier, DAMAGE_DURATION);
         addComponent(spriteComponent());
         addComponent(animationComponent());
         addComponent(updatableComponent());
@@ -70,13 +72,14 @@ public class SniperJoe extends AbstractEnemy implements Faceable {
 
     @Override
     protected Map<Class<? extends Damager>, DamageNegotiation> defineDamageNegotiations() {
-        return Map.of(
-                Bullet.class, new DamageNegotiation(5),
-                Fireball.class, new DamageNegotiation(15),
-                ChargedShot.class, new DamageNegotiation(damager ->
-                        ((ChargedShot) damager).isFullyCharged() ? 15 : 10),
-                ChargedShotDisintegration.class, new DamageNegotiation(damager ->
-                        ((ChargedShotDisintegration) damager).isFullyCharged() ? 15 : 10));
+        return new HashMap<>() {{
+            put(Bullet.class, new DamageNegotiation(5));
+            put(Fireball.class, new DamageNegotiation(15));
+            put(ChargedShot.class, new DamageNegotiation(damager ->
+                    ((ChargedShot) damager).isFullyCharged() ? 15 : 10));
+            put(ChargedShotDisintegration.class, new DamageNegotiation(damager ->
+                    ((ChargedShotDisintegration) damager).isFullyCharged() ? 15 : 10));
+        }};
     }
 
     private void shoot() {
@@ -123,7 +126,7 @@ public class SniperJoe extends AbstractEnemy implements Faceable {
     private SpriteComponent spriteComponent() {
         Sprite sprite = new Sprite();
         sprite.setSize(1.35f * PPM, 1.35f * PPM);
-        return new SpriteComponent(sprite, new StandardEnemySpriteAdapter() {
+        return new SpriteComponent(sprite, new StandardEnemySpriteProcessor() {
 
             @Override
             public boolean setPositioning(Wrapper<Rectangle> bounds, Wrapper<Position> position) {

@@ -1,6 +1,5 @@
 package com.game.entities.blocks.impl;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -14,15 +13,15 @@ import com.game.core.GameContext2d;
 import com.game.entities.blocks.Block;
 import com.game.shapes.ShapeComponent;
 import com.game.shapes.ShapeHandle;
-import com.game.sprites.SpriteAdapter;
+import com.game.sprites.SpriteProcessor;
 import com.game.sprites.SpriteComponent;
 import com.game.utils.enums.Position;
 import com.game.utils.objects.Wrapper;
 import com.game.world.BodyComponent;
 
 import static com.badlogic.gdx.graphics.Color.*;
-import static com.game.core.constants.TextureAsset.*;
-import static com.game.core.constants.ViewVals.PPM;
+import static com.game.constants.TextureAsset.*;
+import static com.game.constants.ViewVals.PPM;
 import static com.game.utils.UtilMethods.*;
 import static com.game.utils.enums.Position.*;
 
@@ -51,7 +50,7 @@ public class JeffBezosLittleDickRocket extends Block {
     private SpriteComponent spriteComponent() {
         Sprite sprite = new Sprite();
         sprite.setSize(4f * PPM, 4f * PPM);
-        return new SpriteComponent(sprite, new SpriteAdapter() {
+        return new SpriteComponent(sprite, new SpriteProcessor() {
 
             @Override
             public boolean setPositioning(Wrapper<Rectangle> bounds, Wrapper<Position> position) {

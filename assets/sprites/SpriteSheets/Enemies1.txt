@@ -108,7 +108,7 @@ LaserBeamer
   orig: 32, 32
   offset: 0, 0
   index: -1
-MagneHeli
+MagFly
   rotate: false
   xy: 704, 0
   size: 64, 32

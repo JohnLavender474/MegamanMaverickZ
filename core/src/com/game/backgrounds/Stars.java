@@ -3,8 +3,8 @@ package com.game.backgrounds;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.game.core.GameContext2d;
 
-import static com.game.core.constants.TextureAsset.*;
-import static com.game.core.constants.ViewVals.*;
+import static com.game.constants.TextureAsset.*;
+import static com.game.constants.ViewVals.*;
 
 public class Stars extends Background {
 

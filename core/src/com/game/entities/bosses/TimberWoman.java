@@ -9,10 +9,10 @@ import com.game.animations.TimedAnimation;
 import com.game.core.Entity;
 import com.game.core.GameContext2d;
 import com.game.core.IAssetLoader;
-import com.game.core.constants.TextureAsset;
+import com.game.constants.TextureAsset;
 import com.game.shapes.ShapeComponent;
 import com.game.shapes.ShapeHandle;
-import com.game.sprites.SpriteAdapter;
+import com.game.sprites.SpriteProcessor;
 import com.game.sprites.SpriteComponent;
 import com.game.utils.enums.Position;
 import com.game.utils.objects.Wrapper;
@@ -24,8 +24,8 @@ import java.util.function.Supplier;
 
 import static com.badlogic.gdx.graphics.Color.*;
 import static com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.*;
-import static com.game.core.constants.Boss.TIMBER_WOMAN;
-import static com.game.core.constants.ViewVals.PPM;
+import static com.game.constants.Boss.TIMBER_WOMAN;
+import static com.game.constants.ViewVals.PPM;
 
 public class TimberWoman extends Entity {
 
@@ -58,7 +58,7 @@ public class TimberWoman extends Entity {
         Sprite sprite = new Sprite();
         Vector2 size = TIMBER_WOMAN.getSize();
         sprite.setSize(size.x * PPM, size.y * PPM);
-        return new SpriteComponent(sprite, new SpriteAdapter() {
+        return new SpriteComponent(sprite, new SpriteProcessor() {
             @Override
             public boolean setPositioning(Wrapper<Rectangle> bounds, Wrapper<Position> position) {
                 bounds.setData(getComponent(BodyComponent.class).getCollisionBox());

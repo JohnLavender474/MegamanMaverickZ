@@ -19,7 +19,7 @@ import com.game.entities.contracts.Hitter;
 import com.game.entities.megaman.Megaman;
 import com.game.shapes.ShapeComponent;
 import com.game.shapes.ShapeHandle;
-import com.game.sprites.SpriteAdapter;
+import com.game.sprites.SpriteProcessor;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
 import com.game.utils.enums.Position;
@@ -36,9 +36,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static com.badlogic.gdx.graphics.Color.*;
-import static com.game.core.constants.MiscellaneousVals.*;
-import static com.game.core.constants.TextureAsset.*;
-import static com.game.core.constants.ViewVals.*;
+import static com.game.constants.MiscellaneousVals.*;
+import static com.game.constants.TextureAsset.*;
+import static com.game.constants.ViewVals.*;
 import static com.game.entities.contracts.Facing.*;
 import static com.game.utils.UtilMethods.*;
 import static com.game.utils.enums.Position.*;
@@ -58,13 +58,13 @@ public class SpringHead extends AbstractEnemy implements Hitter, Faceable {
     private final Timer turnTimer = new Timer(TURN_DELAY);
     private final Timer bounceTimer = new Timer(BOUNCE_DURATION, true);
 
-    @Getter
-    @Setter
-    private Facing facing;
-
     private final Set<FixtureType> leftScannerSet = EnumSet.noneOf(FixtureType.class);
     private final Set<FixtureType> rightScannerSet = EnumSet.noneOf(FixtureType.class);
     private final Rectangle speedUpScanner = new Rectangle(0f, 0f, VIEW_WIDTH * PPM, .25f * PPM);
+
+    @Getter
+    @Setter
+    private Facing facing;
 
     public SpringHead(GameContext2d gameContext, Supplier<Megaman> megamanSupplier, RectangleMapObject spawnObj) {
         super(gameContext, megamanSupplier, DAMAGE_DURATION);
@@ -83,14 +83,16 @@ public class SpringHead extends AbstractEnemy implements Hitter, Faceable {
 
     @Override
     public void hit(Fixture fixture) {
-        if (fixture.isFixtureType(BOUNCEABLE) && fixture.getEntity().equals(getMegaman())) {
+        if (fixture.isFixtureType(BOUNCEABLE)) {
             bounceTimer.reset();
         }
     }
 
     @Override
     protected Map<Class<? extends Damager>, DamageNegotiation> defineDamageNegotiations() {
-        return Map.of();
+        return new HashMap<>() {{
+
+        }};
     }
 
     private boolean isMegamanRight() {
@@ -122,10 +124,9 @@ public class SpringHead extends AbstractEnemy implements Hitter, Faceable {
             if ((isFacing(F_LEFT) && !leftScannerSet.contains(BLOCK)) ||
                     (isFacing(F_RIGHT) && !rightScannerSet.contains(BLOCK))) {
                 bodyComponent.setVelocityX(0f);
-            } else if (megamanOverlapSpeedUpScanner()) {
-                bodyComponent.setVelocityX(isFacing(F_RIGHT) ? SPEED_SUPER * PPM : -SPEED_SUPER * PPM);
             } else {
-                bodyComponent.setVelocityX(isFacing(F_RIGHT) ? SPEED_NORMAL * PPM : -SPEED_NORMAL * PPM);
+                float vel = (megamanOverlapSpeedUpScanner() ? SPEED_SUPER : SPEED_NORMAL) * PPM;
+                bodyComponent.setVelocityX(isFacing(F_RIGHT) ? vel : -vel);
             }
             leftScannerSet.clear();
             rightScannerSet.clear();
@@ -197,7 +198,7 @@ public class SpringHead extends AbstractEnemy implements Hitter, Faceable {
     private SpriteComponent spriteComponent() {
         Sprite sprite = new Sprite();
         sprite.setSize(1.5f * PPM, 1.5f * PPM);
-        return new SpriteComponent(sprite, new SpriteAdapter() {
+        return new SpriteComponent(sprite, new SpriteProcessor() {
 
             @Override
             public boolean setPositioning(Wrapper<Rectangle> bounds, Wrapper<Position> position) {

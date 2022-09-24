@@ -180,7 +180,7 @@
             <key type="filename">../Frames/Enemies1/Dragonfly.png</key>
             <key type="filename">../Frames/Enemies1/FlyPincher/Open.png</key>
             <key type="filename">../Frames/Enemies1/FlyPincher/Pinch.png</key>
-            <key type="filename">../Frames/Enemies1/MagneHeli.png</key>
+            <key type="filename">../Frames/Enemies1/MagFly.png</key>
             <key type="filename">../Frames/Enemies1/Met/Run.png</key>
             <key type="filename">../Frames/Enemies1/Met/RunNaked.png</key>
             <key type="filename">../Frames/Enemies1/PropFish/AgapeMouth.png</key>

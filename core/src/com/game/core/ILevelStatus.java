@@ -1,6 +1,6 @@
 package com.game.core;
 
-import com.game.core.constants.LevelStatus;
+import com.game.constants.LevelStatus;
 
 public interface ILevelStatus {
 

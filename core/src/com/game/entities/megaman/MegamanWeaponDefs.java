@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import static com.game.core.constants.SoundAsset.*;
-import static com.game.core.constants.ViewVals.PPM;
+import static com.game.constants.SoundAsset.*;
+import static com.game.constants.ViewVals.PPM;
 import static com.game.behaviors.BehaviorType.WALL_SLIDING;
 import static com.game.entities.contracts.Facing.F_LEFT;
 import static com.game.entities.megaman.MegamanWeapon.FLAME_TOSS;

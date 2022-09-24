@@ -11,10 +11,10 @@ import com.game.world.BodyComponent;
 import com.game.world.Fixture;
 import lombok.Getter;
 
-import java.util.function.Supplier;
+import java.util.function.Function;
 
-import static com.game.core.constants.MiscellaneousVals.SUPPLIER;
-import static com.game.core.constants.ViewVals.PPM;
+import static com.game.constants.MiscellaneousVals.FUNCTION;
+import static com.game.constants.ViewVals.PPM;
 import static com.game.world.BodyType.*;
 import static com.game.world.FixtureType.*;
 
@@ -22,28 +22,28 @@ import static com.game.world.FixtureType.*;
 public class Force extends Entity {
 
     public Force(GameContext2d gameContext, RectangleMapObject mapObject) {
-        this(gameContext, mapObject.getRectangle(), getStaticForceSupplier(mapObject));
+        this(gameContext, mapObject.getRectangle(), getStaticForceFunction(mapObject));
     }
 
-    private static Supplier<Vector2> getStaticForceSupplier(RectangleMapObject mapObject) {
+    private static Function<Entity, Vector2> getStaticForceFunction(RectangleMapObject mapObject) {
         MapProperties properties = mapObject.getProperties();
         float forceX = properties.get("forceX", Float.class);
         float forceY = properties.get("forceY", Float.class);
         Vector2 force = new Vector2(forceX, forceY).scl(PPM);
-        return () -> force;
+        return e -> force;
     }
 
-    public Force(GameContext2d gameContext, Rectangle bounds, Supplier<Vector2> forceSupplier) {
+    public Force(GameContext2d gameContext, Rectangle bounds, Function<Entity, Vector2> forceFunction) {
         super(gameContext);
-        addComponent(bodyComponent(bounds, forceSupplier));
+        addComponent(bodyComponent(bounds, forceFunction));
         addComponent(new ShapeComponent(bounds));
     }
 
-    private BodyComponent bodyComponent(Rectangle bounds, Supplier<Vector2> forceSupplier) {
+    private BodyComponent bodyComponent(Rectangle bounds, Function<Entity, Vector2> forceFunction) {
         BodyComponent bodyComponent = new BodyComponent(ABSTRACT);
         bodyComponent.set(bounds);
         Fixture forceFixture = new Fixture(this, bounds, FORCE);
-        forceFixture.putUserData(SUPPLIER, forceSupplier);
+        forceFixture.putUserData(FUNCTION, forceFunction);
         bodyComponent.addFixture(forceFixture);
         return bodyComponent;
     }

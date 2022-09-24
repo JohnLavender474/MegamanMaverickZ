@@ -18,8 +18,8 @@ import lombok.Setter;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.game.core.constants.TextureAsset.DECORATIONS;
-import static com.game.core.constants.ViewVals.PPM;
+import static com.game.constants.TextureAsset.DECORATIONS;
+import static com.game.constants.ViewVals.PPM;
 import static com.game.world.BodyType.*;
 
 @Getter

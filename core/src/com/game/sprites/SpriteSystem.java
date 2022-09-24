@@ -21,8 +21,8 @@ import static com.game.utils.UtilMethods.*;
 public class SpriteSystem extends System {
 
     private final Queue<SpriteComponent> spriteComponentQueue = new PriorityQueue<>((o1, o2) -> {
-        int p1 = o1.getSpriteAdapter().getSpriteRenderPriority();
-        int p2 = o2.getSpriteAdapter().getSpriteRenderPriority();
+        int p1 = o1.getSpriteProcessor().getSpriteRenderPriority();
+        int p2 = o2.getSpriteProcessor().getSpriteRenderPriority();
         return p1 - p2;
     });
     private final OrthographicCamera camera;
@@ -52,30 +52,30 @@ public class SpriteSystem extends System {
         while (!spriteComponentQueue.isEmpty()) {
             SpriteComponent spriteComponent = spriteComponentQueue.poll();
             Sprite sprite = spriteComponent.getSprite();
-            SpriteAdapter spriteAdapter = spriteComponent.getSpriteAdapter();
+            SpriteProcessor spriteProcessor = spriteComponent.getSpriteProcessor();
             Wrapper<Rectangle> bounds = Wrapper.of(null);
             Wrapper<Position> position = Wrapper.of(null);
-            if (spriteAdapter.setPositioning(bounds, position)) {
+            if (spriteProcessor.setPositioning(bounds, position)) {
                 if (bounds.getData() == null) {
-                    throw new IllegalStateException("SpriteAdapter::setPositioning returns true but the value " +
+                    throw new IllegalStateException("SpriteProcessor::setPositioning returns true but the value " +
                             "pairOf Wrapper<Rectangle>::getData is null");
                 }
                 if (position.getData() == null) {
-                    throw new IllegalStateException("SpriteAdapter::setPositioning returns true but the value " +
+                    throw new IllegalStateException("SpriteProcessor::setPositioning returns true but the value " +
                             "pairOf Wrapper<Position>::getData is null");
                 }
                 Vector2 point = getPoint(bounds.getData(), position.getData());
                 setToPoint(sprite.getBoundingRectangle(), point, position.getData(), sprite::setPosition);
             }
-            Vector2 sizeTrans = spriteAdapter.getSizeTrans();
+            Vector2 sizeTrans = spriteProcessor.getSizeTrans();
             sprite.setSize(sprite.getWidth() + sizeTrans.x, sprite.getHeight() + sizeTrans.y);
-            Vector2 origin = spriteAdapter.getOrigin(sprite);
+            Vector2 origin = spriteProcessor.getOrigin(sprite);
             sprite.setOrigin(origin.x, origin.y);
-            sprite.translate(spriteAdapter.getOffsetX(), spriteAdapter.getOffsetY());
-            sprite.setAlpha(spriteAdapter.isHidden() ? 0f : spriteAdapter.getAlpha());
-            sprite.setFlip(spriteAdapter.isFlipX(), spriteAdapter.isFlipY());
-            sprite.setRotation(spriteAdapter.getRotation());
-            spriteAdapter.update(sprite, delta);
+            sprite.translate(spriteProcessor.getOffsetX(), spriteProcessor.getOffsetY());
+            sprite.setAlpha(spriteProcessor.isHidden() ? 0f : spriteProcessor.getAlpha());
+            sprite.setFlip(spriteProcessor.isFlipX(), spriteProcessor.isFlipY());
+            sprite.setRotation(spriteProcessor.getRotation());
+            spriteProcessor.update(sprite, delta);
             drawFiltered(sprite, spriteBatch);
         }
         spriteBatch.end();

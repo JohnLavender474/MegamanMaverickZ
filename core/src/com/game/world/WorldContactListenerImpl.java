@@ -18,9 +18,9 @@ import java.util.Collection;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static com.game.core.constants.MiscellaneousVals.*;
-import static com.game.core.constants.SoundAsset.MEGAMAN_LAND_SOUND;
-import static com.game.core.constants.ViewVals.PPM;
+import static com.game.constants.MiscellaneousVals.*;
+import static com.game.constants.SoundAsset.MEGAMAN_LAND_SOUND;
+import static com.game.constants.ViewVals.PPM;
 import static com.game.entities.megaman.Megaman.AButtonTask;
 import static com.game.entities.megaman.Megaman.AButtonTask._AIR_DASH;
 import static com.game.entities.megaman.Megaman.AButtonTask._JUMP;
@@ -88,20 +88,28 @@ public class WorldContactListenerImpl implements WorldContactListener {
                 runnable.run();
             }
         } else if (contact.acceptMask(FORCE, FORCE_LISTENER)) {
-            Supplier<Vector2> forceSupplier = (Supplier<Vector2>) contact.mask1stFixture().getUserData(SUPPLIER);
-            Fixture forceListener = contact.mask2ndFixture();
+            Fixture forceFixture = contact.mask1stFixture();
+            Fixture forceListenerFixture = contact.mask2ndFixture();
+            Function<Entity, Vector2> forceFunction = (Function<Entity, Vector2>) forceFixture.getUserData(FUNCTION);
+            Collection<Class<? extends Entity>> forceListenerMask = (Collection<Class<? extends Entity>>)
+                    forceListenerFixture.getUserData(COLLECTION);
+            if (!forceListenerMask.contains(forceFixture.getEntity().getClass())) {
+                return;
+            }
+            Vector2 force = forceFunction.apply(contact.mask2ndEntity());
             BodyComponent forceListenerBody = contact.mask2ndBody();
-            if (forceListener.containsUserDataKey(CONTINUE) && forceListener.getUserData(CONTINUE, Boolean.class)) {
-                Supplier<Boolean> doUpdate = (Supplier<Boolean>) forceListener.getUserData(UPDATE + PREDICATE);
-                Supplier<Boolean> doRemove = (Supplier<Boolean>) forceListener.getUserData(REMOVE + PREDICATE);
+            if (forceListenerFixture.containsUserDataKey(CONTINUE) &&
+                    forceListenerFixture.getUserData(CONTINUE, Boolean.class)) {
+                Supplier<Boolean> doUpdate = (Supplier<Boolean>) forceListenerFixture.getUserData(UPDATE + PREDICATE);
+                Supplier<Boolean> doRemove = (Supplier<Boolean>) forceListenerFixture.getUserData(REMOVE + PREDICATE);
                 Entity forceListenerEntity = contact.mask2ndEntity();
                 if (!forceListenerEntity.hasComponent(UpdatableComponent.class)) {
                     forceListenerEntity.addComponent(new UpdatableComponent());
                 }
-                forceListenerEntity.getComponent(UpdatableComponent.class).putUpdatable(d ->
-                        forceListenerBody.applyImpulse(forceSupplier.get()), doUpdate, doRemove);
+                forceListenerEntity.getComponent(UpdatableComponent.class).addUpdatable(d ->
+                        forceListenerBody.applyImpulse(force), doUpdate, doRemove);
             } else {
-                forceListenerBody.applyImpulse(forceSupplier.get());
+                forceListenerBody.applyImpulse(force);
             }
         } else if (contact.acceptMask(SCANNER)) {
             Fixture scannerFixture = contact.mask1stFixture();
@@ -154,11 +162,13 @@ public class WorldContactListenerImpl implements WorldContactListener {
                 contactPoints.addAll(temp);
             }
         } else if (contact.acceptMask(FORCE, FORCE_LISTENER)) {
-            Supplier<Vector2> forceSupplier = (Supplier<Vector2>) contact.mask1stFixture().getUserData(SUPPLIER);
+            Function<Entity, Vector2> forceFunction = (Function<Entity, Vector2>) contact.mask1stFixture()
+                    .getUserData(FUNCTION);
             Fixture forceListener = contact.mask2ndFixture();
             BodyComponent forceListenerBody = contact.mask2ndBody();
             if (!forceListener.containsUserDataKey(CONTINUE) || !forceListener.getUserData(CONTINUE, Boolean.class)) {
-                forceListenerBody.applyImpulse(forceSupplier.get());
+                Vector2 force = forceFunction.apply(forceListener.getEntity());
+                forceListenerBody.applyImpulse(force);
             }
         } else if (contact.acceptMask(SCANNER)) {
             Fixture scannerFixture = contact.mask1stFixture();

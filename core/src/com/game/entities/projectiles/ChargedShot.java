@@ -14,7 +14,7 @@ import com.game.damage.Damager;
 import com.game.entities.contracts.Faceable;
 import com.game.entities.contracts.Facing;
 import com.game.sounds.SoundComponent;
-import com.game.sprites.SpriteAdapter;
+import com.game.sprites.SpriteProcessor;
 import com.game.sprites.SpriteComponent;
 import com.game.utils.enums.Position;
 import com.game.utils.objects.Wrapper;
@@ -23,10 +23,10 @@ import com.game.world.Fixture;
 import lombok.Getter;
 import lombok.Setter;
 
-import static com.game.core.constants.SoundAsset.*;
-import static com.game.core.constants.TextureAsset.MEGAMAN_CHARGED_SHOT;
-import static com.game.core.constants.TextureAsset.MEGAMAN_HALF_CHARGED_SHOT;
-import static com.game.core.constants.ViewVals.PPM;
+import static com.game.constants.SoundAsset.*;
+import static com.game.constants.TextureAsset.MEGAMAN_CHARGED_SHOT;
+import static com.game.constants.TextureAsset.MEGAMAN_HALF_CHARGED_SHOT;
+import static com.game.constants.ViewVals.PPM;
 import static com.game.entities.contracts.Facing.F_LEFT;
 import static com.game.world.BodyType.*;
 import static com.game.world.FixtureType.*;
@@ -107,7 +107,7 @@ public class ChargedShot extends AbstractProjectile implements Faceable {
         } else {
             sprite.setSize(PPM * 1.25f, PPM * 1.25f);
         }
-        return new SpriteComponent(sprite, new SpriteAdapter() {
+        return new SpriteComponent(sprite, new SpriteProcessor() {
 
             @Override
             public boolean setPositioning(Wrapper<Rectangle> bounds, Wrapper<Position> position) {

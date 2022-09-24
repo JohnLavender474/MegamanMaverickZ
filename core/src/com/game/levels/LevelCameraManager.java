@@ -10,47 +10,69 @@ import com.game.utils.enums.ProcessState;
 import com.game.utils.objects.Timer;
 import lombok.Getter;
 
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
+import java.util.function.Supplier;
 
-import static com.game.core.constants.ViewVals.PPM;
+import static com.game.constants.ViewVals.PPM;
 import static com.game.utils.UtilMethods.*;
+import static com.game.utils.enums.ProcessState.*;
+import static java.lang.Math.*;
 
-/**
- * Handler for {@link OrthographicCamera} that makes it transition between {@link Rectangle} "rooms" and follow the
- * {@link CameraFocusable} if contained in a "room" (otherwise camera does nothing). Game rooms are stored within
- * a map as
- * keys and can optionally be associated with a String value.
- */
+/** Manager for {@link OrthographicCamera} that handles transitions between "level rooms". */
 public class LevelCameraManager implements Updatable {
 
     private final Camera camera;
     private final Timer transitionTimer;
+
     private final Map<Rectangle, String> gameRooms;
+    private final Map<String, Rectangle> gameRoomNameMap = new HashMap<>();
+
     private final Vector2 transStartPos = new Vector2();
     private final Vector2 transTargetPos = new Vector2();
 
+    private final Queue<Runnable> actionQ = new LinkedList<>();
+
     private Rectangle currentGameRoom;
+
     private CameraFocusable focusable;
     private CameraFocusable queuedFocusable;
 
     @Getter
-    private ProcessState transitionState;
+    private ProcessState transState;
     @Getter
-    private Direction transitionDirection;
+    private Direction transDirection;
 
     private boolean updating;
     private boolean reset;
 
+    /**
+     * Sets the camera, transition timer, game rooms, and focusable. Also, each game room that has a non-null name
+     * will be stored in a name-to-room map that can be queried via {@link #getGameRoomCopyByName(String)}. Only one
+     * game room will be mapped to each unique game room name string.
+     *
+     * @param camera the camera
+     * @param transitionTimer the transition timer
+     * @param gameRooms the game rooms
+     * @param focusable the focusable
+     */
     public LevelCameraManager(Camera camera, Timer transitionTimer, Map<Rectangle, String> gameRooms,
                               CameraFocusable focusable) {
         this.camera = camera;
         this.gameRooms = gameRooms;
         this.focusable = focusable;
         this.transitionTimer = transitionTimer;
+        gameRooms.forEach((room, name) -> {
+            if (name != null) {
+                gameRoomNameMap.put(name, room);
+            }
+        });
     }
 
     /**
-     * Sets the focusable. If updating, then action is queued for next update cycle.
+     * Set the focusable. If updating, then action is queued for next update cycle.
      *
      * @param focusable the focusable
      */
@@ -67,26 +89,88 @@ public class LevelCameraManager implements Updatable {
     }
 
     /**
-     * Returns the String value associated with {@link #currentGameRoom}.
+     * Return the string associated with {@link #currentGameRoom}.
      *
-     * @return the String value associated with the current game room
+     * @return the string associated with the current game room
      */
     public String getCurrentGameRoomName() {
         return gameRooms.get(currentGameRoom);
     }
 
     /**
-     * Gets transition time ticker ratio.
+     * Return a copy of the game room mapped to the name.
+     *
+     * @param name the name of the game room
+     * @return the game room mapped to the name
+     */
+    public Rectangle getGameRoomCopyByName(String name) {
+        Rectangle gameRoom = gameRoomNameMap.get(name);
+        if (gameRoom == null) {
+            throw new IllegalArgumentException("No game room mapped to " + name);
+        }
+        return new Rectangle(gameRoom);
+    }
+
+    /**
+     * Sets the camera to transition to the game room mapped to the name. If manager is currently updating, then
+     * action is queued for next update cycle.
+     *
+     * @param name the name of the game room to transition to
+     */
+    public void transToGameRoomWithName(String name) {
+        Rectangle nextGameRoom = gameRoomNameMap.get(name);
+        if (nextGameRoom == null) {
+            throw new IllegalStateException("No game room mapped to " + name);
+        }
+        Runnable runnable = () -> {
+            transDirection = getSingleMostDirectionFromStartToTarget(currentGameRoom, nextGameRoom);
+            transState = BEGIN;
+            transStartPos.set(toVec2(camera.position));
+            transTargetPos.set(toVec2(camera.position));
+            switch (transDirection) {
+                case DIR_LEFT -> transTargetPos.x =
+                        (nextGameRoom.x + nextGameRoom.width) - min(nextGameRoom.width / 2.0f,
+                                camera.viewportWidth / 2.0f);
+                case DIR_RIGHT -> transTargetPos.x = nextGameRoom.x + min(nextGameRoom.width / 2.0f,
+                        camera.viewportWidth / 2.0f);
+                case DIR_UP -> transTargetPos.y = nextGameRoom.y + min(nextGameRoom.height / 2.0f,
+                        camera.viewportHeight / 2.0f);
+                case DIR_DOWN -> transTargetPos.y =
+                        (nextGameRoom.y + nextGameRoom.height) - min(nextGameRoom.height / 2.0f,
+                                camera.viewportHeight / 2.0f);
+            }
+        };
+        if (updating) {
+            actionQ.add(runnable);
+        } else {
+            runnable.run();
+        }
+    }
+
+    /**
+     * Get transition timer ratio.
      *
      * @return the transition time ticker ratio
      */
-    public float getTransitionTimeTickerRatio() {
+    public float getTransTimerRatio() {
         return transitionTimer.getRatio();
+    }
+
+    /**
+     * Return a supplier for the transition state.
+     *
+     * @return a supplier for the transition state
+     */
+    public Supplier<ProcessState> getTransStateSupplier() {
+        return () -> transState;
     }
 
     @Override
     public void update(float delta) {
         updating = true;
+        while (!actionQ.isEmpty()) {
+            actionQ.poll().run();
+        }
         if (queuedFocusable != null) {
             focusable = queuedFocusable;
             queuedFocusable = null;
@@ -96,7 +180,7 @@ public class LevelCameraManager implements Updatable {
             setCamToFocusable();
             currentGameRoom = nextGameRoom();
             reset = false;
-        } else if (transitionState == null) {
+        } else if (transState == null) {
             onNullTrans();
         } else {
             onTrans(delta);
@@ -109,8 +193,8 @@ public class LevelCameraManager implements Updatable {
         case 1: if current game room is null, try to find next game room and assign it to current game room,
         wait until next update cycle to attempt another action
 
-        case 2: if current game room contains focusable, then setBounds camera position to getCurrentFocus and
-        correct bounds if applicable
+        case 2: if current game room contains focusable, then set camera position to current focus and
+        correct bounds if necessary
 
         case 3: if current game room is not null and doesn't contain focusable, then setBounds next game room,
         and if next game room is a neighbour, then init transition process, otherwise jump directly to
@@ -141,49 +225,49 @@ public class LevelCameraManager implements Updatable {
             // generic 5 * PPM by 5 * PPM square is used to determine push direction
             Rectangle overlap = new Rectangle();
             Rectangle boundingBox = new Rectangle(0f, 0f, 5f * PPM, 5f * PPM).setCenter(focusable.getFocus());
-            transitionDirection = getOverlapPushDirection(boundingBox, currentGameRoom, overlap);
-            // go ahead and setBounds current game room to next room, which needs to be done even if
+            transDirection = getOverlapPushDirection(boundingBox, currentGameRoom, overlap);
+            // go ahead and set current game room to next room, which needs to be done even if
             // transition direction is null
             currentGameRoom = nextGameRoom;
-            if (transitionDirection == null) {
+            if (transDirection == null) {
                 return;
             }
-            // setBounds transition state to BEGIN, setBounds start and target vector2 values
-            transitionState = ProcessState.BEGIN;
+            // set transition state to BEGIN, setBounds start and target vector2 values
+            transState = BEGIN;
             transStartPos.set(toVec2(camera.position));
             transTargetPos.set(toVec2(camera.position));
-            switch (transitionDirection) {
+            switch (transDirection) {
                 case DIR_LEFT -> transTargetPos.x =
-                        (nextGameRoom.x + nextGameRoom.width) - Math.min(nextGameRoom.width / 2.0f,
+                        (nextGameRoom.x + nextGameRoom.width) - min(nextGameRoom.width / 2.0f,
                                 camera.viewportWidth / 2.0f);
-                case DIR_RIGHT -> transTargetPos.x = nextGameRoom.x + Math.min(nextGameRoom.width / 2.0f,
+                case DIR_RIGHT -> transTargetPos.x = nextGameRoom.x + min(nextGameRoom.width / 2.0f,
                         camera.viewportWidth / 2.0f);
-                case DIR_UP -> transTargetPos.y = nextGameRoom.y + Math.min(nextGameRoom.height / 2.0f,
+                case DIR_UP -> transTargetPos.y = nextGameRoom.y + min(nextGameRoom.height / 2.0f,
                         camera.viewportHeight / 2.0f);
                 case DIR_DOWN -> transTargetPos.y =
-                        (nextGameRoom.y + nextGameRoom.height) - Math.min(nextGameRoom.height / 2.0f,
+                        (nextGameRoom.y + nextGameRoom.height) - min(nextGameRoom.height / 2.0f,
                                 camera.viewportHeight / 2.0f);
             }
         }
     }
 
     private void onTrans(float delta) {
-        switch (transitionState) {
+        switch (transState) {
             case END:
-                transitionState = null;
-                transitionDirection = null;
+                transDirection = null;
+                transState = null;
+                transitionTimer.reset();
                 transStartPos.setZero();
                 transTargetPos.setZero();
-                transitionTimer.reset();
                 break;
             case BEGIN:
-                transitionState = ProcessState.CONTINUE;
+                transState = CONTINUE;
             case CONTINUE:
                 transitionTimer.update(delta);
-                Vector2 pos = interpolate(transStartPos, transTargetPos, getTransitionTimeTickerRatio());
+                Vector2 pos = interpolate(transStartPos, transTargetPos, getTransTimerRatio());
                 camera.position.x = pos.x;
                 camera.position.y = pos.y;
-                transitionState = transitionTimer.isFinished() ? ProcessState.END : ProcessState.CONTINUE;
+                transState = transitionTimer.isFinished() ? END : CONTINUE;
                 break;
         }
     }

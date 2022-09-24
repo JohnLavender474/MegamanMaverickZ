@@ -1,15 +1,11 @@
 package com.game.utils.objects;
 
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.game.utils.interfaces.Updatable;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-import static com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.*;
-import static com.game.core.constants.ViewVals.PPM;
 import static java.lang.Math.*;
 
 /**

@@ -11,26 +11,26 @@ import lombok.Getter;
 public class SpriteComponent extends Component {
 
     private final Sprite sprite;
-    private final SpriteAdapter spriteAdapter;
+    private final SpriteProcessor spriteProcessor;
 
     public SpriteComponent() {
         this(new Sprite());
     }
 
     public SpriteComponent(Sprite sprite) {
-        this(sprite, new SpriteAdapter() {});
+        this(sprite, new SpriteProcessor() {});
     }
 
-    public SpriteComponent(SpriteAdapter spriteAdapter) {
-        this(new Sprite(), spriteAdapter);
+    public SpriteComponent(SpriteProcessor spriteProcessor) {
+        this(new Sprite(), spriteProcessor);
     }
 
-    public SpriteComponent(Sprite sprite, SpriteAdapter spriteAdapter) {
-        if (sprite == null || spriteAdapter == null) {
+    public SpriteComponent(Sprite sprite, SpriteProcessor spriteProcessor) {
+        if (sprite == null || spriteProcessor == null) {
             throw new IllegalArgumentException("Sprite and sprite adapter cannot be null");
         }
         this.sprite = sprite;
-        this.spriteAdapter = spriteAdapter;
+        this.spriteProcessor = spriteProcessor;
     }
 
 }

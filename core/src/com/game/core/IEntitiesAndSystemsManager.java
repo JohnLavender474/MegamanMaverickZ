@@ -52,14 +52,14 @@ public interface IEntitiesAndSystemsManager {
     }
 
     /**
-     * View pairOf entities collection.
+     * View of entities collection.
      *
      * @return the collection
      */
     Collection<Entity> getEntities();
 
     /**
-     * Should be called when leaving a level screen and all entities need to be disposed pairOf.
+     * Should be called when leaving a level screen and all entities need to be disposed of.
      */
     void purgeAllEntities();
 

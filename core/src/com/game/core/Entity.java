@@ -9,8 +9,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.game.core.constants.Events.LEVEL_PAUSED;
-import static com.game.core.constants.Events.LEVEL_UNPAUSED;
+import static com.game.constants.Events.LEVEL_PAUSED;
+import static com.game.constants.Events.LEVEL_UNPAUSED;
 
 @Getter
 @Setter
@@ -28,10 +28,10 @@ public class Entity implements MessageListener {
     }
 
     @Override
-    public void listenToMessage(Object owner, Object message, float delta) {
-        if (message.equals(LEVEL_PAUSED)) {
+    public void listenToMessage(String key, Object owner, Object content, float delta) {
+        if (content.equals(LEVEL_PAUSED)) {
             getComponents().values().forEach(component -> component.setOn(false));
-        } else if (message.equals(LEVEL_UNPAUSED)) {
+        } else if (content.equals(LEVEL_UNPAUSED)) {
             getComponents().values().forEach(component -> component.setOn(true));
         }
     }

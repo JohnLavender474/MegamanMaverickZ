@@ -2,23 +2,18 @@ package com.game.entities.projectiles;
 
 import com.game.core.Entity;
 import com.game.core.GameContext2d;
-import com.game.core.constants.RenderingGround;
 import com.game.cull.CullOnCamTransComponent;
 import com.game.cull.CullOutOfCamBoundsComponent;
 import com.game.damage.Damageable;
 import com.game.damage.Damager;
 import com.game.entities.contracts.Hitter;
 import com.game.entities.enemies.AbstractEnemy;
-import com.game.messages.MessageListener;
 import com.game.sounds.SoundComponent;
-import com.game.utils.UtilMethods;
 import com.game.world.BodyComponent;
 import lombok.Getter;
 import lombok.Setter;
 
-import static com.game.core.constants.Events.LEVEL_PAUSED;
-import static com.game.core.constants.Events.LEVEL_UNPAUSED;
-import static com.game.core.constants.RenderingGround.*;
+import static com.game.constants.RenderingGround.*;
 import static com.game.utils.UtilMethods.*;
 
 @Getter

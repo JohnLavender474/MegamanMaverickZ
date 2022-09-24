@@ -11,15 +11,52 @@ import com.game.utils.enums.Position;
 import com.game.utils.interfaces.Positional;
 
 import static com.badlogic.gdx.graphics.Texture.TextureFilter.*;
+import static com.game.utils.enums.Direction.*;
 import static java.lang.Math.*;
 
-/**
- * Global utility methods.
- */
+/** Utility methods. */
 public class UtilMethods {
 
     /**
-     * Determines the slope pairOf the line between the two points.
+     * See {@link #getSingleMostDirectionFromStartToTarget(Vector2, Vector2)}. Uses center points of rectangles.
+     *
+     * @param start the start rectangle
+     * @param target the target rectangle
+     * @return see {@link #getSingleMostDirectionFromStartToTarget(Vector2, Vector2)}
+     */
+    public static Direction getSingleMostDirectionFromStartToTarget(Rectangle start, Rectangle target) {
+        Vector2 startCenter = centerPoint(start);
+        Vector2 targetCenter = centerPoint(target);
+        return getSingleMostDirectionFromStartToTarget(startCenter, targetCenter);
+    }
+
+    /**
+     * Returns the single direction that most describes the transition from start to target. If the difference of
+     * the x values of the two coordinates exceeds that of the y values, then the direction will either be left or
+     * right. Otherwise, it will be either up or down. The purposes of this method is to answer if the difference
+     * between the two points is greater on the x-axis or the y-axis, and also in which one should move from the start
+     * to become closer to the target than any other direction.
+     *
+     * An example use case of this method is if an entity can only move either horizontally or vertically but not both
+     * at the same time, and it needs to reach the target. Assuming there are no obstacles, this method will tell
+     * that entity which single direction will bring it closest to the target.
+     *
+     * @param start the start point
+     * @param target the target point
+     * @return the single direction that most describes the transition from start to target
+     */
+    public static Direction getSingleMostDirectionFromStartToTarget(Vector2 start, Vector2 target) {
+        float x = target.x - start.x;
+        float y = target.y - start.y;
+        if (abs(x) > abs(y)) {
+            return x > 0 ? DIR_RIGHT : DIR_LEFT;
+        } else {
+            return y > 0 ? DIR_UP : DIR_DOWN;
+        }
+    }
+
+    /**
+     * Determines the slope of the line between the two points.
      *
      * @param p1 the first point
      * @param p2 the second point
@@ -74,11 +111,11 @@ public class UtilMethods {
     }
 
     /**
-     * Returns true if the test object is equal to any pairOf the following supplied objects.
+     * Returns true if the test object is equal to any of the following supplied objects.
      *
      * @param test the test object
-     * @param objs the var args pairOf supplied objects to test against
-     * @return if the test object is equal to any pairOf the following supplied objects
+     * @param objs the var args of supplied objects to test against
+     * @return if the test object is equal to any of the following supplied objects
      */
     public static boolean equalsAny(Object test, Object... objs) {
         for (Object obj : objs) {
@@ -87,20 +124,6 @@ public class UtilMethods {
             }
         }
         return false;
-    }
-
-    /**
-     * Returns if the two rectangles overlap.
-     *
-     * @param r1 the first rectangle
-     * @param r2 the second rectangle
-     * @return if the two rectangles overlap
-     */
-    public static boolean overlaps(Rectangle r1, Rectangle r2) {
-        return r1.x <= r2.x + r2.width &&
-                r1.x + r1.width >= r2.x &&
-                r1.y <= r2.y + r2.height &&
-                r1.y + r1.height >= r2.y;
     }
 
     /**
@@ -121,10 +144,10 @@ public class UtilMethods {
     }
 
     /**
-     * Rounds the provided float to the number pairOf decimal places specified.
+     * Rounds the provided float to the number of decimal places specified.
      *
      * @param num the provided float
-     * @param decimals the number pairOf decimal places
+     * @param decimals the number of decimal places
      * @return the rounded float
      */
     public static float roundedFloat(float num, int decimals) {
@@ -133,10 +156,10 @@ public class UtilMethods {
     }
 
     /**
-     * Rounds the provided {@link Vector2} to the number pairOf decimal places specified.
+     * Rounds the provided {@link Vector2} to the number of decimal places specified.
      *
      * @param vector2 the vector2
-     * @param decimals the number pairOf decimal places
+     * @param decimals the number of decimal places
      */
     public static void roundedVector2(Vector2 vector2, int decimals) {
         vector2.x = roundedFloat(vector2.x, decimals);
@@ -144,7 +167,7 @@ public class UtilMethods {
     }
 
     /**
-     * Returns {@link BoundingBox} representation pairOf {@link Rectangle}.
+     * Returns {@link BoundingBox} representation of {@link Rectangle}.
      *
      * @param rectangle the rectangle
      * @return the bounding box representation
@@ -190,17 +213,17 @@ public class UtilMethods {
     }
 
     /**
-     * Fetches {@link Class#getSimpleName()} pairOf the provided Object.
+     * Fetches {@link Class#getSimpleName()} of the provided Object.
      *
      * @param o the Object
-     * @return the simple name pairOf the Object
+     * @return the simple name of the Object
      */
     public static String objName(Object o) {
         return o.getClass().getSimpleName();
     }
 
     /**
-     * Returns the interpolations pairOf the x and y values pairOf the two {@link Vector2} instances.
+     * Returns the interpolations of the x and y values of the two {@link Vector2} instances.
      * See {@link #interpolate(float, float, float)}.
      *
      * @param start  the starting coordinates
@@ -233,7 +256,7 @@ public class UtilMethods {
      *
      * @param toBePushed the Rectangle to be pushed
      * @param other      the other Rectangle
-     * @param overlap    the overlap pairOf the two Rectangles
+     * @param overlap    the overlap of the two Rectangles
      * @return null if there is no overlap, otherwise the direction in which the first Rectangle should be pushed
      */
     public static Direction getOverlapPushDirection(Rectangle toBePushed, Rectangle other, Rectangle overlap) {
@@ -242,9 +265,9 @@ public class UtilMethods {
             return null;
         }
         if (overlap.width > overlap.height) {
-            return toBePushed.y > other.y ? Direction.DIR_UP : Direction.DIR_DOWN;
+            return toBePushed.y > other.y ? DIR_UP : DIR_DOWN;
         } else {
-            return toBePushed.x > other.x ? Direction.DIR_RIGHT : Direction.DIR_LEFT;
+            return toBePushed.x > other.x ? DIR_RIGHT : DIR_LEFT;
         }
     }
 
@@ -252,9 +275,9 @@ public class UtilMethods {
      * Positions the first {@link Rectangle} onto the other in relation to the provided {@link Position} value.
      * The other Rectangle, named staticRectangle, is not moved. For example, if position equals
      * {@link Position#BOTTOM_CENTER}, then the Rectangle to be moved will be positioned so that its bottom center
-     * point will rest directly on the bottom center point pairOf the static Rectangle. Second example: if position equals
+     * point will rest directly on the bottom center point of the static Rectangle. Second example: if position equals
      * {@link Position#CENTER_LEFT}, then the Rectangle to be moved will be positioned so that its center left point
-     * will rest directly on the center left point pairOf the static Rectangle. So on and so forth.
+     * will rest directly on the center left point of the static Rectangle. So on and so forth.
      *
      * @param toBeMoved  the Rectangle to be moved onto the other
      * @param staticRect the Rectangle that is not moved and acts as a reference for the first Rectangle
@@ -362,7 +385,7 @@ public class UtilMethods {
     }
 
     /**
-     * Returns the bottom-right point pairOf the {@link Rectangle} as a {@link Vector2}.
+     * Returns the bottom-right point of the {@link Rectangle} as a {@link Vector2}.
      *
      * @param rectangle the rectangle
      * @return the bottom-right point
@@ -392,7 +415,7 @@ public class UtilMethods {
     }
 
     /**
-     * Returns the bottom-center point pairOf the {@link Rectangle} as a {@link Vector2}.
+     * Returns the bottom-center point of the {@link Rectangle} as a {@link Vector2}.
      *
      * @param rectangle the rectangle
      * @return the bottom-center point
@@ -422,7 +445,7 @@ public class UtilMethods {
     }
 
     /**
-     * Returns the center-right point pairOf the {@link Rectangle} as a {@link Vector2}.
+     * Returns the center-right point of the {@link Rectangle} as a {@link Vector2}.
      *
      * @param rectangle the rectangle
      * @return the center-right point
@@ -452,7 +475,7 @@ public class UtilMethods {
     }
 
     /**
-     * Returns the center point pairOf the {@link Rectangle}.
+     * Returns the center point of the {@link Rectangle}.
      *
      * @param rectangle the rectangle
      * @return the center point
@@ -464,7 +487,7 @@ public class UtilMethods {
     }
 
     /**
-     * Returns the center-left point pairOf the {@link Rectangle} as a {@link Vector2}.
+     * Returns the center-left point of the {@link Rectangle} as a {@link Vector2}.
      *
      * @param rectangle the rectangle
      * @return the center-left point
@@ -494,7 +517,7 @@ public class UtilMethods {
     }
 
     /**
-     * Returns the top-right point pairOf the {@link Rectangle} as a {@link Vector2}.
+     * Returns the top-right point of the {@link Rectangle} as a {@link Vector2}.
      *
      * @param rectangle the rectangle
      * @return the top-right point
@@ -524,7 +547,7 @@ public class UtilMethods {
     }
 
     /**
-     * Returns the top-center point pairOf the {@link Rectangle} as a {@link Vector2}.
+     * Returns the top-center point of the {@link Rectangle} as a {@link Vector2}.
      *
      * @param rectangle the rectangle
      * @return the top-center point
@@ -554,7 +577,7 @@ public class UtilMethods {
     }
 
     /**
-     * Returns the top-left point pairOf the {@link Rectangle}.
+     * Returns the top-left point of the {@link Rectangle}.
      *
      * @param rectangle the rectangle
      * @return the top-left point

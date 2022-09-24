@@ -12,7 +12,7 @@ import lombok.Setter;
 
 import java.util.function.Supplier;
 
-import static com.game.core.constants.ViewVals.PPM;
+import static com.game.constants.ViewVals.PPM;
 import static java.lang.Math.round;
 
 @Getter

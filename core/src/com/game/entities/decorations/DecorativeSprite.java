@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.game.core.Entity;
 import com.game.core.GameContext2d;
-import com.game.sprites.SpriteAdapter;
+import com.game.sprites.SpriteProcessor;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
 
@@ -15,15 +15,15 @@ import java.util.function.Supplier;
 public class DecorativeSprite extends Entity {
 
     public DecorativeSprite(GameContext2d gameContext, TextureRegion textureRegion, Vector2 dimensions,
-                            SpriteAdapter spriteAdapter, Predicate<Float> isDead) {
+                            SpriteProcessor spriteProcessor, Predicate<Float> isDead) {
         super(gameContext);
-        addComponent(spriteComponent(textureRegion, dimensions, spriteAdapter));
+        addComponent(spriteComponent(textureRegion, dimensions, spriteProcessor));
         addComponent(updatableComponent(isDead));
     }
 
     public DecorativeSprite(GameContext2d gameContext, TextureRegion textureRegion, Vector2 dimensions,
                             Supplier<Vector2> posSupplier, Predicate<Float> isDead) {
-        this(gameContext, textureRegion, dimensions, new SpriteAdapter() {
+        this(gameContext, textureRegion, dimensions, new SpriteProcessor() {
             @Override
             public void update(Sprite sprite, float delta) {
                 Vector2 pos = posSupplier.get();
@@ -46,10 +46,10 @@ public class DecorativeSprite extends Entity {
     }
 
     private SpriteComponent spriteComponent(TextureRegion textureRegion, Vector2 dimensions,
-                                                  SpriteAdapter spriteAdapter) {
+                                                  SpriteProcessor spriteProcessor) {
         Sprite sprite = new Sprite(textureRegion);
         sprite.setSize(dimensions.x, dimensions.y);
-        return new SpriteComponent(sprite, spriteAdapter);
+        return new SpriteComponent(sprite, spriteProcessor);
     }
 
 

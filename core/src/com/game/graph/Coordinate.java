@@ -1,10 +1,10 @@
 package com.game.graph;
 
 import com.badlogic.gdx.math.Vector2;
-import com.game.core.constants.FloatToInt;
+import com.game.constants.FloatToInt;
 import lombok.*;
 
-import static com.game.core.constants.FloatToInt.*;
+import static com.game.constants.FloatToInt.*;
 import static java.lang.Math.*;
 
 @Getter

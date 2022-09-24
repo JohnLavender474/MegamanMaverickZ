@@ -9,7 +9,7 @@ import com.game.animations.TimedAnimation;
 import com.game.core.Entity;
 import com.game.core.GameContext2d;
 import com.game.sounds.SoundComponent;
-import com.game.sprites.SpriteAdapter;
+import com.game.sprites.SpriteProcessor;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
 import com.game.utils.enums.Position;
@@ -22,9 +22,9 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static com.game.core.constants.SoundAsset.*;
-import static com.game.core.constants.TextureAsset.*;
-import static com.game.core.constants.ViewVals.PPM;
+import static com.game.constants.SoundAsset.*;
+import static com.game.constants.TextureAsset.*;
+import static com.game.constants.ViewVals.PPM;
 import static com.game.utils.enums.Position.*;
 import static com.game.world.BodyType.*;
 import static com.game.world.FixtureType.*;
@@ -69,7 +69,7 @@ public class SpringyBouncer extends Entity {
     private SpriteComponent spriteComponent(Rectangle boundsRect) {
         Sprite sprite = new Sprite();
         sprite.setSize(1.5f * PPM, 1.5f * PPM);
-        return new SpriteComponent(sprite, new SpriteAdapter() {
+        return new SpriteComponent(sprite, new SpriteProcessor() {
             @Override
             public boolean setPositioning(Wrapper<Rectangle> bounds, Wrapper<Position> position) {
                 bounds.setData(boundsRect);

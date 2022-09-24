@@ -4,17 +4,16 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.*;
 import com.game.core.Entity;
 import com.game.core.GameContext2d;
-import com.game.core.constants.RenderingGround;
-import com.game.core.constants.ViewVals;
+import com.game.constants.RenderingGround;
+import com.game.constants.ViewVals;
 import com.game.entities.megaman.Megaman;
 import com.game.sounds.SoundComponent;
-import com.game.utils.UtilMethods;
 import com.game.world.BodyComponent;
 import com.game.world.BodyType;
 
 import java.util.function.Supplier;
 
-import static com.game.core.constants.ViewVals.*;
+import static com.game.constants.ViewVals.*;
 
 public class OrbLaserBeamer extends Entity {
 

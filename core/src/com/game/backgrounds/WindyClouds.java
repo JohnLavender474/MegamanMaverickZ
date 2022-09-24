@@ -4,8 +4,8 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.game.core.IAssetLoader;
 
-import static com.game.core.constants.TextureAsset.*;
-import static com.game.core.constants.ViewVals.PPM;
+import static com.game.constants.TextureAsset.*;
+import static com.game.constants.ViewVals.PPM;
 
 /**
  * Windy clouds background.

@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
+import com.game.core.Entity;
 import com.game.core.GameContext2d;
 import com.game.core.IAssetLoader;
 import com.game.damage.DamageNegotiation;
@@ -27,16 +28,21 @@ import com.game.world.Fixture;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static com.badlogic.gdx.graphics.Color.*;
-import static com.game.core.constants.MiscellaneousVals.SUPPLIER;
-import static com.game.core.constants.TextureAsset.*;
-import static com.game.core.constants.ViewVals.PPM;
-import static com.game.entities.contracts.Facing.*;
-import static com.game.utils.UtilMethods.*;
-import static com.game.world.BodyType.*;
+import static com.badlogic.gdx.graphics.Color.BLUE;
+import static com.badlogic.gdx.graphics.Color.GREEN;
+import static com.game.constants.MiscellaneousVals.FUNCTION;
+import static com.game.constants.StatVals.MAX_HEALTH;
+import static com.game.constants.TextureAsset.ENEMIES_1;
+import static com.game.constants.ViewVals.PPM;
+import static com.game.entities.contracts.Facing.F_LEFT;
+import static com.game.entities.contracts.Facing.F_RIGHT;
+import static com.game.utils.UtilMethods.setBottomCenterToPoint;
+import static com.game.world.BodyType.DYNAMIC;
 import static com.game.world.FixtureType.*;
 
 @Setter
@@ -59,13 +65,14 @@ public class Matasaburo extends AbstractEnemy implements Faceable {
 
     @Override
     protected Map<Class<? extends Damager>, DamageNegotiation> defineDamageNegotiations() {
-        return Map.of(
-                Bullet.class, new DamageNegotiation(10),
-                Fireball.class, new DamageNegotiation(30),
-                ChargedShot.class, new DamageNegotiation(damager ->
-                        ((ChargedShot) damager).isFullyCharged() ? 30: 10),
-                ChargedShotDisintegration.class, new DamageNegotiation(damager ->
-                        ((ChargedShotDisintegration) damager).isFullyCharged() ? 15 : 5));
+        return new HashMap<>() {{
+            put(Bullet.class, new DamageNegotiation(10));
+            put(Fireball.class, new DamageNegotiation(MAX_HEALTH));
+            put(ChargedShot.class, new DamageNegotiation(damager ->
+                    ((ChargedShot) damager).isFullyCharged() ? MAX_HEALTH : 10));
+            put(ChargedShotDisintegration.class, new DamageNegotiation(damager ->
+                    ((ChargedShotDisintegration) damager).isFullyCharged() ? 15 : 5));
+        }};
     }
 
     private UpdatableComponent updatableComponent() {
@@ -85,8 +92,8 @@ public class Matasaburo extends AbstractEnemy implements Faceable {
         bodyComponent.setSize(PPM, PPM);
         setBottomCenterToPoint(bodyComponent.getCollisionBox(), spawn);
         Fixture blowFixture = new Fixture(this, new Rectangle(0f, 0f, 10f * PPM, PPM), FORCE);
-        blowFixture.putUserData(SUPPLIER, (Supplier<Vector2>) () -> isFacing(F_LEFT) ?
-                DEEP_BLOW_FORCE_LOL.cpy().scl(-PPM) : DEEP_BLOW_FORCE_LOL.cpy().scl(PPM));
+        blowFixture.putUserData(FUNCTION, (Function<Entity, Vector2>) e ->
+            isFacing(F_LEFT) ? DEEP_BLOW_FORCE_LOL.cpy().scl(-PPM) : DEEP_BLOW_FORCE_LOL.cpy().scl(PPM));
         bodyComponent.addFixture(blowFixture);
         bodyComponent.addFixture(new Fixture(this, bodyComponent.getCollisionBox(), DAMAGER));
         bodyComponent.addFixture(new Fixture(this, bodyComponent.getCollisionBox(), DAMAGEABLE));
@@ -103,7 +110,7 @@ public class Matasaburo extends AbstractEnemy implements Faceable {
     private SpriteComponent spriteComponent() {
         Sprite sprite = new Sprite();
         sprite.setSize(1.5f * PPM, 1.5f * PPM);
-        return new SpriteComponent(sprite, new StandardEnemySpriteAdapter() {
+        return new SpriteComponent(sprite, new StandardEnemySpriteProcessor() {
 
             @Override
             public boolean isFlipX() {

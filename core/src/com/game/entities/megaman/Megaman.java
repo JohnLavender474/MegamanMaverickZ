@@ -29,7 +29,7 @@ import com.game.levels.CameraFocusable;
 import com.game.shapes.ShapeComponent;
 import com.game.shapes.ShapeHandle;
 import com.game.sounds.SoundComponent;
-import com.game.sprites.SpriteAdapter;
+import com.game.sprites.SpriteProcessor;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.Debugger;
 import com.game.updatables.UpdatableComponent;
@@ -47,13 +47,14 @@ import lombok.Setter;
 import java.util.*;
 import java.util.function.Supplier;
 
-import static com.game.core.constants.Events.*;
-import static com.game.core.constants.LevelStatus.*;
-import static com.game.core.constants.MegamanVals.*;
-import static com.game.core.constants.SoundAsset.*;
-import static com.game.core.constants.TextureAsset.MEGAMAN_FIRE;
-import static com.game.core.constants.TextureAsset.MEGAMAN;
-import static com.game.core.constants.ViewVals.PPM;
+import static com.game.constants.Events.*;
+import static com.game.constants.LevelStatus.*;
+import static com.game.constants.MegamanVals.*;
+import static com.game.constants.MiscellaneousVals.COLLECTION;
+import static com.game.constants.SoundAsset.*;
+import static com.game.constants.TextureAsset.MEGAMAN_FIRE;
+import static com.game.constants.TextureAsset.MEGAMAN;
+import static com.game.constants.ViewVals.PPM;
 import static com.game.behaviors.BehaviorType.*;
 import static com.game.controllers.ControllerButton.*;
 import static com.game.entities.AbstractBounds.ABSTRACT_BOUNDS;
@@ -81,32 +82,44 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
 
     private static final float CLAMP_X = 20f;
     private static final float CLAMP_Y = 35f;
+
     private static final float RUN_SPEED = 4f;
-    // private static final float WATER_RUN_SPEED = 2f;
+    private static final float WATER_RUN_SPEED = 2f;
+
     private static final float JUMP_VEL = 18f;
-    // private static final float WATER_JUMP_VEL = 25f;
-    private static final float AIR_DASH_VEL = 12f;
+    private static final float WATER_JUMP_VEL = 25f;
+
     private static final float WALL_JUMP_VEL = 32f;
     private static final float WALL_JUMP_HORIZ = 15f;
+    private static final float WALL_JUMP_IMPETUS_TIME = .2f;
+
+    private static final float AIR_DASH_VEL = 12f;
+    private static final float WATER_AIR_DASH_VEL = 6f;
+    private static final float MAX_AIR_DASH_TIME = .25f;
+
     private static final float GROUND_SLIDE_VEL = 12f;
+    private static final float WATER_GROUND_SLIDE_VEL = 6f;
+    private static final float MAX_GROUND_SLIDE_TIME = .35f;
+
     private static final float GROUNDED_GRAVITY = -.125f;
     private static final float UNGROUNDED_GRAVITY = -.5f;
-    // private static final float WATER_UNGROUNDED_GRAVITY = -.25f;
+    private static final float WATER_UNGROUNDED_GRAVITY = -.25f;
 
     private static final float SHOOT_ANIM_TIME = .5f;
+
     private static final float DAMAGE_DURATION = .75f;
-    private static final float MAX_AIR_DASH_TIME = .25f;
-    private static final float EXPLOSION_ORB_SPEED = 3.5f;
     private static final float DAMAGE_RECOVERY_TIME = 1.5f;
-    private static final float MAX_GROUND_SLIDE_TIME = .35f;
-    private static final float WALL_JUMP_IMPETUS_TIME = .2f;
+    private static final float DAMAGE_RECOVERY_FLASH_DURATION = .05f;
+
     private static final float TIME_TO_HALFWAY_CHARGED = .5f;
     private static final float TIME_TO_FULLY_CHARGED = 1.25f;
-    private static final float DAMAGE_RECOVERY_FLASH_DURATION = .05f;
+
+    private static final float EXPLOSION_ORB_SPEED = 3.5f;
 
     private static final Map<Class<? extends Damager>, DamageNegotiation> damageNegotiations = new HashMap<>() {{
         put(Bat.class, new DamageNegotiation(5));
         put(Met.class, new DamageNegotiation(5));
+        put(MagFly.class, new DamageNegotiation(5));
         put(Bullet.class, new DamageNegotiation(10));
         put(Fireball.class, new DamageNegotiation(5));
         put(Dragonfly.class, new DamageNegotiation(5));
@@ -169,12 +182,11 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         addComponent(behaviorComponent());
         addComponent(spriteComponent());
         addComponent(new SoundComponent());
-        addComponent(new ShapeComponent());
+        // addComponent(shapeComponent());
         damageTimer.setToEnd();
         shootAnimationTimer.setToEnd();
         damageRecoveryTimer.setToEnd();
         wallJumpImpetusTimer.setToEnd();
-        addComponent(shapeComponent());
     }
 
     private ShapeComponent shapeComponent() {
@@ -652,6 +664,10 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         bodyComponent.addFixture(hitBox);
         // force listener
         Fixture forceListener = new Fixture(this, bodyComponent.getCollisionBox(), FORCE_LISTENER);
+        forceListener.putUserData(COLLECTION, new HashSet<>() {{
+            add(MagFly.class);
+            add(Matasaburo.class);
+        }});
         bodyComponent.addFixture(forceListener);
         // pre-process
         bodyComponent.setPreProcess(delta -> {
@@ -681,7 +697,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
     private SpriteComponent spriteComponent() {
         Sprite sprite = new Sprite();
         sprite.setSize(1.65f * PPM, 1.35f * PPM);
-        return new SpriteComponent(sprite, new SpriteAdapter() {
+        return new SpriteComponent(sprite, new SpriteProcessor() {
 
             @Override
             public boolean setPositioning(Wrapper<Rectangle> bounds, Wrapper<Position> position) {

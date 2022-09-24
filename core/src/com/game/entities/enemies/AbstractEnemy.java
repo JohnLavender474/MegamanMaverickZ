@@ -15,8 +15,7 @@ import com.game.entities.megaman.Megaman;
 import com.game.graph.GraphComponent;
 import com.game.health.HealthComponent;
 import com.game.sounds.SoundComponent;
-import com.game.sprites.SpriteAdapter;
-import com.game.updatables.UpdatableComponent;
+import com.game.sprites.SpriteProcessor;
 import com.game.utils.interfaces.Updatable;
 import com.game.utils.enums.Position;
 import com.game.utils.objects.Timer;
@@ -28,7 +27,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import static com.game.core.constants.SoundAsset.*;
+import static com.game.constants.SoundAsset.*;
+import static com.game.constants.StatVals.*;
 import static com.game.entities.contracts.Facing.*;
 import static com.game.utils.enums.Position.*;
 import static java.util.Collections.unmodifiableSet;
@@ -51,7 +51,7 @@ public abstract class AbstractEnemy extends Entity implements Damager, Damageabl
         addComponent(new SoundComponent());
         addComponent(graphComponent());
         addComponent(new CullOnCamTransComponent());
-        addComponent(new HealthComponent(30, this::disintegrate));
+        addComponent(new HealthComponent(MAX_HEALTH, this::disintegrate));
         addComponent(new CullOutOfCamBoundsComponent(
                 () -> getComponent(BodyComponent.class).getCollisionBox(), cullDuration));
         damageTimer.setToEnd();
@@ -124,7 +124,7 @@ public abstract class AbstractEnemy extends Entity implements Damager, Damageabl
 
     }
 
-    protected class StandardEnemySpriteAdapter implements SpriteAdapter {
+    protected class StandardEnemySpriteProcessor implements SpriteProcessor {
 
         private final Timer blinkTimer = new Timer(.05f);
 

@@ -20,7 +20,7 @@ import com.game.shapes.ShapeHandle;
 import com.game.movement.PendulumComponent;
 import com.game.movement.RotatingLineComponent;
 import com.game.movement.TrajectoryComponent;
-import com.game.sprites.SpriteAdapter;
+import com.game.sprites.SpriteProcessor;
 import com.game.sprites.SpriteComponent;
 import com.game.utils.enums.Position;
 import com.game.utils.interfaces.UpdatableConsumer;
@@ -35,8 +35,8 @@ import java.util.List;
 
 import static com.badlogic.gdx.graphics.Color.*;
 import static com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.*;
-import static com.game.core.constants.TextureAsset.*;
-import static com.game.core.constants.ViewVals.PPM;
+import static com.game.constants.TextureAsset.*;
+import static com.game.constants.ViewVals.PPM;
 import static com.game.utils.UtilMethods.*;
 import static com.game.utils.enums.Position.*;
 import static com.game.utils.objects.Pair.*;
@@ -150,7 +150,7 @@ public class Saw extends Entity {
     private SpriteComponent spriteComponent() {
         Sprite sprite = new Sprite();
         sprite.setSize(2f * PPM, 2f * PPM);
-        return new SpriteComponent(sprite, new SpriteAdapter() {
+        return new SpriteComponent(sprite, new SpriteProcessor() {
 
             @Override
             public boolean setPositioning(Wrapper<Rectangle> bounds, Wrapper<Position> position) {

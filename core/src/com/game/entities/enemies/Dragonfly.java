@@ -29,12 +29,14 @@ import com.game.world.Fixture;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import static com.game.core.constants.RenderingGround.*;
-import static com.game.core.constants.TextureAsset.*;
-import static com.game.core.constants.ViewVals.PPM;
+import static com.game.constants.RenderingGround.*;
+import static com.game.constants.StatVals.MAX_HEALTH;
+import static com.game.constants.TextureAsset.*;
+import static com.game.constants.ViewVals.PPM;
 import static com.game.entities.contracts.Facing.F_LEFT;
 import static com.game.entities.contracts.Facing.F_RIGHT;
 import static com.game.entities.enemies.Dragonfly.DragonFlyBehavior.*;
@@ -78,17 +80,18 @@ public class Dragonfly extends AbstractEnemy implements Faceable {
 
     @Override
     protected Map<Class<? extends Damager>, DamageNegotiation> defineDamageNegotiations() {
-        return Map.of(
-                Bullet.class, new DamageNegotiation(5),
-                Fireball.class, new DamageNegotiation(30),
-                ChargedShot.class, new DamageNegotiation(30),
-                ChargedShotDisintegration.class, new DamageNegotiation(15));
+        return new HashMap<>() {{
+            put(Bullet.class, new DamageNegotiation(5));
+            put(Fireball.class, new DamageNegotiation(MAX_HEALTH));
+            put(ChargedShot.class, new DamageNegotiation(MAX_HEALTH));
+            put(ChargedShotDisintegration.class, new DamageNegotiation(15));
+        }};
     }
 
     private ShapeComponent shapeComponent() {
-        Shape2D damageBox = getComponent(BodyComponent.class).getFirstMatchingFixture(DAMAGEABLE)
+        Shape2D damageable = getComponent(BodyComponent.class).getFirstMatchingFixture(DAMAGEABLE)
                 .orElseThrow().getFixtureShape();
-        return new ShapeComponent(damageBox);
+        return new ShapeComponent(damageable);
     }
 
     private BodyComponent bodyComponent(Vector2 spawn) {
@@ -163,7 +166,7 @@ public class Dragonfly extends AbstractEnemy implements Faceable {
     private SpriteComponent spriteComponent() {
         Sprite sprite = new Sprite();
         sprite.setSize(1.5f * PPM, 1.5f * PPM);
-        return new SpriteComponent(sprite, new StandardEnemySpriteAdapter() {
+        return new SpriteComponent(sprite, new StandardEnemySpriteProcessor() {
 
             @Override
             public boolean setPositioning(Wrapper<Rectangle> bounds, Wrapper<Position> position) {

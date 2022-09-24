@@ -1,6 +1,6 @@
 package com.game.core;
 
-import com.game.core.constants.Boss;
+import com.game.constants.Boss;
 import com.game.entities.megaman.MegamanSpecialAbility;
 import com.game.entities.megaman.MegamanWeapon;
 import com.game.utils.objects.Percentage;

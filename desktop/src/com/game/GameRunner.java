@@ -19,6 +19,7 @@ public class GameRunner {
 		config.setIdleFPS(60);
 		config.setForegroundFPS(60);
 		config.setWindowedMode(1920, 1080);
+		config.setMaximized(true);
 		config.setTitle("Megaman Maverick");
 		new Lwjgl3Application(new MegamanMaverick(), config);
 	}

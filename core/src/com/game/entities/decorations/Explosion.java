@@ -14,8 +14,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
-import static com.game.core.constants.TextureAsset.DECORATIONS;
-import static com.game.core.constants.ViewVals.PPM;
+import static com.game.constants.TextureAsset.DECORATIONS;
+import static com.game.constants.ViewVals.PPM;
 
 public class Explosion extends Entity {
 

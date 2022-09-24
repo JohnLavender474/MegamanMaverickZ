@@ -7,22 +7,19 @@ import com.badlogic.gdx.math.Vector2;
 import com.game.core.Entity;
 import com.game.core.GameContext2d;
 import com.game.graph.GraphComponent;
-import com.game.graph.Node;
 import com.game.movement.TrajectoryComponent;
-import com.game.shapes.ShapeComponent;
-import com.game.shapes.ShapeHandle;
-import com.game.updatables.UpdatableComponent;
+import com.game.movement.TrajectoryParser;
+import com.game.utils.objects.KeyValuePair;
 import com.game.world.BodyComponent;
-import com.game.world.BodyType;
 import com.game.world.Fixture;
 
+import java.util.Collection;
 import java.util.List;
 
-import static com.game.core.constants.ViewVals.PPM;
+import static com.game.constants.ViewVals.PPM;
 import static com.game.utils.UtilMethods.centerPoint;
 import static com.game.world.BodyType.*;
 import static com.game.world.FixtureType.*;
-import static java.lang.Float.parseFloat;
 
 public class Block extends Entity {
 
@@ -63,26 +60,32 @@ public class Block extends Entity {
         set(bounds, properties, friction, resistance, gravityOn, wallSlideLeft, wallSlideRight, feetSticky);
     }
 
+    public Block(GameContext2d gameContext, Rectangle bounds) {
+        super(gameContext);
+        set(bounds, STANDARD_FRICTION.cpy(), false, false, true, true, false);
+    }
+
     private void set(Rectangle bounds, MapProperties properties, Vector2 friction, boolean resistance,
                      boolean gravityOn, boolean wallSlideLeft, boolean wallSlideRight, boolean feetSticky) {
-        addComponent(graphComponent());
-        addComponent(bodyComponent(bounds, friction, resistance, gravityOn,
-                wallSlideLeft, wallSlideRight, feetSticky));
+        set(bounds, friction, resistance, gravityOn, wallSlideLeft, wallSlideRight, feetSticky);
         if (properties != null && properties.containsKey("trajectory")) {
-            String[] trajectories = properties.get("trajectory", String.class).split(";");
-            addComponent(trajectoryComponent(trajectories));
+            String trajStr = properties.get("trajectory", String.class);
+            addComponent(trajectoryComponent(trajStr));
         }
     }
 
-    private TrajectoryComponent trajectoryComponent(String[] trajectories) {
+    private void set(Rectangle bounds, Vector2 friction, boolean resistance, boolean gravityOn, boolean wallSlideLeft,
+                     boolean wallSlideRight, boolean feetSticky) {
+        addComponent(graphComponent());
+        addComponent(bodyComponent(bounds, friction, resistance, gravityOn,
+                wallSlideLeft, wallSlideRight, feetSticky));
+    }
+
+    private TrajectoryComponent trajectoryComponent(String trajStr) {
         TrajectoryComponent trajectoryComponent = new TrajectoryComponent();
-        for (String trajectory : trajectories) {
-            String[] params = trajectory.split(",");
-            float x = parseFloat(params[0]);
-            float y = parseFloat(params[1]);
-            float time = parseFloat(params[2]);
-            trajectoryComponent.addTrajectory(new Vector2(x * PPM, y * PPM), time);
-        }
+        Collection<KeyValuePair<Vector2, Float>> trajectories = TrajectoryParser.parse(trajStr);
+        trajectories.forEach(trajectoryDef ->
+            trajectoryComponent.addTrajectory(trajectoryDef.key(), trajectoryDef.value()));
         return trajectoryComponent;
     }
 

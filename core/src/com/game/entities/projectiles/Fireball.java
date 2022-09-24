@@ -9,7 +9,7 @@ import com.game.core.GameContext2d;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
 import com.game.sounds.SoundComponent;
-import com.game.sprites.SpriteAdapter;
+import com.game.sprites.SpriteProcessor;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
 import com.game.utils.enums.Position;
@@ -24,9 +24,9 @@ import lombok.Setter;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import static com.game.core.constants.SoundAsset.ATOMIC_FIRE_SOUND;
-import static com.game.core.constants.TextureAsset.FIRE;
-import static com.game.core.constants.ViewVals.PPM;
+import static com.game.constants.SoundAsset.ATOMIC_FIRE_SOUND;
+import static com.game.constants.TextureAsset.FIRE;
+import static com.game.constants.ViewVals.PPM;
 import static com.game.world.FixtureType.*;
 
 @Getter
@@ -69,7 +69,7 @@ public class Fireball extends AbstractProjectile {
     private SpriteComponent spriteComponent() {
         Sprite sprite = new Sprite();
         sprite.setSize(1.25f * PPM, 1.25f * PPM);
-        return new SpriteComponent(sprite, new SpriteAdapter() {
+        return new SpriteComponent(sprite, new SpriteProcessor() {
 
             private float rotation = 0f;
 

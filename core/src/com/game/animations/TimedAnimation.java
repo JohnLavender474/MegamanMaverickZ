@@ -191,7 +191,8 @@ public class TimedAnimation implements Updatable, Resettable {
 
     @Override
     public void reset() {
-        timeElapsed = 0.0f;
+        timeElapsed = 0f;
+        isFinished = false;
     }
 
 }

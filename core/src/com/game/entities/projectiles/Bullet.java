@@ -9,8 +9,9 @@ import com.game.core.Entity;
 import com.game.core.GameContext2d;
 import com.game.entities.decorations.Disintegration;
 import com.game.entities.enemies.AbstractEnemy;
+import com.game.entities.enemies.Matasaburo;
 import com.game.sounds.SoundComponent;
-import com.game.sprites.SpriteAdapter;
+import com.game.sprites.SpriteProcessor;
 import com.game.sprites.SpriteComponent;
 import com.game.utils.enums.Position;
 import com.game.utils.objects.Wrapper;
@@ -19,12 +20,13 @@ import com.game.world.Fixture;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.function.Supplier;
 
-import static com.game.core.constants.MiscellaneousVals.*;
-import static com.game.core.constants.SoundAsset.*;
-import static com.game.core.constants.TextureAsset.OBJECTS;
-import static com.game.core.constants.ViewVals.PPM;
+import static com.game.constants.MiscellaneousVals.*;
+import static com.game.constants.SoundAsset.*;
+import static com.game.constants.TextureAsset.OBJECTS;
+import static com.game.constants.ViewVals.PPM;
 import static com.game.utils.enums.Position.*;
 import static com.game.world.BodyType.*;
 import static com.game.world.FixtureType.*;
@@ -80,7 +82,7 @@ public class Bullet extends AbstractProjectile {
         Sprite sprite = new Sprite();
         sprite.setRegion(textureRegion);
         sprite.setSize(PPM * 1.25f, PPM * 1.25f);
-        return new SpriteComponent(sprite, new SpriteAdapter() {
+        return new SpriteComponent(sprite, new SpriteProcessor() {
             @Override
             public boolean setPositioning(Wrapper<Rectangle> bounds, Wrapper<Position> position) {
                 bounds.setData(getComponent(BodyComponent.class).getCollisionBox());
@@ -103,6 +105,9 @@ public class Bullet extends AbstractProjectile {
         bodyComponent.addFixture(projectile);
         // force listener
         Fixture forceListener = new Fixture(this, new Rectangle(model), FORCE_LISTENER);
+        forceListener.putUserData(COLLECTION, new HashSet<>() {{
+            add(Matasaburo.class);
+        }});
         forceListener.putUserData(CONTINUE, true);
         forceListener.putUserData(UPDATE + PREDICATE, (Supplier<Boolean>) () -> true);
         forceListener.putUserData(REMOVE + PREDICATE, (Supplier<Boolean>) () -> false);

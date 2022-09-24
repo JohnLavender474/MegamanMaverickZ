@@ -1,7 +1,7 @@
 package com.game.core;
 
 import com.badlogic.gdx.Screen;
-import com.game.core.constants.GameScreen;
+import com.game.constants.GameScreen;
 
 public interface IScreenManager {
 

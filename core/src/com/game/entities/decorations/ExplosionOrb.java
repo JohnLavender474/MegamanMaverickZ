@@ -14,8 +14,8 @@ import com.game.updatables.UpdatableComponent;
 import com.game.utils.objects.Timer;
 import lombok.Getter;
 
-import static com.game.core.constants.TextureAsset.DECORATIONS;
-import static com.game.core.constants.ViewVals.PPM;
+import static com.game.constants.TextureAsset.DECORATIONS;
+import static com.game.constants.ViewVals.PPM;
 
 @Getter
 public class ExplosionOrb extends Entity {

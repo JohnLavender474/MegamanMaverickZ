@@ -33,8 +33,9 @@ import java.util.*;
 import java.util.function.Supplier;
 
 import static com.badlogic.gdx.math.MathUtils.*;
-import static com.game.core.constants.TextureAsset.*;
-import static com.game.core.constants.ViewVals.PPM;
+import static com.game.constants.StatVals.MAX_HEALTH;
+import static com.game.constants.TextureAsset.*;
+import static com.game.constants.ViewVals.PPM;
 import static com.game.entities.enemies.Bat.BatStatus.*;
 import static com.game.utils.UtilMethods.*;
 import static com.game.utils.UtilMethods.centerPoint;
@@ -78,11 +79,12 @@ public class Bat extends AbstractEnemy implements Hitter {
 
     @Override
     protected Map<Class<? extends Damager>, DamageNegotiation> defineDamageNegotiations() {
-        return Map.of(
-                Bullet.class, new DamageNegotiation(10),
-                Fireball.class, new DamageNegotiation(30),
-                ChargedShot.class, new DamageNegotiation(30),
-                ChargedShotDisintegration.class, new DamageNegotiation(30));
+        return new HashMap<>() {{
+            put(Bullet.class, new DamageNegotiation(10));
+            put(Fireball.class, new DamageNegotiation(MAX_HEALTH));
+            put(ChargedShot.class, new DamageNegotiation(MAX_HEALTH));
+            put(ChargedShotDisintegration.class, new DamageNegotiation(MAX_HEALTH));
+        }};
     }
 
     @Override
@@ -126,7 +128,7 @@ public class Bat extends AbstractEnemy implements Hitter {
     private SpriteComponent spriteComponent() {
         Sprite sprite = new Sprite();
         sprite.setSize(1.5f * PPM, 1.5f * PPM);
-        return new SpriteComponent(sprite, new StandardEnemySpriteAdapter() {
+        return new SpriteComponent(sprite, new StandardEnemySpriteProcessor() {
             @Override
             public boolean setPositioning(Wrapper<Rectangle> bounds, Wrapper<Position> position) {
                 bounds.setData(getComponent(BodyComponent.class).getCollisionBox());

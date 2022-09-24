@@ -17,8 +17,8 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.game.constants.*;
 import com.game.core.*;
-import com.game.core.constants.*;
 import com.game.animations.AnimationSystem;
 import com.game.behaviors.BehaviorSystem;
 import com.game.controllers.ButtonStatus;
@@ -31,17 +31,17 @@ import com.game.shapes.LineSystem;
 import com.game.shapes.ShapeSystem;
 import com.game.graph.GraphSystem;
 import com.game.health.HealthSystem;
-import com.game.screens.LevelScreen;
-import com.game.screens.menus.impl.BossSelectScreen;
-import com.game.screens.menus.impl.ExtrasScreen;
-import com.game.screens.menus.impl.MainMenuScreen;
-import com.game.screens.menus.impl.PauseMenuScreen;
+import com.game.levels.LevelScreen;
+import com.game.menus.impl.BossSelectScreen;
+import com.game.menus.impl.ExtrasScreen;
+import com.game.menus.impl.MainMenuScreen;
+import com.game.menus.impl.PauseMenuScreen;
 import com.game.messages.Message;
 import com.game.messages.MessageListener;
 import com.game.movement.PendulumSystem;
 import com.game.movement.RotatingLineSystem;
 import com.game.pathfinding.PathfindingSystem;
-import com.game.screens.other.LevelIntroScreen;
+import com.game.levels.BossIntroScreen;
 import com.game.sounds.SoundSystem;
 import com.game.sprites.SpriteSystem;
 import com.game.movement.TrajectorySystem;
@@ -55,14 +55,14 @@ import lombok.Setter;
 import java.util.*;
 
 import static com.badlogic.gdx.Gdx.*;
-import static com.game.core.constants.Events.*;
-import static com.game.core.constants.GameScreen.*;
-import static com.game.core.constants.LevelStatus.*;
-import static com.game.core.constants.MegamanVals.*;
-import static com.game.core.constants.MusicAsset.*;
-import static com.game.core.constants.RenderingGround.PLAYGROUND;
-import static com.game.core.constants.ViewVals.*;
-import static com.game.core.constants.WorldVals.*;
+import static com.game.constants.Events.*;
+import static com.game.constants.GameScreen.*;
+import static com.game.constants.LevelStatus.*;
+import static com.game.constants.MegamanVals.*;
+import static com.game.constants.MusicAsset.*;
+import static com.game.constants.RenderingGround.PLAYGROUND;
+import static com.game.constants.ViewVals.*;
+import static com.game.constants.WorldVals.*;
 import static com.game.controllers.ButtonStatus.*;
 import static com.game.controllers.ControllerUtils.*;
 import static com.game.core.DebugLogger.DebugLevel.*;
@@ -162,7 +162,7 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
         screens.put(EXTRAS, new ExtrasScreen(this));
         screens.put(BOSS_SELECT, new BossSelectScreen(this));
         screens.put(PAUSE_MENU, new PauseMenuScreen(this));
-        screens.put(LEVEL_INTRO, new LevelIntroScreen(this));
+        screens.put(LEVEL_INTRO, new BossIntroScreen(this));
         /*
         screens.put(TEST_STAGE, new LevelScreen(
                 this, "tiledmaps/tmx/Test1.tmx", MMZ_NEO_ARCADIA_MUSIC.getSrc()));
@@ -371,12 +371,13 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
     public void updateMessageDispatcher(float delta) {
         while (!messageQueue.isEmpty()) {
             Message message = messageQueue.poll();
-            messageListeners.forEach(listener -> listener.listenToMessage(message.owner(), message.contents(), delta));
+            messageListeners.forEach(listener ->
+                    listener.listenToMessage(message.getKey(), message.getOwner(), message.getContent(), delta));
         }
     }
 
     @Override
-    public void listenToMessage(Object owner, Object message, float delta) {
+    public void listenToMessage(String key, Object owner, Object message, float delta) {
         if (message.equals(LEVEL_PAUSED)) {
             setLevelStatus(PAUSED);
         } else if (message.equals(LEVEL_UNPAUSED)) {

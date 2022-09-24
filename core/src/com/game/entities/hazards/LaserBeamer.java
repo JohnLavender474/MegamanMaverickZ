@@ -15,7 +15,7 @@ import com.game.shapes.LineComponent;
 import com.game.shapes.LineHandle;
 import com.game.shapes.ShapeComponent;
 import com.game.shapes.ShapeHandle;
-import com.game.sprites.SpriteAdapter;
+import com.game.sprites.SpriteProcessor;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
 import com.game.utils.enums.Position;
@@ -31,9 +31,9 @@ import java.util.Queue;
 
 import static com.badlogic.gdx.graphics.Color.*;
 import static com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.*;
-import static com.game.core.constants.MiscellaneousVals.COLLECTION;
-import static com.game.core.constants.TextureAsset.*;
-import static com.game.core.constants.ViewVals.PPM;
+import static com.game.constants.MiscellaneousVals.COLLECTION;
+import static com.game.constants.TextureAsset.*;
+import static com.game.constants.ViewVals.PPM;
 import static com.game.utils.ShapeUtils.*;
 import static com.game.utils.UtilMethods.*;
 import static com.game.world.BodyType.*;
@@ -105,7 +105,7 @@ public class LaserBeamer extends Entity implements Damager {
                 .findRegion("LaserBeamer");
         Sprite sprite = new Sprite(laserBeamer);
         sprite.setSize(1.5f * PPM, 1.5f * PPM);
-        return new SpriteComponent(sprite, new SpriteAdapter() {
+        return new SpriteComponent(sprite, new SpriteProcessor() {
 
             @Override
             public boolean setPositioning(Wrapper<Rectangle> bounds, Wrapper<Position> position) {

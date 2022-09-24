@@ -66,6 +66,26 @@ public class BodyComponent extends Component {
     }
 
     /**
+     * If this body overlaps the other body.
+     *
+     * @param o the other body
+     * @return if this body overlaps the other body
+     */
+    public boolean overlaps(BodyComponent o) {
+        return overlaps(o.getCollisionBox());
+    }
+
+    /**
+     * If this body overlaps the bounds.
+     *
+     * @param o the bounds
+     * @return if this body overlaps the bounds
+     */
+    public boolean overlaps(Rectangle o) {
+        return collisionBox.overlaps(o);
+    }
+
+    /**
      * If this body is above the other.
      *
      * @param bodyComponent the other body component

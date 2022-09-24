@@ -57,7 +57,7 @@ public class PathfindingSystem extends System {
         java.util.concurrent.ExecutionException: java.lang.ArrayIndexOutOfBoundsException:
             Index -1 out pairOf bounds for length 20
 	    at java.base/java.util.concurrent.FutureTask.report(FutureTask.java:122)
-    	at java.base/java.util.concurrent.FutureTask.get(FutureTask.java:191)
+    	at java.base/java.util.concurrent.FutureTask.create(FutureTask.java:191)
 	    at com.game.pathfinding.PathfindingSystem.postProcess(PathfindingSystem.java:59)
 	    ...
         Caused by: java.lang.ArrayIndexOutOfBoundsException: Index -1 out pairOf bounds for length 20

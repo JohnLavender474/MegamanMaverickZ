@@ -11,7 +11,7 @@ import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
 import com.game.damage.Damager;
 import com.game.sounds.SoundComponent;
-import com.game.sprites.SpriteAdapter;
+import com.game.sprites.SpriteProcessor;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
 import com.game.utils.objects.Timer;
@@ -19,10 +19,10 @@ import com.game.world.BodyComponent;
 import com.game.world.Fixture;
 import lombok.Getter;
 
-import static com.game.core.constants.SoundAsset.*;
-import static com.game.core.constants.TextureAsset.MEGAMAN_CHARGED_SHOT;
-import static com.game.core.constants.TextureAsset.MEGAMAN_HALF_CHARGED_SHOT;
-import static com.game.core.constants.ViewVals.PPM;
+import static com.game.constants.SoundAsset.*;
+import static com.game.constants.TextureAsset.MEGAMAN_CHARGED_SHOT;
+import static com.game.constants.TextureAsset.MEGAMAN_HALF_CHARGED_SHOT;
+import static com.game.constants.ViewVals.PPM;
 import static com.game.world.BodyType.*;
 import static com.game.world.FixtureType.*;
 
@@ -89,7 +89,7 @@ public class ChargedShotDisintegration extends Entity implements Damager {
             sprite.setSize(1.25f * PPM, 1.25f * PPM);
         }
         sprite.setCenter(center.x, center.y);
-        return new SpriteComponent(sprite, new SpriteAdapter() {
+        return new SpriteComponent(sprite, new SpriteProcessor() {
             @Override
             public boolean isFlipX() {
                 return isLeft;
