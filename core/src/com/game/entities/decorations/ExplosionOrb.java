@@ -7,7 +7,7 @@ import com.game.Entity;
 import com.game.GameContext2d;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
-import com.game.cull.CullOnCamTransComponent;
+import com.game.cull.CullOnEventComponent;
 import com.game.cull.CullOutOfCamBoundsComponent;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
@@ -16,6 +16,7 @@ import lombok.Getter;
 
 import static com.game.assets.TextureAsset.DECORATIONS;
 import static com.game.ViewVals.PPM;
+import static com.game.events.EventType.*;
 
 @Getter
 public class ExplosionOrb extends Entity {
@@ -25,11 +26,11 @@ public class ExplosionOrb extends Entity {
     public ExplosionOrb(GameContext2d gameContext, Vector2 spawn, Vector2 trajectory) {
         super(gameContext);
         addComponent(spriteComponent(spawn));
-        addComponent(new CullOnCamTransComponent());
         addComponent(updatableComponent(trajectory));
         addComponent(animationComponent(gameContext));
         addComponent(new CullOutOfCamBoundsComponent(
                 () -> getComponent(SpriteComponent.class).getSprite().getBoundingRectangle(), .1f));
+        addComponent(new CullOnEventComponent(PLAYER_SPAWN));
     }
 
     private UpdatableComponent updatableComponent(Vector2 trajectory) {

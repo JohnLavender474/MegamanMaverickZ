@@ -2,7 +2,7 @@ package com.game.entities.projectiles;
 
 import com.game.Entity;
 import com.game.GameContext2d;
-import com.game.cull.CullOnCamTransComponent;
+import com.game.cull.CullOnEventComponent;
 import com.game.cull.CullOutOfCamBoundsComponent;
 import com.game.damage.Damageable;
 import com.game.damage.Damager;
@@ -13,6 +13,7 @@ import com.game.world.BodyComponent;
 import lombok.Getter;
 import lombok.Setter;
 
+import static com.game.events.EventType.*;
 import static com.game.sprites.RenderingGround.*;
 import static com.game.utils.UtilMethods.*;
 
@@ -26,8 +27,8 @@ public abstract class AbstractProjectile extends Entity implements Hitter, Damag
         super(gameContext);
         this.owner = owner;
         addComponent(new SoundComponent());
-        addComponent(new CullOnCamTransComponent());
         addComponent(cullOutOfCamBoundsComponent(cullDuration));
+        addComponent(new CullOnEventComponent(PLAYER_SPAWN, BEGIN_GAME_ROOM_TRANS, GATE_INIT_OPENING));
         gameContext.addEventListener(this);
     }
 

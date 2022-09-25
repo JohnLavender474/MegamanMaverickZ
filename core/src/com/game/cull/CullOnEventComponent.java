@@ -6,23 +6,21 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.Arrays.*;
 
 @NoArgsConstructor
 @Getter(AccessLevel.PACKAGE)
-public class CullComponent extends Component {
+public class CullOnEventComponent extends Component {
 
     private final Set<EventType> eventTypes = new HashSet<>();
 
-    public CullComponent(EventType... eventTypes) {
+    public CullOnEventComponent(EventType... eventTypes) {
         this(asList(eventTypes));
     }
 
-    public CullComponent(Collection<EventType> eventTypes) {
+    public CullOnEventComponent(Collection<EventType> eventTypes) {
         eventTypes.forEach(e -> setCullOnEvent(e, true));
     }
 

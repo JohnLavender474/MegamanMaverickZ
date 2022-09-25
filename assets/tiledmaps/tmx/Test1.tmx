@@ -27,7 +27,7 @@
  </objectgroup>
  <objectgroup id="14" name="AbstractBounds"/>
  <objectgroup id="12" name="Backgrounds"/>
- <objectgroup id="13" name="GameRooms" visible="0">
+ <objectgroup id="13" name="GameRooms">
   <object id="8" x="0" y="0" width="1600" height="640"/>
  </objectgroup>
  <objectgroup id="4" name="Hazards">

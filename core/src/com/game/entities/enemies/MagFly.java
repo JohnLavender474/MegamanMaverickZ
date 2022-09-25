@@ -159,11 +159,11 @@ public class MagFly extends AbstractEnemy implements Faceable {
         // left and right scanners
         Rectangle sideScannerModel = new Rectangle(0f, 0f, .1f * PPM, .1f * PPM);
         Fixture leftScanner = new Fixture(this, new Rectangle(sideScannerModel), SCANNER);
-        leftScanner.setOffset(-.8f * PPM, -.4f * PPM);
+        leftScanner.setOffset(-.6f * PPM, -.4f * PPM);
         leftScanner.putUserData(COLLECTION, leftScannerSet);
         bodyComponent.addFixture(leftScanner);
         Fixture rightScanner = new Fixture(this, new Rectangle(sideScannerModel), SCANNER);
-        rightScanner.setOffset(.8f * PPM, -.4f * PPM);
+        rightScanner.setOffset(.6f * PPM, -.4f * PPM);
         rightScanner.putUserData(COLLECTION, rightScannerSet);
         bodyComponent.addFixture(rightScanner);
         // force scanner

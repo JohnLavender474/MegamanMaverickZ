@@ -4,9 +4,9 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.utils.interfaces.Updatable;
 import com.game.utils.enums.Direction;
 import com.game.utils.enums.ProcessState;
+import com.game.utils.interfaces.Updatable;
 import com.game.utils.objects.Timer;
 import lombok.Getter;
 
@@ -14,14 +14,15 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
-import java.util.function.Supplier;
 
 import static com.game.ViewVals.PPM;
 import static com.game.utils.UtilMethods.*;
 import static com.game.utils.enums.ProcessState.*;
-import static java.lang.Math.*;
+import static java.lang.Math.min;
 
-/** Manager for {@link OrthographicCamera} that handles transitions between "level rooms". */
+/**
+ * Manager for {@link OrthographicCamera} that handles transitions between "level rooms".
+ */
 public class LevelCameraManager implements Updatable {
 
     private final Camera camera;
@@ -32,8 +33,14 @@ public class LevelCameraManager implements Updatable {
 
     private final Vector2 transStartPos = new Vector2();
     private final Vector2 transTargetPos = new Vector2();
+    @Getter
+    private final Vector2 focusableStartPos = new Vector2();
+    @Getter
+    private final Vector2 focusableTargetPos = new Vector2();
 
     private final Queue<Runnable> actionQ = new LinkedList<>();
+
+    private final float focusableDistFromEdge;
 
     private Rectangle currentGameRoom;
 
@@ -45,25 +52,28 @@ public class LevelCameraManager implements Updatable {
     @Getter
     private Direction transDirection;
 
-    private boolean updating;
     private boolean reset;
+    @Getter
+    private boolean updating;
 
     /**
      * Sets the camera, transition timer, game rooms, and focusable. Also, each game room that has a non-null name
      * will be stored in a name-to-room map that can be queried via {@link #getGameRoomCopyByName(String)}. Only one
      * game room will be mapped to each unique game room name string.
      *
-     * @param camera the camera
-     * @param transitionTimer the transition timer
-     * @param gameRooms the game rooms
-     * @param focusable the focusable
+     * @param camera                the camera
+     * @param transitionTimer       the transition timer
+     * @param gameRooms             the game rooms
+     * @param focusable             the focusable
+     * @param focusableDistFromEdge the distance from the edge of the last game room after a transition
      */
     public LevelCameraManager(Camera camera, Timer transitionTimer, Map<Rectangle, String> gameRooms,
-                              CameraFocusable focusable) {
+                              CameraFocusable focusable, float focusableDistFromEdge) {
         this.camera = camera;
         this.gameRooms = gameRooms;
         this.focusable = focusable;
         this.transitionTimer = transitionTimer;
+        this.focusableDistFromEdge = focusableDistFromEdge;
         gameRooms.forEach((room, name) -> {
             if (name != null) {
                 gameRoomNameMap.put(name, room);
@@ -124,21 +134,7 @@ public class LevelCameraManager implements Updatable {
         }
         Runnable runnable = () -> {
             transDirection = getSingleMostDirectionFromStartToTarget(currentGameRoom, nextGameRoom);
-            transState = BEGIN;
-            transStartPos.set(toVec2(camera.position));
-            transTargetPos.set(toVec2(camera.position));
-            switch (transDirection) {
-                case DIR_LEFT -> transTargetPos.x =
-                        (nextGameRoom.x + nextGameRoom.width) - min(nextGameRoom.width / 2.0f,
-                                camera.viewportWidth / 2.0f);
-                case DIR_RIGHT -> transTargetPos.x = nextGameRoom.x + min(nextGameRoom.width / 2.0f,
-                        camera.viewportWidth / 2.0f);
-                case DIR_UP -> transTargetPos.y = nextGameRoom.y + min(nextGameRoom.height / 2.0f,
-                        camera.viewportHeight / 2.0f);
-                case DIR_DOWN -> transTargetPos.y =
-                        (nextGameRoom.y + nextGameRoom.height) - min(nextGameRoom.height / 2.0f,
-                                camera.viewportHeight / 2.0f);
-            }
+            setTransVals(nextGameRoom);
         };
         if (updating) {
             actionQ.add(runnable);
@@ -157,12 +153,15 @@ public class LevelCameraManager implements Updatable {
     }
 
     /**
-     * Return a supplier for the transition state.
+     * Returns the interpolated position of the focusable during transition based on the start position and the target
+     * position as determined at trans init.
      *
-     * @return a supplier for the transition state
+     * @return the interpolated position of the focusable during transition
      */
-    public Supplier<ProcessState> getTransStateSupplier() {
-        return () -> transState;
+    public Vector2 getFocusableTransInterpolation() {
+        Vector2 startCopy = focusableStartPos.cpy();
+        Vector2 targetCopy = focusableTargetPos.cpy();
+        return interpolate(startCopy, targetCopy, getTransTimerRatio());
     }
 
     @Override
@@ -186,6 +185,36 @@ public class LevelCameraManager implements Updatable {
             onTrans(delta);
         }
         updating = false;
+    }
+
+    private void setTransVals(Rectangle nextGameRoom) {
+        transState = BEGIN;
+        transStartPos.set(toVec2(camera.position));
+        transTargetPos.set(transStartPos);
+        focusableStartPos.set(focusable.getFocus());
+        focusableTargetPos.set(focusableStartPos);
+        switch (transDirection) {
+            case DIR_LEFT -> {
+                transTargetPos.x = (nextGameRoom.x + nextGameRoom.width) - min(nextGameRoom.width / 2.0f,
+                        camera.viewportWidth / 2.0f);
+                focusableTargetPos.x = (nextGameRoom.x + nextGameRoom.width) - focusableDistFromEdge;
+            }
+            case DIR_RIGHT -> {
+                transTargetPos.x = nextGameRoom.x + min(nextGameRoom.width / 2.0f,
+                        camera.viewportWidth / 2.0f);
+                focusableTargetPos.x = nextGameRoom.x + focusableDistFromEdge;
+            }
+            case DIR_UP -> {
+                transTargetPos.y = nextGameRoom.y + min(nextGameRoom.height / 2.0f,
+                        camera.viewportHeight / 2.0f);
+                focusableTargetPos.y = nextGameRoom.y + focusableDistFromEdge;
+            }
+            case DIR_DOWN -> {
+                transTargetPos.y = (nextGameRoom.y + nextGameRoom.height) - min(nextGameRoom.height / 2.0f,
+                        camera.viewportHeight / 2.0f);
+                focusableTargetPos.y = (nextGameRoom.y + nextGameRoom.height) - focusableDistFromEdge;
+            }
+        }
     }
 
     private void onNullTrans() {
@@ -232,22 +261,8 @@ public class LevelCameraManager implements Updatable {
             if (transDirection == null) {
                 return;
             }
-            // set transition state to BEGIN, setBounds start and target vector2 values
-            transState = BEGIN;
-            transStartPos.set(toVec2(camera.position));
-            transTargetPos.set(toVec2(camera.position));
-            switch (transDirection) {
-                case DIR_LEFT -> transTargetPos.x =
-                        (nextGameRoom.x + nextGameRoom.width) - min(nextGameRoom.width / 2.0f,
-                                camera.viewportWidth / 2.0f);
-                case DIR_RIGHT -> transTargetPos.x = nextGameRoom.x + min(nextGameRoom.width / 2.0f,
-                        camera.viewportWidth / 2.0f);
-                case DIR_UP -> transTargetPos.y = nextGameRoom.y + min(nextGameRoom.height / 2.0f,
-                        camera.viewportHeight / 2.0f);
-                case DIR_DOWN -> transTargetPos.y =
-                        (nextGameRoom.y + nextGameRoom.height) - min(nextGameRoom.height / 2.0f,
-                                camera.viewportHeight / 2.0f);
-            }
+            // set trans vals
+            setTransVals(nextGameRoom);
         }
     }
 
@@ -268,7 +283,6 @@ public class LevelCameraManager implements Updatable {
                 camera.position.x = pos.x;
                 camera.position.y = pos.y;
                 transState = transitionTimer.isFinished() ? END : CONTINUE;
-                break;
         }
     }
 

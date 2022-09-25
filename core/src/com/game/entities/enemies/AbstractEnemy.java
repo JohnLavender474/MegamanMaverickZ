@@ -4,8 +4,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
 import com.game.Entity;
 import com.game.GameContext2d;
-import com.game.cull.CullOnCamTransComponent;
-import com.game.cull.CullOnPlayerDeathComponent;
+import com.game.cull.CullOnEventComponent;
 import com.game.cull.CullOutOfCamBoundsComponent;
 import com.game.damage.DamageNegotiation;
 import com.game.damage.Damageable;
@@ -29,6 +28,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import static com.game.assets.SoundAsset.*;
+import static com.game.events.EventType.*;
 import static com.game.health.HealthVals.*;
 import static com.game.entities.contracts.Facing.*;
 import static com.game.utils.enums.Position.*;
@@ -49,12 +49,11 @@ public abstract class AbstractEnemy extends Entity implements Damager, Damageabl
         super(gameContext);
         this.megamanSupplier = megamanSupplier;
         this.damageNegotiations = defineDamageNegotiations();
-        addComponent(new SoundComponent());
         addComponent(graphComponent());
-        addComponent(new CullOnPlayerDeathComponent());
-        addComponent(new CullOnCamTransComponent());
-        addComponent(new CullOutOfCamBoundsComponent(
-                () -> getComponent(BodyComponent.class).getCollisionBox(), cullDuration));
+        addComponent(new SoundComponent());
+        addComponent(new CullOutOfCamBoundsComponent(() ->
+                getComponent(BodyComponent.class).getCollisionBox(), cullDuration));
+        addComponent(new CullOnEventComponent(PLAYER_SPAWN, BEGIN_GAME_ROOM_TRANS, GATE_INIT_OPENING));
         addComponent(new HealthComponent(MAX_HEALTH, this::disintegrate));
         damageTimer.setToEnd();
         damageTimer.setDuration(damageDuration);

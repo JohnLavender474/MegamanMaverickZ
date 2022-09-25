@@ -26,8 +26,8 @@ import com.game.behaviors.BehaviorSystem;
 import com.game.controllers.ButtonStatus;
 import com.game.controllers.ControllerButton;
 import com.game.controllers.ControllerSystem;
-import com.game.cull.CullOnCamTransSystem;
 import com.game.cull.CullOnOutOfCamBoundsSystem;
+import com.game.cull.CullOnEventSystem;
 import com.game.entities.megaman.MegamanGameInfo;
 import com.game.levels.LevelStatus;
 import com.game.messages.Message;
@@ -154,7 +154,7 @@ public class MegamanMaverick extends Game implements GameContext2d, EventListene
         assetManager.finishLoading();
         // systems
         addSystem(new ControllerSystem(this::isControllerButtonPressed));
-        addSystem(new CullOnCamTransSystem());
+        addSystem(new CullOnEventSystem(this));
         addSystem(new CullOnOutOfCamBoundsSystem(getViewport(PLAYGROUND).getCamera()));
         addSystem(new HealthSystem());
         addSystem(new TrajectorySystem());
@@ -185,7 +185,7 @@ public class MegamanMaverick extends Game implements GameContext2d, EventListene
                 this, "tiledmaps/tmx/Test1.tmx", MMZ_NEO_ARCADIA_MUSIC.getSrc()));
          */
         screens.put(TEST_STAGE, new LevelScreen(
-                this, "tiledmaps/tmx/Test2.tmx", MMZ_NEO_ARCADIA_MUSIC.getSrc()));
+                this, "tiledmaps/tmx/Test3.tmx", MMZ_NEO_ARCADIA_MUSIC.getSrc()));
         screens.put(TIMBER_WOMAN, new LevelScreen(
                 this, "tiledmaps/tmx/TimberWoman.tmx", XENOBLADE_GAUR_PLAINS_MUSIC.getSrc()));
         // set screen

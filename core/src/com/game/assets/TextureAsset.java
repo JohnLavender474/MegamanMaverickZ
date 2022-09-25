@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public enum TextureAsset {
 
-    MET("Met.txt"), FIRE("Fire.txt"), SAW("SawBeam.txt"), ITEMS("Items.txt"), SPIKES("Spikes.txt"),
+    MET("Met.txt"), FIRE("Fire.txt"), SAW("SawBeam.txt"), ITEMS("Items.txt"), SPIKES("Spikes.txt"), DOORS("Door.txt"),
     COLORS("Colors.txt"), OBJECTS("Objects.txt"), MEGAMAN("Megaman.txt"), ELECTRIC("Electric.txt"),
     ENEMIES_1("Enemies1.txt"), HAZARDS_1("Hazards1.txt"), BOSS_FACES("BossFaces.txt"), CHARGE_ORBS("ChargeOrbs.txt"),
     DECORATIONS("Decorations.txt"), BITS("HealthAndWeaponBits.txt"), STAGE_SELECT("StageSelect.txt"),
