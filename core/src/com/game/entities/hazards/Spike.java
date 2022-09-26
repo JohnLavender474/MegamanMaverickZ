@@ -2,7 +2,7 @@ package com.game.entities.hazards;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.GameContext2d;
 import com.game.world.BodyComponent;
 import com.game.world.Fixture;

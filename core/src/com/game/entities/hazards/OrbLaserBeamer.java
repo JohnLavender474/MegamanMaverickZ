@@ -2,7 +2,7 @@ package com.game.entities.hazards;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.*;
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.GameContext2d;
 import com.game.sprites.RenderingGround;
 import com.game.ViewVals;

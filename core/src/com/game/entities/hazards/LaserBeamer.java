@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Polyline;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.GameContext2d;
 import com.game.damage.Damager;
 import com.game.shapes.LineComponent;

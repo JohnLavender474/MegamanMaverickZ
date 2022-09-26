@@ -1,7 +1,7 @@
 package com.game.entities.enemies;
 
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.GameContext2d;
 import com.game.entities.megaman.Megaman;
 import com.game.spawns.SpawnLocation;

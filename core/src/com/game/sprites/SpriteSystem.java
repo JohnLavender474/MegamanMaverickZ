@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.System;
 import com.game.utils.enums.Position;
 import com.game.utils.objects.Wrapper;
@@ -15,9 +15,7 @@ import java.util.Queue;
 
 import static com.game.utils.UtilMethods.*;
 
-/**
- * {@link System} implementation for rendering and optionally animating {@link Sprite} instances.
- */
+/** {@link System} implementation for rendering {@link Sprite}. */
 public class SpriteSystem extends System {
 
     private final Queue<SpriteComponent> spriteComponentQueue = new PriorityQueue<>((o1, o2) -> {
@@ -52,17 +50,20 @@ public class SpriteSystem extends System {
         while (!spriteComponentQueue.isEmpty()) {
             SpriteComponent spriteComponent = spriteComponentQueue.poll();
             Sprite sprite = spriteComponent.getSprite();
+            if (sprite.getTexture() == null) {
+                continue;
+            }
             SpriteProcessor spriteProcessor = spriteComponent.getSpriteProcessor();
             Wrapper<Rectangle> bounds = Wrapper.of(null);
             Wrapper<Position> position = Wrapper.of(null);
             if (spriteProcessor.setPositioning(bounds, position)) {
                 if (bounds.getData() == null) {
                     throw new IllegalStateException("SpriteProcessor::setPositioning returns true but the value " +
-                            "pairOf Wrapper<Rectangle>::getDetails is null");
+                            "pairOf Wrapper<Rectangle>::getContent is null");
                 }
                 if (position.getData() == null) {
                     throw new IllegalStateException("SpriteProcessor::setPositioning returns true but the value " +
-                            "pairOf Wrapper<Position>::getDetails is null");
+                            "pairOf Wrapper<Position>::getContent is null");
                 }
                 Vector2 point = getPoint(bounds.getData(), position.getData());
                 setToPoint(sprite.getBoundingRectangle(), point, position.getData(), sprite::setPosition);

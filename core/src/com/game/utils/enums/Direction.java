@@ -16,7 +16,7 @@ public enum Direction {
      * @param direction the direction string
      * @return the matching direction enum value
      */
-    public static Direction get(String direction) {
+    public static Direction getDirectionFromString(String direction) {
         switch (direction.toLowerCase()) {
             case "l", "left" -> {
                 return DIR_LEFT;

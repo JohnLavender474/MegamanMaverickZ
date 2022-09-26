@@ -1,7 +1,7 @@
 package com.game.world;
 
 import com.badlogic.gdx.math.*;
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.System;
 import com.game.graph.Graph;
 import com.game.graph.Node;

@@ -1,7 +1,7 @@
 package com.game.pathfinding;
 
 import com.badlogic.gdx.math.Rectangle;
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.System;
 import com.game.graph.Graph;
 import lombok.Setter;

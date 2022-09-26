@@ -4,7 +4,7 @@ import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.GameContext2d;
 import com.game.graph.GraphComponent;
 import com.game.movement.TrajectoryComponent;
@@ -60,9 +60,9 @@ public class Block extends Entity {
         set(bounds, properties, friction, resistance, gravityOn, wallSlideLeft, wallSlideRight, feetSticky);
     }
 
-    public Block(GameContext2d gameContext, Rectangle bounds) {
+    public Block(GameContext2d gameContext, Rectangle bounds, boolean wallslide) {
         super(gameContext);
-        set(bounds, STANDARD_FRICTION.cpy(), false, false, true, true, false);
+        set(bounds, STANDARD_FRICTION.cpy(), false, false, wallslide, wallslide, false);
     }
 
     private void set(Rectangle bounds, MapProperties properties, Vector2 friction, boolean resistance,

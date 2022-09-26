@@ -1,8 +1,8 @@
-package com.game.entities;
+package com.game.entities.special;
 
 import com.badlogic.gdx.math.Rectangle;
-import com.game.Entity;
 import com.game.GameContext2d;
+import com.game.entities.Entity;
 import com.game.world.BodyComponent;
 
 import static com.game.world.BodyType.*;

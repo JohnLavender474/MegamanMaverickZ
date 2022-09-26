@@ -2,7 +2,7 @@ package com.game.spawns;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.Rectangle;
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.GameContext2d;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

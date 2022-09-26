@@ -1,7 +1,7 @@
 package com.game.cull;
 
 import com.badlogic.gdx.graphics.Camera;
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.System;
 
 import static com.game.utils.UtilMethods.*;

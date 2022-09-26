@@ -1,5 +1,6 @@
 package com.game;
 
+import com.game.entities.Entity;
 import com.game.utils.interfaces.Updatable;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -127,12 +128,12 @@ public abstract class System implements Updatable {
 
     /**
      * Returns if the {@link Entity} can be accepted as a member pairOf this System by comparing {@link #componentMask}
-     * to {@link Entity#hasAllComponents(Collection)}. If the com.game.Entity's setBounds pairOf component keys
-     * contains all the component classes contained in this System's component mask, then the com.game.Entity is
-     * accepted, otherwise the com.game.Entity is rejected.
+     * to {@link Entity#hasAllComponents(Collection)}. If the com.game.entities.Entity's setBounds pairOf component keys
+     * contains all the component classes contained in this System's component mask, then the com.game.entities.Entity is
+     * accepted, otherwise the com.game.entities.Entity is rejected.
      *
      * @param entity the entity
-     * @return true if the com.game.Entity can be added, else false
+     * @return true if the com.game.entities.Entity can be added, else false
      */
     public boolean qualifiesMembership(Entity entity) {
         return entity.hasAllComponents(componentMask);
@@ -152,7 +153,7 @@ public abstract class System implements Updatable {
 
     /**
      * Attempts to remove the {@link Entity} from membership to this System. If this System is currently in an
-     * update cycle, then the com.game.Entity is queued to be removed on the next update cycle, else it is removed
+     * update cycle, then the com.game.entities.Entity is queued to be removed on the next update cycle, else it is removed
      * immediately.
      *
      * @param entity the entity

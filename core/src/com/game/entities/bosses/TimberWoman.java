@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.GameContext2d;
 import com.game.assets.TextureAsset;
 import com.game.shapes.ShapeComponent;

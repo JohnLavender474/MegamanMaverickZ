@@ -1,7 +1,5 @@
 package com.game.levels;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
@@ -14,11 +12,12 @@ import com.badlogic.gdx.math.Vector2;
 import com.game.backgrounds.BackgroundFactory;
 import com.game.behaviors.BehaviorSystem;
 import com.game.controllers.ControllerSystem;
+import com.game.entities.interactive.Door;
 import com.game.messages.Message;
-import com.game.messages.MessageListener;
+import com.game.updatables.UpdatableComponent;
 import com.game.utils.DebugLogger;
 import com.game.GameContext2d;
-import com.game.entities.AbstractBounds;
+import com.game.entities.special.AbstractBounds;
 import com.game.entities.blocks.BlockFactory;
 import com.game.entities.enemies.EnemyFactory;
 import com.game.entities.hazards.HazardFactory;
@@ -29,8 +28,7 @@ import com.game.graph.Graph;
 import com.game.graph.GraphSystem;
 import com.game.health.HealthComponent;
 import com.game.backgrounds.Background;
-import com.game.events.Event;
-import com.game.events.EventListener;
+import com.game.messages.MessageListener;
 import com.game.movement.TrajectorySystem;
 import com.game.pathfinding.PathfindingSystem;
 import com.game.sounds.SoundSystem;
@@ -48,31 +46,21 @@ import java.util.Map;
 
 import static com.game.GlobalKeys.NEXT;
 import static com.game.controllers.ControllerButton.START;
-import static com.game.events.EventType.*;
+import static com.game.messages.MessageType.*;
 import static com.game.GameScreen.PAUSE_MENU;
 import static com.game.levels.LevelStatus.*;
-import static com.game.messages.MessageType.*;
 import static com.game.sprites.RenderingGround.PLAYGROUND;
 import static com.game.sprites.RenderingGround.UI;
 import static com.game.assets.SoundAsset.MEGAMAN_DEFEAT_SOUND;
 import static com.game.assets.TextureAsset.BITS;
 import static com.game.ViewVals.*;
+import static com.game.levels.LevelLayers.*;
 
+import static com.game.utils.UtilMethods.*;
 import static com.game.utils.UtilMethods.bottomCenterPoint;
 import static java.lang.Math.*;
 
-public class LevelScreen extends ScreenAdapter implements EventListener, MessageListener {
-
-    private static final String TEST = "Test";
-    private static final String BLOCKS = "Blocks";
-    private static final String SPECIAL = "Special";
-    private static final String HAZARDS = "Hazards";
-    private static final String GAME_ROOMS = "GameRooms";
-    private static final String BACKGROUNDS = "Backgrounds";
-    private static final String ENEMY_SPAWNS = "EnemySpawns";
-    private static final String PLAYER_SPAWNS = "PlayerSpawns";
-    private static final String DEATH_SENSORS = "DeathSensors";
-    private static final String ABSTRACT_BOUNDS = AbstractBounds.ABSTRACT_BOUNDS;
+public class LevelScreen extends ScreenAdapter implements MessageListener {
 
     public static final float LEVEL_CAM_TRANS_DURATION = 1f;
     public static final float MEGAMAN_DIST_FROM_EDGE_ON_GAME_ROOM_TRANS = 3f;
@@ -101,7 +89,6 @@ public class LevelScreen extends ScreenAdapter implements EventListener, Message
     public void show() {
         DebugLogger.getInstance().info("Entities size at level screen show init: " + gameContext.getEntities().size());
         // init
-        gameContext.addEventListener(this);
         gameContext.addMessageListener(this);
         gameContext.setLevelStatus(UNPAUSED);
         gameContext.setDoUpdateController(true);
@@ -140,6 +127,9 @@ public class LevelScreen extends ScreenAdapter implements EventListener, Message
         // abstract bounds
         levelMap.getRectObjsOfLayer(ABSTRACT_BOUNDS).forEach(abstractObj ->
                 gameContext.addEntity(new AbstractBounds(gameContext, abstractObj.getRectangle())));
+        // doors
+        levelMap.getRectObjsOfLayer(DOORS).forEach(doorObj -> gameContext.addEntity(
+                new Door(gameContext, doorObj, () -> megaman)));
         // blocks
         levelMap.getRectObjsOfLayer(BLOCKS).forEach(blockObj -> BlockFactory.create(gameContext, blockObj));
         // death sensors
@@ -188,7 +178,7 @@ public class LevelScreen extends ScreenAdapter implements EventListener, Message
                 gameContext.getSystem(BehaviorSystem.class).setOn(paused);
                 gameContext.getSystem(WorldSystem.class).setOn(paused);
             }
-            gameContext.addEvent(new Event(paused ? LEVEL_UNPAUSED : LEVEL_PAUSED));
+            gameContext.sendMessage(new Message(paused ? LEVEL_UNPAUSED : LEVEL_PAUSED));
         } else if (!gameContext.isLevelStatus(PAUSED)) {
             levelCameraManager.update(delta);
             if (levelCameraManager.getTransState() == null) {
@@ -196,17 +186,7 @@ public class LevelScreen extends ScreenAdapter implements EventListener, Message
             } else {
                 switch (levelCameraManager.getTransState()) {
                     case BEGIN -> {
-                        gameContext.addEvent(new Event(BEGIN_GAME_ROOM_TRANS));
-                        gameContext.getSystem(ControllerSystem.class).setOn(false);
-                        gameContext.getSystem(TrajectorySystem.class).setOn(false);
-                        gameContext.getSystem(UpdatableSystem.class).setOn(false);
-                        gameContext.getSystem(BehaviorSystem.class).setOn(false);
-                        gameContext.getSystem(WorldSystem.class).setOn(false);
-                        megaman.getComponent(BodyComponent.class).setVelocity(Vector2.Zero);
-                        gameContext.getSystem(SoundSystem.class).requestToStopAllLoopingSounds();
-                    }
-                    case CONTINUE -> {
-                        gameContext.addEvent(new Event(CONTINUE_GAME_ROOM_TRANS));
+                        gameContext.sendMessage(new Message(BEGIN_GAME_ROOM_TRANS));
                         gameContext.getSystem(ControllerSystem.class).setOn(false);
                         gameContext.getSystem(TrajectorySystem.class).setOn(false);
                         gameContext.getSystem(UpdatableSystem.class).setOn(false);
@@ -215,15 +195,30 @@ public class LevelScreen extends ScreenAdapter implements EventListener, Message
                         gameContext.getSystem(SoundSystem.class).requestToStopAllLoopingSounds();
                         BodyComponent bodyComponent = megaman.getComponent(BodyComponent.class);
                         bodyComponent.setVelocity(Vector2.Zero);
-                        bodyComponent.setPosition(levelCameraManager.getFocusableTransInterpolation());
+                        setBottomCenterToPoint(bodyComponent.getCollisionBox(),
+                                levelCameraManager.getFocusableTransInterpolation());
+                    }
+                    case CONTINUE -> {
+                        gameContext.sendMessage(new Message(CONTINUE_GAME_ROOM_TRANS));
+                        gameContext.getSystem(ControllerSystem.class).setOn(false);
+                        gameContext.getSystem(TrajectorySystem.class).setOn(false);
+                        gameContext.getSystem(UpdatableSystem.class).setOn(false);
+                        gameContext.getSystem(BehaviorSystem.class).setOn(false);
+                        gameContext.getSystem(WorldSystem.class).setOn(false);
+                        gameContext.getSystem(SoundSystem.class).requestToStopAllLoopingSounds();
+                        BodyComponent bodyComponent = megaman.getComponent(BodyComponent.class);
+                        bodyComponent.setVelocity(Vector2.Zero);
+                        setBottomCenterToPoint(bodyComponent.getCollisionBox(),
+                                levelCameraManager.getFocusableTransInterpolation());
                     }
                     case END -> {
-                        gameContext.addEvent(new Event(END_GAME_ROOM_TRANS));
+                        gameContext.sendMessage(new Message(END_GAME_ROOM_TRANS));
                         gameContext.getSystem(ControllerSystem.class).setOn(true);
                         gameContext.getSystem(TrajectorySystem.class).setOn(true);
                         gameContext.getSystem(UpdatableSystem.class).setOn(true);
                         gameContext.getSystem(BehaviorSystem.class).setOn(true);
                         gameContext.getSystem(WorldSystem.class).setOn(true);
+                        megaman.getComponent(UpdatableComponent.class).setOn(true);
                     }
                 }
             }
@@ -251,27 +246,27 @@ public class LevelScreen extends ScreenAdapter implements EventListener, Message
     }
 
     @Override
-    public void listenToEvent(Event event, float delta) {
-        if (event.is(PLAYER_DEAD)) {
-            gameContext.getSystem(SoundSystem.class).requestToStopAllLoopingSounds();
-            gameContext.getAsset(MEGAMAN_DEFEAT_SOUND.getSrc(), Sound.class).play();
-            gameContext.stopMusic(levelMusic);
-            deathTimer.reset();
-        } else if (event.is(GATE_INIT_OPENING)) {
-            gameContext.getSystem(ControllerSystem.class).setOn(false);
-            gameContext.getSystem(TrajectorySystem.class).setOn(false);
-            gameContext.getSystem(BehaviorSystem.class).setOn(false);
-            gameContext.getSystem(WorldSystem.class).setOn(false);
-            megaman.getComponent(BodyComponent.class).setVelocity(Vector2.Zero);
-            gameContext.getSystem(SoundSystem.class).requestToStopAllLoopingSounds();
-        }
-    }
-
-    @Override
-    public void listenToMessage(Message message, float delta) {
-        if (message.is(NEXT_GAME_ROOM_REQUEST)) {
-            String nextGameRoom = message.getContent(NEXT, String.class);
-            levelCameraManager.transToGameRoomWithName(nextGameRoom);
+    public void listenToMessage(Message message) {
+        switch (message.getMessageType()) {
+            case PLAYER_DEAD -> {
+                gameContext.getSystem(SoundSystem.class).requestToStopAllLoopingSounds();
+                gameContext.getAsset(MEGAMAN_DEFEAT_SOUND.getSrc(), Sound.class).play();
+                gameContext.stopMusic(levelMusic);
+                deathTimer.reset();
+            }
+            case GATE_INIT_OPENING -> {
+                gameContext.getSystem(ControllerSystem.class).setOn(false);
+                gameContext.getSystem(TrajectorySystem.class).setOn(false);
+                gameContext.getSystem(BehaviorSystem.class).setOn(false);
+                gameContext.getSystem(WorldSystem.class).setOn(false);
+                megaman.getComponent(UpdatableComponent.class).setOn(false);
+                megaman.getComponent(BodyComponent.class).setVelocity(Vector2.Zero);
+                gameContext.getSystem(SoundSystem.class).requestToStopAllLoopingSounds();
+            }
+            case NEXT_GAME_ROOM_REQUEST -> {
+                String nextGameRoom = message.getContent(NEXT, String.class);
+                levelCameraManager.transToGameRoomWithName(nextGameRoom);
+            }
         }
     }
 
@@ -281,7 +276,6 @@ public class LevelScreen extends ScreenAdapter implements EventListener, Message
         gameContext.purgeAllEntities();
         gameContext.setLevelStatus(NONE);
         gameContext.stopMusic(levelMusic);
-        gameContext.removeEventListener(this);
         gameContext.removeMessageListener(this);
     }
 
@@ -290,11 +284,10 @@ public class LevelScreen extends ScreenAdapter implements EventListener, Message
         megaman = new Megaman(gameContext, spawnPos);
         levelCameraManager.setFocusable(megaman);
         gameContext.addEntity(megaman);
-        gameContext.addEvent(new Event(PLAYER_SPAWN));
+        gameContext.sendMessage(new Message(PLAYER_SPAWN));
     }
 
     private void showTestText() {
-        // testText.setText("FPS: " + Gdx.graphics.getFramesPerSecond());
         testText.setText("Current game room: " + levelCameraManager.getCurrentGameRoomName());
         SpriteBatch spriteBatch = gameContext.getSpriteBatch();
         spriteBatch.setProjectionMatrix(gameContext.getViewport(UI).getCamera().combined);

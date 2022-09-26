@@ -2,9 +2,9 @@ package com.game.entities.enemies;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.GameContext2d;
-import com.game.cull.CullOnEventComponent;
+import com.game.cull.CullOnMessageComponent;
 import com.game.cull.CullOutOfCamBoundsComponent;
 import com.game.damage.DamageNegotiation;
 import com.game.damage.Damageable;
@@ -28,7 +28,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import static com.game.assets.SoundAsset.*;
-import static com.game.events.EventType.*;
+import static com.game.messages.MessageType.*;
 import static com.game.health.HealthVals.*;
 import static com.game.entities.contracts.Facing.*;
 import static com.game.utils.enums.Position.*;
@@ -51,24 +51,24 @@ public abstract class AbstractEnemy extends Entity implements Damager, Damageabl
         this.damageNegotiations = defineDamageNegotiations();
         addComponent(graphComponent());
         addComponent(new SoundComponent());
+        addComponent(cullOnMessageComponent());
         addComponent(new CullOutOfCamBoundsComponent(() ->
                 getComponent(BodyComponent.class).getCollisionBox(), cullDuration));
-        addComponent(new CullOnEventComponent(PLAYER_SPAWN, BEGIN_GAME_ROOM_TRANS, GATE_INIT_OPENING));
         addComponent(new HealthComponent(MAX_HEALTH, this::disintegrate));
         damageTimer.setToEnd();
         damageTimer.setDuration(damageDuration);
-        gameContext.addEventListener(this);
     }
 
     protected abstract Map<Class<? extends Damager>, DamageNegotiation> defineDamageNegotiations();
 
-    @Override
-    public void onDeath() {
-        gameContext.removeEventListener(this);
-    }
-
     protected GraphComponent graphComponent() {
         return new GraphComponent(() -> getComponent(BodyComponent.class).getCollisionBox(), () -> List.of(this));
+    }
+
+    protected CullOnMessageComponent cullOnMessageComponent() {
+        CullOnMessageComponent cullOnMessageComponent = new CullOnMessageComponent();
+        cullOnMessageComponent.addCullMessagePredicate(PLAYER_SPAWN, BEGIN_GAME_ROOM_TRANS, GATE_INIT_OPENING);
+        return cullOnMessageComponent;
     }
 
     @Override

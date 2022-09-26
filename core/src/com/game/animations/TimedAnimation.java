@@ -173,20 +173,20 @@ public class TimedAnimation implements Updatable, Resettable {
 
     @Override
     public void update(float delta) {
-        if (timeElapsed >= animationDuration && !loop) {
-            isFinished = true;
-            timeElapsed = animationDuration;
-        }
         if (!isFinished) {
             timeElapsed += delta;
-            float currentLoopDuration = timeElapsed % animationDuration;
-            int index = 0;
-            while (currentLoopDuration > frameTimes.get(index) && index < frames.size()) {
-                currentLoopDuration -= frameTimes.get(index);
-                index++;
-            }
-            currentT = frames.get(index);
         }
+        if (timeElapsed > animationDuration && !loop) {
+            timeElapsed = animationDuration - .000001f;
+            isFinished = true;
+        }
+        float currentLoopDuration = timeElapsed % animationDuration;
+        int index = 0;
+        while (currentLoopDuration > frameTimes.get(index) && index < frames.size()) {
+            currentLoopDuration -= frameTimes.get(index);
+            index++;
+        }
+        currentT = frames.get(index);
     }
 
     @Override

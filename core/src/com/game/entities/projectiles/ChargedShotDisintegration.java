@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.GameContext2d;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
@@ -32,7 +32,6 @@ public class ChargedShotDisintegration extends Entity implements Damager {
     private static final float HALFWAY_CHARGED_DURATION = .15f;
 
     private final Timer timer;
-    private final GameContext2d gameContext;
     private final Timer soundTimer = new Timer(.15f);
 
     @Getter
@@ -41,7 +40,6 @@ public class ChargedShotDisintegration extends Entity implements Damager {
     public ChargedShotDisintegration(GameContext2d gameContext, Vector2 center,
                                      boolean isLeft, boolean fullyCharged) {
         super(gameContext);
-        this.gameContext = gameContext;
         this.fullyCharged = fullyCharged;
         timer = new Timer(fullyCharged ? FULLY_CHARGED_DURATION : HALFWAY_CHARGED_DURATION);
         addComponent(new SoundComponent());
@@ -49,12 +47,6 @@ public class ChargedShotDisintegration extends Entity implements Damager {
         addComponent(bodyComponent(center));
         addComponent(spriteComponent(center, isLeft));
         addComponent(animationComponent(gameContext));
-        gameContext.addEventListener(this);
-    }
-
-    @Override
-    public void onDeath() {
-        gameContext.removeEventListener(this);
     }
 
     private UpdatableComponent updatableComponent() {
@@ -90,10 +82,17 @@ public class ChargedShotDisintegration extends Entity implements Damager {
         }
         sprite.setCenter(center.x, center.y);
         return new SpriteComponent(sprite, new SpriteProcessor() {
+
             @Override
             public boolean isFlipX() {
                 return isLeft;
             }
+
+            @Override
+            public int getSpriteRenderPriority() {
+                return 4;
+            }
+
         });
     }
 

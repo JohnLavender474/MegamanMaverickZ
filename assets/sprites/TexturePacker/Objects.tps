@@ -221,7 +221,7 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
-            <key type="filename">../Frames/Objects/SpringyBouncer.png</key>
+            <key type="filename">../Frames/Objects/SpringBounce.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>
@@ -236,7 +236,7 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
-            <key type="filename">../Frames/Objects/SpringyBouncerStill.png</key>
+            <key type="filename">../Frames/Objects/SpringBounceStill.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>

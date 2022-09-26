@@ -3,20 +3,21 @@ package com.game.entities.decorations;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.GameContext2d;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
-import com.game.cull.CullOnEventComponent;
+import com.game.cull.CullOnMessageComponent;
 import com.game.cull.CullOutOfCamBoundsComponent;
 import com.game.sprites.SpriteComponent;
+import com.game.sprites.SpriteProcessor;
 import com.game.updatables.UpdatableComponent;
 import com.game.utils.objects.Timer;
 import lombok.Getter;
 
 import static com.game.assets.TextureAsset.DECORATIONS;
 import static com.game.ViewVals.PPM;
-import static com.game.events.EventType.*;
+import static com.game.messages.MessageType.*;
 
 @Getter
 public class ExplosionOrb extends Entity {
@@ -30,7 +31,13 @@ public class ExplosionOrb extends Entity {
         addComponent(animationComponent(gameContext));
         addComponent(new CullOutOfCamBoundsComponent(
                 () -> getComponent(SpriteComponent.class).getSprite().getBoundingRectangle(), .1f));
-        addComponent(new CullOnEventComponent(PLAYER_SPAWN));
+        addComponent(cullOnMessageComponent());
+    }
+
+    private CullOnMessageComponent cullOnMessageComponent() {
+        CullOnMessageComponent cullOnMessageComponent = new CullOnMessageComponent();
+        cullOnMessageComponent.addCullMessagePredicate(PLAYER_SPAWN);
+        return cullOnMessageComponent;
     }
 
     private UpdatableComponent updatableComponent(Vector2 trajectory) {
@@ -42,7 +49,12 @@ public class ExplosionOrb extends Entity {
         Sprite sprite = new Sprite();
         sprite.setSize(3f * PPM, 3f * PPM);
         sprite.setCenter(spawn.x, spawn.y);
-        return new SpriteComponent(sprite);
+        return new SpriteComponent(sprite, new SpriteProcessor() {
+            @Override
+            public int getSpriteRenderPriority() {
+                return 4;
+            }
+        });
     }
 
     private AnimationComponent animationComponent(GameContext2d gameContext) {

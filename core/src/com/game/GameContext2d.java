@@ -6,12 +6,11 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.game.entities.Entity;
+import com.game.messages.Message;
 import com.game.levels.LevelStatus;
 import com.game.sprites.RenderingGround;
 import com.game.controllers.ControllerButton;
-import com.game.events.Event;
-import com.game.events.EventListener;
-import com.game.messages.Message;
 import com.game.messages.MessageListener;
 
 import java.util.Collection;
@@ -207,27 +206,6 @@ public interface GameContext2d {
     <T> T getAsset(String key, Class<T> tClass);
 
     /**
-     * Add event listener.
-     *
-     * @param eventListener the event listener
-     */
-    void addEventListener(EventListener eventListener);
-
-    /**
-     * Remove event listener.
-     *
-     * @param eventListener the event listener
-     */
-    void removeEventListener(EventListener eventListener);
-
-    /**
-     * Add event.
-     *
-     * @param event the event
-     */
-    void addEvent(Event event);
-
-    /**
      * Add message listener.
      *
      * @param messageListener the message listener
@@ -246,7 +224,7 @@ public interface GameContext2d {
      *
      * @param message the message
      */
-    void addMessage(Message message);
+    void sendMessage(Message message);
 
     /**
      * Set sound effects volume.

@@ -1,8 +1,8 @@
 package com.game.entities.projectiles;
 
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.GameContext2d;
-import com.game.cull.CullOnEventComponent;
+import com.game.cull.CullOnMessageComponent;
 import com.game.cull.CullOutOfCamBoundsComponent;
 import com.game.damage.Damageable;
 import com.game.damage.Damager;
@@ -13,7 +13,7 @@ import com.game.world.BodyComponent;
 import lombok.Getter;
 import lombok.Setter;
 
-import static com.game.events.EventType.*;
+import static com.game.messages.MessageType.*;
 import static com.game.sprites.RenderingGround.*;
 import static com.game.utils.UtilMethods.*;
 
@@ -27,14 +27,14 @@ public abstract class AbstractProjectile extends Entity implements Hitter, Damag
         super(gameContext);
         this.owner = owner;
         addComponent(new SoundComponent());
+        addComponent(cullOnMessageComponent());
         addComponent(cullOutOfCamBoundsComponent(cullDuration));
-        addComponent(new CullOnEventComponent(PLAYER_SPAWN, BEGIN_GAME_ROOM_TRANS, GATE_INIT_OPENING));
-        gameContext.addEventListener(this);
     }
 
     @Override
-    public void onDeath() {
-        gameContext.removeEventListener(this);
+    public boolean canDamage(Damageable damageable) {
+        return owner == null ||
+                (!owner.equals(damageable) && !(owner instanceof AbstractEnemy && damageable instanceof AbstractEnemy));
     }
 
     public boolean isInGameCamBounds() {
@@ -42,14 +42,14 @@ public abstract class AbstractProjectile extends Entity implements Hitter, Damag
                 getComponent(BodyComponent.class).getCollisionBox());
     }
 
-    private CullOutOfCamBoundsComponent cullOutOfCamBoundsComponent(float cullDuration) {
-        return new CullOutOfCamBoundsComponent(() -> getComponent(BodyComponent.class).getCollisionBox(), cullDuration);
+    protected CullOnMessageComponent cullOnMessageComponent() {
+        CullOnMessageComponent cullOnMessageComponent = new CullOnMessageComponent();
+        cullOnMessageComponent.addCullMessagePredicate(PLAYER_SPAWN, BEGIN_GAME_ROOM_TRANS, GATE_INIT_OPENING);
+        return cullOnMessageComponent;
     }
 
-    @Override
-    public boolean canDamage(Damageable damageable) {
-        return owner == null ||
-                (!owner.equals(damageable) && !(owner instanceof AbstractEnemy && damageable instanceof AbstractEnemy));
+    private CullOutOfCamBoundsComponent cullOutOfCamBoundsComponent(float cullDuration) {
+        return new CullOutOfCamBoundsComponent(() -> getComponent(BodyComponent.class).getCollisionBox(), cullDuration);
     }
 
 }

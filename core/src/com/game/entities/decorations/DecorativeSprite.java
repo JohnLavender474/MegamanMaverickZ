@@ -3,7 +3,7 @@ package com.game.entities.decorations;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.GameContext2d;
 import com.game.sprites.SpriteProcessor;
 import com.game.sprites.SpriteComponent;

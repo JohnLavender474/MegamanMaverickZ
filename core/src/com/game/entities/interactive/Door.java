@@ -2,20 +2,18 @@ package com.game.entities.interactive;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Shape2D;
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.GameContext2d;
-import com.game.entities.blocks.BlockFactory;
+import com.game.animations.AnimationComponent;
+import com.game.animations.TimedAnimation;
 import com.game.entities.megaman.Megaman;
-import com.game.events.Event;
 import com.game.messages.Message;
+import com.game.sounds.SoundComponent;
 import com.game.sprites.SpriteComponent;
 import com.game.sprites.SpriteProcessor;
 import com.game.updatables.UpdatableComponent;
-import com.game.utils.ShapeUtils;
 import com.game.utils.enums.Position;
 import com.game.utils.interfaces.Resettable;
 import com.game.utils.interfaces.Updatable;
@@ -25,15 +23,19 @@ import com.game.world.BodyComponent;
 import com.game.world.Fixture;
 import lombok.Getter;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.function.Supplier;
 
 import static com.game.GlobalKeys.NEXT;
 import static com.game.ViewVals.PPM;
+import static com.game.assets.SoundAsset.*;
 import static com.game.assets.TextureAsset.*;
-import static com.game.events.EventType.*;
+import static com.game.messages.MessageType.*;
 import static com.game.entities.interactive.Door.DoorState.*;
 import static com.game.messages.MessageType.NEXT_GAME_ROOM_REQUEST;
+import static com.game.utils.ShapeUtils.*;
+import static com.game.utils.UtilMethods.*;
 import static com.game.utils.enums.Position.*;
 import static com.game.world.FixtureType.*;
 
@@ -47,7 +49,7 @@ public class Door extends Entity implements Resettable {
         CLOSED
     }
 
-    private static final float DURATION = .25f;
+    private static final float DURATION = .5f;
 
     @Getter
     private final String nextGameRoom;
@@ -64,19 +66,19 @@ public class Door extends Entity implements Resettable {
         this.megamanSupplier = megamanSupplier;
         this.gateBounds = gateObj.getRectangle();
         this.nextGameRoom = gateObj.getProperties().get("next", String.class);
-        BlockFactory.create(gameContext, gateObj);
         addComponent(updatableComponent());
-        TextureAtlas textureAtlas = gameContext.getAsset(DOORS.getSrc(), TextureAtlas.class);
-        String regionKey = gateObj.getProperties().get("regionKey", String.class);
-        TextureRegion textureRegion = textureAtlas.findRegion(regionKey);
-        addComponent(spriteComponent(textureRegion));
+        String color = gateObj.getProperties().get("color", String.class);
+        addComponent(animationComponent(color));
+        addComponent(spriteComponent());
+        addComponent(new SoundComponent());
     }
 
     @Override
-    public void listenToEvent(Event event, float delta) {
-        super.listenToEvent(event, delta);
-        if (event.is(END_GAME_ROOM_TRANS)) {
-            gameRoomTransFinished = true;
+    public void listenToMessage(Message message) {
+        super.listenToMessage(message);
+        switch (message.getMessageType()) {
+            case PLAYER_SPAWN -> reset();
+            case END_GAME_ROOM_TRANS -> gameRoomTransFinished = true;
         }
     }
 
@@ -86,19 +88,13 @@ public class Door extends Entity implements Resettable {
         state = CLOSED_OPENABLE;
     }
 
-    private Shape2D getListenerBounds() {
+    private boolean overlappingGate() {
         Megaman megaman = megamanSupplier.get();
         if (megaman == null) {
-            return null;
+            return false;
         }
-        Fixture gateListener = megaman.getComponent(BodyComponent.class).getFirstMatchingFixture(GATE_LISTENER)
-                .orElseThrow(() -> new IllegalStateException("Megaman doesn't have " + GATE_LISTENER + " fixture"));
-        return gateListener.getFixtureShape();
-    }
-
-    private boolean overlappingGate() {
-        Shape2D listenerBounds = getListenerBounds();
-        return listenerBounds != null && ShapeUtils.overlap(gateBounds, listenerBounds);
+        Collection<Fixture> gateListeners = megaman.getComponent(BodyComponent.class).getFixturesOfType(GATE_LISTENER);
+        return gateListeners.stream().map(Fixture::getFixtureShape).anyMatch(bounds -> overlap(gateBounds, bounds));
     }
 
     private UpdatableComponent updatableComponent() {
@@ -108,7 +104,8 @@ public class Door extends Entity implements Resettable {
             if (overlappingGate()) {
                 timer.reset();
                 state = OPENING;
-                gameContext.addEvent(new Event(GATE_INIT_OPENING));
+                gameContext.sendMessage(new Message(GATE_INIT_OPENING));
+                getComponent(SoundComponent.class).requestSound(BOSS_DOOR);
             }
         };
         updatableComponent.addUpdatable(initOpeningUpdatable, () -> state == CLOSED_OPENABLE);
@@ -118,8 +115,8 @@ public class Door extends Entity implements Resettable {
             if (timer.isFinished()) {
                 timer.reset();
                 state = OPEN;
-                gameContext.addEvent(new Event(GATE_FINISH_OPENING));
-                gameContext.addMessage(new Message(this, NEXT_GAME_ROOM_REQUEST, Map.of(NEXT, nextGameRoom)));
+                gameContext.sendMessage(new Message(GATE_FINISH_OPENING));
+                gameContext.sendMessage(new Message(NEXT_GAME_ROOM_REQUEST, NEXT, nextGameRoom));
             }
         };
         updatableComponent.addUpdatable(openingUpdatable, () -> state == OPENING);
@@ -128,7 +125,8 @@ public class Door extends Entity implements Resettable {
             if (gameRoomTransFinished) {
                 gameRoomTransFinished = false;
                 state = CLOSING;
-                gameContext.addEvent(new Event(GATE_INIT_CLOSING));
+                gameContext.sendMessage(new Message(GATE_INIT_CLOSING));
+                getComponent(SoundComponent.class).requestSound(BOSS_DOOR);
             }
         };
         updatableComponent.addUpdatable(openWaitingUpdatable, () -> state == OPEN);
@@ -138,22 +136,26 @@ public class Door extends Entity implements Resettable {
             if (timer.isFinished()) {
                 timer.reset();
                 state = CLOSED;
-                gameContext.addEvent(new Event(GATE_FINISH_CLOSING));
+                gameContext.sendMessage(new Message(GATE_FINISH_CLOSING));
             }
         };
         updatableComponent.addUpdatable(closingUpdatable, () -> state == CLOSING);
         return updatableComponent;
     }
 
-    private SpriteComponent spriteComponent(TextureRegion textureRegion) {
+    private SpriteComponent spriteComponent() {
         Sprite sprite = new Sprite();
-        sprite.setSize(2f * PPM, 2f * PPM);
+        sprite.setSize(4f * PPM, 3f * PPM);
         return new SpriteComponent(sprite, new SpriteProcessor() {
 
             @Override
             public boolean setPositioning(Wrapper<Rectangle> bounds, Wrapper<Position> position) {
                 bounds.setData(gateBounds);
-                position.setData(BOTTOM_CENTER);
+                if (equalsAny(state, CLOSED_OPENABLE, OPENING, OPEN)) {
+                    position.setData(BOTTOM_LEFT);
+                } else {
+                    position.setData(BOTTOM_RIGHT);
+                }
                 return true;
             }
 
@@ -162,7 +164,35 @@ public class Door extends Entity implements Resettable {
                 return state == OPEN;
             }
 
+            @Override
+            public boolean isFlipX() {
+                return equalsAny(state, CLOSING, CLOSED);
+            }
+
         });
+    }
+
+    private AnimationComponent animationComponent(String color) {
+        TextureAtlas textureAtlas = gameContext.getAsset(DOORS.getSrc(), TextureAtlas.class);
+        Supplier<String> keySupplier = () -> {
+            switch (state) {
+                case CLOSED_OPENABLE, CLOSED -> {
+                    return "closed";
+                }
+                case OPENING -> {
+                    return "opening";
+                }
+                case CLOSING -> {
+                    return "closing";
+                }
+            }
+            return null;
+        };
+        TimedAnimation closed = new TimedAnimation(textureAtlas.findRegion(color + "_closed"));
+        TimedAnimation opening = new TimedAnimation(textureAtlas.findRegion(color + "_opening"), 4, .125f, false);
+        TimedAnimation closing = new TimedAnimation(opening, true);
+        Map<String, TimedAnimation> animationMap = Map.of("closed", closed, "opening", opening, "closing", closing);
+        return new AnimationComponent(keySupplier, animationMap::get);
     }
 
 }

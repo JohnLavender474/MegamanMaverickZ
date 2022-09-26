@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.GameContext2d;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
@@ -94,6 +94,11 @@ public class Fireball extends AbstractProjectile {
                     return 0f;
                 }
                 return rotation;
+            }
+
+            @Override
+            public int getSpriteRenderPriority() {
+                return 3;
             }
 
         });

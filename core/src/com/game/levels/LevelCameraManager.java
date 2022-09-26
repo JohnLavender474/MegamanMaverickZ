@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.game.utils.enums.Direction;
 import com.game.utils.enums.ProcessState;
 import com.game.utils.interfaces.Updatable;
+import com.game.utils.objects.KeyValuePair;
 import com.game.utils.objects.Timer;
 import lombok.Getter;
 
@@ -58,7 +59,7 @@ public class LevelCameraManager implements Updatable {
 
     /**
      * Sets the camera, transition timer, game rooms, and focusable. Also, each game room that has a non-null name
-     * will be stored in a name-to-room map that can be queried via {@link #getGameRoomCopyByName(String)}. Only one
+     * will be stored in a name-to-room map that can be queried via {@link #getGameRoomByName(String)}. Only one
      * game room will be mapped to each unique game room name string.
      *
      * @param camera                the camera
@@ -108,12 +109,21 @@ public class LevelCameraManager implements Updatable {
     }
 
     /**
+     * Return a copy of the current game room along with its name.
+     *
+     * @return copy of the current game room along with its name
+     */
+    public KeyValuePair<Rectangle, String> getCurrentGameRoom() {
+        return KeyValuePair.of(new Rectangle(currentGameRoom), gameRooms.get(currentGameRoom));
+    }
+
+    /**
      * Return a copy of the game room mapped to the name.
      *
      * @param name the name of the game room
-     * @return the game room mapped to the name
+     * @return copy of the game room mapped to the name
      */
-    public Rectangle getGameRoomCopyByName(String name) {
+    public Rectangle getGameRoomByName(String name) {
         Rectangle gameRoom = gameRoomNameMap.get(name);
         if (gameRoom == null) {
             throw new IllegalArgumentException("No game room mapped to " + name);

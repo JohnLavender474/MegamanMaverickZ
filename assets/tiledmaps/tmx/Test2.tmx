@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.9" tiledversion="1.9.0" orientation="orthogonal" renderorder="right-down" width="50" height="200" tilewidth="32" tileheight="32" infinite="0" nextlayerid="16" nextobjectid="81">
+<map version="1.9" tiledversion="1.9.0" orientation="orthogonal" renderorder="right-down" width="50" height="200" tilewidth="32" tileheight="32" infinite="0" nextlayerid="17" nextobjectid="81">
  <tileset firstgid="1" source="../tsx/Tileset1.tsx"/>
  <tileset firstgid="1025" source="../tsx/mm10pump.tsx"/>
  <objectgroup id="5" name="Test"/>
+ <objectgroup id="16" name="Doors"/>
  <objectgroup id="7" name="Blocks">
   <object id="2" x="0" y="0" width="64" height="6400"/>
   <object id="3" x="1536" y="0" width="64" height="6400"/>

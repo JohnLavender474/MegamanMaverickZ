@@ -1,7 +1,7 @@
 package com.game.entities.special;
 
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.GameContext2d;
 import com.game.world.BodyComponent;
 import com.game.world.Fixture;
@@ -13,10 +13,8 @@ public class SpecialFactory {
 
     public static void create(GameContext2d gameContext, RectangleMapObject spawnObj) {
         switch (spawnObj.getName()) {
-            case "bounce" ->
-                gameContext.addEntity(new SpringyBouncer(gameContext, spawnObj));
-            case "force" ->
-                gameContext.addEntity(new Force(gameContext, spawnObj));
+            case "force" -> gameContext.addEntity(new Force(gameContext, spawnObj));
+            case "spring_bounce" -> gameContext.addEntity(new SpringBounce(gameContext, spawnObj));
             case "shield" -> {
                 Entity entity = new Entity(gameContext);
                 BodyComponent bodyComponent = new BodyComponent(ABSTRACT);

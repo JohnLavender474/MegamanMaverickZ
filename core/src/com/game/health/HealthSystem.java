@@ -1,6 +1,6 @@
 package com.game.health;
 
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.System;
 
 /**

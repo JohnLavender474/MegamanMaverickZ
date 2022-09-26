@@ -1,7 +1,13 @@
 package com.game.messages;
 
+/** Functional interface allowing object to listen to messages. */
 public interface MessageListener {
 
-    void listenToMessage(Message message, float delta);
+    /**
+     * Listen to message.
+     *
+     * @param message the message
+     */
+    void listenToMessage(Message message);
 
 }

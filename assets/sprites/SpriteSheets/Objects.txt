@@ -38,14 +38,14 @@ Ladder
   orig: 32, 32
   offset: 0, 0
   index: -1
-SpringyBouncer
+SpringBounce
   rotate: false
   xy: 896, 0
   size: 320, 56
   orig: 320, 56
   offset: 0, 0
   index: -1
-SpringyBouncerStill
+SpringBounceStill
   rotate: false
   xy: 1216, 0
   size: 64, 56

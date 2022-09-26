@@ -29,6 +29,7 @@ import static com.game.assets.TextureAsset.STAGE_SELECT;
 import static com.game.ViewVals.*;
 import static com.game.utils.UtilMethods.drawFiltered;
 import static java.lang.Math.round;
+import static java.util.stream.Collectors.*;
 
 public class BossIntroScreen extends ScreenAdapter {
 
@@ -78,7 +79,7 @@ public class BossIntroScreen extends ScreenAdapter {
                 bossIntroAnims.put(bossEnum, () -> bossEnum.getIntroAnimsQ(
                                 gameContext.getAsset(bossEnum.getTextureAtlas(), TextureAtlas.class))
                         .stream().map(i -> KeyValuePair.of(new TimedAnimation(i.key()), new Timer(i.value())))
-                        .collect(Collectors.toCollection(ArrayDeque::new)));
+                        .collect(toCollection(ArrayDeque::new)));
             }
         }
     }

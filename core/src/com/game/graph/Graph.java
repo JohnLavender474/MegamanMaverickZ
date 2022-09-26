@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.*;
 import com.game.shapes.custom.Triangle;
-import com.game.updatables.Debugger;
 import com.game.utils.objects.Pair;
 
 import java.util.*;
@@ -12,11 +11,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static java.lang.Math.*;
-import static java.util.Arrays.*;
 
 public class Graph {
-
-    private static final Debugger debugger = new Debugger(false);
 
     private final Vector2 dimensions = new Vector2();
 
@@ -31,7 +27,6 @@ public class Graph {
                         dimensions.x * i, dimensions.y * j, dimensions.x, dimensions.y));
             }
         }
-        debugger.debug("Nodes: " + deepToString(nodes));
     }
 
     public Pair<Pair<Integer>> getNodeIndexes(Shape2D shape) {

@@ -3,7 +3,7 @@ package com.game.shapes;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.*;
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.System;
 import com.game.utils.interfaces.Updatable;
 import com.game.utils.objects.Pair;

@@ -1,6 +1,6 @@
 package com.game.movement;
 
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.System;
 import com.game.utils.interfaces.UpdatableConsumer;
 import com.game.utils.objects.Pendulum;

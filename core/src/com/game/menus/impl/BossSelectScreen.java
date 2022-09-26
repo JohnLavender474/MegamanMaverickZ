@@ -30,6 +30,7 @@ import java.util.*;
 import java.util.function.Supplier;
 
 import static com.badlogic.gdx.graphics.Texture.TextureFilter.Nearest;
+import static com.game.ConstFuncs.*;
 import static com.game.entities.bosses.BossEnum.*;
 import static com.game.GameScreen.*;
 import static com.game.assets.MusicAsset.*;
@@ -73,7 +74,8 @@ public class BossSelectScreen extends MenuScreen {
 
         public BossPane(GameContext2d gameContext, BossEnum bossEnum) {
             this(gameContext, new TimedAnimation(gameContext.getAsset(BOSS_FACES.getSrc(),
-                    TextureAtlas.class).findRegion(bossEnum.getBossName())), bossEnum.getBossName(), bossEnum.getPosition());
+                    TextureAtlas.class).findRegion(bossEnum.getBossName())),
+                    bossEnum.getBossName(), bossEnum.getPosition());
         }
 
         public BossPane(GameContext2d gameContext, TimedAnimation timedAnimation, String bossName, Position position) {
@@ -186,7 +188,7 @@ public class BossSelectScreen extends MenuScreen {
         // camera
         this.camera = gameContext.getViewport(UI).getCamera();
         this.screenSlide = new ScreenSlide(camera, INTRO_BLOCKS_TRANS,
-                ConstFuncs.getCamInitPos().sub(INTRO_BLOCKS_TRANS), ConstFuncs.getCamInitPos(), .5f);
+                getCamInitPos().sub(INTRO_BLOCKS_TRANS), getCamInitPos(), .5f);
         // sound
         this.bloopSound = gameContext.getAsset(CURSOR_MOVE_BLOOP_SOUND.getSrc(), Sound.class);
         // faces

@@ -1,9 +1,7 @@
 package com.game.utils.objects;
 
 /**
- * Represents a key-value pair pairOf two object instances each pairOf a different type. Can also be treated merely as a pair
- * with neither one "dominant" nor "mapping to" the other. This means that equality is based on both the key and the
- * value and not just the key as is the case in {@link java.util.Map}.
+ * Key-value pair.
  *
  * @param <K> the key parameter
  * @param <V> the value parameter

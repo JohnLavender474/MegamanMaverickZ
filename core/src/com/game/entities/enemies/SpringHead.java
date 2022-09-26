@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.GameContext2d;
 import com.game.damage.DamageNegotiation;
 import com.game.damage.Damager;
@@ -47,12 +47,12 @@ import static com.game.world.FixtureType.*;
 public class SpringHead extends AbstractEnemy implements Hitter, Faceable {
 
     private static final float DAMAGE_DURATION = .5f;
-    private static final float BOUNCE_DURATION = 1f;
-    private static final float TURN_DELAY = .35f;
+    private static final float BOUNCE_DURATION = 1.5f;
+    private static final float TURN_DELAY = .25f;
     private static final float X_BOUNCE = .125f;
     private static final float Y_BOUNCE = .5f;
     private static final float SPEED_NORMAL = 1.5f;
-    private static final float SPEED_SUPER = 6f;
+    private static final float SPEED_SUPER = 5f;
 
     private final Timer turnTimer = new Timer(TURN_DELAY);
     private final Timer bounceTimer = new Timer(BOUNCE_DURATION, true);
@@ -154,7 +154,7 @@ public class SpringHead extends AbstractEnemy implements Hitter, Faceable {
         bodyComponent.addFixture(new Fixture(this, hitCircle, DAMAGEABLE));
         // shield
         Rectangle shieldRect = new Rectangle();
-        shieldRect.setSize(.8f * PPM, .5f * PPM);
+        shieldRect.setSize(.8f * PPM, .6f * PPM);
         Fixture shield = new Fixture(this, shieldRect, SHIELD);
         shield.setOffset(0f, .1f * PPM);
         shield.putUserData("reflectDir", "up");

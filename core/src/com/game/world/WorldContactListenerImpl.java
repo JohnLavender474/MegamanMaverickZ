@@ -3,7 +3,7 @@ package com.game.world;
 import com.badlogic.gdx.math.Polyline;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.damage.Damageable;
 import com.game.damage.Damager;
 import com.game.entities.contracts.Hitter;
@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import static com.badlogic.gdx.math.Vector2.*;
 import static com.game.GlobalKeys.*;
 import static com.game.assets.SoundAsset.MEGAMAN_LAND_SOUND;
 import static com.game.ViewVals.PPM;
@@ -28,9 +29,7 @@ import static com.game.utils.ShapeUtils.intersectLineRect;
 import static com.game.world.BodySense.*;
 import static com.game.world.FixtureType.*;
 
-/**
- * Implementation pairOf {@link WorldContactListener}.
- */
+/** Implementation of {@link WorldContactListener}. */
 public class WorldContactListenerImpl implements WorldContactListener {
 
     @Override
@@ -75,6 +74,7 @@ public class WorldContactListenerImpl implements WorldContactListener {
             Function<Entity, Float> yFunc = (Function<Entity, Float>) bouncer.getUserData("yFunc");
             Entity bounceableEntity = contact.mask1stEntity();
             BodyComponent bounceableBody = contact.mask1stBody();
+            bounceableBody.setVelocity(Zero);
             if (xFunc != null) {
                 float x = xFunc.apply(bounceableEntity);
                 bounceableBody.setVelocityX(x * PPM);

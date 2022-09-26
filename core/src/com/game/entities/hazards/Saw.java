@@ -10,7 +10,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.GameContext2d;
 import com.game.shapes.LineComponent;
 import com.game.shapes.LineHandle;
@@ -45,6 +45,10 @@ import static java.lang.Float.parseFloat;
 
 public class Saw extends Entity {
 
+    private static final float LENGTH = 3f;
+    private static final float ROTATION_SPEED = 2f;
+    private static final float PENDULUM_SCALAR = 1f;
+
     public Saw(GameContext2d gameContext, Rectangle rectangle) {
         this(gameContext, centerPoint(rectangle));
     }
@@ -65,18 +69,16 @@ public class Saw extends Entity {
         MapProperties properties = sawObj.getProperties();
         Rectangle rect = sawObj.getRectangle();
         if (properties.containsKey("p")) {
-            setToPendulum(properties, rect);
+            setToPendulum(rect);
         } else if (properties.containsKey("r")) {
-            setToRotation(properties, rect);
+            setToRotation(rect);
         } else if (properties.containsKey("t")) {
             setToTrajectory(properties);
         }
     }
 
-    private void setToPendulum(MapProperties properties, Rectangle rect) {
-        int length = properties.get("length", Integer.class);
-        float scalar = properties.get("scalar", Float.class);
-        Pendulum pendulum = new Pendulum(length * PPM, 10f * PPM, bottomCenterPoint(rect), scalar);
+    private void setToPendulum(Rectangle rect) {
+        Pendulum pendulum = new Pendulum(LENGTH * PPM, 10f * PPM, bottomCenterPoint(rect), PENDULUM_SCALAR);
         UpdatableConsumer<Pendulum> updatableConsumer = (pendulum1, delta) ->
                 getComponent(BodyComponent.class).setCenter(pendulum1.getEnd());
         addComponent(new PendulumComponent(pendulum, updatableConsumer));
@@ -85,6 +87,7 @@ public class Saw extends Entity {
         lineHandle.setColorSupplier(() -> DARK_GRAY);
         lineHandle.setThicknessSupplier(() -> PPM / 8f);
         lineHandle.setShapeTypeSupplier(() -> Filled);
+        addComponent(new LineComponent(lineHandle));
         Circle circle1 = new Circle(pendulum.getAnchor(), PPM / 4f);
         Circle circle2 = new Circle();
         circle2.setRadius(PPM / 4f);
@@ -97,14 +100,13 @@ public class Saw extends Entity {
         ShapeHandle shapeHandle2 = new ShapeHandle();
         shapeHandle2.copyOf(shapeHandle1);
         shapeHandle2.setShapeSupplier(() -> circle2);
+        shapeHandle2.setUpdatable(delta -> circle2.setPosition(pendulum.getEnd()));
         shapeHandles.add(shapeHandle2);
         addComponent(new ShapeComponent(shapeHandles));
     }
 
-    private void setToRotation(MapProperties properties, Rectangle rect) {
-        float radius = properties.get("radius", Float.class);
-        float speed = properties.get("speed", Float.class);
-        RotatingLine rotatingLine = new RotatingLine(centerPoint(rect), radius * PPM, speed * PPM);
+    private void setToRotation(Rectangle rect) {
+        RotatingLine rotatingLine = new RotatingLine(centerPoint(rect), LENGTH * PPM, ROTATION_SPEED * PPM);
         UpdatableConsumer<RotatingLine> updatableConsumer = (rotatingLine1, delta) ->
                 getComponent(BodyComponent.class).setCenter(rotatingLine1.getEndPoint());
         addComponent(new RotatingLineComponent(rotatingLine, updatableConsumer));

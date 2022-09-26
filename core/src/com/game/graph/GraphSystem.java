@@ -1,7 +1,7 @@
 package com.game.graph;
 
 import com.badlogic.gdx.math.Rectangle;
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.System;
 import com.game.utils.objects.Pair;
 import lombok.Setter;

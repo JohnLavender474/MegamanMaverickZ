@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.GameContext2d;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
@@ -119,6 +119,11 @@ public class ChargedShot extends AbstractProjectile implements Faceable {
             @Override
             public boolean isFlipX() {
                 return isFacing(F_LEFT);
+            }
+
+            @Override
+            public int getSpriteRenderPriority() {
+                return 3;
             }
 
         });

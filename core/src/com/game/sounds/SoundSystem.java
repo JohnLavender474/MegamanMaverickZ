@@ -1,7 +1,7 @@
 package com.game.sounds;
 
 import com.badlogic.gdx.audio.Sound;
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.GameContext2d;
 import com.game.System;
 import com.game.assets.SoundAsset;

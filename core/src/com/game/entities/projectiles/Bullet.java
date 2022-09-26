@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.Entity;
+import com.game.entities.Entity;
 import com.game.GameContext2d;
 import com.game.entities.decorations.Disintegration;
 import com.game.entities.enemies.AbstractEnemy;
@@ -83,12 +83,19 @@ public class Bullet extends AbstractProjectile {
         sprite.setRegion(textureRegion);
         sprite.setSize(PPM * 1.25f, PPM * 1.25f);
         return new SpriteComponent(sprite, new SpriteProcessor() {
+
             @Override
             public boolean setPositioning(Wrapper<Rectangle> bounds, Wrapper<Position> position) {
                 bounds.setData(getComponent(BodyComponent.class).getCollisionBox());
                 position.setData(CENTER);
                 return true;
             }
+
+            @Override
+            public int getSpriteRenderPriority() {
+                return 3;
+            }
+
         });
     }
 

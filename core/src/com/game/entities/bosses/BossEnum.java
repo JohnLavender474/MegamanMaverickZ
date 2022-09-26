@@ -49,10 +49,9 @@ public enum BossEnum {
         public Map<String, TimedAnimation> getAnimations(TextureAtlas textureAtlas) {
             return Map.of(
                     "Stand", new TimedAnimation(textureAtlas.findRegion("Stand"), new float[]{1.5f, .15f}),
-                    "JustLand", new TimedAnimation(textureAtlas.findRegion("JustLand"), 6, .1f),
+                    "JustLand", new TimedAnimation(textureAtlas.findRegion("JustLand"), 6, .1f, false),
                     "AboutToSwing", new TimedAnimation(textureAtlas.findRegion("AboutToSwing"), 3, .15f, false),
-                    "Swing", new TimedAnimation(textureAtlas.findRegion("Swing"),
-                            new float[]{.15f, .15f, .1f, .075f}, false),
+                    "Swing", new TimedAnimation(textureAtlas.findRegion("Swing"), 4, .15f, false),
                     "Jump", new TimedAnimation(textureAtlas.findRegion("Jump"), 6, BOSS_DROP_DOWN / 12));
         }
 
