@@ -30,7 +30,6 @@ import com.game.cull.CullOnOutOfCamBoundsSystem;
 import com.game.cull.CullOnMessageSystem;
 import com.game.entities.Entity;
 import com.game.entities.megaman.MegamanInfo;
-import com.game.entities.megaman.MegamanWeapon;
 import com.game.messages.Message;
 import com.game.levels.LevelStatus;
 import com.game.messages.MessageListener;

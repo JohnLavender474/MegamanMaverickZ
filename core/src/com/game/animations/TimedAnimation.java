@@ -9,9 +9,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import static java.util.Arrays.*;
 
 /**
  * Defines an animation where each {@link TextureRegion} has a setBounds duration. The constructors pairOf this class are
@@ -110,7 +111,7 @@ public class TimedAnimation implements Updatable, Resettable {
      */
     public TimedAnimation(TextureRegion textureRegion, int numFrames, float duration, boolean loop) {
         float[] durations = new float[numFrames];
-        Arrays.fill(durations, duration);
+        fill(durations, duration);
         instantiate(textureRegion, durations);
         this.loop = loop;
     }

@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.game.ConstFuncs;
 import com.game.GameContext2d;
 import com.game.entities.bosses.BossEnum;
 import com.game.menus.MenuButton;
