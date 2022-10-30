@@ -5,17 +5,19 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.game.ConstFuncs;
-import com.game.GameScreen;
 import com.game.GameContext2d;
+import com.game.GameScreen;
 import com.game.menus.MenuButton;
 import com.game.menus.MenuScreen;
 import com.game.menus.utils.BlinkingArrow;
 import com.game.menus.utils.ScreenSlide;
-import com.game.utils.enums.Direction;
 import com.game.text.MegaTextHandle;
+import com.game.utils.enums.Direction;
+import com.game.utils.objects.Timer;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -26,28 +28,35 @@ import java.util.List;
 import java.util.Map;
 
 import static com.game.GameScreen.BOSS_SELECT;
+import static com.game.ViewVals.*;
 import static com.game.assets.MusicAsset.MM11_WILY_STAGE_MUSIC;
-import static com.game.sprites.RenderingGround.*;
 import static com.game.assets.SoundAsset.CURSOR_MOVE_BLOOP_SOUND;
 import static com.game.assets.SoundAsset.SELECT_PING_SOUND;
 import static com.game.assets.TextureAsset.DECORATIONS;
 import static com.game.assets.TextureAsset.MEGAMAN_MAIN_MENU;
-import static com.game.ViewVals.*;
 import static com.game.menus.impl.MainMenuScreen.MainMenuButton.*;
 import static com.game.menus.impl.MainMenuScreen.SettingsButton.*;
-import static com.game.utils.UtilMethods.*;
-import static com.game.utils.enums.Direction.*;
+import static com.game.sprites.RenderingGround.UI;
+import static com.game.utils.UtilMethods.drawFiltered;
+import static com.game.utils.UtilMethods.equalsAny;
+import static com.game.utils.enums.Direction.DIR_LEFT;
+import static com.game.utils.enums.Direction.DIR_RIGHT;
 
 /**
  * Implementation pairOf {@link MenuScreen} for the main menu pairOf the game.
  */
 public class MainMenuScreen extends MenuScreen {
 
+    @Getter
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     public enum MainMenuButton {
 
-        GAME_START("GAME START"), PASS_WORD("PASS WORD"), SETTINGS("SETTINGS"),  CREDITS("CREDITS"),
-        EXTRAS("EXTRAS"), EXIT("EXIT");
+        GAME_START("GAME START"),
+        PASS_WORD("PASS WORD"),
+        SETTINGS("SETTINGS"),
+        CREDITS("CREDITS"),
+        EXTRAS("EXTRAS"),
+        EXIT("EXIT");
 
         private final String prompt;
 
@@ -57,20 +66,46 @@ public class MainMenuScreen extends MenuScreen {
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     public enum SettingsButton {
 
-        MUSIC_VOLUME("MUSIC: "), SOUND_EFFECTS_VOLUME("SOUND: "), BACK("BACK");
+        BACK("BACK"),
+        MUSIC_VOLUME("MUSIC: "),
+        SOUND_EFFECTS_VOLUME("SOUND: "),
+        FPS("FPS: "),
+        CONTROLLER_SETTINGS("CONTROLLER SETTINGS");
 
         private final String prompt;
 
     }
 
+    @Getter
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    public enum ControllerSettingsButton {
+
+        UP("Up"),
+        DOWN("Down"),
+        LEFT("Left"),
+        RIGHT("Right"),
+        X("X"),
+        A("A"),
+        START("Start");
+
+        private final String str;
+
+    }
+
+    private static final List<Integer> FPS_OPTIONS = List.of(30, 45, 60, 75);
     private static final Vector3 SETTINGS_TRANS = new Vector3(15f, 0f, 0f).scl(PPM);
 
+    private final ScreenSlide screenSlide;
     private final Sprite pose = new Sprite();
     private final Sprite title = new Sprite();
     private final Sprite subtitle = new Sprite();
+    private final Timer settingsArrowTimer = new Timer(.3f);
     private final List<MegaTextHandle> fonts = new ArrayList<>();
+    private final List<Sprite> settingsArrows = new ArrayList<>();
     private final Map<String, BlinkingArrow> blinkingArrows = new HashMap<>();
-    private final ScreenSlide screenSlide;
+
+    private boolean settingsArrowBlink;
+    private int fpsIndex = 2;
 
     /**
      * Instantiates a new Main Menu Screen.
@@ -85,24 +120,41 @@ public class MainMenuScreen extends MenuScreen {
         // buttons and arrows
         float row = .175f * PPM;
         for (MainMenuButton mainMenuButton : MainMenuButton.values()) {
-            fonts.add(new MegaTextHandle(new Vector2(2f * PPM, row * PPM), mainMenuButton.prompt));
+            fonts.add(new MegaTextHandle(new Vector2(2f * PPM, row * PPM), mainMenuButton.getPrompt()));
             Vector2 arrowCenter = new Vector2(1.5f * PPM, (row - (.0075f * PPM)) * PPM);
             blinkingArrows.put(mainMenuButton.name(), new BlinkingArrow(gameContext, arrowCenter));
             row -= PPM * .025f;
         }
         // fonts
-        row = .15f * PPM;
+        row = .4f * PPM;
         for (SettingsButton settingsButton : SettingsButton.values()) {
-            fonts.add(new MegaTextHandle(new Vector2(17f * PPM, row * PPM), settingsButton.prompt));
+            fonts.add(new MegaTextHandle(new Vector2(17f * PPM, row * PPM), settingsButton.getPrompt()));
             Vector2 arrowCenter = new Vector2(16.5f * PPM, (row - (.0075f * PPM)) * PPM);
             blinkingArrows.put(settingsButton.name(), new BlinkingArrow(gameContext, arrowCenter));
             row -= PPM * .025f;
         }
         fonts.add(new MegaTextHandle(new Vector2(3f * PPM, .5f * PPM), "© OLD LAVY GENES, 20XX"));
-        fonts.add(new MegaTextHandle(new Vector2(21f * PPM, .15f * PPM * PPM),
+        fonts.add(new MegaTextHandle(new Vector2(21f * PPM, 12f * PPM),
                 () -> "" + gameContext.getMusicVolume()));
-        fonts.add(new MegaTextHandle(new Vector2(21f * PPM, ((.15f * PPM) - (.025f * PPM)) * PPM),
+        fonts.add(new MegaTextHandle(new Vector2(21f * PPM, 11.2f * PPM),
                 () -> "" + gameContext.getSoundEffectsVolume()));
+        fonts.add(new MegaTextHandle(new Vector2(21f * PPM, 10.4f * PPM),
+                () -> "" + FPS_OPTIONS.get(fpsIndex)));
+        TextureRegion arrowRegion = gameContext.getAsset(DECORATIONS.getSrc(), TextureAtlas.class)
+                .findRegion("Arrow");
+        // settings blinking arrows
+        float y = 11.55f;
+        for (int i = 0; i < 6; i++) {
+            if (i != 0 && i % 2 == 0) {
+                y -= .85f;
+            }
+            Sprite blinkingArrow = new Sprite(arrowRegion);
+            blinkingArrow.setBounds((i % 2 == 0 ? 20.25f : 22.5f) * PPM, y * PPM, PPM / 2f, PPM / 2f);
+            if (i % 2 == 0) {
+                blinkingArrow.setFlip(true, false);
+            }
+            settingsArrows.add(blinkingArrow);
+        }
         // decorations
         TextureAtlas decorations = gameContext.getAsset(DECORATIONS.getSrc(), TextureAtlas.class);
         title.setRegion(decorations.findRegion("MegamanTitle"));
@@ -130,6 +182,14 @@ public class MainMenuScreen extends MenuScreen {
         drawFiltered(pose, spriteBatch);
         // fonts
         fonts.forEach(fontHandle -> fontHandle.draw(spriteBatch));
+        settingsArrowTimer.update(delta);
+        if (settingsArrowTimer.isFinished()) {
+            settingsArrowBlink = !settingsArrowBlink;
+            settingsArrowTimer.reset();
+        }
+        if (settingsArrowBlink) {
+            settingsArrows.forEach(s -> drawFiltered(s, spriteBatch));
+        }
         spriteBatch.end();
         // screen slide
         screenSlide.update(delta);
@@ -155,8 +215,8 @@ public class MainMenuScreen extends MenuScreen {
 
     @Override
     protected Map<String, MenuButton> defineMenuButtons() {
-        return Map.of(
-                GAME_START.name(), new MenuButton() {
+        return new HashMap<>() {{
+                put(GAME_START.name(), new MenuButton() {
 
                     @Override
                     public boolean onSelect(float delta) {
@@ -172,8 +232,8 @@ public class MainMenuScreen extends MenuScreen {
                         }
                     }
 
-                },
-                PASS_WORD.name(), new MenuButton() {
+                });
+                put(PASS_WORD.name(), new MenuButton() {
 
                     @Override
                     public boolean onSelect(float delta) {
@@ -189,8 +249,8 @@ public class MainMenuScreen extends MenuScreen {
                         }
                     }
 
-                },
-                SETTINGS.name(), new MenuButton() {
+                });
+                put(SETTINGS.name(), new MenuButton() {
 
                     @Override
                     public boolean onSelect(float delta) {
@@ -208,8 +268,8 @@ public class MainMenuScreen extends MenuScreen {
                         }
                     }
 
-                },
-                CREDITS.name(), new MenuButton() {
+                });
+                put(CREDITS.name(), new MenuButton() {
 
                     @Override
                     public boolean onSelect(float delta) {
@@ -224,8 +284,8 @@ public class MainMenuScreen extends MenuScreen {
                         }
                     }
 
-                },
-                EXTRAS.name(), new MenuButton() {
+                });
+                put(EXTRAS.name(), new MenuButton() {
 
                     @Override
                     public boolean onSelect(float delta) {
@@ -241,8 +301,8 @@ public class MainMenuScreen extends MenuScreen {
                         }
                     }
 
-                },
-                EXIT.name(), new MenuButton() {
+                });
+                put(EXIT.name(), new MenuButton() {
 
                     @Override
                     public boolean onSelect(float delta) {
@@ -259,8 +319,8 @@ public class MainMenuScreen extends MenuScreen {
                         }
                     }
 
-                },
-                MUSIC_VOLUME.name(), new MenuButton() {
+                });
+                put(MUSIC_VOLUME.name(), new MenuButton() {
 
                     @Override
                     public boolean onSelect(float delta) {
@@ -285,8 +345,8 @@ public class MainMenuScreen extends MenuScreen {
                         }
                     }
 
-                },
-                SOUND_EFFECTS_VOLUME.name(), new MenuButton() {
+                });
+                put(SOUND_EFFECTS_VOLUME.name(), new MenuButton() {
 
                     @Override
                     public boolean onSelect(float delta) {
@@ -307,12 +367,47 @@ public class MainMenuScreen extends MenuScreen {
                                 gameContext.setSoundEffectsVolume(volume);
                             }
                             case DIR_UP -> setMenuButton(MUSIC_VOLUME.name());
+                            case DIR_DOWN -> setMenuButton(FPS.name());
+                        }
+                    }
+
+                });
+                put(FPS.name(), new MenuButton() {
+
+                    @Override
+                    public boolean onSelect(float delta) {
+                        return false;
+                    }
+
+                    @Override
+                    public void onNavigate(Direction direction, float delta) {
+                        switch (direction) {
+                            case DIR_LEFT -> changeFPS(-1);
+                            case DIR_RIGHT -> changeFPS(1);
+                            case DIR_UP -> setMenuButton(SOUND_EFFECTS_VOLUME.name());
+                            case DIR_DOWN -> setMenuButton(CONTROLLER_SETTINGS.name());
+                        }
+                    }
+
+                });
+                put(CONTROLLER_SETTINGS.name(), new MenuButton() {
+
+                    @Override
+                    public boolean onSelect(float delta) {
+                        gameContext.setScreen(GameScreen.CONTROLLER_SETTINGS);
+                        return true;
+                    }
+
+                    @Override
+                    public void onNavigate(Direction direction, float delta) {
+                        switch (direction) {
+                            case DIR_UP -> setMenuButton(FPS.name());
                             case DIR_DOWN -> setMenuButton(BACK.name());
                         }
                     }
 
-                },
-                BACK.name(), new MenuButton() {
+                });
+                put(BACK.name(), new MenuButton() {
 
                     @Override
                     public boolean onSelect(float delta) {
@@ -330,6 +425,19 @@ public class MainMenuScreen extends MenuScreen {
                     }
 
                 });
+        }};
+    }
+
+    private void changeFPS(int i) {
+        int next = fpsIndex + i;
+        if (next < 0) {
+            next = FPS_OPTIONS.size() - 1;
+        } else if (next >= FPS_OPTIONS.size()) {
+            next = 0;
+        }
+        fpsIndex = next;
+        int fps = FPS_OPTIONS.get(fpsIndex);
+        Gdx.graphics.setForegroundFPS(fps);
     }
 
 }

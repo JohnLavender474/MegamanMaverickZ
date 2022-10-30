@@ -154,7 +154,7 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
         // spawn Megaman
         spawnMegaman();
         // health bar ui
-        TextureRegion healthBit = gameContext.getAsset(BITS.getSrc(), TextureAtlas.class).findRegion("HealthBit");
+        TextureRegion healthBit = gameContext.getAsset(BITS.getSrc(), TextureAtlas.class).findRegion("StandardBit");
         healthBar = new BitsBarUi(gameContext, () -> megaman.getComponent(HealthComponent.class).getCurrentHealth(),
                 () -> healthBit, new Vector2(PPM / 2f, PPM / 8f), new Rectangle(PPM, 9f * PPM, PPM / 2f, PPM * 3.75f));
         DebugLogger.getInstance().info("Entities size at level screen show end: " + gameContext.getEntities().size());

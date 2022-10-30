@@ -1,5 +1,5 @@
 BossFaces.png
-size: 96, 32
+size: 64, 32
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
@@ -10,16 +10,9 @@ temp
   orig: 32, 32
   offset: 0, 0
   index: -1
-Timber Woman alt
-  rotate: false
-  xy: 32, 0
-  size: 32, 32
-  orig: 32, 32
-  offset: 0, 0
-  index: -1
 Timber Woman
   rotate: false
-  xy: 64, 0
+  xy: 32, 0
   size: 32, 32
   orig: 32, 32
   offset: 0, 0

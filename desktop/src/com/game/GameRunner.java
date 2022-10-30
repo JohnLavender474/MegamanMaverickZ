@@ -17,6 +17,7 @@ public class GameRunner {
 	public static void main(String[] arg) {
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
 		config.setIdleFPS(60);
+		config.useVsync(false);
 		config.setForegroundFPS(60);
 		config.setWindowedMode(1920, 1080);
 		config.setMaximized(true);

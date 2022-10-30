@@ -38,6 +38,7 @@ import static com.game.assets.SoundAsset.*;
 import static com.game.assets.TextureAsset.*;
 import static com.game.ViewVals.*;
 import static com.game.utils.UtilMethods.centerPoint;
+import static com.game.utils.UtilMethods.drawFiltered;
 import static com.game.utils.enums.Position.*;
 import static java.lang.Math.round;
 
@@ -161,6 +162,7 @@ public class BossSelectScreen extends MenuScreen {
     private final ScreenSlide screenSlide;
     private final Sprite blackBar1 = new Sprite();
     private final Sprite blackBar2 = new Sprite();
+    private final List<Sprite> backgroundSprites = new ArrayList<>();
     private final List<MegaTextHandle> texts = new ArrayList<>();
     private final List<BossPane> bossPanes = new ArrayList<>();
     private final Map<Sprite, TimedAnimation> bars = new HashMap<>();
@@ -227,15 +229,29 @@ public class BossSelectScreen extends MenuScreen {
             }
         }
         // white sprite and black bar
-        TextureAtlas textureAtlas = gameContext.getAsset(DECORATIONS.getSrc(), TextureAtlas.class);
-        TextureRegion white = textureAtlas.findRegion("White");
+        TextureAtlas decorationsAtlas = gameContext.getAsset(DECORATIONS.getSrc(), TextureAtlas.class);
+        TextureRegion white = decorationsAtlas.findRegion("White");
         whiteSprite.setRegion(white);
         whiteSprite.setBounds(0f, 0f, VIEW_WIDTH * PPM, VIEW_HEIGHT * PPM);
-        TextureRegion black = textureAtlas.findRegion("Black");
+        TextureRegion black = decorationsAtlas.findRegion("Black");
         blackBar1.setRegion(black);
-        blackBar1.setBounds(-PPM, -PPM, 2f * PPM + VIEW_WIDTH * PPM, PPM + 1.25f * PPM);
+        blackBar1.setBounds(-PPM, -PPM, (2f + VIEW_WIDTH) * PPM, 2f * PPM);
         blackBar2.setRegion(black);
         blackBar2.setBounds(0f, 0f, .25f * PPM, VIEW_HEIGHT * PPM);
+        // background sprites
+        TextureAtlas tilesAtlas = gameContext.getAsset(CUSTOM_TILES.getSrc(), TextureAtlas.class);
+        TextureRegion blueBlockRegion = tilesAtlas.findRegion("8bitBlueBlock");
+        final float halfPPM = PPM / 2f;
+        for (int i = 0; i < VIEW_WIDTH; i++) {
+            for (int x = 0; x < 2; x++) {
+                for (int y = 0; y < 2; y++) {
+                    final float topY = (VIEW_HEIGHT - 1) * PPM;
+                    Sprite blueBlock = new Sprite(blueBlockRegion);
+                    blueBlock.setBounds(i * PPM + (x * halfPPM), topY + (y * halfPPM), halfPPM, halfPPM);
+                    backgroundSprites.add(blueBlock);
+                }
+            }
+        }
         // boss name
         bossName = new MegaTextHandle(round(PPM / 2f), new Vector2(PPM, PPM));
     }
@@ -262,18 +278,21 @@ public class BossSelectScreen extends MenuScreen {
         SpriteBatch spriteBatch = gameContext.getSpriteBatch();
         spriteBatch.setProjectionMatrix(uiViewport.getCamera().combined);
         spriteBatch.begin();
-        // outro or bars
+        // outro
         if (outro) {
             outroTimer.update(delta);
             if (blink) {
                 whiteSprite.draw(spriteBatch);
             }
         }
+        // bars
         bars.forEach((sprite, animation) -> {
             animation.update(delta);
             sprite.setRegion(animation.getCurrentT());
             sprite.draw(spriteBatch);
         });
+        // background
+        backgroundSprites.forEach(s -> drawFiltered(s, spriteBatch));
         // boss bossPanes
         bossPanes.forEach(bossPane -> {
             if (bossPane.getBossName().equals(getCurrentMenuButtonKey())) {

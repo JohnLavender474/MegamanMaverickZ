@@ -37,8 +37,7 @@ import static lombok.AccessLevel.PRIVATE;
 @RequiredArgsConstructor(access = PRIVATE)
 public enum BossEnum {
 
-    TIMBER_WOMAN("Timber Woman", BOTTOM_LEFT, TextureAsset.TIMBER_WOMAN.getSrc(),
-            GameScreen.TIMBER_WOMAN) {
+    TIMBER_WOMAN("Timber Woman", BOTTOM_LEFT, TextureAsset.TIMBER_WOMAN.getSrc(), GameScreen.TIMBER_WOMAN) {
 
         @Override
         public Vector2 getSize() {

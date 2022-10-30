@@ -18,6 +18,23 @@ import static java.lang.Math.*;
 public class UtilMethods {
 
     /**
+     * Returns true if the string name can be converted to an enum value of the provided enum type.
+     *
+     * @param enumClass the enum class
+     * @param name the string name
+     * @return if the string name can be converted to an enum value
+     * @param <T> the enum type
+     */
+    public static <T extends Enum<T>> boolean isNameOfEnum(Class<T> enumClass, String name) {
+        try {
+            Enum.valueOf(enumClass, name);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    /**
      * See {@link #getSingleMostDirectionFromStartToTarget(Vector2, Vector2)}. Uses center points of rectangles.
      *
      * @param start the start rectangle

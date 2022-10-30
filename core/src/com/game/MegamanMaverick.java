@@ -13,43 +13,42 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.game.animations.AnimationSystem;
 import com.game.assets.MusicAsset;
 import com.game.assets.SoundAsset;
 import com.game.assets.TextureAsset;
-import com.game.controllers.ControllerUtils;
-import com.game.animations.AnimationSystem;
 import com.game.behaviors.BehaviorSystem;
-import com.game.controllers.ButtonStatus;
-import com.game.controllers.ControllerButton;
-import com.game.controllers.ControllerSystem;
-import com.game.cull.CullOnOutOfCamBoundsSystem;
+import com.game.controllers.*;
 import com.game.cull.CullOnMessageSystem;
+import com.game.cull.CullOnOutOfCamBoundsSystem;
 import com.game.entities.Entity;
 import com.game.entities.megaman.MegamanInfo;
-import com.game.messages.Message;
-import com.game.levels.LevelStatus;
-import com.game.messages.MessageListener;
-import com.game.shapes.LineSystem;
-import com.game.shapes.ShapeSystem;
 import com.game.graph.GraphSystem;
 import com.game.health.HealthSystem;
+import com.game.levels.BossIntroScreen;
 import com.game.levels.LevelScreen;
+import com.game.levels.LevelStatus;
 import com.game.menus.impl.BossSelectScreen;
+import com.game.menus.impl.ControllerSettingsScreen;
 import com.game.menus.impl.ExtrasScreen;
 import com.game.menus.impl.MainMenuScreen;
-import com.game.menus.impl.PauseMenuScreen;
+import com.game.messages.Message;
+import com.game.messages.MessageListener;
 import com.game.movement.PendulumSystem;
 import com.game.movement.RotatingLineSystem;
+import com.game.movement.TrajectorySystem;
 import com.game.pathfinding.PathfindingSystem;
-import com.game.levels.BossIntroScreen;
+import com.game.shapes.LineSystem;
+import com.game.shapes.ShapeSystem;
 import com.game.sounds.SoundSystem;
 import com.game.sprites.RenderingGround;
 import com.game.sprites.SpriteSystem;
-import com.game.movement.TrajectorySystem;
+import com.game.text.MegaTextHandle;
 import com.game.updatables.UpdatableSystem;
 import com.game.utils.DebugLogger;
 import com.game.utils.objects.KeyValuePair;
@@ -61,34 +60,43 @@ import lombok.Setter;
 import java.util.*;
 
 import static com.badlogic.gdx.Gdx.*;
-import static com.game.entities.megaman.MegamanWeapon.*;
-import static com.game.messages.MessageType.*;
 import static com.game.GameScreen.*;
-import static com.game.levels.LevelStatus.*;
-import static com.game.entities.megaman.MegamanVals.*;
-import static com.game.assets.MusicAsset.*;
-import static com.game.sprites.RenderingGround.PLAYGROUND;
+import static com.game.GlobalKeys.KEYBOARD;
 import static com.game.ViewVals.*;
-import static com.game.world.WorldVals.*;
-import static com.game.controllers.ButtonStatus.*;
-import static com.game.utils.DebugLogger.DebugLevel.*;
-import static com.game.utils.UtilMethods.*;
-import static java.util.Collections.*;
+import static com.game.assets.MusicAsset.MMZ_NEO_ARCADIA_MUSIC;
+import static com.game.assets.MusicAsset.XENOBLADE_GAUR_PLAINS_MUSIC;
+import static com.game.controllers.ControllerButtonStatus.*;
+import static com.game.controllers.ControllerUtils.*;
+import static com.game.entities.megaman.MegamanVals.MEGAMAN_INFO;
+import static com.game.entities.megaman.MegamanWeapon.MEGA_BUSTER;
+import static com.game.levels.LevelStatus.PAUSED;
+import static com.game.levels.LevelStatus.UNPAUSED;
+import static com.game.messages.MessageType.SOUND_VOLUME_CHANGE;
+import static com.game.sprites.RenderingGround.PLAYGROUND;
+import static com.game.sprites.RenderingGround.UI;
+import static com.game.utils.DebugLogger.DebugLevel.DEBUG;
+import static com.game.utils.UtilMethods.equalsAny;
+import static com.game.world.WorldVals.AIR_RESISTANCE;
+import static com.game.world.WorldVals.FIXED_TIME_STEP;
+import static java.util.Collections.unmodifiableCollection;
 
-/** Entry point into game. */
+/**
+ * Entry point into game.
+ */
 @Getter
 public class MegamanMaverick extends Game implements GameContext2d, MessageListener {
 
     private final Map<Class<? extends System>, System> systems = new LinkedHashMap<>();
     private final Set<Entity> entities = new HashSet<>();
 
-    private final Map<ControllerButton, ButtonStatus> controllerButtons = new EnumMap<>(ControllerButton.class);
+    private final ControllerActuator controllerActuator = new ControllerActuator();
+    private final Map<ControllerButton, ControllerButtonStatus> controllerButtons =
+            new EnumMap<>(ControllerButton.class);
 
     private final Map<RenderingGround, Viewport> viewports = new EnumMap<>(RenderingGround.class);
     private final Map<GameScreen, Screen> screens = new EnumMap<>(GameScreen.class);
 
     private final Set<MessageListener> messageListeners = new HashSet<>();
-
     private final Map<String, Object> blackBoard = new HashMap<>();
 
     private final List<Disposable> disposables = new ArrayList<>();
@@ -109,8 +117,13 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
 
     @Setter
     private LevelStatus levelStatus = LevelStatus.NONE;
+
     @Setter
     private boolean doUpdateController;
+    private boolean controllerConnected;
+    private String controllerName = KEYBOARD;
+
+    private MegaTextHandle fpsText;
 
     @Override
     public void create() {
@@ -159,22 +172,37 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
         addSystem(new SoundSystem(this));
         addSystem(new AnimationSystem());
         addSystem(new SpriteSystem((OrthographicCamera) viewports.get(PLAYGROUND).getCamera(), getSpriteBatch()));
+
+        // TODO: turn off debug
         addSystem(new LineSystem(viewports.get(PLAYGROUND).getCamera(), getShapeRenderer()));
         addSystem(new ShapeSystem(viewports.get(PLAYGROUND).getCamera(), getShapeRenderer()));
+
         // blackboard
         MegamanInfo megamanInfo = new MegamanInfo();
+
+        // add special abilities
+        /*
+        megamanInfo.putSpecialAbility(MegamanSpecialAbility.AIR_DASH, true);
+        megamanInfo.putSpecialAbility(MegamanSpecialAbility.GROUND_SLIDE, true);
+        megamanInfo.putSpecialAbility(MegamanSpecialAbility.WALL_JUMP, true);
+         */
+
         megamanInfo.putWeapon(MEGA_BUSTER);
         putBlackboardObject(MEGAMAN_INFO, megamanInfo);
         // add this as message listener
         addMessageListener(this);
         // define screens
         screens.put(MAIN_MENU, new MainMenuScreen(this));
+        screens.put(CONTROLLER_SETTINGS, new ControllerSettingsScreen(this));
         screens.put(EXTRAS, new ExtrasScreen(this));
         screens.put(BOSS_SELECT, new BossSelectScreen(this));
-        screens.put(PAUSE_MENU, new PauseMenuScreen(this));
+
+        // TODO: Fix pause menu
+        // screens.put(PAUSE_MENU, new PauseMenuScreen(this));
+
         screens.put(LEVEL_INTRO, new BossIntroScreen(this));
         screens.put(TEST_STAGE, new LevelScreen(
-                this, "tiledmaps/tmx/Test3.tmx", MMZ_NEO_ARCADIA_MUSIC.getSrc()));
+                this, "tiledmaps/tmx/Test2.tmx", MMZ_NEO_ARCADIA_MUSIC.getSrc()));
         screens.put(TIMBER_WOMAN, new LevelScreen(
                 this, "tiledmaps/tmx/TimberWoman.tmx", XENOBLADE_GAUR_PLAINS_MUSIC.getSrc()));
         // set screen
@@ -182,6 +210,9 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
         // setScreen(TEST_STAGE);
         // setScreen(TIMBER_WOMAN);
         // setScreen(new TestScreen(this));
+
+        fpsText = new MegaTextHandle(new Vector2((VIEW_WIDTH - 4.5f) * PPM, (VIEW_HEIGHT - 1) * PPM),
+                () -> "FPS: " + graphics.getFramesPerSecond());
     }
 
     @Override
@@ -343,8 +374,8 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
 
     @Override
     public boolean isControllerButtonPressed(ControllerButton controllerButton) {
-        ButtonStatus buttonStatus = controllerButtons.get(controllerButton);
-        return equalsAny(buttonStatus, IS_JUST_PRESSED, IS_PRESSED);
+        ControllerButtonStatus controllerButtonStatus = controllerButtons.get(controllerButton);
+        return equalsAny(controllerButtonStatus, IS_JUST_PRESSED, IS_PRESSED);
     }
 
     @Override
@@ -355,10 +386,16 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
     @Override
     public void updateController() {
         for (ControllerButton controllerButton : ControllerButton.values()) {
-            ButtonStatus status = controllerButtons.get(controllerButton);
-            boolean isControllerButtonPressed = ControllerUtils.isControllerConnected() ?
-                    ControllerUtils.isControllerButtonPressed(controllerButton.getControllerBindingCode()) :
-                    ControllerUtils.isKeyboardButtonPressed(controllerButton.getKeyboardBindingCode());
+            int keyboardCode = controllerActuator.getKeyboardEntry(controllerButton).key();
+            boolean isControllerButtonPressed;
+            if (isControllerConnected()) {
+                int controllerCode = controllerActuator.getControllerCode(controllerButton);
+                isControllerButtonPressed = ControllerUtils.isControllerButtonPressed(controllerCode) ||
+                        isKeyboardButtonPressed(keyboardCode);
+            } else {
+                isControllerButtonPressed = isKeyboardButtonPressed(keyboardCode);
+            }
+            ControllerButtonStatus status = controllerButtons.get(controllerButton);
             if (isControllerButtonPressed) {
                 if (equalsAny(status, IS_RELEASED, IS_JUST_RELEASED)) {
                     controllerButtons.replace(controllerButton, IS_JUST_PRESSED);
@@ -411,10 +448,12 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
         if (doUpdateController()) {
             updateController();
         }
+        updateControllerStatus();
         super.render();
         if (overlayScreen != null) {
             overlayScreen.render(delta);
         }
+        renderFPS();
         viewports.values().forEach(Viewport::apply);
     }
 
@@ -430,6 +469,22 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
     public void resize(int width, int height) {
         super.resize(width, height);
         viewports.values().forEach(viewport -> viewport.update(width, height));
+    }
+
+    private void updateControllerStatus() {
+        boolean wasControllerConnected = controllerConnected;
+        controllerConnected = ControllerUtils.isControllerConnected();
+        if (controllerConnected && !wasControllerConnected && !controllerName.equals(getController().getName())) {
+            controllerActuator.setControllerCodesToDefault();
+        }
+        controllerName = controllerConnected ? getController().getName() : KEYBOARD;
+    }
+
+    private void renderFPS() {
+        setSpriteBatchProjectionMatrix(UI);
+        spriteBatch.begin();
+        fpsText.draw(spriteBatch);
+        spriteBatch.end();
     }
 
 }

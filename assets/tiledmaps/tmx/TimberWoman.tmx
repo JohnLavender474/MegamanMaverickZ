@@ -45,7 +45,7 @@
  <objectgroup id="11" name="Hazards">
   <object id="31" name="saw" x="384" y="288" width="16" height="16">
    <properties>
-    <property name="p" value=""/>
+    <property name="r" value=""/>
     <property name="radius" type="float" value="3"/>
     <property name="speed" type="float" value="2"/>
    </properties>

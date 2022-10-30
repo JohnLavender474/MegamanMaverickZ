@@ -188,7 +188,7 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
-            <key type="filename">../Frames/HealthAndWeaponBits/HealthBit.png</key>
+            <key type="filename">../Frames/HealthAndWeaponBits/StandardBit.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>

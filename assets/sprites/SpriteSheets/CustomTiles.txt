@@ -1,19 +1,26 @@
 CustomTiles.png
-size: 480, 64
+size: 464, 64
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
-JeffBezosLittleDickRocket
+8bitBlueBlock
   rotate: false
   xy: 0, 0
-  size: 448, 64
-  orig: 448, 64
+  size: 8, 8
+  orig: 8, 8
   offset: 0, 0
   index: -1
-PurpleTile
+8bitNoBorderBlueBlock
   rotate: false
-  xy: 448, 0
-  size: 32, 32
-  orig: 32, 32
+  xy: 8, 0
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+JeffBezosLittleDickRocket
+  rotate: false
+  xy: 16, 0
+  size: 448, 64
+  orig: 448, 64
   offset: 0, 0
   index: -1

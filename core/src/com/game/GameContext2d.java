@@ -6,12 +6,13 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.game.entities.Entity;
-import com.game.messages.Message;
-import com.game.levels.LevelStatus;
-import com.game.sprites.RenderingGround;
+import com.game.controllers.ControllerActuator;
 import com.game.controllers.ControllerButton;
+import com.game.entities.Entity;
+import com.game.levels.LevelStatus;
+import com.game.messages.Message;
 import com.game.messages.MessageListener;
+import com.game.sprites.RenderingGround;
 
 import java.util.Collection;
 
@@ -119,7 +120,7 @@ public interface GameContext2d {
      * Gets the screen mapped to the game screen key
      *
      * @param gameScreen the game screen key
-     * @return  the screen
+     * @return the screen
      */
     Screen getScreen(GameScreen gameScreen);
 
@@ -285,7 +286,7 @@ public interface GameContext2d {
      * Plays the music.
      *
      * @param music the music
-     * @param loop if loop
+     * @param loop  if loop
      */
     default void playMusic(Music music, boolean loop) {
         music.setLooping(loop);
@@ -353,7 +354,16 @@ public interface GameContext2d {
      */
     boolean isControllerButtonJustReleased(ControllerButton controllerButton);
 
-    /** Update controller. */
+    /**
+     * Get the controller actuator.
+     *
+     * @return the controller actuator
+     */
+    ControllerActuator getControllerActuator();
+
+    /**
+     * Update controller.
+     */
     void updateController();
 
     /**
@@ -369,6 +379,20 @@ public interface GameContext2d {
      * @param doUpdateController if the controller should be updated
      */
     void setDoUpdateController(boolean doUpdateController);
+
+    /**
+     * Is the controller connected
+     *
+     * @return if controller is connected
+     */
+    boolean isControllerConnected();
+
+    /**
+     * Get the controller name.
+     *
+     * @return the controller name
+     */
+    String getControllerName();
 
 
 }

@@ -95,6 +95,10 @@ public class MegamanInfo {
         putWeapon(weapon, val, p.value());
     }
 
+    public int getWeaponAmmo(MegamanWeapon weapon) {
+        return weapons.get(weapon).key();
+    }
+
     public void addHealthTank(int healthTank) {
         addHealthTank(healthTank, 0);
     }
@@ -105,6 +109,10 @@ public class MegamanInfo {
 
     public boolean hasHealthTank(int healthTank) {
         return healthTank >= 0 && healthTank < MAX_HEALTH_TANKS && healthTanks[healthTank] != -1;
+    }
+
+    public boolean canBeUsed(int healthTank) {
+        return hasHealthTank(healthTank) && getHealthTankValue(healthTank) > 0;
     }
 
     public int getHealthTankValue(int healthTank) {

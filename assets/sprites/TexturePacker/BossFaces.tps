@@ -173,7 +173,6 @@
         </struct>
         <key>individualSpriteSettings</key>
         <map type="IndividualSpriteSettingsMap">
-            <key type="filename">../Frames/BossFaces/Timber Woman alt.png</key>
             <key type="filename">../Frames/BossFaces/Timber Woman.png</key>
             <key type="filename">../Frames/BossFaces/temp.png</key>
             <struct type="IndividualSpriteSettings">
