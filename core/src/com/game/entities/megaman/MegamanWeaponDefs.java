@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import static com.game.GlobalKeys.CHARGE_STATUS;
 import static com.game.assets.SoundAsset.*;
 import static com.game.ViewVals.PPM;
 import static com.game.behaviors.BehaviorType.WALL_SLIDING;
@@ -55,14 +56,6 @@ public class MegamanWeaponDefs {
         return megaman.isFacing(facing);
     }
     
-    private boolean isCharging() {
-        return megaman.isCharging();
-    }
-
-    private boolean isChargingFully() {
-        return megaman.isChargingFully();
-    }
-    
     private Facing getFacing() {
         return megaman.getFacing();
     }
@@ -80,22 +73,26 @@ public class MegamanWeaponDefs {
             }
             return spawnPos;
         };
-        megamanWeaponDefs.put(MEGA_BUSTER, new WeaponDef(() -> {
+        megamanWeaponDefs.put(MEGA_BUSTER, new WeaponDef(m -> {
+            Integer chargeStatus = (Integer) m.get(CHARGE_STATUS);
             Vector2 trajectory = new Vector2(BULLET_VEL * (isFacing(F_LEFT) ? -PPM : PPM), 0f);
-            if (isCharging()) {
-                return List.of(new ChargedShot(gameContext, megaman, trajectory, spawn.get(),
-                        getFacing(), isChargingFully()));
-            } else {
+            if (2 == chargeStatus || 1 == chargeStatus) {
+                return List.of(new ChargedShot(gameContext, megaman, trajectory,
+                        spawn.get(), getFacing(), chargeStatus == 2));
+            }
+            if (0 == chargeStatus) {
                 return List.of(new Bullet(gameContext, megaman, trajectory, spawn.get()));
             }
-        }, .1f, () -> {
-            if (isCharging()) {
+            throw new IllegalStateException();
+        }, .1f, m -> {
+            Integer chargeStatus = (Integer) m.get(CHARGE_STATUS);
+            if (2 == chargeStatus || 1 == chargeStatus) {
                 getComponent(SoundComponent.class).requestSound(MEGA_BUSTER_CHARGED_SHOT_SOUND);
             } else {
                 getComponent(SoundComponent.class).requestSound(MEGA_BUSTER_BULLET_SHOT_SOUND);
             }
         }));
-        megamanWeaponDefs.put(FLAME_TOSS, new WeaponDef(() -> {
+        megamanWeaponDefs.put(FLAME_TOSS, new WeaponDef(key -> {
             Vector2 impulse = new Vector2(FLAME_TOSS_VEL_X * (isFacing(F_LEFT) ? -PPM : PPM), FLAME_TOSS_VEL_Y * PPM);
             /*
             if (isCharging()) {
@@ -105,7 +102,7 @@ public class MegamanWeaponDefs {
             }
              */
             return List.of(new Fireball(gameContext, megaman, impulse, spawn.get()));
-        }, .75f, () -> getComponent(SoundComponent.class).requestSound(CRASH_BOMBER_SOUND)));
+        }, .75f, m -> getComponent(SoundComponent.class).requestSound(CRASH_BOMBER_SOUND)));
     }
 
 }

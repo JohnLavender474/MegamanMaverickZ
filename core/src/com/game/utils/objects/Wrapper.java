@@ -10,6 +10,10 @@ public class Wrapper<T> {
 
     private T data;
 
+    public static <T> Wrapper<T> empty() {
+        return new Wrapper<>();
+    }
+
     public static <T> Wrapper<T> of(T data) {
         return new Wrapper<>(data);
     }

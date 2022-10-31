@@ -1,50 +1,35 @@
 package com.game.weapons;
 
 import com.game.entities.Entity;
-import com.game.utils.objects.Percentage;
 import com.game.utils.objects.Timer;
 import lombok.Getter;
 
 import java.util.Collection;
-import java.util.function.Supplier;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 @Getter
 public class WeaponDef {
 
-    private final Supplier<Collection<Entity>> weaponsSupplier;
-    private final Percentage percentage = Percentage.of(100);
+    private final Function<Map<String, Object>, Collection<Entity>> weaponFunction;
+    private final Consumer<Map<String, Object>> runOnShoot;
     private final Timer shootCooldownTimer;
-    private final Runnable runOnShoot;
 
-    public WeaponDef(Supplier<Collection<Entity>> weaponsSupplier, float shootCooldown, Runnable runOnShoot) {
+    public WeaponDef(Function<Map<String, Object>, Collection<Entity>> weaponFunction,
+                     float shootCooldown, Consumer<Map<String, Object>> runOnShoot) {
         this.runOnShoot = runOnShoot;
-        this.weaponsSupplier = weaponsSupplier;
+        this.weaponFunction = weaponFunction;
         this.shootCooldownTimer = new Timer(shootCooldown);
         this.shootCooldownTimer.setToEnd();
     }
 
-    public WeaponDef(Supplier<Collection<Entity>> weaponsSupplier, float shootCooldown) {
-        this(weaponsSupplier, shootCooldown, () -> {});
+    public void runOnShoot(Map<String, Object> m) {
+        runOnShoot.accept(m);
     }
 
-    public void runOnShoot() {
-        runOnShoot.run();
-    }
-
-    public Collection<Entity> getWeaponsInstances() {
-        return weaponsSupplier.get();
-    }
-
-    public void translatePercentage(int percentage) {
-        this.percentage.translate(percentage);
-    }
-
-    public boolean isDepleted() {
-        return percentage.isZero();
-    }
-
-    public int getWeaponPercentage() {
-        return percentage.getAsWholeNumber();
+    public Collection<Entity> getWeaponsInstances(Map<String, Object> m) {
+        return weaponFunction.apply(m);
     }
 
     public void updateCooldownTimer(float delta) {

@@ -11,5 +11,6 @@ public class GlobalKeys {
     public static final String FUNCTION = "Function";
     public static final String PREDICATE = "Predicate";
     public static final String COLLECTION = "Collection";
+    public static final String CHARGE_STATUS = "ChargeStatus";
 
 }

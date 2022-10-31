@@ -149,7 +149,7 @@ public class SpringHead extends AbstractEnemy implements Hitter, Faceable {
         setBottomCenterToPoint(bodyComponent.getCollisionBox(), spawn);
         // hit circle
         Circle hitCircle = new Circle();
-        hitCircle.setRadius(.25f * PPM);
+        hitCircle.setRadius(.35f * PPM);
         bodyComponent.addFixture(new Fixture(this, hitCircle, DAMAGER));
         bodyComponent.addFixture(new Fixture(this, hitCircle, DAMAGEABLE));
         // shield

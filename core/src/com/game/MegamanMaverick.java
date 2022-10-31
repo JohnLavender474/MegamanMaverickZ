@@ -27,16 +27,14 @@ import com.game.controllers.*;
 import com.game.cull.CullOnMessageSystem;
 import com.game.cull.CullOnOutOfCamBoundsSystem;
 import com.game.entities.Entity;
-import com.game.entities.megaman.MegamanInfo;
+import com.game.entities.megaman.MegamanSpecialAbility;
+import com.game.entities.megaman.MegamanStats;
 import com.game.graph.GraphSystem;
 import com.game.health.HealthSystem;
 import com.game.levels.BossIntroScreen;
 import com.game.levels.LevelScreen;
 import com.game.levels.LevelStatus;
-import com.game.menus.impl.BossSelectScreen;
-import com.game.menus.impl.ControllerSettingsScreen;
-import com.game.menus.impl.ExtrasScreen;
-import com.game.menus.impl.MainMenuScreen;
+import com.game.menus.impl.*;
 import com.game.messages.Message;
 import com.game.messages.MessageListener;
 import com.game.movement.PendulumSystem;
@@ -67,7 +65,7 @@ import static com.game.assets.MusicAsset.MMZ_NEO_ARCADIA_MUSIC;
 import static com.game.assets.MusicAsset.XENOBLADE_GAUR_PLAINS_MUSIC;
 import static com.game.controllers.ControllerButtonStatus.*;
 import static com.game.controllers.ControllerUtils.*;
-import static com.game.entities.megaman.MegamanVals.MEGAMAN_INFO;
+import static com.game.entities.megaman.MegamanVals.MEGAMAN_STATS;
 import static com.game.entities.megaman.MegamanWeapon.MEGA_BUSTER;
 import static com.game.levels.LevelStatus.PAUSED;
 import static com.game.levels.LevelStatus.UNPAUSED;
@@ -178,22 +176,19 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
         addSystem(new ShapeSystem(viewports.get(PLAYGROUND).getCamera(), getShapeRenderer()));
 
         // blackboard
-        MegamanInfo megamanInfo = new MegamanInfo();
-
-        // add special abilities
-        /*
-        megamanInfo.putSpecialAbility(MegamanSpecialAbility.AIR_DASH, true);
-        megamanInfo.putSpecialAbility(MegamanSpecialAbility.GROUND_SLIDE, true);
-        megamanInfo.putSpecialAbility(MegamanSpecialAbility.WALL_JUMP, true);
-         */
-
-        megamanInfo.putWeapon(MEGA_BUSTER);
-        putBlackboardObject(MEGAMAN_INFO, megamanInfo);
+        MegamanStats megamanStats = new MegamanStats();
+        megamanStats.setWeaponsChargeable(true);
+        megamanStats.putSpecialAbility(MegamanSpecialAbility.AIR_DASH, true);
+        megamanStats.putSpecialAbility(MegamanSpecialAbility.GROUND_SLIDE, true);
+        megamanStats.putSpecialAbility(MegamanSpecialAbility.WALL_JUMP, true);
+        megamanStats.putWeapon(MEGA_BUSTER);
+        putBlackboardObject(MEGAMAN_STATS, megamanStats);
         // add this as message listener
         addMessageListener(this);
         // define screens
         screens.put(MAIN_MENU, new MainMenuScreen(this));
         screens.put(CONTROLLER_SETTINGS, new ControllerSettingsScreen(this));
+        screens.put(PAUSE_MENU, new PauseMenuScreen(this));
         screens.put(EXTRAS, new ExtrasScreen(this));
         screens.put(BOSS_SELECT, new BossSelectScreen(this));
 
@@ -202,12 +197,12 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
 
         screens.put(LEVEL_INTRO, new BossIntroScreen(this));
         screens.put(TEST_STAGE, new LevelScreen(
-                this, "tiledmaps/tmx/Test2.tmx", MMZ_NEO_ARCADIA_MUSIC.getSrc()));
+                this, "tiledmaps/tmx/Test3.tmx", MMZ_NEO_ARCADIA_MUSIC.getSrc()));
         screens.put(TIMBER_WOMAN, new LevelScreen(
                 this, "tiledmaps/tmx/TimberWoman.tmx", XENOBLADE_GAUR_PLAINS_MUSIC.getSrc()));
         // set screen
-        setScreen(MAIN_MENU);
-        // setScreen(TEST_STAGE);
+        // setScreen(MAIN_MENU);
+        setScreen(TEST_STAGE);
         // setScreen(TIMBER_WOMAN);
         // setScreen(new TestScreen(this));
 

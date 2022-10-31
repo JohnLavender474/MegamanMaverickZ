@@ -16,14 +16,14 @@ public class ControllerSettingsScreen extends MenuScreen {
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     public enum ControllerSettingsButton {
 
-        BACK("Back"),
-        UP("Up"),
-        DOWN("Down"),
-        LEFT("Left"),
-        RIGHT("Right"),
-        X("X"),
-        A("A"),
-        START("Start");
+        BACK("BACK: "),
+        UP("UP: "),
+        DOWN("DOWN: "),
+        LEFT("LEFT: "),
+        RIGHT("RIGHT: "),
+        X("X: "),
+        A("A: "),
+        START("START: ");
 
         private final String str;
 

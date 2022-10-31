@@ -30,8 +30,7 @@ import java.util.Map;
 import static com.game.GameScreen.BOSS_SELECT;
 import static com.game.ViewVals.*;
 import static com.game.assets.MusicAsset.MM11_WILY_STAGE_MUSIC;
-import static com.game.assets.SoundAsset.CURSOR_MOVE_BLOOP_SOUND;
-import static com.game.assets.SoundAsset.SELECT_PING_SOUND;
+import static com.game.assets.SoundAsset.*;
 import static com.game.assets.TextureAsset.DECORATIONS;
 import static com.game.assets.TextureAsset.MEGAMAN_MAIN_MENU;
 import static com.game.menus.impl.MainMenuScreen.MainMenuButton.*;
@@ -69,8 +68,8 @@ public class MainMenuScreen extends MenuScreen {
         BACK("BACK"),
         MUSIC_VOLUME("MUSIC: "),
         SOUND_EFFECTS_VOLUME("SOUND: "),
-        FPS("FPS: "),
-        CONTROLLER_SETTINGS("CONTROLLER SETTINGS");
+        FPS("FPS: ");
+        // CONTROLLER_SETTINGS("CONTROLLER SETTINGS");
 
         private final String prompt;
 
@@ -203,7 +202,7 @@ public class MainMenuScreen extends MenuScreen {
         if (equalsAny(direction, DIR_LEFT, DIR_RIGHT)) {
             return;
         }
-        Sound sound = gameContext.getAsset(CURSOR_MOVE_BLOOP_SOUND.getSrc(), Sound.class);
+        Sound sound = gameContext.getAsset(PAUSE_SOUND.getSrc(), Sound.class);
         gameContext.playSound(sound);
     }
 
@@ -385,11 +384,13 @@ public class MainMenuScreen extends MenuScreen {
                             case DIR_LEFT -> changeFPS(-1);
                             case DIR_RIGHT -> changeFPS(1);
                             case DIR_UP -> setMenuButton(SOUND_EFFECTS_VOLUME.name());
-                            case DIR_DOWN -> setMenuButton(CONTROLLER_SETTINGS.name());
+                            // case DIR_DOWN -> setMenuButton(CONTROLLER_SETTINGS.name());
+                            case DIR_DOWN -> setMenuButton(BACK.name());
                         }
                     }
 
                 });
+                /*
                 put(CONTROLLER_SETTINGS.name(), new MenuButton() {
 
                     @Override
@@ -407,6 +408,7 @@ public class MainMenuScreen extends MenuScreen {
                     }
 
                 });
+                 */
                 put(BACK.name(), new MenuButton() {
 
                     @Override

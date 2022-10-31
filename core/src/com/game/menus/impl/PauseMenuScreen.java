@@ -4,29 +4,23 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.GameContext2d;
 import com.game.animations.TimedAnimation;
 import com.game.entities.megaman.Megaman;
-import com.game.entities.megaman.MegamanInfo;
-import com.game.entities.megaman.MegamanWeapon;
 import com.game.levels.BitsBarUi;
 import com.game.menus.MenuButton;
 import com.game.menus.MenuScreen;
-import com.game.menus.utils.BlinkingArrow;
 import com.game.text.MegaTextHandle;
-import com.game.utils.enums.Direction;
 import lombok.Setter;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import static com.game.assets.TextureAsset.BITS;
-import static com.game.assets.TextureAsset.ITEMS;
-import static com.game.entities.megaman.MegamanVals.MAX_HEALTH_TANKS;
-import static com.game.entities.megaman.MegamanVals.MEGAMAN_INFO;
+import static com.game.ViewVals.*;
+import static com.game.assets.TextureAsset.*;
 import static com.game.entities.megaman.MegamanWeapon.MEGA_BUSTER;
 import static com.game.sprites.RenderingGround.UI;
 import static com.game.utils.UtilMethods.drawFiltered;
@@ -62,10 +56,14 @@ public class PauseMenuScreen extends MenuScreen {
 
     }
 
-    private final MegamanInfo megamanInfo;
+    private final Sprite canvas;
+    private final List<Sprite> borderBlocks = new ArrayList<>();
+    /*
+    private final MegamanStats megamanInfo;
     private final BlinkingArrow blinkingArrow;
     private final Map<String, WeaponSelection> weaponsSelections;
     private final Map<String, HealthTankSelection> healthTankSelections;
+     */
 
     @Setter
     private Supplier<Megaman> megamanSupplier;
@@ -77,12 +75,46 @@ public class PauseMenuScreen extends MenuScreen {
      */
     public PauseMenuScreen(GameContext2d gameContext) {
         super(gameContext, MEGA_BUSTER.name());
-        megamanInfo = gameContext.getBlackboardObject(MEGAMAN_INFO, MegamanInfo.class);
+        TextureAtlas pauseMenuTA = gameContext.getAsset(PAUSE_MENU.getSrc(), TextureAtlas.class);
+        canvas = new Sprite(pauseMenuTA.findRegion("Canvas"));
+        canvas.setBounds(0f, -1f, VIEW_WIDTH * PPM, VIEW_HEIGHT * PPM);
+        TextureRegion bBlockReg = pauseMenuTA.findRegion("BorderBlock");
+        float halfPPM = PPM / 2f;
+        for (int i = 0; i < VIEW_WIDTH; i++) {
+            for (int x = 0; x < 2; x++) {
+                for (int y = 0; y < 2; y++) {
+                    if (x == 0) {
+                        float yOffset = (i * PPM) + (y * halfPPM);
+                        Sprite leftBBlock = new Sprite(bBlockReg);
+                        leftBBlock.setBounds(0f, yOffset, halfPPM, halfPPM);
+                        borderBlocks.add(leftBBlock);
+                        Sprite rightBBlock = new Sprite(bBlockReg);
+                        rightBBlock.setBounds((VIEW_WIDTH * PPM) - halfPPM, yOffset, halfPPM, halfPPM);
+                        borderBlocks.add(rightBBlock);
+                    }
+                    float blockX = (i * PPM) + (x * halfPPM);
+                    Sprite bottomBBlock = new Sprite(bBlockReg);
+                    bottomBBlock.setBounds(blockX, 0f, halfPPM, halfPPM);
+                    borderBlocks.add(bottomBBlock);
+                    if (i >= 4 && i < VIEW_WIDTH - 4 && y == 0) {
+                        continue;
+                    }
+                    Sprite topBBlock = new Sprite(bBlockReg);
+                    float yOffset = VIEW_HEIGHT - 1;
+                    borderBlocks.add(topBBlock);
+                    topBBlock.setBounds(blockX, (yOffset * PPM) + (y * halfPPM), halfPPM, halfPPM);
+                }
+            }
+        }
+        /*
+        megamanInfo = gameContext.getBlackboardObject(MEGAMAN_STATS, MegamanStats.class);
         weaponsSelections = defineWeaponsSelections();
         healthTankSelections = defineHealthTankSelections();
         blinkingArrow = new BlinkingArrow(gameContext, weaponsSelections.get(MEGA_BUSTER.name()).arrowPos);
+         */
     }
 
+    /*
     // TODO: Set values
     private Map<String, WeaponSelection> defineWeaponsSelections() {
         Map<String, WeaponSelection> weaponsSelectionMap = new HashMap<>();
@@ -117,7 +149,9 @@ public class PauseMenuScreen extends MenuScreen {
         }
         return weaponsSelectionMap;
     }
+     */
 
+    /*
     // TODO: Set values
     private Map<String, HealthTankSelection> defineHealthTankSelections() {
         Map<String, HealthTankSelection> healthTankSelections = new HashMap<>();
@@ -153,6 +187,7 @@ public class PauseMenuScreen extends MenuScreen {
         }
         return healthTankSelections;
     }
+     */
 
     @Override
     public void render(float delta) {
@@ -161,7 +196,11 @@ public class PauseMenuScreen extends MenuScreen {
         SpriteBatch spriteBatch = gameContext.getSpriteBatch();
         gameContext.setSpriteBatchProjectionMatrix(UI);
         spriteBatch.begin();
+        // canvas
+        drawFiltered(canvas, spriteBatch);
+        borderBlocks.forEach(bBlock -> drawFiltered(bBlock, spriteBatch));
         // draw weapon selections
+        /*
         stream(MegamanWeapon.values()).forEach(weapon -> {
             if (!megamanInfo.hasWeapon(weapon)) {
                 return;
@@ -190,11 +229,14 @@ public class PauseMenuScreen extends MenuScreen {
             selection.amountText.setText("" + amount);
             selection.amountText.draw(spriteBatch);
         }
+         */
         spriteBatch.end();
     }
 
     @Override
     protected Map<String, MenuButton> defineMenuButtons() {
+        return Map.of();
+        /*
         return new HashMap<>() {{
             for (int i = 0; i < MegamanWeapon.values().length; i++) {
                 MegamanWeapon weapon = MegamanWeapon.values()[i];
@@ -260,6 +302,7 @@ public class PauseMenuScreen extends MenuScreen {
                 });
             }
         }};
+         */
     }
 
 }

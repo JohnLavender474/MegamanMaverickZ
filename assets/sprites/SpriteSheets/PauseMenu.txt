@@ -1,0 +1,19 @@
+PauseMenu.png
+size: 512, 488
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+BorderBlock
+  rotate: false
+  xy: 0, 0
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+Canvas
+  rotate: false
+  xy: 0, 8
+  size: 512, 480
+  orig: 512, 480
+  offset: 0, 0
+  index: -1

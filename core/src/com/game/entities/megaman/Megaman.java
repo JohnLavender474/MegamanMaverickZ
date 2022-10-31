@@ -43,6 +43,7 @@ import lombok.Setter;
 import java.util.*;
 import java.util.function.Supplier;
 
+import static com.game.GlobalKeys.CHARGE_STATUS;
 import static com.game.GlobalKeys.COLLECTION;
 import static com.game.ViewVals.PPM;
 import static com.game.assets.SoundAsset.*;
@@ -55,7 +56,7 @@ import static com.game.entities.contracts.Facing.F_RIGHT;
 import static com.game.entities.megaman.Megaman.AButtonTask._AIR_DASH;
 import static com.game.entities.megaman.Megaman.AButtonTask._JUMP;
 import static com.game.entities.megaman.MegamanSpecialAbility.*;
-import static com.game.entities.megaman.MegamanVals.MEGAMAN_INFO;
+import static com.game.entities.megaman.MegamanVals.MEGAMAN_STATS;
 import static com.game.entities.megaman.MegamanWeapon.MEGA_BUSTER;
 import static com.game.entities.special.AbstractBounds.ABSTRACT_BOUNDS;
 import static com.game.health.HealthVals.MAX_HEALTH;
@@ -134,7 +135,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
 
     private static MegamanWeaponDefs megamanWeaponDefs;
 
-    private final MegamanInfo megamanInfo;
+    private final MegamanStats megamanStats;
 
     private final Timer damageTimer = new Timer(DAMAGE_DURATION);
     private final Timer airDashTimer = new Timer(MAX_AIR_DASH_TIME);
@@ -153,7 +154,8 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
 
     public Megaman(GameContext2d gameContext, Vector2 spawn) {
         super(gameContext);
-        megamanInfo = gameContext.getBlackboardObject(MEGAMAN_INFO, MegamanInfo.class);
+        megamanStats = gameContext.getBlackboardObject(MEGAMAN_STATS, MegamanStats.class);
+        megamanStats.setWeaponSetter(weapon -> currentWeapon = weapon);
         if (megamanWeaponDefs == null) {
             megamanWeaponDefs = new MegamanWeaponDefs(gameContext);
         }
@@ -171,6 +173,12 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         shootAnimationTimer.setToEnd();
         damageRecoveryTimer.setToEnd();
         wallJumpImpetusTimer.setToEnd();
+    }
+
+    @Override
+    public void onDeath() {
+        super.onDeath();
+        megamanStats.setWeaponSetter(null);
     }
 
     @Override
@@ -221,7 +229,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
      * @return if charging
      */
     public boolean isCharging() {
-        return megamanInfo.isWeaponsChargeable() && chargingTimer.getTime() >= TIME_TO_HALFWAY_CHARGED;
+        return megamanStats.isWeaponsChargeable() && chargingTimer.getTime() >= TIME_TO_HALFWAY_CHARGED;
     }
 
     /**
@@ -230,7 +238,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
      * @return if charging fully
      */
     public boolean isChargingFully() {
-        return megamanInfo.isWeaponsChargeable() && chargingTimer.isFinished();
+        return megamanStats.isWeaponsChargeable() && chargingTimer.isFinished();
     }
 
     /**
@@ -248,25 +256,34 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         getComponent(SoundComponent.class).stopLoopingSound(MEGA_BUSTER_CHARGING_SOUND);
     }
 
-    private void shoot() {
+    private boolean shoot() {
         WeaponDef weaponDef = getWeaponDef(currentWeapon);
+        if (weaponDef == null || isDamaged() || megamanStats.getWeaponAmmo(currentWeapon) <= 0 ||
+                getComponent(BehaviorComponent.class).is(GROUND_SLIDING, AIR_DASHING) ||
+                !weaponDef.isCooldownTimerFinished()) {
+            return false;
+        }
         int chargeStatus = 0;
         if (isChargingFully()) {
             chargeStatus = 2;
         } else if (isCharging()) {
             chargeStatus = 1;
         }
-        if (!megamanInfo.canUseWeapon(currentWeapon, chargeStatus)) {
-            throw new IllegalStateException();
+        Wrapper<Integer> nextBestChargeStatus = Wrapper.of(-1);
+        boolean canShoot = megamanStats.canUseWeapon(currentWeapon, chargeStatus, nextBestChargeStatus);
+        if (!canShoot) {
+            if (nextBestChargeStatus.getData() == -1) {
+                return false;
+            }
+            chargeStatus = nextBestChargeStatus.getData();
         }
-        if (weaponDef == null || isDamaged() || getComponent(BehaviorComponent.class).is(GROUND_SLIDING, AIR_DASHING) ||
-                weaponDef.isDepleted() || !weaponDef.isCooldownTimerFinished()) {
-            return;
-        }
-        weaponDef.getWeaponsInstances().forEach(gameContext::addEntity);
+        Map<String, Object> m = new HashMap<>();
+        m.put(CHARGE_STATUS, chargeStatus);
+        weaponDef.getWeaponsInstances(m).forEach(gameContext::addEntity);
         weaponDef.resetCooldownTimer();
         shootAnimationTimer.reset();
-        weaponDef.runOnShoot();
+        weaponDef.runOnShoot(m);
+        return true;
     }
 
     private HealthComponent healthComponent(int maxHealth) {
@@ -290,7 +307,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
     private UpdatableComponent updatableComponent() {
         return new UpdatableComponent(delta -> {
             // charging timer
-            if (!megamanInfo.isWeaponsChargeable()) {
+            if (!megamanStats.isWeaponsChargeable()) {
                 chargingTimer.reset();
             }
             // damage timer
@@ -386,7 +403,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
 
             @Override
             public void onPressContinued(float delta) {
-                if (!megamanInfo.isWeaponsChargeable()) {
+                if (!megamanStats.isWeaponsChargeable()) {
                     return;
                 }
                 chargingTimer.update(delta);
@@ -397,7 +414,9 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
 
             @Override
             public void onJustReleased() {
-                shoot();
+                if (!shoot()) {
+                    // TODO: play error sound
+                }
                 stopCharging();
             }
 
@@ -412,7 +431,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
 
             @Override
             protected boolean evaluate(float delta) {
-                if (isDamaged() || !megamanInfo.canUseSpecialAbility(WALL_JUMP)) {
+                if (isDamaged() || !megamanStats.canUseSpecialAbility(WALL_JUMP)) {
                     return false;
                 }
                 BodyComponent bodyComponent = getComponent(BodyComponent.class);
@@ -490,7 +509,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
 
             @Override
             protected boolean evaluate(float delta) {
-                if (isDamaged() || !megamanInfo.canUseSpecialAbility(AIR_DASH) || behaviorComponent.is(WALL_SLIDING) ||
+                if (isDamaged() || !megamanStats.canUseSpecialAbility(AIR_DASH) || behaviorComponent.is(WALL_SLIDING) ||
                         getComponent(BodyComponent.class).is(FEET_ON_GROUND) ||
                         airDashTimer.isFinished()) {
                     return false;
@@ -538,7 +557,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
 
             @Override
             protected boolean evaluate(float delta) {
-                if (!megamanInfo.canUseSpecialAbility(GROUND_SLIDE)) {
+                if (!megamanStats.canUseSpecialAbility(GROUND_SLIDE)) {
                     return false;
                 }
                 BodyComponent bodyComponent = getComponent(BodyComponent.class);
@@ -549,9 +568,11 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
                     return false;
                 }
                 if (!behaviorComponent.is(GROUND_SLIDING)) {
-                    return gameContext.isControllerButtonPressed(DPAD_DOWN) && gameContext.isControllerButtonJustPressed(A);
+                    return gameContext.isControllerButtonPressed(DPAD_DOWN) &&
+                            gameContext.isControllerButtonJustPressed(A);
                 } else {
-                    return gameContext.isControllerButtonPressed(DPAD_DOWN) && gameContext.isControllerButtonPressed(A);
+                    return gameContext.isControllerButtonPressed(DPAD_DOWN) &&
+                            gameContext.isControllerButtonPressed(A);
                 }
             }
 

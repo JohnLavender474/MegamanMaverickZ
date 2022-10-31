@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.game.GlobalKeys.NEXT;
+import static com.game.assets.SoundAsset.CURSOR_MOVE_BLOOP_SOUND;
 import static com.game.controllers.ControllerButton.START;
 import static com.game.messages.MessageType.*;
 import static com.game.GameScreen.PAUSE_MENU;
@@ -156,7 +157,8 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
         // health bar ui
         TextureRegion healthBit = gameContext.getAsset(BITS.getSrc(), TextureAtlas.class).findRegion("StandardBit");
         healthBar = new BitsBarUi(gameContext, () -> megaman.getComponent(HealthComponent.class).getCurrentHealth(),
-                () -> healthBit, new Vector2(PPM / 2f, PPM / 8f), new Rectangle(PPM, 9f * PPM, PPM / 2f, PPM * 3.75f));
+                () -> healthBit, new Vector2(PPM / 2f, PPM / 8f),
+                new Rectangle(PPM * .4f, 9f * PPM, PPM / 2f, PPM * 3.75f));
         DebugLogger.getInstance().info("Entities size at level screen show end: " + gameContext.getEntities().size());
     }
 
@@ -179,6 +181,8 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
                 gameContext.getSystem(WorldSystem.class).setOn(paused);
             }
             gameContext.sendMessage(new Message(paused ? LEVEL_UNPAUSED : LEVEL_PAUSED));
+            Sound sound = gameContext.getAsset(CURSOR_MOVE_BLOOP_SOUND.getSrc(), Sound.class);
+            gameContext.playSound(sound);
         } else if (!gameContext.isLevelStatus(PAUSED)) {
             levelCameraManager.update(delta);
             if (levelCameraManager.getTransState() == null) {
