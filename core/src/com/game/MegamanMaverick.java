@@ -65,6 +65,7 @@ import static com.game.assets.MusicAsset.MMZ_NEO_ARCADIA_MUSIC;
 import static com.game.assets.MusicAsset.XENOBLADE_GAUR_PLAINS_MUSIC;
 import static com.game.controllers.ControllerButtonStatus.*;
 import static com.game.controllers.ControllerUtils.*;
+import static com.game.entities.megaman.MegamanSpecialAbility.*;
 import static com.game.entities.megaman.MegamanVals.MEGAMAN_STATS;
 import static com.game.entities.megaman.MegamanWeapon.MEGA_BUSTER;
 import static com.game.levels.LevelStatus.PAUSED;
@@ -178,9 +179,9 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
         // blackboard
         MegamanStats megamanStats = new MegamanStats();
         megamanStats.setWeaponsChargeable(true);
-        megamanStats.putSpecialAbility(MegamanSpecialAbility.AIR_DASH, true);
-        megamanStats.putSpecialAbility(MegamanSpecialAbility.GROUND_SLIDE, true);
-        megamanStats.putSpecialAbility(MegamanSpecialAbility.WALL_JUMP, true);
+        megamanStats.putSpecialAbility(AIR_DASH, true);
+        megamanStats.putSpecialAbility(GROUND_SLIDE, true);
+        megamanStats.putSpecialAbility(WALL_JUMP, true);
         megamanStats.putWeapon(MEGA_BUSTER);
         putBlackboardObject(MEGAMAN_STATS, megamanStats);
         // add this as message listener
@@ -191,10 +192,6 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
         screens.put(PAUSE_MENU, new PauseMenuScreen(this));
         screens.put(EXTRAS, new ExtrasScreen(this));
         screens.put(BOSS_SELECT, new BossSelectScreen(this));
-
-        // TODO: Fix pause menu
-        // screens.put(PAUSE_MENU, new PauseMenuScreen(this));
-
         screens.put(LEVEL_INTRO, new BossIntroScreen(this));
         screens.put(TEST_STAGE, new LevelScreen(
                 this, "tiledmaps/tmx/Test3.tmx", MMZ_NEO_ARCADIA_MUSIC.getSrc()));
@@ -204,7 +201,6 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
         // setScreen(MAIN_MENU);
         setScreen(TEST_STAGE);
         // setScreen(TIMBER_WOMAN);
-        // setScreen(new TestScreen(this));
 
         fpsText = new MegaTextHandle(new Vector2((VIEW_WIDTH - 4.5f) * PPM, (VIEW_HEIGHT - 1) * PPM),
                 () -> "FPS: " + graphics.getFramesPerSecond());

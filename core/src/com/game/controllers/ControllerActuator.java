@@ -35,20 +35,26 @@ public class ControllerActuator {
     private final Map<ControllerButton, KeyboardEntry> keyboardCodes = new EnumMap<>(ControllerButton.class);
 
     public ControllerActuator() {
-        controllerCodes.putAll(defaultControllerCodes);
-        keyboardCodes.putAll(defaultKeyboardCodes);
+        setControllerCodesToDefault();
+        setKeyboardCodesToDefault();
     }
 
     public void setControllerCodesToDefault() {
-        controllerCodes.putAll(defaultControllerCodes);
+        for (ControllerButton button : ControllerButton.values()) {
+            setControllerCodeToDefault(button);
+        }
     }
 
     public void setControllerCodeToDefault(ControllerButton button) {
-        controllerCodes.put(button, defaultControllerCodes.get(button));
+        setControllerCode(button, defaultControllerCodes.get(button));
     }
 
     public void setControllerCode(ControllerButton button, int code) {
-        controllerCodes.put(button, () -> code);
+        setControllerCode(button, () -> code);
+    }
+
+    public void setControllerCode(ControllerButton button, Supplier<Integer> codeSupplier) {
+        controllerCodes.put(button, codeSupplier);
     }
 
     public int getControllerCode(ControllerButton button) {
@@ -56,7 +62,9 @@ public class ControllerActuator {
     }
 
     public void setKeyboardCodesToDefault() {
-        keyboardCodes.putAll(defaultKeyboardCodes);
+        for (ControllerButton button : ControllerButton.values()) {
+            setKeyboardCodeToDefault(button);
+        }
     }
 
     public void setKeyboardCodeToDefault(ControllerButton button) {
@@ -66,7 +74,7 @@ public class ControllerActuator {
     public void setKeyboardCode(ControllerButton button, int key) {
         String name = Input.Keys.toString(key);
         if (name == null) {
-            throw new IllegalStateException();
+            throw new IllegalStateException("No keyboard button is mapped to key " + key);
         }
         keyboardCodes.put(button, new KeyboardEntry(key, name));
     }
