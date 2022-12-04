@@ -1,5 +1,8 @@
 package com.game;
 
+/**
+ * Game screens
+ */
 public enum GameScreen {
     // Test
     TEST_STAGE,
