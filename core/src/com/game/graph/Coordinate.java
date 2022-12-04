@@ -17,10 +17,6 @@ public class Coordinate implements Comparable<Coordinate> {
     public int x;
     public int y;
 
-    public Coordinate(Vector2 v, FloatToInt xFTI, FloatToInt yFTI) {
-        set(v, xFTI, yFTI);
-    }
-
     public Coordinate set(Vector2 v, FloatToInt xFTI, FloatToInt yFTI) {
         if (xFTI == FLOOR) {
             x = (int) floor(v.x);

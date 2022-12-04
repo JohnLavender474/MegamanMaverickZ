@@ -1,13 +1,23 @@
 package com.game;
 
 public enum GameScreen {
+    // Test
     TEST_STAGE,
+    TEST_TEXTURE_ASSET,
+
+    // Menus
     MAIN_MENU,
     PASSWORD,
-    CONTROLLER_SETTINGS,
     EXTRAS,
     BOSS_SELECT,
-    LEVEL_INTRO,
     PAUSE_MENU,
-    TIMBER_WOMAN
+    CONTROLLER_SETTINGS,
+
+    // Decorative
+    LEVEL_INTRO,
+
+    // Boss levels
+    TIMBER_WOMAN,
+    DISTRIBUTOR_MAN,
+    ROASTER_MAN
 }

@@ -27,7 +27,6 @@ import com.game.controllers.*;
 import com.game.cull.CullOnMessageSystem;
 import com.game.cull.CullOnOutOfCamBoundsSystem;
 import com.game.entities.Entity;
-import com.game.entities.megaman.MegamanSpecialAbility;
 import com.game.entities.megaman.MegamanStats;
 import com.game.graph.GraphSystem;
 import com.game.health.HealthSystem;
@@ -46,6 +45,7 @@ import com.game.shapes.ShapeSystem;
 import com.game.sounds.SoundSystem;
 import com.game.sprites.RenderingGround;
 import com.game.sprites.SpriteSystem;
+import com.game.test.TextureAssetTestScreen;
 import com.game.text.MegaTextHandle;
 import com.game.updatables.UpdatableSystem;
 import com.game.utils.DebugLogger;
@@ -58,6 +58,7 @@ import lombok.Setter;
 import java.util.*;
 
 import static com.badlogic.gdx.Gdx.*;
+import static com.game.ConstFuncs.*;
 import static com.game.GameScreen.*;
 import static com.game.GlobalKeys.KEYBOARD;
 import static com.game.ViewVals.*;
@@ -130,7 +131,7 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
         // viewports
         for (RenderingGround renderingGround : RenderingGround.values()) {
             Viewport viewport = new FitViewport(VIEW_WIDTH * PPM, VIEW_HEIGHT * PPM);
-            viewport.getCamera().position.set(ConstFuncs.getCamInitPos());
+            viewport.getCamera().position.set(getCamInitPos());
             viewports.put(renderingGround, viewport);
         }
         // controller buttons
@@ -195,11 +196,13 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
         screens.put(LEVEL_INTRO, new BossIntroScreen(this));
         screens.put(TEST_STAGE, new LevelScreen(
                 this, "tiledmaps/tmx/Test3.tmx", MMZ_NEO_ARCADIA_MUSIC.getSrc()));
+        screens.put(TEST_TEXTURE_ASSET, new TextureAssetTestScreen(this, TextureAsset.ROASTER_MAN));
         screens.put(TIMBER_WOMAN, new LevelScreen(
                 this, "tiledmaps/tmx/TimberWoman.tmx", XENOBLADE_GAUR_PLAINS_MUSIC.getSrc()));
         // set screen
         // setScreen(MAIN_MENU);
         setScreen(TEST_STAGE);
+        // setScreen(TEST_TEXTURE_ASSET);
         // setScreen(TIMBER_WOMAN);
 
         fpsText = new MegaTextHandle(new Vector2((VIEW_WIDTH - 4.5f) * PPM, (VIEW_HEIGHT - 1) * PPM),
@@ -342,7 +345,7 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
 
     @Override
     public void setScreen(Screen screen) {
-        viewports.values().forEach(viewport -> viewport.getCamera().position.set(ConstFuncs.getCamInitPos()));
+        viewports.values().forEach(viewport -> viewport.getCamera().position.set(getCamInitPos()));
         if (this.screen != null) {
             this.screen.dispose();
         }

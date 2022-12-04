@@ -1,0 +1,33 @@
+MisterMan.png
+size: 448, 64
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Flex
+  rotate: false
+  xy: 0, 0
+  size: 128, 64
+  orig: 128, 64
+  offset: 0, 0
+  index: -1
+Jump
+  rotate: false
+  xy: 128, 0
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+Squirt
+  rotate: false
+  xy: 192, 0
+  size: 128, 64
+  orig: 128, 64
+  offset: 0, 0
+  index: -1
+Stand
+  rotate: false
+  xy: 320, 0
+  size: 128, 64
+  orig: 128, 64
+  offset: 0, 0
+  index: -1

@@ -1,41 +1,67 @@
 package com.game.assets;
 
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public enum TextureAsset {
 
-    MET("Met.txt"),
-    FIRE("Fire.txt"),
-    SAW("SawBeam.txt"),
-    ITEMS("Items.txt"),
-    SPIKES("Spikes.txt"),
-    DOORS("Door.txt"),
+    // Colors
     COLORS("Colors.txt"),
-    OBJECTS("Objects.txt"),
-    MEGAMAN("Megaman.txt"),
-    ELECTRIC("Electric.txt"),
+
+    // Enemies
+    MET("Met.txt"),
     ENEMIES_1("Enemies1.txt"),
+
+    // Objects
+    OBJECTS("Objects.txt"),
+
+    // Hazards
+    SAW("SawBeam.txt"),
+    SPIKES("Spikes.txt"),
     HAZARDS_1("Hazards1.txt"),
-    BOSS_FACES("BossFaces.txt"),
-    CHARGE_ORBS("ChargeOrbs.txt"),
+
+    // Weapons
+    FIRE("Fire.txt"),
+    ELECTRIC("Electric.txt"),
+    MEGAMAN_CHARGED_SHOT("MegamanChargedShot.txt"),
+    MEGAMAN_HALF_CHARGED_SHOT("MegamanHalfChargedShot.txt"),
+
+    // Items
+    ITEMS("Items.txt"),
+
+    // Environment
+    DOORS("Door.txt"),
+
+    // Decorations
     DECORATIONS("Decorations.txt"),
-    BITS("HealthAndWeaponBits.txt"),
-    STAGE_SELECT("StageSelect.txt"),
-    MEGAMAN_FIRE("MegamanFire.txt"),
-    CUSTOM_TILES("CustomTiles.txt"),
-    TIMBER_WOMAN("TimberWoman.txt"),
-    MEGAMAN_FACES("MegamanFaces.txt"),
+
+    // Backgrounds
     BACKGROUNDS_1("Backgrounds1.txt"),
     BACKGROUNDS_2("Backgrounds2.txt"),
+
+    // UI
+    BITS("HealthAndWeaponBits.txt"),
+    STAGE_SELECT("StageSelect.txt"),
+    BOSS_FACES("BossFaces.txt"),
+    MEGAMAN_FACES("MegamanFaces.txt"),
     PAUSE_MENU("PauseMenu.txt"),
     MEGAMAN_MAIN_MENU("MegamanMainMenu.txt"),
-    MEGAMAN_CHARGED_SHOT("MegamanChargedShot.txt"),
-    MEGAMAN_HALF_CHARGED_SHOT("MegamanHalfChargedShot.txt");
 
-    @Getter
+    // Megaman
+    MEGAMAN("Megaman.txt"),
+    MEGAMAN_FIRE("MegamanFire.txt"),
+    CHARGE_ORBS("ChargeOrbs.txt"),
+
+    // Tiles
+    CUSTOM_TILES("CustomTiles.txt"),
+
+    // Bosses
+    TIMBER_WOMAN("TimberWoman.txt"),
+    MISTER_MAN("MisterMan.txt"),
+    DISTRIBUTOR_MAN("DistributorMan.txt"),
+    ROASTER_MAN("RoasterMan.txt");
+
     private static final String prefix = "sprites/SpriteSheets/";
 
     private final String src;

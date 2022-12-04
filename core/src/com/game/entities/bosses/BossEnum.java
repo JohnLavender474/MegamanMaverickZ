@@ -16,28 +16,32 @@ import java.util.Map;
 import java.util.Queue;
 
 import static com.game.levels.BossIntroScreen.BOSS_DROP_DOWN;
-import static com.game.utils.enums.Position.BOTTOM_LEFT;
-import static com.game.utils.enums.Position.getByGridIndex;
+import static com.game.utils.enums.Position.*;
 import static lombok.AccessLevel.PRIVATE;
 
 /**
- * DESCRIPTIONS:
- * -Timber Woman:
- * <p>
- * Timber Woman beats Histrionic Man,
- * Histrionic Man beats Sales Man,
- * Sales Man beats Maniac Man,
- * Maniac Man beats Lighter Man,
- * Lighter Man beats Weed Man,
- * Weed Man beats Beacon Man,
- * Beacon Man beats Tsunami Man,
- * Tsunami Man beats Timber Woman
+ * Game bosses.
  */
 @Getter
 @RequiredArgsConstructor(access = PRIVATE)
 public enum BossEnum {
 
-    TIMBER_WOMAN("Timber Woman", BOTTOM_LEFT, TextureAsset.TIMBER_WOMAN.getSrc(), GameScreen.TIMBER_WOMAN) {
+    // Timber Woman
+    TIMBER_WOMAN("Timber Woman", BOTTOM_LEFT,
+            TextureAsset.TIMBER_WOMAN.getSrc(), GameScreen.TIMBER_WOMAN) {
+
+        @Override
+        public String getBio() {
+            return "Originally designed to be 'Timbre Woman', she was \n" +
+                    "planned to be the finest a cappella singer in the world. \n" +
+                    "But one pairOf the programmers screwed up and typed \n" +
+                    "'Timber' instead pairOf 'Timbre' into her firmware, and \n" +
+                    "as a result, she became the world's strongest \n" +
+                    "lumberjack. She is an advocate for responsible \n" +
+                    "forestation practices and dreams pairOf building a \n" +
+                    "'City Among the Trees' should she ever hold \n" +
+                    "a position in government.";
+        }
 
         @Override
         public Vector2 getSize() {
@@ -66,19 +70,36 @@ public enum BossEnum {
             }};
         }
 
+    },
+
+    /*
+    // Distributor Man
+    DISTRIBUTOR_MAN("Distributor Man", BOTTOM_CENTER,
+            TextureAsset.DISTRIBUTOR_MAN.getSrc(), GameScreen.DISTRIBUTOR_MAN) {
+
         @Override
         public String getBio() {
-            return "Originally designed to be 'Timbre Woman', she was \n" +
-                    "planned to be the finest a cappella singer in the world. \n" +
-                    "But one pairOf the programmers screwed up and typed \n" +
-                    "'Timber' instead pairOf 'Timbre' into her firmware, and \n" +
-                    "as a result, she became the world's strongest \n" +
-                    "lumberjack. She is an advocate for responsible \n" +
-                    "forestation practices and dreams pairOf building a \n" +
-                    "'City Among the Trees' should she ever hold \n" +
-                    "a position in government.";
+            return "No bio yet";
         }
-    },
+
+        @Override
+        public Vector2 getSize() {
+            return new Vector2(3f, 2.5f);
+        }
+
+        @Override
+        public Map<String, TimedAnimation> getAnimations(TextureAtlas textureAtlas) {
+            return null;
+        }
+
+        @Override
+        public Queue<KeyValuePair<TimedAnimation, Timer>> getIntroAnimsQ(TextureAtlas textureAtlas) {
+            return null;
+        }
+
+    }
+    */
+
     /*
     MANIAC_MAN("Maniac Man", BOTTOM_CENTER, null),
     TSUNAMI_MAN("Tsunami Man", BOTTOM_RIGHT, null),
