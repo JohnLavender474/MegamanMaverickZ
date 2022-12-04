@@ -87,7 +87,7 @@ public class BossIntroScreen extends ScreenAdapter {
         set = true;
         nextScreen = bossEnum.getGameScreen();
         Sprite sprite = new Sprite();
-        Vector2 size = bossEnum.getSize();
+        Vector2 size = bossEnum.getSpriteSize();
         sprite.setSize(size.x * PPM, size.y * PPM);
         bossAnimDef = new KeyValuePair<>(sprite, bossIntroAnims.get(bossEnum).get());
         Sound thump = gameContext.getAsset(SoundAsset.THUMP_SOUND.getSrc(), Sound.class);

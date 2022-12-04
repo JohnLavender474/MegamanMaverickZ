@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.backgrounds.BackgroundFactory;
@@ -40,9 +41,7 @@ import com.game.utils.objects.Timer;
 import com.game.world.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.game.GlobalKeys.NEXT;
 import static com.game.assets.SoundAsset.CURSOR_MOVE_BLOOP_SOUND;
@@ -65,6 +64,8 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
 
     public static final float LEVEL_CAM_TRANS_DURATION = 1f;
     public static final float MEGAMAN_DIST_FROM_EDGE_ON_GAME_ROOM_TRANS = 3f;
+
+    private static final String BOSS_ROOM = "BossRoom";
 
     private final String tmxFile;
     private final String musicSrc;
@@ -140,17 +141,14 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
         levelMap.getRectObjsOfLayer(SPECIAL).forEach(specialObj -> SpecialFactory.create(gameContext, specialObj));
         // hazards
         levelMap.getRectObjsOfLayer(HAZARDS).forEach(hazardObj -> HazardFactory.create(gameContext, hazardObj));
-        // test
+        // test objs
         levelMap.getRectObjsOfLayer(TEST).forEach(testObj -> {
-
+            System.out.println(testObj.getName());
+            System.out.println(testObj.getRectangle());
         });
-        // game rooms
-        Map<Rectangle, String> gameRooms = new HashMap<>();
-        levelMap.getRectObjsOfLayer(GAME_ROOMS).forEach(gameRoomObj ->
-                gameRooms.put(gameRoomObj.getRectangle(), gameRoomObj.getName()));
         // level cam manager
         levelCameraManager = new LevelCameraManager(gameContext.getViewport(PLAYGROUND).getCamera(),
-                new Timer(LEVEL_CAM_TRANS_DURATION), gameRooms, megaman,
+                new Timer(LEVEL_CAM_TRANS_DURATION), levelMap.getRectObjsOfLayer(GAME_ROOMS), megaman,
                 MEGAMAN_DIST_FROM_EDGE_ON_GAME_ROOM_TRANS * PPM);
         // spawn Megaman
         spawnMegaman();
@@ -223,6 +221,10 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
                         gameContext.getSystem(BehaviorSystem.class).setOn(true);
                         gameContext.getSystem(WorldSystem.class).setOn(true);
                         megaman.getComponent(UpdatableComponent.class).setOn(true);
+                        RectangleMapObject currentGameRoom = levelCameraManager.getCurrentGameRoom();
+                        if (currentGameRoom != null && currentGameRoom.getName().equals(BOSS_ROOM)) {
+                            gameContext.sendMessage(new Message(ENTER_BOSS_ROOM));
+                        }
                     }
                 }
             }
@@ -271,6 +273,9 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
                 String nextGameRoom = message.getContent(NEXT, String.class);
                 levelCameraManager.transToGameRoomWithName(nextGameRoom);
             }
+            case ENTER_BOSS_ROOM -> {
+                System.out.println("Enter boss room");
+            }
         }
     }
 
@@ -292,7 +297,9 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
     }
 
     private void showTestText() {
-        testText.setText("Current game room: " + levelCameraManager.getCurrentGameRoomName());
+        RectangleMapObject currentGameRoom = levelCameraManager.getCurrentGameRoom();
+        String currentGameRoomName = currentGameRoom != null ? currentGameRoom.getName() : "NULL";
+        testText.setText("Current game room: " + currentGameRoomName);
         SpriteBatch spriteBatch = gameContext.getSpriteBatch();
         spriteBatch.setProjectionMatrix(gameContext.getViewport(UI).getCamera().combined);
         testText.draw(spriteBatch);

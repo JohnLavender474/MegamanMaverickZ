@@ -11,7 +11,7 @@ import com.game.utils.objects.Timer;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.util.ArrayDeque;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
@@ -20,14 +20,14 @@ import static com.game.utils.enums.Position.*;
 import static lombok.AccessLevel.PRIVATE;
 
 /**
- * Game bosses.
+ * The bosses.
  */
 @Getter
 @RequiredArgsConstructor(access = PRIVATE)
 public enum BossEnum {
 
     // Timber Woman
-    TIMBER_WOMAN("Timber Woman", BOTTOM_LEFT,
+    TIMBER_WOMAN("Timber Woman", TOP_LEFT,
             TextureAsset.TIMBER_WOMAN.getSrc(), GameScreen.TIMBER_WOMAN) {
 
         @Override
@@ -44,7 +44,7 @@ public enum BossEnum {
         }
 
         @Override
-        public Vector2 getSize() {
+        public Vector2 getSpriteSize() {
             return new Vector2(3f, 2.5f);
         }
 
@@ -61,7 +61,7 @@ public enum BossEnum {
         @Override
         public Queue<KeyValuePair<TimedAnimation, Timer>> getIntroAnimsQ(TextureAtlas textureAtlas) {
             Map<String, TimedAnimation> anims = getAnimations(textureAtlas);
-            return new ArrayDeque<>() {{
+            return new LinkedList<>() {{
                 add(KeyValuePair.of(anims.get("Jump"), new Timer(BOSS_DROP_DOWN)));
                 add(KeyValuePair.of(anims.get("JustLand"), new Timer(.6f)));
                 add(KeyValuePair.of(anims.get("Stand"), new Timer(1.75f)));
@@ -72,19 +72,96 @@ public enum BossEnum {
 
     },
 
-    /*
     // Distributor Man
-    DISTRIBUTOR_MAN("Distributor Man", BOTTOM_CENTER,
+    DISTRIBUTOR_MAN("Distributor Man", TOP_CENTER,
             TextureAsset.DISTRIBUTOR_MAN.getSrc(), GameScreen.DISTRIBUTOR_MAN) {
 
         @Override
         public String getBio() {
-            return "No bio yet";
+            return "";
         }
 
         @Override
-        public Vector2 getSize() {
+        public Vector2 getSpriteSize() {
             return new Vector2(3f, 2.5f);
+        }
+
+        @Override
+        public Map<String, TimedAnimation> getAnimations(TextureAtlas textureAtlas) {
+            return Map.of();
+        }
+
+        @Override
+        public Queue<KeyValuePair<TimedAnimation, Timer>> getIntroAnimsQ(TextureAtlas textureAtlas) {
+            return new LinkedList<>();
+        }
+
+    },
+
+    // Roaster Man
+    ROASTER_MAN("Roaster Man", TOP_RIGHT,
+            TextureAsset.ROASTER_MAN.getSrc(), GameScreen.ROASTER_MAN) {
+
+        @Override
+        public String getBio() {
+            return "";
+        }
+
+        @Override
+        public Vector2 getSpriteSize() {
+            return new Vector2(3f, 2.85f);
+        }
+
+        @Override
+        public Map<String, TimedAnimation> getAnimations(TextureAtlas textureAtlas) {
+            return Map.of();
+        }
+
+        @Override
+        public Queue<KeyValuePair<TimedAnimation, Timer>> getIntroAnimsQ(TextureAtlas textureAtlas) {
+            return new LinkedList<>();
+        }
+
+    },
+
+    // Mister Man
+    MISTER_MAN("Mister Man", CENTER_LEFT,
+            TextureAsset.MISTER_MAN.getSrc(), GameScreen.MISTER_MAN) {
+
+        @Override
+        public String getBio() {
+            return "";
+        }
+
+        @Override
+        public Vector2 getSpriteSize() {
+            return new Vector2(3.25f, 2.85f);
+        }
+
+        @Override
+        public Map<String, TimedAnimation> getAnimations(TextureAtlas textureAtlas) {
+            return Map.of();
+        }
+
+        @Override
+        public Queue<KeyValuePair<TimedAnimation, Timer>> getIntroAnimsQ(TextureAtlas textureAtlas) {
+            return new LinkedList<>();
+        }
+
+    },
+
+    // Blunt Man
+    BLUNT_MAN("Blunt Man", CENTER_RIGHT,
+            TextureAsset.BLUNT_MAN.getSrc(), GameScreen.BLUNT_MAN) {
+
+        @Override
+        public String getBio() {
+            return "";
+        }
+
+        @Override
+        public Vector2 getSpriteSize() {
+            return new Vector2();
         }
 
         @Override
@@ -98,7 +175,6 @@ public enum BossEnum {
         }
 
     }
-    */
 
     /*
     MANIAC_MAN("Maniac Man", BOTTOM_CENTER, null),
@@ -115,14 +191,42 @@ public enum BossEnum {
     private final String textureAtlas;
     private final GameScreen gameScreen;
 
+    /**
+     * Get the bio of the boss.
+     *
+     * @return the bio
+     */
     public abstract String getBio();
 
-    public abstract Vector2 getSize();
+    /**
+     * Get the size of the boss's sprite.
+     *
+     * @return the sprite size
+     */
+    public abstract Vector2 getSpriteSize();
 
+    /**
+     * Get the boss's animations.
+     *
+     * @param textureAtlas the texture atlas for the boss
+     * @return the boss's animations
+     */
     public abstract Map<String, TimedAnimation> getAnimations(TextureAtlas textureAtlas);
 
+    /**
+     * Get the intro animations for the boss
+     *
+     * @param textureAtlas the texture atlas for the boss
+     * @return the intro animations for the boss
+     */
     public abstract Queue<KeyValuePair<TimedAnimation, Timer>> getIntroAnimsQ(TextureAtlas textureAtlas);
 
+    /**
+     * Find boss enum value by name.
+     *
+     * @param name the name
+     * @return the boss enum value
+     */
     public static BossEnum findByName(String name) {
         /*
         for (BossEnum boss : values()) {
@@ -135,6 +239,12 @@ public enum BossEnum {
         return TIMBER_WOMAN;
     }
 
+    /**
+     * Find boss enum value by position.
+     *
+     * @param position the position
+     * @return the boss enum value
+     */
     public static BossEnum findByPos(Position position) {
         /*
         for (BossEnum boss : values()) {
@@ -147,6 +257,13 @@ public enum BossEnum {
         return TIMBER_WOMAN;
     }
 
+    /**
+     * Find the boss enum value by position
+     *
+     * @param x the x pos
+     * @param y the y pos
+     * @return the boss enum value
+     */
     public static BossEnum findByPos(int x, int y) {
         return findByPos(getByGridIndex(x, y));
     }

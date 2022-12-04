@@ -2,19 +2,16 @@ package com.game.levels;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.utils.enums.Direction;
 import com.game.utils.enums.ProcessState;
 import com.game.utils.interfaces.Updatable;
-import com.game.utils.objects.KeyValuePair;
 import com.game.utils.objects.Timer;
 import lombok.Getter;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 
 import static com.game.ViewVals.PPM;
 import static com.game.utils.UtilMethods.*;
@@ -29,9 +26,6 @@ public class LevelCameraManager implements Updatable {
     private final Camera camera;
     private final Timer transitionTimer;
 
-    private final Map<Rectangle, String> gameRooms;
-    private final Map<String, Rectangle> gameRoomNameMap = new HashMap<>();
-
     private final Vector2 transStartPos = new Vector2();
     private final Vector2 transTargetPos = new Vector2();
     @Getter
@@ -39,11 +33,12 @@ public class LevelCameraManager implements Updatable {
     @Getter
     private final Vector2 focusableTargetPos = new Vector2();
 
-    private final Queue<Runnable> actionQ = new LinkedList<>();
-
     private final float focusableDistFromEdge;
 
-    private Rectangle currentGameRoom;
+    private final Queue<Runnable> actionQ = new LinkedList<>();
+
+    private final List<RectangleMapObject> gameRooms;
+    private RectangleMapObject currentGameRoom;
 
     private CameraFocusable focusable;
     private CameraFocusable queuedFocusable;
@@ -58,9 +53,7 @@ public class LevelCameraManager implements Updatable {
     private boolean updating;
 
     /**
-     * Sets the camera, transition timer, game rooms, and focusable. Also, each game room that has a non-null name
-     * will be stored in a name-to-room map that can be queried via {@link #getGameRoomByName(String)}. Only one
-     * game room will be mapped to each unique game room name string.
+     * Sets the camera, transition timer, game rooms, and focusable.
      *
      * @param camera                the camera
      * @param transitionTimer       the transition timer
@@ -68,18 +61,13 @@ public class LevelCameraManager implements Updatable {
      * @param focusable             the focusable
      * @param focusableDistFromEdge the distance from the edge of the last game room after a transition
      */
-    public LevelCameraManager(Camera camera, Timer transitionTimer, Map<Rectangle, String> gameRooms,
+    public LevelCameraManager(Camera camera, Timer transitionTimer, List<RectangleMapObject> gameRooms,
                               CameraFocusable focusable, float focusableDistFromEdge) {
         this.camera = camera;
         this.gameRooms = gameRooms;
         this.focusable = focusable;
         this.transitionTimer = transitionTimer;
         this.focusableDistFromEdge = focusableDistFromEdge;
-        gameRooms.forEach((room, name) -> {
-            if (name != null) {
-                gameRoomNameMap.put(name, room);
-            }
-        });
     }
 
     /**
@@ -100,35 +88,12 @@ public class LevelCameraManager implements Updatable {
     }
 
     /**
-     * Return the string associated with {@link #currentGameRoom}.
-     *
-     * @return the string associated with the current game room
-     */
-    public String getCurrentGameRoomName() {
-        return gameRooms.get(currentGameRoom);
-    }
-
-    /**
      * Return a copy of the current game room along with its name.
      *
      * @return copy of the current game room along with its name
      */
-    public KeyValuePair<Rectangle, String> getCurrentGameRoom() {
-        return KeyValuePair.of(new Rectangle(currentGameRoom), gameRooms.get(currentGameRoom));
-    }
-
-    /**
-     * Return a copy of the game room mapped to the name.
-     *
-     * @param name the name of the game room
-     * @return copy of the game room mapped to the name
-     */
-    public Rectangle getGameRoomByName(String name) {
-        Rectangle gameRoom = gameRoomNameMap.get(name);
-        if (gameRoom == null) {
-            throw new IllegalArgumentException("No game room mapped to " + name);
-        }
-        return new Rectangle(gameRoom);
+    public RectangleMapObject getCurrentGameRoom() {
+        return currentGameRoom;
     }
 
     /**
@@ -138,13 +103,14 @@ public class LevelCameraManager implements Updatable {
      * @param name the name of the game room to transition to
      */
     public void transToGameRoomWithName(String name) {
-        Rectangle nextGameRoom = gameRoomNameMap.get(name);
-        if (nextGameRoom == null) {
-            throw new IllegalStateException("No game room mapped to " + name);
-        }
+        RectangleMapObject nextGameRoom = gameRooms.stream()
+                .filter(gameRoom -> gameRoom.getName().equals(name)).findFirst()
+                .orElseThrow(() -> new IllegalStateException("No game room mapped to " + name));
         Runnable runnable = () -> {
-            transDirection = getSingleMostDirectionFromStartToTarget(currentGameRoom, nextGameRoom);
-            setTransVals(nextGameRoom);
+            transDirection = getSingleMostDirectionFromStartToTarget(
+                    currentGameRoom.getRectangle(), nextGameRoom.getRectangle());
+            setTransVals(nextGameRoom.getRectangle());
+            currentGameRoom = nextGameRoom;
         };
         if (updating) {
             actionQ.add(runnable);
@@ -241,22 +207,23 @@ public class LevelCameraManager implements Updatable {
         */
         if (currentGameRoom == null) {
             currentGameRoom = nextGameRoom();
-        } else if (currentGameRoom.contains(focusable.getFocus())) {
+        } else if (currentGameRoom.getRectangle().contains(focusable.getFocus())) {
+            Rectangle currentRoomRect = currentGameRoom.getRectangle();
             setCamToFocusable();
-            if (camera.position.y > (currentGameRoom.y + currentGameRoom.height) - camera.viewportHeight / 2.0f) {
-                camera.position.y = (currentGameRoom.y + currentGameRoom.height) - camera.viewportHeight / 2.0f;
+            if (camera.position.y > (currentRoomRect.y + currentRoomRect.height) - camera.viewportHeight / 2.0f) {
+                camera.position.y = (currentRoomRect.y + currentRoomRect.height) - camera.viewportHeight / 2.0f;
             }
-            if (camera.position.y < currentGameRoom.y + camera.viewportHeight / 2.0f) {
-                camera.position.y = currentGameRoom.y + camera.viewportHeight / 2.0f;
+            if (camera.position.y < currentRoomRect.y + camera.viewportHeight / 2.0f) {
+                camera.position.y = currentRoomRect.y + camera.viewportHeight / 2.0f;
             }
-            if (camera.position.x > (currentGameRoom.x + currentGameRoom.width) - camera.viewportWidth / 2.0f) {
-                camera.position.x = (currentGameRoom.x + currentGameRoom.width) - camera.viewportWidth / 2.0f;
+            if (camera.position.x > (currentRoomRect.x + currentRoomRect.width) - camera.viewportWidth / 2.0f) {
+                camera.position.x = (currentRoomRect.x + currentRoomRect.width) - camera.viewportWidth / 2.0f;
             }
-            if (camera.position.x < currentGameRoom.x + camera.viewportWidth / 2.0f) {
-                camera.position.x = currentGameRoom.x + camera.viewportWidth / 2.0f;
+            if (camera.position.x < currentRoomRect.x + camera.viewportWidth / 2.0f) {
+                camera.position.x = currentRoomRect.x + camera.viewportWidth / 2.0f;
             }
         } else {
-            Rectangle nextGameRoom = nextGameRoom();
+            RectangleMapObject nextGameRoom = nextGameRoom();
             // if next game room is null, do nothing and return
             if (nextGameRoom == null) {
                 return;
@@ -264,7 +231,7 @@ public class LevelCameraManager implements Updatable {
             // generic 5 * PPM by 5 * PPM square is used to determine push direction
             Rectangle overlap = new Rectangle();
             Rectangle boundingBox = new Rectangle(0f, 0f, 5f * PPM, 5f * PPM).setCenter(focusable.getFocus());
-            transDirection = getOverlapPushDirection(boundingBox, currentGameRoom, overlap);
+            transDirection = getOverlapPushDirection(boundingBox, currentGameRoom.getRectangle(), overlap);
             // go ahead and set current game room to next room, which needs to be done even if
             // transition direction is null
             currentGameRoom = nextGameRoom;
@@ -272,7 +239,7 @@ public class LevelCameraManager implements Updatable {
                 return;
             }
             // set trans vals
-            setTransVals(nextGameRoom);
+            setTransVals(nextGameRoom.getRectangle());
         }
     }
 
@@ -296,8 +263,8 @@ public class LevelCameraManager implements Updatable {
         }
     }
 
-    private Rectangle nextGameRoom() {
-        return gameRooms.keySet().stream().filter(gameRoom -> gameRoom.contains(
+    private RectangleMapObject nextGameRoom() {
+        return gameRooms.stream().filter(gameRoom -> gameRoom.getRectangle().contains(
                 focusable.getFocus())).findFirst().orElse(null);
     }
 

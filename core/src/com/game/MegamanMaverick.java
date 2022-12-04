@@ -33,7 +33,11 @@ import com.game.health.HealthSystem;
 import com.game.levels.BossIntroScreen;
 import com.game.levels.LevelScreen;
 import com.game.levels.LevelStatus;
-import com.game.menus.impl.*;
+import com.game.menus.impl.bosses.BossSelectScreen;
+import com.game.menus.impl.controller.ControllerSettingsScreen;
+import com.game.menus.impl.extras.ExtrasScreen;
+import com.game.menus.impl.main.MainMenuScreen;
+import com.game.menus.impl.pause.PauseMenuScreen;
 import com.game.messages.Message;
 import com.game.messages.MessageListener;
 import com.game.movement.PendulumSystem;
@@ -196,13 +200,13 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
         screens.put(LEVEL_INTRO, new BossIntroScreen(this));
         screens.put(TEST_STAGE, new LevelScreen(
                 this, "tiledmaps/tmx/Test3.tmx", MMZ_NEO_ARCADIA_MUSIC.getSrc()));
-        screens.put(TEST_TEXTURE_ASSET, new TextureAssetTestScreen(this, TextureAsset.ROASTER_MAN));
+        screens.put(TEST_TEXTURE_ASSET, new TextureAssetTestScreen(this, TextureAsset.BLUNT_MAN));
         screens.put(TIMBER_WOMAN, new LevelScreen(
                 this, "tiledmaps/tmx/TimberWoman.tmx", XENOBLADE_GAUR_PLAINS_MUSIC.getSrc()));
         // set screen
         // setScreen(MAIN_MENU);
-        setScreen(TEST_STAGE);
-        // setScreen(TEST_TEXTURE_ASSET);
+        // setScreen(TEST_STAGE);
+        setScreen(TEST_TEXTURE_ASSET);
         // setScreen(TIMBER_WOMAN);
 
         fpsText = new MegaTextHandle(new Vector2((VIEW_WIDTH - 4.5f) * PPM, (VIEW_HEIGHT - 1) * PPM),

@@ -85,7 +85,7 @@ public class Block extends Entity {
         TrajectoryComponent trajectoryComponent = new TrajectoryComponent();
         Collection<KeyValuePair<Vector2, Float>> trajectories = TrajectoryParser.parse(trajStr);
         trajectories.forEach(trajectoryDef ->
-            trajectoryComponent.addTrajectory(trajectoryDef.key(), trajectoryDef.value()));
+            trajectoryComponent.addTrajectory(trajectoryDef.key().scl(PPM), trajectoryDef.value()));
         return trajectoryComponent;
     }
 

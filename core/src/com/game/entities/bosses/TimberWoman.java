@@ -55,7 +55,7 @@ public class TimberWoman extends Entity {
 
     private SpriteComponent spriteComponent() {
         Sprite sprite = new Sprite();
-        Vector2 size = TIMBER_WOMAN.getSize();
+        Vector2 size = TIMBER_WOMAN.getSpriteSize();
         sprite.setSize(size.x * PPM, size.y * PPM);
         return new SpriteComponent(sprite, new SpriteProcessor() {
             @Override

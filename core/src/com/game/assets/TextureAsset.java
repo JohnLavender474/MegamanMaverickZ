@@ -58,9 +58,10 @@ public enum TextureAsset {
 
     // Bosses
     TIMBER_WOMAN("TimberWoman.txt"),
-    MISTER_MAN("MisterMan.txt"),
     DISTRIBUTOR_MAN("DistributorMan.txt"),
-    ROASTER_MAN("RoasterMan.txt");
+    ROASTER_MAN("RoasterMan.txt"),
+    MISTER_MAN("MisterMan.txt"),
+    BLUNT_MAN("BluntMan.txt");
 
     private static final String prefix = "sprites/SpriteSheets/";
 

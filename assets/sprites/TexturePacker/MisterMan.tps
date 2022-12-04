@@ -124,7 +124,7 @@
             <key>data</key>
             <struct type="DataFile">
                 <key>name</key>
-                <filename></filename>
+                <filename>../SpriteSheets/MisterMan.txt</filename>
             </struct>
         </map>
         <key>multiPack</key>
@@ -173,6 +173,7 @@
         </struct>
         <key>individualSpriteSettings</key>
         <map type="IndividualSpriteSettingsMap">
+            <key type="filename">../Frames/Bosses/Mister Man/Electrocuted.png</key>
             <key type="filename">../Frames/Bosses/Mister Man/Flex.png</key>
             <key type="filename">../Frames/Bosses/Mister Man/Squirt.png</key>
             <key type="filename">../Frames/Bosses/Mister Man/Stand.png</key>

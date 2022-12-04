@@ -193,6 +193,7 @@
             <key type="filename">../Frames/Bosses/Roaster Man/FallingWithStyle.png</key>
             <key type="filename">../Frames/Bosses/Roaster Man/FlyFlap.png</key>
             <key type="filename">../Frames/Bosses/Roaster Man/StandFlap.png</key>
+            <key type="filename">../Frames/Bosses/Roaster Man/Wet.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>

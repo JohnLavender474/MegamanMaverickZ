@@ -1,5 +1,5 @@
 DistributorMan.png
-size: 224, 32
+size: 288, 32
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
@@ -31,9 +31,16 @@ ShockGround
   orig: 32, 32
   offset: 0, 0
   index: -1
-Stand
+Snipped
   rotate: false
   xy: 160, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+Stand
+  rotate: false
+  xy: 224, 0
   size: 64, 32
   orig: 64, 32
   offset: 0, 0

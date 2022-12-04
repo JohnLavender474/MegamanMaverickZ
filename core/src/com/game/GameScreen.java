@@ -19,5 +19,7 @@ public enum GameScreen {
     // Boss levels
     TIMBER_WOMAN,
     DISTRIBUTOR_MAN,
-    ROASTER_MAN
+    ROASTER_MAN,
+    MISTER_MAN,
+    BLUNT_MAN
 }

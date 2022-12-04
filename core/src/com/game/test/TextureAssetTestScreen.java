@@ -68,6 +68,10 @@ public class TextureAssetTestScreen extends ScreenAdapter {
                 // timedAnimation = new TimedAnimation(testAtlas.findRegion("Stand"), new float[]{1.5f, .15f});
                 timedAnimation = new TimedAnimation(testAtlas.findRegion("Squirt"), 2, .2f);
             }
+            case BLUNT_MAN -> {
+                sprite.setSize(1.65f * PPM, 1.5f * PPM);
+                timedAnimation = new TimedAnimation(testAtlas.findRegion("Stand"), new float[]{1.5f, .15f});
+            }
         }
         if (timedAnimation == null) {
             throw new IllegalStateException("Timed anim cannot be null");

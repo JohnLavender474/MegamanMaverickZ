@@ -191,6 +191,7 @@
                 <false/>
             </struct>
             <key type="filename">../Frames/Bosses/Distributor Man/JustLand.png</key>
+            <key type="filename">../Frames/Bosses/Distributor Man/Snipped.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>

@@ -1,5 +1,5 @@
 RoasterMan.png
-size: 960, 64
+size: 1088, 64
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
@@ -50,5 +50,12 @@ SuaveCombSweep
   xy: 704, 0
   size: 256, 64
   orig: 256, 64
+  offset: 0, 0
+  index: -1
+Wet
+  rotate: false
+  xy: 960, 0
+  size: 128, 64
+  orig: 128, 64
   offset: 0, 0
   index: -1
