@@ -124,7 +124,7 @@
             <key>data</key>
             <struct type="DataFile">
                 <key>name</key>
-                <filename>../SpriteSheets/BossFaces.txt</filename>
+                <filename></filename>
             </struct>
         </map>
         <key>multiPack</key>
@@ -173,10 +173,14 @@
         </struct>
         <key>individualSpriteSettings</key>
         <map type="IndividualSpriteSettingsMap">
-            <key type="filename">../Frames/BossFaces/Blunt Man.png</key>
-            <key type="filename">../Frames/BossFaces/Distributor Man.png</key>
-            <key type="filename">../Frames/BossFaces/Roaster Man.png</key>
-            <key type="filename">../Frames/BossFaces/Timber Woman.png</key>
+            <key type="filename">../Frames/Bosses/Microwave Man/Head.png</key>
+            <key type="filename">../Frames/Bosses/Microwave Man/HeadlessJump.png</key>
+            <key type="filename">../Frames/Bosses/Microwave Man/HeadlessOpenDoor.png</key>
+            <key type="filename">../Frames/Bosses/Microwave Man/HeadlessShoot.png</key>
+            <key type="filename">../Frames/Bosses/Microwave Man/HeadlessStand.png</key>
+            <key type="filename">../Frames/Bosses/Microwave Man/Jump.png</key>
+            <key type="filename">../Frames/Bosses/Microwave Man/OpenDoor.png</key>
+            <key type="filename">../Frames/Bosses/Microwave Man/Shoot.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>
@@ -185,16 +189,46 @@
                 <key>scale9Enabled</key>
                 <false/>
                 <key>scale9Borders</key>
-                <rect>8,8,16,16</rect>
+                <rect>16,16,32,32</rect>
                 <key>scale9Paddings</key>
-                <rect>8,8,16,16</rect>
+                <rect>16,16,32,32</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">../Frames/Bosses/Microwave Man/HeadBounce.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>96,16,192,32</rect>
+                <key>scale9Paddings</key>
+                <rect>96,16,192,32</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">../Frames/Bosses/Microwave Man/Stand.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>32,16,64,32</rect>
+                <key>scale9Paddings</key>
+                <rect>32,16,64,32</rect>
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
         </map>
         <key>fileList</key>
         <array>
-            <filename>../Frames/BossFaces</filename>
+            <filename>../Frames/Bosses/Microwave Man</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

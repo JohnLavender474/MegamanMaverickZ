@@ -20,7 +20,7 @@ import static com.game.utils.enums.Position.*;
 import static lombok.AccessLevel.PRIVATE;
 
 /**
- * The bosses.
+ * The game bosses, a motley bunch if you ask me.
  */
 @Getter
 @RequiredArgsConstructor(access = PRIVATE)
@@ -32,15 +32,13 @@ public enum BossEnum {
 
         @Override
         public String getBio() {
-            return "Originally designed to be 'Timbre Woman', she was \n" +
-                    "planned to be the finest a cappella singer in the world. \n" +
-                    "But one pairOf the programmers screwed up and typed \n" +
-                    "'Timber' instead pairOf 'Timbre' into her firmware, and \n" +
-                    "as a result, she became the world's strongest \n" +
-                    "lumberjack. She is an advocate for responsible \n" +
-                    "forestation practices and dreams pairOf building a \n" +
-                    "'City Among the Trees' should she ever hold \n" +
-                    "a position in government.";
+            return "Originally named 'Timbre Woman', she was to be \n" +
+                    "the prettiest singer in the world. But one of the \n" +
+                    "senior programmers messed up and accidentally typed \n" +
+                    "'Timber' instead of 'Timbre', and as a result she \n" +
+                    "became the world's strongest lumberjack. She keeps \n" +
+                    "water off her axe adamantly and has beheaded over \n" +
+                    "a thousand chickens in her lifetime.";
         }
 
         @Override
@@ -78,7 +76,14 @@ public enum BossEnum {
 
         @Override
         public String getBio() {
-            return "";
+            return "Distributor Man designs electrical components \n" +
+                    "that require advanced timed signals. His \n" +
+                    "favorite hobby is using his distribution \n" +
+                    "power to spread awareness about the energetic \n" +
+                    "benefits of good exercise and a healthy diet. \n" +
+                    "He is best friends with Blunt Man even though \n" +
+                    "too much of Blunt's hazy demeanor can \n" +
+                    "disorientate his calibrations.";
         }
 
         @Override
@@ -104,7 +109,14 @@ public enum BossEnum {
 
         @Override
         public String getBio() {
-            return "";
+            return "Roaster Man was designed as a chicken chef \n" +
+                    "but has since renounced meat-eating, preferring \n" +
+                    "instead to cook corn cuisines. He believes \n" +
+                    "microwaves are a blight on culinary arts. He \n" +
+                    "is an ardent Hindu and is described as being \n" +
+                    "scrupulous and brooding. He greatly enjoys \n" +
+                    "pecking things apart, getting to the kernel \n" +
+                    "of things and roasting others in debates.";
         }
 
         @Override
@@ -130,7 +142,13 @@ public enum BossEnum {
 
         @Override
         public String getBio() {
-            return "";
+            return "Pump Man's brother, Mister Man, waters delicate \n" +
+                    "plants for a living. He loves misty mornings, \n" +
+                    "fine scents, and isn't afraid to pull the trigger \n" +
+                    "on spontaneous ideas. He believes that having a \n" +
+                    "spray-and-pray attitude is the best thing one can \n" +
+                    "do to handle the chaos and disappointments in life. \n" +
+                    "Oh, and he is also very afraid of electricity.";
         }
 
         @Override
@@ -156,7 +174,14 @@ public enum BossEnum {
 
         @Override
         public String getBio() {
-            return "";
+            return "Blunt Man was designed to be an activist for the \n" +
+                    "legalization of cannabis and recreational drugs. \n" +
+                    "He likes to take things easy but isn't afraid of \n" +
+                    "being blunt about his opinions. He has a joint \n" +
+                    "venture in a recreational drug research company \n" +
+                    "and likes to spend his fortunes on profound trips. \n" +
+                    "While he enjoys having a blast, he's not a fan of \n" +
+                    "getting nuked. He mostly eats microwaved leftovers.";
         }
 
         @Override
@@ -166,25 +191,111 @@ public enum BossEnum {
 
         @Override
         public Map<String, TimedAnimation> getAnimations(TextureAtlas textureAtlas) {
-            return null;
+            return Map.of();
         }
 
         @Override
         public Queue<KeyValuePair<TimedAnimation, Timer>> getIntroAnimsQ(TextureAtlas textureAtlas) {
-            return null;
+            return new LinkedList<>();
         }
 
-    }
+    },
 
-    /*
-    MANIAC_MAN("Maniac Man", BOTTOM_CENTER, null),
-    TSUNAMI_MAN("Tsunami Man", BOTTOM_RIGHT, null),
-    SALES_MAN("Sales Man", CENTER_LEFT, null),
-    HISTRIONIC_MAN("Histrionic Man", CENTER_RIGHT, null),
-    BEACON_MAN("Beacon Man", TOP_LEFT, null),
-    WEED_MAN("Weed Man", TOP_CENTER, null),
-    LIGHTER_MAN("Lighter Man", TOP_RIGHT, null)
-     */;
+    // Nuke Man
+    NUKE_MAN("Nuke Man", BOTTOM_LEFT,
+            TextureAsset.NUKE_MAN.getSrc(), GameScreen.NUKE_MAN) {
+
+        @Override
+        public String getBio() {
+            return "Designed as a nuclear arms expert, Nuke Man is \n" +
+                    "able to build a nuclear bomb out of common\n" +
+                    "household items. Deemed too dangerous to be \n" +
+                    "kept alive, he is now a fugitive on the run. \n" +
+                    "He has vowed revenge on the world and must be \n" +
+                    "stopped at once! There's few things he hates \n" +
+                    "more than hippies, pacifists, and pot smokers.";
+        }
+
+        @Override
+        public Vector2 getSpriteSize() {
+            return new Vector2();
+        }
+
+        @Override
+        public Map<String, TimedAnimation> getAnimations(TextureAtlas textureAtlas) {
+            return Map.of();
+        }
+
+        @Override
+        public Queue<KeyValuePair<TimedAnimation, Timer>> getIntroAnimsQ(TextureAtlas textureAtlas) {
+            return new LinkedList<>();
+        }
+
+    },
+
+    // Fridge Man
+    FRIDGE_MAN("Fridge Man", BOTTOM_CENTER,
+            TextureAsset.FRIDGE_MAN.getSrc(), GameScreen.FRIDGE_MAN) {
+
+        @Override
+        public String getBio() {
+            return "Fridge Man really enjoys putting leftovers inside \n" +
+                    "himself. He specializes in following you around and \n" +
+                    "storing your leftovers. He is made of a very strong\n" +
+                    "metal that is resistant to nuclear blasts, a fact \n" +
+                    "he loves to boast about. There's nothing he hates \n" +
+                    "more than microwaves, because microwaving implies \n" +
+                    "taking food out of himself which saddens him.";
+        }
+
+        @Override
+        public Vector2 getSpriteSize() {
+            return new Vector2();
+        }
+
+        @Override
+        public Map<String, TimedAnimation> getAnimations(TextureAtlas textureAtlas) {
+            return Map.of();
+        }
+
+        @Override
+        public Queue<KeyValuePair<TimedAnimation, Timer>> getIntroAnimsQ(TextureAtlas textureAtlas) {
+            return new LinkedList<>();
+        }
+
+    },
+
+    // Microwave Man
+    MICROWAVE_MAN("Microwave Man", BOTTOM_RIGHT,
+            TextureAsset.MICROWAVE_MAN.getSrc(), GameScreen.MICROWAVE_MAN) {
+
+        @Override
+        public String getBio() {
+            return "Microwave Man is a microwave. It's a fate that \n" +
+                    "has lead him to question life. Although at the \n" +
+                    "onset he was severely depressed about being a \n" +
+                    "microwave, he soon accepted it as a fact of life \n" +
+                    "and nowadays tours giving motivational speeches. \n" +
+                    "Although he loves microwaving leftovers, he's too \n" +
+                    "small for things like whole chickens to fit into.";
+        }
+
+        @Override
+        public Vector2 getSpriteSize() {
+            return new Vector2();
+        }
+
+        @Override
+        public Map<String, TimedAnimation> getAnimations(TextureAtlas textureAtlas) {
+            return Map.of();
+        }
+
+        @Override
+        public Queue<KeyValuePair<TimedAnimation, Timer>> getIntroAnimsQ(TextureAtlas textureAtlas) {
+            return new LinkedList<>();
+        }
+
+    };
 
     private final String bossName;
     private final Position position;
@@ -228,15 +339,12 @@ public enum BossEnum {
      * @return the boss enum value
      */
     public static BossEnum findByName(String name) {
-        /*
         for (BossEnum boss : values()) {
             if (name.equals(boss.getBossName())) {
                 return boss;
             }
         }
         return null;
-         */
-        return TIMBER_WOMAN;
     }
 
     /**
@@ -246,15 +354,12 @@ public enum BossEnum {
      * @return the boss enum value
      */
     public static BossEnum findByPos(Position position) {
-        /*
         for (BossEnum boss : values()) {
             if (boss.getPosition().equals(position)) {
                 return boss;
             }
         }
         return null;
-         */
-        return TIMBER_WOMAN;
     }
 
     /**

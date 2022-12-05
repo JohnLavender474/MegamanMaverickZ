@@ -24,5 +24,8 @@ public enum GameScreen {
     DISTRIBUTOR_MAN,
     ROASTER_MAN,
     MISTER_MAN,
-    BLUNT_MAN
+    BLUNT_MAN,
+    NUKE_MAN,
+    FRIDGE_MAN,
+    MICROWAVE_MAN
 }
