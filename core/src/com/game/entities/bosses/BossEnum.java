@@ -202,6 +202,7 @@ public enum BossEnum {
     },
 
     // Nuke Man
+    /*
     NUKE_MAN("Nuke Man", BOTTOM_LEFT,
             TextureAsset.NUKE_MAN.getSrc(), GameScreen.NUKE_MAN) {
 
@@ -232,6 +233,7 @@ public enum BossEnum {
         }
 
     },
+    */
 
     // Fridge Man
     FRIDGE_MAN("Fridge Man", BOTTOM_CENTER,

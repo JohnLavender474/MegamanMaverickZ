@@ -42,7 +42,7 @@ public class TextureAssetTestScreen extends ScreenAdapter {
         Sprite megamanSprite = new Sprite();
         megamanSprite.setBounds(PPM, PPM, 1.65f * PPM, 1.35f * PPM);
         megamanSpriteAnim = KeyValuePair.of(megamanSprite,
-                new TimedAnimation(megamanAtlas.findRegion("Run"), 4, .125f));
+                new TimedAnimation(megamanAtlas.findRegion("Stand"), new float[]{1.5f, .15f}));
 
         Sprite sprite = new Sprite();
         sprite.setPosition(8f * PPM, PPM);
@@ -70,6 +70,14 @@ public class TextureAssetTestScreen extends ScreenAdapter {
             }
             case BLUNT_MAN -> {
                 sprite.setSize(1.65f * PPM, 1.5f * PPM);
+                timedAnimation = new TimedAnimation(testAtlas.findRegion("Stand"), new float[]{1.5f, .15f});
+            }
+            case FRIDGE_MAN -> {
+                sprite.setSize(4.5f * PPM, 4f * PPM);
+                timedAnimation = new TimedAnimation(testAtlas.findRegion("StandLookDown"), new float[]{1.5f, .15f});
+            }
+            case MICROWAVE_MAN -> {
+                sprite.setSize(2.85f * PPM, 2.5f * PPM);
                 timedAnimation = new TimedAnimation(testAtlas.findRegion("Stand"), new float[]{1.5f, .15f});
             }
         }
