@@ -74,7 +74,9 @@ public class TextureAssetTestScreen extends ScreenAdapter {
             }
             case FRIDGE_MAN -> {
                 sprite.setSize(4.5f * PPM, 4f * PPM);
-                timedAnimation = new TimedAnimation(testAtlas.findRegion("StandLookDown"), new float[]{1.5f, .15f});
+                // timedAnimation = new TimedAnimation(testAtlas.findRegion("JumpOpenFreezer"), 2, .15f);
+                timedAnimation = new TimedAnimation(testAtlas.findRegion("StandOpenFridge"));
+                // timedAnimation = new TimedAnimation(testAtlas.findRegion("StandLookDown"), new float[]{1.5f, .15f});
             }
             case MICROWAVE_MAN -> {
                 sprite.setSize(2.85f * PPM, 2.5f * PPM);

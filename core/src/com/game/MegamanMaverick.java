@@ -200,7 +200,7 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
         screens.put(LEVEL_INTRO, new BossIntroScreen(this));
         screens.put(TEST_STAGE, new LevelScreen(
                 this, "tiledmaps/tmx/Test3.tmx", MMZ_NEO_ARCADIA_MUSIC.getSrc()));
-        screens.put(TEST_TEXTURE_ASSET, new TextureAssetTestScreen(this, TextureAsset.ROASTER_MAN));
+        screens.put(TEST_TEXTURE_ASSET, new TextureAssetTestScreen(this, TextureAsset.FRIDGE_MAN));
         screens.put(TIMBER_WOMAN, new LevelScreen(
                 this, "tiledmaps/tmx/TimberWoman.tmx", XENOBLADE_GAUR_PLAINS_MUSIC.getSrc()));
         // set screen
