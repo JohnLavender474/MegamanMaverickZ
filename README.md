@@ -1,10 +1,10 @@
-# Megaman Maverick
+# MEGAMAN MAVERICK
 
 <img src="img/MainMenu.png" width="600px"/>
 
 <hr/>
 
-## The Story
+## THE STORY
 
 "The year is 20XX. Megaman was created by Dr. Light to lead the world into peace and prosperity. 
 But dreams seldom come true the way they were planned to. Division and hatred spread across Megatropolis!
@@ -21,7 +21,7 @@ Megaman looks upon the destruction and chaos, and knows what he must do."
 
 <hr/>
 
-## The Project
+## THE PROJECT
 
 A simple fan game I'm working on in my spare time, Written in Java using 
 <a href="https://libgdx.com/">LibGDX</a>.
