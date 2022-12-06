@@ -58,10 +58,10 @@ public class TextureAssetTestScreen extends ScreenAdapter {
             }
             case ROASTER_MAN -> {
                 sprite.setSize(3f * PPM, 2.85f * PPM);
-                // timedAnimation = new TimedAnimation(testAtlas.findRegion("Stand"), new float[]{1.5f, .15f});
+                timedAnimation = new TimedAnimation(testAtlas.findRegion("Stand"), new float[]{1.5f, .15f});
                 // timedAnimation = new TimedAnimation(testAtlas.findRegion("StandFlap"), 2, .2f);
                 // timedAnimation = new TimedAnimation(testAtlas.findRegion("FlyFlap"), 2, .2f);
-                timedAnimation = new TimedAnimation(testAtlas.findRegion("FallingWithStyle"), 2, .1f);
+                // timedAnimation = new TimedAnimation(testAtlas.findRegion("FallingWithStyle"), 2, .1f);
             }
             case MISTER_MAN -> {
                 sprite.setSize(3.25f * PPM, 2.85f * PPM);
@@ -79,6 +79,10 @@ public class TextureAssetTestScreen extends ScreenAdapter {
                 // timedAnimation = new TimedAnimation(testAtlas.findRegion("StandLookDown"), new float[]{1.5f, .15f});
             }
             case MICROWAVE_MAN -> {
+                sprite.setSize(2.85f * PPM, 2.5f * PPM);
+                timedAnimation = new TimedAnimation(testAtlas.findRegion("Stand"), new float[]{1.5f, .15f});
+            }
+            case NUKE_MAN -> {
                 sprite.setSize(2.85f * PPM, 2.5f * PPM);
                 timedAnimation = new TimedAnimation(testAtlas.findRegion("Stand"), new float[]{1.5f, .15f});
             }

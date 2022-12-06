@@ -1,46 +1,46 @@
 BluntMan.png
-size: 288, 32
+size: 320, 32
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
-Flaming
+Damaged
   rotate: false
   xy: 0, 0
-  size: 32, 32
-  orig: 32, 32
-  offset: 0, 0
-  index: -1
-Flex
-  rotate: false
-  xy: 32, 0
   size: 64, 32
   orig: 64, 32
   offset: 0, 0
   index: -1
-FreezerBurnt
+Flaming
   rotate: false
-  xy: 96, 0
+  xy: 64, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+Flex
+  rotate: false
+  xy: 128, 0
   size: 64, 32
   orig: 64, 32
   offset: 0, 0
   index: -1
 Jump
   rotate: false
-  xy: 160, 0
+  xy: 192, 0
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 Slide
   rotate: false
-  xy: 192, 0
+  xy: 224, 0
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 Stand
   rotate: false
-  xy: 224, 0
+  xy: 256, 0
   size: 64, 32
   orig: 64, 32
   offset: 0, 0

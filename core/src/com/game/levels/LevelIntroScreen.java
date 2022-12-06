@@ -14,8 +14,6 @@ import com.game.GameContext2d;
 import com.game.text.MegaTextHandle;
 import com.game.entities.bosses.BossEnum;
 import com.game.GameScreen;
-import com.game.assets.SoundAsset;
-import com.game.dialogue.DialogueAnimQ;
 import com.game.utils.objects.KeyValuePair;
 import com.game.utils.objects.Timer;
 
@@ -23,6 +21,8 @@ import java.util.*;
 import java.util.function.Supplier;
 
 import static com.game.assets.MusicAsset.MM2_BOSS_INTRO;
+import static com.game.assets.SoundAsset.*;
+import static com.game.dialogue.DialogueAnimQ.*;
 import static com.game.sprites.RenderingGround.UI;
 import static com.game.assets.TextureAsset.STAGE_SELECT;
 import static com.game.ViewVals.*;
@@ -30,7 +30,7 @@ import static com.game.utils.UtilMethods.drawFiltered;
 import static java.lang.Math.round;
 import static java.util.stream.Collectors.*;
 
-public class BossIntroScreen extends ScreenAdapter {
+public class LevelIntroScreen extends ScreenAdapter {
 
     public static final float DURATION = 7f;
     public static final float BOSS_DROP_DOWN = .25f;
@@ -55,7 +55,7 @@ public class BossIntroScreen extends ScreenAdapter {
     private Queue<Runnable> bossLettersAnimQ;
     private KeyValuePair<Sprite, Queue<KeyValuePair<TimedAnimation, Timer>>> bossAnimDef;
 
-    public BossIntroScreen(GameContext2d gameContext) {
+    public LevelIntroScreen(GameContext2d gameContext) {
         this.gameContext = gameContext;
         music = gameContext.getAsset(MM2_BOSS_INTRO.getSrc(), Music.class);
         for (int i = 0; i < 4; i++) {
@@ -75,8 +75,8 @@ public class BossIntroScreen extends ScreenAdapter {
         if (bossIntroAnims == null) {
             bossIntroAnims = new EnumMap<>(BossEnum.class);
             for (BossEnum bossEnum : BossEnum.values()) {
-                bossIntroAnims.put(bossEnum, () -> bossEnum.getIntroAnimsQ(
-                                gameContext.getAsset(bossEnum.getTextureAtlas(), TextureAtlas.class))
+                bossIntroAnims.put(bossEnum, () ->
+                        bossEnum.getIntroAnimsQ(gameContext.getAsset(bossEnum.getTextureAtlas(), TextureAtlas.class))
                         .stream().map(i -> KeyValuePair.of(new TimedAnimation(i.key()), new Timer(i.value())))
                         .collect(toCollection(ArrayDeque::new)));
             }
@@ -90,8 +90,8 @@ public class BossIntroScreen extends ScreenAdapter {
         Vector2 size = bossEnum.getSpriteSize();
         sprite.setSize(size.x * PPM, size.y * PPM);
         bossAnimDef = new KeyValuePair<>(sprite, bossIntroAnims.get(bossEnum).get());
-        Sound thump = gameContext.getAsset(SoundAsset.THUMP_SOUND.getSrc(), Sound.class);
-        bossLettersAnimQ = DialogueAnimQ.getDialogueAnimQ(gameContext, bossLetters, bossEnum.getBossName(), thump);
+        Sound thump = gameContext.getAsset(THUMP_SOUND.getSrc(), Sound.class);
+        bossLettersAnimQ = getDialogueAnimQ(gameContext, bossLetters, bossEnum.getBossName(), thump);
     }
 
     @Override
@@ -101,11 +101,12 @@ public class BossIntroScreen extends ScreenAdapter {
                     "the screen can be shown");
         }
         durationTimer.reset();
+        bossLetters.clear();
         bossLettersTimer.reset();
         bossLettersDelay.reset();
         bossDropDownTimer.reset();
         stars.forEach(Stars::resetPositions);
-        bossAnimDef.key().setPosition((VIEW_WIDTH * PPM / 2f) - 2f * PPM, VIEW_HEIGHT * PPM);
+        bossAnimDef.key().setPosition((VIEW_WIDTH * PPM / 2f) - 1.5f * PPM, VIEW_HEIGHT * PPM);
         bossAnimDef.value().forEach(i -> {
             i.key().reset();
             i.value().reset();
@@ -134,12 +135,11 @@ public class BossIntroScreen extends ScreenAdapter {
         Sprite bossSprite = bossAnimDef.key();
         bossDropDownTimer.update(delta);
         if (!bossDropDownTimer.isFinished()) {
-            float y = (VIEW_HEIGHT * PPM) -
-                    (((VIEW_HEIGHT * PPM / 2f) + .85f * PPM) * bossDropDownTimer.getRatio());
+            float y = (VIEW_HEIGHT * PPM) - (((VIEW_HEIGHT * PPM / 2f) + .85f * PPM) * bossDropDownTimer.getRatio());
             bossSprite.setPosition(bossSprite.getX(), y);
         }
         if (bossDropDownTimer.isJustFinished()) {
-            bossSprite.setPosition((VIEW_WIDTH * PPM / 2f) - 2f * PPM, (VIEW_HEIGHT * PPM / 2f) - .85f * PPM);
+            bossSprite.setY((VIEW_HEIGHT * PPM / 2f) - .85f * PPM);
         }
         // boss letters
         bossLettersDelay.update(delta);

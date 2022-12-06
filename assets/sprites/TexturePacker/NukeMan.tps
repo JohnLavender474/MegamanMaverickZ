@@ -124,7 +124,7 @@
             <key>data</key>
             <struct type="DataFile">
                 <key>name</key>
-                <filename>../SpriteSheets/RoasterMan.txt</filename>
+                <filename>../SpriteSheets/NukeMan.txt</filename>
             </struct>
         </map>
         <key>multiPack</key>
@@ -173,8 +173,9 @@
         </struct>
         <key>individualSpriteSettings</key>
         <map type="IndividualSpriteSettingsMap">
-            <key type="filename">../Frames/Bosses/Roaster Man/Aim.png</key>
-            <key type="filename">../Frames/Bosses/Roaster Man/Stand.png</key>
+            <key type="filename">../Frames/Bosses/Nuke Man/Attack.png</key>
+            <key type="filename">../Frames/Bosses/Nuke Man/BendKnees.png</key>
+            <key type="filename">../Frames/Bosses/Nuke Man/Jump.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>
@@ -189,12 +190,8 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
-            <key type="filename">../Frames/Bosses/Roaster Man/CoolPose.png</key>
-            <key type="filename">../Frames/Bosses/Roaster Man/FallingWithStyle.png</key>
-            <key type="filename">../Frames/Bosses/Roaster Man/FlyFlap.png</key>
-            <key type="filename">../Frames/Bosses/Roaster Man/RetractWings.png</key>
-            <key type="filename">../Frames/Bosses/Roaster Man/StandFlap.png</key>
-            <key type="filename">../Frames/Bosses/Roaster Man/Wet.png</key>
+            <key type="filename">../Frames/Bosses/Nuke Man/Charge.png</key>
+            <key type="filename">../Frames/Bosses/Nuke Man/Stand.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>
@@ -206,28 +203,13 @@
                 <rect>32,16,64,32</rect>
                 <key>scale9Paddings</key>
                 <rect>32,16,64,32</rect>
-                <key>scale9FromFile</key>
-                <false/>
-            </struct>
-            <key type="filename">../Frames/Bosses/Roaster Man/SuaveCombSweep.png</key>
-            <struct type="IndividualSpriteSettings">
-                <key>pivotPoint</key>
-                <point_f>0.5,0.5</point_f>
-                <key>spriteScale</key>
-                <double>1</double>
-                <key>scale9Enabled</key>
-                <false/>
-                <key>scale9Borders</key>
-                <rect>64,16,128,32</rect>
-                <key>scale9Paddings</key>
-                <rect>64,16,128,32</rect>
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
         </map>
         <key>fileList</key>
         <array>
-            <filename>../Frames/Bosses/Roaster Man</filename>
+            <filename>../Frames/Bosses/Nuke Man</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

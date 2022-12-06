@@ -10,7 +10,7 @@ import com.game.entities.bosses.BossEnum;
 import com.game.menus.MenuButton;
 import com.game.menus.MenuScreen;
 import com.game.menus.utils.BlinkingArrow;
-import com.game.levels.BossIntroScreen;
+import com.game.levels.LevelIntroScreen;
 import com.game.utils.objects.TimeMarkedRunnable;
 import com.game.animations.TimedAnimation;
 import com.game.menus.utils.ScreenSlide;
@@ -26,6 +26,7 @@ import static com.game.ConstFuncs.*;
 import static com.game.entities.bosses.BossEnum.*;
 import static com.game.GameScreen.*;
 import static com.game.assets.MusicAsset.*;
+import static com.game.menus.impl.bosses.BossPaneStatus.*;
 import static com.game.sprites.RenderingGround.*;
 import static com.game.assets.SoundAsset.*;
 import static com.game.assets.TextureAsset.*;
@@ -42,18 +43,21 @@ public class BossSelectScreen extends MenuScreen {
            add(bossEnum.getBossName());
        }
     }};
-    private static final String MEGAMAN_FACE = "MegamanFace";
+    private static final String MEGA_MAN = "MEGA MAN";
     private static final String BACK = "BACK";
 
     private final Camera camera;
     private final Sound bloopSound;
     private final MegaTextHandle bossName;
     private final ScreenSlide screenSlide;
+
     private final Sprite blackBar1 = new Sprite();
     private final Sprite blackBar2 = new Sprite();
+
     private final List<Sprite> backgroundSprites = new ArrayList<>();
     private final List<MegaTextHandle> texts = new ArrayList<>();
     private final List<BossPane> bossPanes = new ArrayList<>();
+
     private final Map<Sprite, TimedAnimation> bars = new HashMap<>();
     private final Map<String, BlinkingArrow> blinkingArrows = new HashMap<>();
 
@@ -74,7 +78,7 @@ public class BossSelectScreen extends MenuScreen {
      * @param gameContext the {@link GameContext2d}
      */
     public BossSelectScreen(GameContext2d gameContext) {
-        super(gameContext, MEGAMAN_FACE, STAGE_SELECT_MM3_MUSIC.getSrc());
+        super(gameContext, MEGA_MAN, STAGE_SELECT_MM3_MUSIC.getSrc());
         // camera
         this.camera = gameContext.getViewport(UI).getCamera();
         this.screenSlide = new ScreenSlide(camera, INTRO_BLOCKS_TRANS,
@@ -95,7 +99,7 @@ public class BossSelectScreen extends MenuScreen {
             }
             return megamanFaces.get(bossEnum.getPosition());
         };
-        BossPane megamanPane = new BossPane(gameContext, megamanFaceSupplier, MEGAMAN_FACE, CENTER);
+        BossPane megamanPane = new BossPane(gameContext, megamanFaceSupplier, MEGA_MAN, CENTER);
         bossPanes.add(megamanPane);
         // boss bossPanes
         for (BossEnum boss : BossEnum.values()) {
@@ -106,7 +110,7 @@ public class BossSelectScreen extends MenuScreen {
         texts.add(new MegaTextHandle(round(PPM / 2f), new Vector2(5.35f * PPM, 13.85f * PPM), "PRESS START"));
         texts.add(new MegaTextHandle(round(PPM / 2f), new Vector2(12.35f * PPM, PPM), BACK));
         blinkingArrows.put(BACK, new BlinkingArrow(gameContext, new Vector2(12f * PPM, .75f * PPM)));
-        // background
+        // background bars
         TextureAtlas stageSelectAtlas = gameContext.getAsset(STAGE_SELECT.getSrc(), TextureAtlas.class);
         TextureRegion bar = stageSelectAtlas.findRegion("Bar");
         for (int i = 0; i < 6; i++) {
@@ -127,10 +131,22 @@ public class BossSelectScreen extends MenuScreen {
         blackBar1.setBounds(-PPM, -PPM, (2f + VIEW_WIDTH) * PPM, 2f * PPM);
         blackBar2.setRegion(black);
         blackBar2.setBounds(0f, 0f, .25f * PPM, VIEW_HEIGHT * PPM);
-        // background sprites
+        // background block sprites
         TextureAtlas tilesAtlas = gameContext.getAsset(CUSTOM_TILES.getSrc(), TextureAtlas.class);
-        TextureRegion blueBlockRegion = tilesAtlas.findRegion("8bitBlueBlock");
+        TextureRegion blueBlockRegion = tilesAtlas.findRegion("8bitBlueBlockTransBorder");
         final float halfPPM = PPM / 2f;
+        for (int i = 0; i < VIEW_WIDTH; i++) {
+            for (int j = 0; j < VIEW_HEIGHT - 1; j++) {
+                for (int x = 0; x < 2; x++) {
+                    for (int y = 0; y < 2; y++) {
+                        Sprite blueBlock = new Sprite(blueBlockRegion);
+                        blueBlock.setBounds(i * PPM + (x * halfPPM), j * PPM + (y * halfPPM), halfPPM, halfPPM);
+                        backgroundSprites.add(blueBlock);
+                    }
+                }
+            }
+        }
+        /*
         for (int i = 0; i < VIEW_WIDTH; i++) {
             for (int x = 0; x < 2; x++) {
                 for (int y = 0; y < 2; y++) {
@@ -141,6 +157,7 @@ public class BossSelectScreen extends MenuScreen {
                 }
             }
         }
+         */
         // boss name
         bossName = new MegaTextHandle(round(PPM / 2f), new Vector2(PPM, PPM));
     }
@@ -161,58 +178,58 @@ public class BossSelectScreen extends MenuScreen {
     @Override
     public void render(float delta) {
         super.render(delta);
-        // move camera if in intro
+        // slide screen if intro
         screenSlide.update(delta);
         // begin spritebatch
         SpriteBatch spriteBatch = gameContext.getSpriteBatch();
-        spriteBatch.setProjectionMatrix(uiViewport.getCamera().combined);
+        gameContext.setSpriteBatchProjectionMatrix(UI);
         spriteBatch.begin();
-        // outro
+        // render white sprite on blink if outro
         if (outro) {
             outroTimer.update(delta);
             if (blink) {
                 whiteSprite.draw(spriteBatch);
             }
         }
-        // bars
+        // render background blocks
+        backgroundSprites.forEach(s -> drawFiltered(s, spriteBatch));
+        // render flashy bar sprites
         bars.forEach((sprite, animation) -> {
             animation.update(delta);
             sprite.setRegion(animation.getCurrentT());
             sprite.draw(spriteBatch);
         });
-        // background
-        backgroundSprites.forEach(s -> drawFiltered(s, spriteBatch));
-        // boss bossPanes
+        // render boss panes
         bossPanes.forEach(bossPane -> {
             if (bossPane.getBossName().equals(getCurrentMenuButtonKey())) {
-                bossPane.setBossPaneStatus(isSelectionMade() ? BossPaneStatus.HIGHLIGHTED : BossPaneStatus.BLINKING);
+                bossPane.setBossPaneStatus(isSelectionMade() ? HIGHLIGHTED : BLINKING);
             } else {
-                bossPane.setBossPaneStatus(BossPaneStatus.UNHIGHLIGHTED);
+                bossPane.setBossPaneStatus(UNHIGHLIGHTED);
             }
             bossPane.update(delta);
             bossPane.draw(spriteBatch);
         });
-        // black bars
+        // render black bars
         blackBar1.draw(spriteBatch);
         blackBar2.draw(spriteBatch);
-        // blinking arrow
+        // render blinking arrow
         if (blinkingArrows.containsKey(getCurrentMenuButtonKey())) {
             BlinkingArrow blinkingArrow = blinkingArrows.get(getCurrentMenuButtonKey());
             blinkingArrow.update(delta);
             blinkingArrow.draw(spriteBatch);
         }
-        // texts
+        // render text
         texts.forEach(text -> text.draw(spriteBatch));
-        // boss name
-        if (bossNames.contains(getCurrentMenuButtonKey())) {
+        // render boss name
+        if (MEGA_MAN.equals(getCurrentMenuButtonKey()) || bossNames.contains(getCurrentMenuButtonKey())) {
             bossName.setText(getCurrentMenuButtonKey().toUpperCase());
             bossName.draw(spriteBatch);
         }
         // end spritebatch
         spriteBatch.end();
-        // if outro is finished, setBounds screen
+        // if outro is finished, set screen to level selection
         if (outroTimer.isFinished()) {
-            ((BossIntroScreen) gameContext.getScreen(LEVEL_INTRO)).set(bossEnumSelection);
+            ((LevelIntroScreen) gameContext.getScreen(LEVEL_INTRO)).set(bossEnumSelection);
             gameContext.setScreen(LEVEL_INTRO);
         }
     }
@@ -220,7 +237,7 @@ public class BossSelectScreen extends MenuScreen {
     @Override
     protected Map<String, MenuButton> defineMenuButtons() {
         Map<String, MenuButton> menuButtons = new HashMap<>();
-        menuButtons.put(MEGAMAN_FACE, new MenuButton() {
+        menuButtons.put(MEGA_MAN, new MenuButton() {
 
             @Override
             public boolean onSelect(float delta) {
@@ -291,7 +308,7 @@ public class BossSelectScreen extends MenuScreen {
                     if (position == null) {
                         throw new IllegalStateException();
                     } else if (position.equals(CENTER)) {
-                        setMenuButton(MEGAMAN_FACE);
+                        setMenuButton(MEGA_MAN);
                     } else {
                         setMenuButton(findByPos(x, y).getBossName());
                     }

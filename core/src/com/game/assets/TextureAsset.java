@@ -62,7 +62,7 @@ public enum TextureAsset {
     ROASTER_MAN("RoasterMan.txt"),
     MISTER_MAN("MisterMan.txt"),
     BLUNT_MAN("BluntMan.txt"),
-    // NUKE_MAN("NukeMan.txt"),
+    NUKE_MAN("NukeMan.txt"),
     FRIDGE_MAN("FridgeMan.txt"),
     MICROWAVE_MAN("MicrowaveMan.txt");
 

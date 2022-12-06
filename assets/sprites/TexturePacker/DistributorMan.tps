@@ -173,9 +173,9 @@
         </struct>
         <key>individualSpriteSettings</key>
         <map type="IndividualSpriteSettingsMap">
-            <key type="filename">../Frames/Bosses/Distributor Man/Jump.png</key>
-            <key type="filename">../Frames/Bosses/Distributor Man/JumpShock.png</key>
-            <key type="filename">../Frames/Bosses/Distributor Man/ShockGround.png</key>
+            <key type="filename">../Frames/Bosses/Distributor Man/Damaged.png</key>
+            <key type="filename">../Frames/Bosses/Distributor Man/JustLand.png</key>
+            <key type="filename">../Frames/Bosses/Distributor Man/Shock.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>
@@ -184,14 +184,14 @@
                 <key>scale9Enabled</key>
                 <false/>
                 <key>scale9Borders</key>
-                <rect>8,8,16,16</rect>
+                <rect>16,8,32,16</rect>
                 <key>scale9Paddings</key>
-                <rect>8,8,16,16</rect>
+                <rect>16,8,32,16</rect>
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
-            <key type="filename">../Frames/Bosses/Distributor Man/JustLand.png</key>
-            <key type="filename">../Frames/Bosses/Distributor Man/Snipped.png</key>
+            <key type="filename">../Frames/Bosses/Distributor Man/Jump.png</key>
+            <key type="filename">../Frames/Bosses/Distributor Man/JumpShock.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>
@@ -200,9 +200,9 @@
                 <key>scale9Enabled</key>
                 <false/>
                 <key>scale9Borders</key>
-                <rect>16,8,32,16</rect>
+                <rect>8,8,16,16</rect>
                 <key>scale9Paddings</key>
-                <rect>16,8,32,16</rect>
+                <rect>8,8,16,16</rect>
                 <key>scale9FromFile</key>
                 <false/>
             </struct>

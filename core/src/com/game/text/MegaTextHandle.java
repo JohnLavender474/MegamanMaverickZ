@@ -65,10 +65,6 @@ public class MegaTextHandle implements Drawable {
         this.text = text;
     }
 
-    public void clearText() {
-        setText(() -> "");
-    }
-
     public void setPosition(Vector2 position) {
         setPosition(position.x, position.y);
     }
@@ -85,9 +81,13 @@ public class MegaTextHandle implements Drawable {
         this.text = text;
     }
 
+    public void clear() {
+        setText("");
+    }
+
     @Override
     public void draw(SpriteBatch spriteBatch) {
-        font.draw(spriteBatch, text.get(), position.x, position.y);
+        font.draw(spriteBatch, text.get().toUpperCase(), position.x, position.y);
     }
 
 }

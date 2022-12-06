@@ -176,6 +176,9 @@
             <key type="filename">../Frames/BossFaces/Blunt Man.png</key>
             <key type="filename">../Frames/BossFaces/Distributor Man.png</key>
             <key type="filename">../Frames/BossFaces/Fridge Man.png</key>
+            <key type="filename">../Frames/BossFaces/Microwave Man.png</key>
+            <key type="filename">../Frames/BossFaces/Mister Man.png</key>
+            <key type="filename">../Frames/BossFaces/Nuke Man.png</key>
             <key type="filename">../Frames/BossFaces/Roaster Man.png</key>
             <key type="filename">../Frames/BossFaces/Timber Woman.png</key>
             <struct type="IndividualSpriteSettings">

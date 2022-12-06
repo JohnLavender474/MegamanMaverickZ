@@ -28,7 +28,7 @@ class BossPane implements Updatable, Drawable {
 
     public static final float PANE_BOUNDS_WIDTH = 5.33f;
     public static final float PANE_BOUNDS_HEIGHT = 4f;
-    public static final float BOTTOM_OFFSET = 1.5f;
+    public static final float BOTTOM_OFFSET = 1.35f;
     public static final float SPRITE_HEIGHT = 2f;
     public static final float SPRITE_WIDTH = 2.5f;
     public static final float PANE_HEIGHT = 3f;
@@ -105,13 +105,14 @@ class BossPane implements Updatable, Drawable {
         Texture paneTexture = paneSprite.getTexture();
         if (paneTexture != null) {
             paneTexture.setFilter(Nearest, Nearest);
+            paneSprite.draw(spriteBatch);
         }
-        paneSprite.draw(spriteBatch);
-        Texture bossTexture = bossSprite.getTexture();
-        if (bossTexture != null) {
-            bossTexture.setFilter(Nearest, Nearest);
+        TextureRegion bossTexture = bossRegionSupplier.get();
+        if (bossTexture != null && bossTexture.getTexture() != null) {
+            bossTexture.getTexture().setFilter(Nearest, Nearest);
+            bossSprite.setRegion(bossTexture);
+            bossSprite.draw(spriteBatch);
         }
-        bossSprite.draw(spriteBatch);
     }
 
 }

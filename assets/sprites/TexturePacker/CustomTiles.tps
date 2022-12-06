@@ -174,7 +174,8 @@
         <key>individualSpriteSettings</key>
         <map type="IndividualSpriteSettingsMap">
             <key type="filename">../Frames/CustomTiles/8bitBlueBlock.png</key>
-            <key type="filename">../Frames/CustomTiles/8bitNoBorderBlueBlock.png</key>
+            <key type="filename">../Frames/CustomTiles/8bitBlueBlockNoBorder.png</key>
+            <key type="filename">../Frames/CustomTiles/8bitBlueBlockTransBorder.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>

@@ -1,5 +1,5 @@
 RoasterMan.png
-size: 1088, 64
+size: 1024, 64
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
@@ -31,30 +31,37 @@ FlyFlap
   orig: 128, 64
   offset: 0, 0
   index: -1
-Stand
+RetractWings
   rotate: false
   xy: 448, 0
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+Stand
+  rotate: false
+  xy: 512, 0
   size: 128, 64
   orig: 128, 64
   offset: 0, 0
   index: -1
 StandFlap
   rotate: false
-  xy: 576, 0
+  xy: 640, 0
   size: 128, 64
   orig: 128, 64
   offset: 0, 0
   index: -1
 SuaveCombSweep
   rotate: false
-  xy: 704, 0
-  size: 256, 64
-  orig: 256, 64
+  xy: 768, 0
+  size: 128, 64
+  orig: 128, 64
   offset: 0, 0
   index: -1
 Wet
   rotate: false
-  xy: 960, 0
+  xy: 896, 0
   size: 128, 64
   orig: 128, 64
   offset: 0, 0

@@ -27,10 +27,11 @@ import com.game.controllers.*;
 import com.game.cull.CullOnMessageSystem;
 import com.game.cull.CullOnOutOfCamBoundsSystem;
 import com.game.entities.Entity;
+import com.game.entities.bosses.BossEnum;
 import com.game.entities.megaman.MegamanStats;
 import com.game.graph.GraphSystem;
 import com.game.health.HealthSystem;
-import com.game.levels.BossIntroScreen;
+import com.game.levels.LevelIntroScreen;
 import com.game.levels.LevelScreen;
 import com.game.levels.LevelStatus;
 import com.game.menus.impl.bosses.BossSelectScreen;
@@ -80,6 +81,7 @@ import static com.game.sprites.RenderingGround.PLAYGROUND;
 import static com.game.sprites.RenderingGround.UI;
 import static com.game.utils.DebugLogger.DebugLevel.DEBUG;
 import static com.game.utils.UtilMethods.equalsAny;
+import static com.game.utils.UtilMethods.setCenterRightToPoint;
 import static com.game.world.WorldVals.AIR_RESISTANCE;
 import static com.game.world.WorldVals.FIXED_TIME_STEP;
 import static java.util.Collections.unmodifiableCollection;
@@ -176,11 +178,9 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
         addSystem(new SoundSystem(this));
         addSystem(new AnimationSystem());
         addSystem(new SpriteSystem((OrthographicCamera) viewports.get(PLAYGROUND).getCamera(), getSpriteBatch()));
-
         // TODO: turn off debug
         addSystem(new LineSystem(viewports.get(PLAYGROUND).getCamera(), getShapeRenderer()));
         addSystem(new ShapeSystem(viewports.get(PLAYGROUND).getCamera(), getShapeRenderer()));
-
         // blackboard
         MegamanStats megamanStats = new MegamanStats();
         megamanStats.setWeaponsChargeable(true);
@@ -189,26 +189,30 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
         megamanStats.putSpecialAbility(WALL_JUMP, true);
         megamanStats.putWeapon(MEGA_BUSTER);
         putBlackboardObject(MEGAMAN_STATS, megamanStats);
-        // add this as message listener
+        // add this as a message listener
         addMessageListener(this);
-        // define screens
+        // menu screens
         screens.put(MAIN_MENU, new MainMenuScreen(this));
         screens.put(CONTROLLER_SETTINGS, new ControllerSettingsScreen(this));
         screens.put(PAUSE_MENU, new PauseMenuScreen(this));
         screens.put(EXTRAS, new ExtrasScreen(this));
         screens.put(BOSS_SELECT, new BossSelectScreen(this));
-        screens.put(LEVEL_INTRO, new BossIntroScreen(this));
-        screens.put(TEST_STAGE, new LevelScreen(
-                this, "tiledmaps/tmx/Test3.tmx", MMZ_NEO_ARCADIA_MUSIC.getSrc()));
-        screens.put(TEST_TEXTURE_ASSET, new TextureAssetTestScreen(this, TextureAsset.FRIDGE_MAN));
-        screens.put(TIMBER_WOMAN, new LevelScreen(
-                this, "tiledmaps/tmx/TimberWoman.tmx", XENOBLADE_GAUR_PLAINS_MUSIC.getSrc()));
+        // fancy screens
+        screens.put(LEVEL_INTRO, new LevelIntroScreen(this));
+        // test screens
+        screens.put(TEST_STAGE, new LevelScreen(this, "tiledmaps/tmx/Test3.tmx", MMZ_NEO_ARCADIA_MUSIC.getSrc()));
+        screens.put(TEST_TEXTURE_ASSET, new TextureAssetTestScreen(this, TextureAsset.NUKE_MAN));
+        // boss level screens
+        for (BossEnum boss : BossEnum.values()) {
+            GameScreen bossLevelScreen = getBossLevelScreenEnum(boss.getBossName());
+            screens.put(bossLevelScreen, new LevelScreen(this, boss.getTmxSrc(), boss.getMusicSrc()));
+        }
         // set screen
-        // setScreen(MAIN_MENU);
+        setScreen(MAIN_MENU);
         // setScreen(TEST_STAGE);
-        setScreen(TEST_TEXTURE_ASSET);
+        // setScreen(TEST_TEXTURE_ASSET);
         // setScreen(TIMBER_WOMAN);
-
+        // fps text
         fpsText = new MegaTextHandle(new Vector2((VIEW_WIDTH - 4.5f) * PPM, (VIEW_HEIGHT - 1) * PPM),
                 () -> "FPS: " + graphics.getFramesPerSecond());
     }
@@ -441,7 +445,11 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
         gl20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
         if (input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            app.exit();
+            if (currentScreenKey == MAIN_MENU) {
+                app.exit();
+            } else {
+                setScreen(MAIN_MENU);
+            }
         }
         if (doUpdateController()) {
             updateController();
