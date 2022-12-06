@@ -1,0 +1,61 @@
+CustomTiles1.png
+size: 448, 96
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+8bitBlueBlock
+  rotate: false
+  xy: 0, 0
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+8bitBlueBlockNoBorder
+  rotate: false
+  xy: 8, 0
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+8bitBlueBlockTransBorder
+  rotate: false
+  xy: 16, 0
+  size: 8, 8
+  orig: 8, 8
+  offset: 0, 0
+  index: -1
+GearTrolleyColumn
+  rotate: false
+  xy: 24, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+GearTrolleyHorizontal
+  rotate: false
+  xy: 88, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+GearTrolleyJunction
+  rotate: false
+  xy: 152, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+GearTrolleyPlatform
+  rotate: false
+  xy: 216, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+JeffBezosLittleDickRocket
+  rotate: false
+  xy: 0, 32
+  size: 448, 64
+  orig: 448, 64
+  offset: 0, 0
+  index: -1

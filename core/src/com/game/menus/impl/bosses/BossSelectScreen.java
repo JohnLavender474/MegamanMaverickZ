@@ -132,7 +132,7 @@ public class BossSelectScreen extends MenuScreen {
         blackBar2.setRegion(black);
         blackBar2.setBounds(0f, 0f, .25f * PPM, VIEW_HEIGHT * PPM);
         // background block sprites
-        TextureAtlas tilesAtlas = gameContext.getAsset(CUSTOM_TILES.getSrc(), TextureAtlas.class);
+        TextureAtlas tilesAtlas = gameContext.getAsset(CUSTOM_TILES_1.getSrc(), TextureAtlas.class);
         TextureRegion blueBlockRegion = tilesAtlas.findRegion("8bitBlueBlockTransBorder");
         final float halfPPM = PPM / 2f;
         for (int i = 0; i < VIEW_WIDTH; i++) {

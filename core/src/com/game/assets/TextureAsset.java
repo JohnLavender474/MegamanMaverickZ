@@ -54,7 +54,7 @@ public enum TextureAsset {
     CHARGE_ORBS("ChargeOrbs.txt"),
 
     // Tiles
-    CUSTOM_TILES("CustomTiles.txt"),
+    CUSTOM_TILES_1("CustomTiles1.txt"),
 
     // Bosses
     TIMBER_WOMAN("TimberWoman.txt"),

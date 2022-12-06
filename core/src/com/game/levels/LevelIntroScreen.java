@@ -74,24 +74,24 @@ public class LevelIntroScreen extends ScreenAdapter {
                 new Vector2((VIEW_WIDTH * PPM / 3f) - PPM, VIEW_HEIGHT * PPM / 3f));
         if (bossIntroAnims == null) {
             bossIntroAnims = new EnumMap<>(BossEnum.class);
-            for (BossEnum bossEnum : BossEnum.values()) {
-                bossIntroAnims.put(bossEnum, () ->
-                        bossEnum.getIntroAnimsQ(gameContext.getAsset(bossEnum.getTextureAtlas(), TextureAtlas.class))
+            for (BossEnum boss : BossEnum.values()) {
+                bossIntroAnims.put(boss, () ->
+                        boss.getIntroAnimsQ(gameContext.getAsset(boss.getTextureAtlas(), TextureAtlas.class))
                         .stream().map(i -> KeyValuePair.of(new TimedAnimation(i.key()), new Timer(i.value())))
                         .collect(toCollection(ArrayDeque::new)));
             }
         }
     }
 
-    public void set(BossEnum bossEnum) {
+    public void set(BossEnum boss) {
         set = true;
-        nextScreen = bossEnum.getGameScreen();
+        nextScreen = boss.getGameScreen();
         Sprite sprite = new Sprite();
-        Vector2 size = bossEnum.getSpriteSize();
+        Vector2 size = boss.getSpriteSize();
         sprite.setSize(size.x * PPM, size.y * PPM);
-        bossAnimDef = new KeyValuePair<>(sprite, bossIntroAnims.get(bossEnum).get());
+        bossAnimDef = new KeyValuePair<>(sprite, bossIntroAnims.get(boss).get());
         Sound thump = gameContext.getAsset(THUMP_SOUND.getSrc(), Sound.class);
-        bossLettersAnimQ = getDialogueAnimQ(gameContext, bossLetters, bossEnum.getBossName(), thump);
+        bossLettersAnimQ = getDialogueAnimQ(gameContext, bossLetters, boss.getBossName(), thump);
     }
 
     @Override

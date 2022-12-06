@@ -40,7 +40,7 @@
  <objectgroup id="4" name="Hazards"/>
  <objectgroup id="2" name="Special"/>
  <objectgroup id="14" name="AbstractBounds"/>
- <layer id="3" name="Background" width="50" height="200">
+ <layer id="3" name="Background1" width="50" height="200">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,

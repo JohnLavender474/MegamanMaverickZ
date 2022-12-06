@@ -124,7 +124,7 @@
             <key>data</key>
             <struct type="DataFile">
                 <key>name</key>
-                <filename>../SpriteSheets/CustomTiles.txt</filename>
+                <filename>../SpriteSheets/CustomTiles1.txt</filename>
             </struct>
         </map>
         <key>multiPack</key>
@@ -173,9 +173,9 @@
         </struct>
         <key>individualSpriteSettings</key>
         <map type="IndividualSpriteSettingsMap">
-            <key type="filename">../Frames/CustomTiles/8bitBlueBlock.png</key>
-            <key type="filename">../Frames/CustomTiles/8bitBlueBlockNoBorder.png</key>
-            <key type="filename">../Frames/CustomTiles/8bitBlueBlockTransBorder.png</key>
+            <key type="filename">../Frames/CustomTiles1/8bitBlueBlock.png</key>
+            <key type="filename">../Frames/CustomTiles1/8bitBlueBlockNoBorder.png</key>
+            <key type="filename">../Frames/CustomTiles1/8bitBlueBlockTransBorder.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>
@@ -190,7 +190,39 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
-            <key type="filename">../Frames/CustomTiles/JeffBezosLittleDickRocket.png</key>
+            <key type="filename">../Frames/CustomTiles1/GearTrolleyColumn.png</key>
+            <key type="filename">../Frames/CustomTiles1/GearTrolleyHorizontal.png</key>
+            <key type="filename">../Frames/CustomTiles1/GearTrolleyJunction.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>8,8,16,16</rect>
+                <key>scale9Paddings</key>
+                <rect>8,8,16,16</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">../Frames/CustomTiles1/GearTrolleyPlatform.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>16,8,32,16</rect>
+                <key>scale9Paddings</key>
+                <rect>16,8,32,16</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">../Frames/CustomTiles1/JeffBezosLittleDickRocket.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>
@@ -208,7 +240,7 @@
         </map>
         <key>fileList</key>
         <array>
-            <filename>../Frames/CustomTiles</filename>
+            <filename>../Frames/CustomTiles1</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

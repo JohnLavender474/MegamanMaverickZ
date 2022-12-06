@@ -68,7 +68,7 @@ public class JeffBezosLittleDickRocket extends Block {
     }
 
     private AnimationComponent animationComponent() {
-        TextureRegion region = gameContext.getAsset(CUSTOM_TILES.getSrc(), TextureAtlas.class)
+        TextureRegion region = gameContext.getAsset(CUSTOM_TILES_1.getSrc(), TextureAtlas.class)
                 .findRegion("JeffBezosLittleDickRocket");
         TimedAnimation animation = new TimedAnimation(region, 7, .05f);
         return new AnimationComponent(animation);
