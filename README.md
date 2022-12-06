@@ -2,6 +2,8 @@
 
 <img src="img/MainMenu.png" width="600px"/>
 
+<hr/>
+
 ## The Story
 
 "The year is 20XX. Megaman was created by Dr. Light to lead the world into peace and prosperity. 
@@ -17,8 +19,12 @@ Megaman looks upon the destruction and chaos, and knows what he must do."
 
 <img src="img/BossSelectScreen.png" width="600px"/>
 
+<hr/>
+
 ## The Project
 
 A simple fan game I'm working on in my spare time, Written in Java using 
-<a href="https://libgdx.com/">LibGDX</a>. 
+<a href="https://libgdx.com/">LibGDX</a>.
+
+<hr/>
 
