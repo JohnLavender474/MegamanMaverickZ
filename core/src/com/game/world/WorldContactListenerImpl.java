@@ -4,7 +4,6 @@ import com.badlogic.gdx.math.Polyline;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.behaviors.BehaviorComponent;
-import com.game.behaviors.BehaviorType;
 import com.game.entities.Entity;
 import com.game.damage.Damageable;
 import com.game.damage.Damager;

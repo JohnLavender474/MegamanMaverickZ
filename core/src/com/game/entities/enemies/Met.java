@@ -79,7 +79,7 @@ public class Met extends AbstractEnemy implements Faceable {
     public void setMetBehavior(MetBehavior metBehavior) {
         this.metBehavior = metBehavior;
         metBehaviorTimers.values().forEach(Timer::reset);
-        getComponent(BodyComponent.class).setVelocity(0f, 0f);
+        // getComponent(BodyComponent.class).setVelocity(0f, 0f);
     }
 
     private void shoot() {
@@ -156,7 +156,7 @@ public class Met extends AbstractEnemy implements Faceable {
         setBottomCenterToPoint(bodyComponent.getCollisionBox(), spawn);
         bodyComponent.setGravity(-.5f * PPM);
         // feet
-        Fixture feet = new Fixture(this, new Rectangle(0f, 0f, .75f * PPM, .1f * PPM), FEET);
+        Fixture feet = new Fixture(this, new Rectangle(0f, 0f, .75f * PPM, .2f * PPM), FEET);
         feet.setOffset(0f, -.375f * PPM);
         bodyComponent.addFixture(feet);
         // side model

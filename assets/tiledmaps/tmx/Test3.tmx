@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.9" tiledversion="1.9.0" orientation="orthogonal" renderorder="right-down" width="50" height="30" tilewidth="32" tileheight="32" infinite="0" nextlayerid="15" nextobjectid="29">
+<map version="1.9" tiledversion="1.9.0" orientation="orthogonal" renderorder="right-down" width="50" height="30" tilewidth="32" tileheight="32" infinite="0" nextlayerid="15" nextobjectid="31">
  <tileset firstgid="1" source="../tsx/Tileset1.tsx"/>
  <objectgroup id="12" name="Test"/>
  <objectgroup id="14" name="Doors">
@@ -27,7 +27,10 @@
  <objectgroup id="9" name="PlayerSpawns">
   <object id="7" name="start" x="608" y="672" width="32" height="32"/>
  </objectgroup>
- <objectgroup id="8" name="EnemySpawns"/>
+ <objectgroup id="8" name="EnemySpawns">
+  <object id="29" name="met" x="1184" y="672" width="32" height="32"/>
+  <object id="30" name="met" x="288" y="672" width="32" height="32"/>
+ </objectgroup>
  <objectgroup id="7" name="Backgrounds"/>
  <objectgroup id="6" name="GameRooms" visible="0">
   <object id="5" name="room1" x="160" y="320" width="640" height="448"/>
