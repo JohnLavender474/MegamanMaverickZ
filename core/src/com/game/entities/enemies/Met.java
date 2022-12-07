@@ -46,7 +46,10 @@ import static java.lang.Math.*;
 public class Met extends AbstractEnemy implements Faceable {
 
     public enum MetBehavior {
-        SHIELDING, POP_UP, RUNNING, PANIC
+        SHIELDING,
+        POP_UP,
+        RUNNING,
+        PANIC
     }
 
     private final Map<MetBehavior, Timer> metBehaviorTimers = Map.of(

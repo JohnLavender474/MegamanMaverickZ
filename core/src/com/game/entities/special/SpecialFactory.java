@@ -15,6 +15,7 @@ public class SpecialFactory {
         switch (spawnObj.getName()) {
             case "ice" -> gameContext.addEntity(new Ice(gameContext, spawnObj));
             case "force" -> gameContext.addEntity(new Force(gameContext, spawnObj));
+            case "water" -> gameContext.addEntity(new Water(gameContext, spawnObj));
             case "spring_bounce" -> gameContext.addEntity(new SpringBounce(gameContext, spawnObj));
             case "shield" -> {
                 Entity entity = new Entity(gameContext);

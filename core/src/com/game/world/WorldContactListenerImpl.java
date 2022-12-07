@@ -62,6 +62,8 @@ public class WorldContactListenerImpl implements WorldContactListener {
                 megaman.setAButtonTask(AButtonTask._JUMP);
                 megaman.getComponent(SoundComponent.class).requestSound(MEGAMAN_LAND_SOUND);
             }
+        } else if (contact.acceptMask(WATER, WATER_LISTENER)) {
+            contact.mask2ndBody().setIs(IN_WATER);
         } else if (contact.acceptMask(HEAD, BLOCK)) {
             contact.mask1stBody().setIs(HEAD_TOUCHING_BLOCK);
         } else if (contact.acceptMask(DAMAGER, DAMAGEABLE) &&
@@ -155,6 +157,8 @@ public class WorldContactListenerImpl implements WorldContactListener {
                 megaman.getComponent(BodyComponent.class).setVelocity(0f, -15f * PPM);
                 System.out.println("Doing");
             }
+        } else if (contact.acceptMask(WATER, WATER_LISTENER)) {
+            contact.mask2ndBody().setIs(IN_WATER);
         } else if (contact.acceptMask(HEAD, BLOCK)) {
             contact.mask1stEntity().getComponent(BodyComponent.class).setIs(HEAD_TOUCHING_BLOCK);
         } else if (contact.acceptMask(DAMAGER, DAMAGEABLE) &&
@@ -212,6 +216,8 @@ public class WorldContactListenerImpl implements WorldContactListener {
             }
         } else if (contact.acceptMask(HEAD, BLOCK)) {
             contact.mask1stBody().setIsNot(HEAD_TOUCHING_BLOCK);
+        } else if (contact.acceptMask(WATER, WATER_LISTENER)) {
+            contact.mask2ndBody().setIsNot(IN_WATER);
         }
     }
 

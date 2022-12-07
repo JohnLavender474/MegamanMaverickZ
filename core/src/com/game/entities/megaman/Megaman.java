@@ -46,8 +46,7 @@ import lombok.Setter;
 import java.util.*;
 import java.util.function.Supplier;
 
-import static com.game.GlobalKeys.CHARGE_STATUS;
-import static com.game.GlobalKeys.COLLECTION;
+import static com.game.GlobalKeys.*;
 import static com.game.ViewVals.PPM;
 import static com.game.assets.SoundAsset.*;
 import static com.game.assets.TextureAsset.MEGAMAN;
@@ -361,7 +360,8 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
                 BehaviorComponent behaviorComponent = getComponent(BehaviorComponent.class);
                 setFacing(behaviorComponent.is(WALL_SLIDING) ? F_RIGHT : F_LEFT);
                 behaviorComponent.set(RUNNING, !behaviorComponent.is(WALL_SLIDING));
-                if (bodyComponent.getVelocity().x > -RUN_SPEED * PPM) {
+                float threshold = -RUN_SPEED * PPM * (bodyComponent.is(IN_WATER) ? .65f : 1f);
+                if (bodyComponent.getVelocity().x > threshold) {
                     bodyComponent.translateVelocity(-PPM * 50f * delta, 0f);
                 }
             }
@@ -390,7 +390,8 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
                 BehaviorComponent behaviorComponent = getComponent(BehaviorComponent.class);
                 setFacing(behaviorComponent.is(WALL_SLIDING) ? F_LEFT : F_RIGHT);
                 behaviorComponent.set(RUNNING, !behaviorComponent.is(WALL_SLIDING));
-                if (bodyComponent.getVelocity().x < RUN_SPEED * PPM) {
+                float threshold = RUN_SPEED * PPM * (bodyComponent.is(IN_WATER) ? .65f : 1f);
+                if (bodyComponent.getVelocity().x < threshold) {
                     bodyComponent.translateVelocity(PPM * 50f * delta, 0f);
                 }
             }
@@ -492,13 +493,30 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
             protected void init() {
                 behaviorComponent.setIs(JUMPING);
                 BodyComponent bodyComponent = getComponent(BodyComponent.class);
+                boolean wallSliding = behaviorComponent.is(WALL_SLIDING);
+                Vector2 vel = new Vector2();
+                float x = wallSliding ? WALL_JUMP_HORIZ : 0f;
+                if (isFacing(F_LEFT)) {
+                    x *= -1f;
+                }
+                float y = wallSliding ? WALL_JUMP_VEL : JUMP_VEL;
+                if (bodyComponent.is(IN_WATER)) {
+                    y *= 1.35f;
+                }
+                vel.set(x, y).scl(PPM);
+                bodyComponent.setVelocity(vel);
+                if (wallSliding) {
+                    wallJumpImpetusTimer.reset();
+                }
+                /*
                 if (behaviorComponent.is(WALL_SLIDING)) {
                     bodyComponent.translateVelocity((isFacing(F_LEFT) ? -1f : 1f) * WALL_JUMP_HORIZ * PPM,
                             WALL_JUMP_VEL * PPM);
                     wallJumpImpetusTimer.reset();
                 } else {
-                    bodyComponent.setVelocityY(JUMP_VEL * PPM);
+                    bodyComponent.setVelocityY(JUMP_VEL * PPM * (bodyComponent.is(IN_WATER) ? 1.25f : 1f));
                 }
+                 */
             }
 
             @Override
@@ -544,7 +562,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
                         (isFacing(F_RIGHT) && bodyComponent.is(TOUCHING_BLOCK_RIGHT))) {
                     return;
                 }
-                float x = AIR_DASH_VEL * PPM;
+                float x = AIR_DASH_VEL * PPM * (bodyComponent.is(IN_WATER) ? .75f : 1f);
                 if (isFacing(F_LEFT)) {
                     x *= -1f;
                 }
@@ -598,7 +616,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
                         (isFacing(F_RIGHT) && bodyComponent.is(TOUCHING_BLOCK_RIGHT))) {
                     return;
                 }
-                float x = GROUND_SLIDE_VEL * PPM;
+                float x = GROUND_SLIDE_VEL * PPM * (bodyComponent.is(IN_WATER) ? .5f : 1f);
                 if (isFacing(F_LEFT)) {
                     x *= -1f;
                 }
@@ -610,11 +628,11 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
                 BodyComponent bodyComponent = getComponent(BodyComponent.class);
                 groundSlideTimer.reset();
                 behaviorComponent.setIsNot(GROUND_SLIDING);
+                float endDash = (bodyComponent.is(IN_WATER) ? 2f : 5f) * PPM;
                 if (isFacing(F_LEFT)) {
-                    bodyComponent.translateVelocity(-5f * PPM, 0f);
-                } else {
-                    bodyComponent.translateVelocity(5f * PPM, 0f);
+                    endDash *= -1;
                 }
+                bodyComponent.translateVelocity(endDash, 0f);
             }
         };
         behaviorComponent.addBehavior(groundSlide);
@@ -672,6 +690,10 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
             add(Matasaburo.class);
         }});
         bodyComponent.addFixture(forceListener);
+        // water listener
+        Fixture waterListener = new Fixture(this, new Rectangle(model1), WATER_LISTENER);
+        waterListener.setOffset(0f, PPM / 2f);
+        bodyComponent.addFixture(waterListener);
         // pre-process
         bodyComponent.setPreProcess(delta -> {
             BehaviorComponent behaviorComponent = getComponent(BehaviorComponent.class);
@@ -689,9 +711,9 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
                 ((Rectangle) left.getFixtureShape()).setHeight(.35f * PPM);
             }
             if (bodyComponent.getVelocity().y < 0f && !bodyComponent.is(FEET_ON_GROUND)) {
-                bodyComponent.setGravity(UNGROUNDED_GRAVITY * PPM);
+                bodyComponent.setGravity(UNGROUNDED_GRAVITY * PPM * (bodyComponent.is(IN_WATER) ? .5f : 1f));
             } else {
-                bodyComponent.setGravity(GROUNDED_GRAVITY * PPM);
+                bodyComponent.setGravity(GROUNDED_GRAVITY * PPM * (bodyComponent.is(IN_WATER) ? .75f : 1f));
             }
         });
         return bodyComponent;
