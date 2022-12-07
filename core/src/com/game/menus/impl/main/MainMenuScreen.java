@@ -67,31 +67,12 @@ public class MainMenuScreen extends MenuScreen {
 
         BACK("BACK"),
         MUSIC_VOLUME("MUSIC: "),
-        SOUND_EFFECTS_VOLUME("SOUND: "),
-        FPS("FPS: ");
-        // CONTROLLER_SETTINGS("CONTROLLER SETTINGS");
+        SOUND_EFFECTS_VOLUME("SOUND: ");
 
         private final String prompt;
 
     }
 
-    @Getter
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    public enum ControllerSettingsButton {
-
-        UP("Up"),
-        DOWN("Down"),
-        LEFT("Left"),
-        RIGHT("Right"),
-        X("X"),
-        A("A"),
-        START("Start");
-
-        private final String str;
-
-    }
-
-    private static final List<Integer> FPS_OPTIONS = List.of(30, 45, 60, 75);
     private static final Vector3 SETTINGS_TRANS = new Vector3(15f, 0f, 0f).scl(PPM);
 
     private final ScreenSlide screenSlide;
@@ -104,7 +85,6 @@ public class MainMenuScreen extends MenuScreen {
     private final Map<String, BlinkingArrow> blinkingArrows = new HashMap<>();
 
     private boolean settingsArrowBlink;
-    private int fpsIndex = 2;
 
     /**
      * Instantiates a new Main Menu Screen.
@@ -137,13 +117,11 @@ public class MainMenuScreen extends MenuScreen {
                 () -> "" + gameContext.getMusicVolume()));
         fonts.add(new MegaTextHandle(new Vector2(21f * PPM, 11.2f * PPM),
                 () -> "" + gameContext.getSoundEffectsVolume()));
-        fonts.add(new MegaTextHandle(new Vector2(21f * PPM, 10.4f * PPM),
-                () -> "" + FPS_OPTIONS.get(fpsIndex)));
         TextureRegion arrowRegion = gameContext.getAsset(DECORATIONS.getSrc(), TextureAtlas.class)
                 .findRegion("Arrow");
         // settings blinking arrows
         float y = 11.55f;
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 4; i++) {
             if (i != 0 && i % 2 == 0) {
                 y -= .85f;
             }
@@ -202,7 +180,7 @@ public class MainMenuScreen extends MenuScreen {
         if (equalsAny(direction, DIR_LEFT, DIR_RIGHT)) {
             return;
         }
-        Sound sound = gameContext.getAsset(PAUSE_SOUND.getSrc(), Sound.class);
+        Sound sound = gameContext.getAsset(CURSOR_MOVE_BLOOP_SOUND.getSrc(), Sound.class);
         gameContext.playSound(sound);
     }
 
@@ -366,49 +344,11 @@ public class MainMenuScreen extends MenuScreen {
                                 gameContext.setSoundEffectsVolume(volume);
                             }
                             case DIR_UP -> setMenuButton(MUSIC_VOLUME.name());
-                            case DIR_DOWN -> setMenuButton(FPS.name());
-                        }
-                    }
-
-                });
-                put(FPS.name(), new MenuButton() {
-
-                    @Override
-                    public boolean onSelect(float delta) {
-                        return false;
-                    }
-
-                    @Override
-                    public void onNavigate(Direction direction, float delta) {
-                        switch (direction) {
-                            case DIR_LEFT -> changeFPS(-1);
-                            case DIR_RIGHT -> changeFPS(1);
-                            case DIR_UP -> setMenuButton(SOUND_EFFECTS_VOLUME.name());
-                            // case DIR_DOWN -> setMenuButton(CONTROLLER_SETTINGS.name());
                             case DIR_DOWN -> setMenuButton(BACK.name());
                         }
                     }
 
                 });
-                /*
-                put(CONTROLLER_SETTINGS.name(), new MenuButton() {
-
-                    @Override
-                    public boolean onSelect(float delta) {
-                        gameContext.setScreen(GameScreen.CONTROLLER_SETTINGS);
-                        return true;
-                    }
-
-                    @Override
-                    public void onNavigate(Direction direction, float delta) {
-                        switch (direction) {
-                            case DIR_UP -> setMenuButton(FPS.name());
-                            case DIR_DOWN -> setMenuButton(BACK.name());
-                        }
-                    }
-
-                });
-                 */
                 put(BACK.name(), new MenuButton() {
 
                     @Override
@@ -428,18 +368,6 @@ public class MainMenuScreen extends MenuScreen {
 
                 });
         }};
-    }
-
-    private void changeFPS(int i) {
-        int next = fpsIndex + i;
-        if (next < 0) {
-            next = FPS_OPTIONS.size() - 1;
-        } else if (next >= FPS_OPTIONS.size()) {
-            next = 0;
-        }
-        fpsIndex = next;
-        int fps = FPS_OPTIONS.get(fpsIndex);
-        Gdx.graphics.setForegroundFPS(fps);
     }
 
 }

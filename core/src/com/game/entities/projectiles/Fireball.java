@@ -120,7 +120,7 @@ public class Fireball extends AbstractProjectile {
                 bodyComponent.setVelocityX(0f);
             }
         });
-        bodyComponent.applyImpulse(impulse);
+        bodyComponent.translateVelocity(impulse);
         bodyComponent.setGravity(-PPM * .35f);
         bodyComponent.setSize(PPM, PPM);
         bodyComponent.setCenter(spawn.x, spawn.y);

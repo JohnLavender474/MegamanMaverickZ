@@ -2,6 +2,8 @@ package com.game.movement;
 
 import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
+import com.game.utils.interfaces.Resettable;
+import com.game.utils.interfaces.Updatable;
 import com.game.utils.objects.KeyValuePair;
 import com.game.utils.objects.Timer;
 import com.game.world.BodyComponent;
@@ -14,7 +16,7 @@ import java.util.List;
  * overriding any
  * settings for friction, velocity, etc.
  */
-public class TrajectoryComponent extends Component {
+public class TrajectoryComponent extends Component implements Updatable, Resettable {
 
     private final List<KeyValuePair<Vector2, Timer>> trajectories = new ArrayList<>();
 
@@ -25,11 +27,15 @@ public class TrajectoryComponent extends Component {
     }
 
     public Vector2 getCurrentTrajectory() {
-        return trajectories.get(index).key();
+        return trajectories.get(index).key().cpy();
     }
 
     public Timer getCurrentTimer() {
         return trajectories.get(index).value();
+    }
+
+    public Vector2 getVelocity() {
+        return getCurrentTrajectory().scl(1f / getCurrentTimer().getDuration());
     }
 
     public void setToNext() {
@@ -37,6 +43,21 @@ public class TrajectoryComponent extends Component {
         if (index >= trajectories.size()) {
             index = 0;
         }
+    }
+
+    public boolean isFinished() {
+        return getCurrentTimer().isFinished();
+    }
+
+    @Override
+    public void update(float delta) {
+        getCurrentTimer().update(delta);
+    }
+
+    @Override
+    public void reset() {
+        getCurrentTimer().reset();
+        setToNext();
     }
 
 }

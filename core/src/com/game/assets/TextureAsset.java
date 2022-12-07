@@ -55,6 +55,7 @@ public enum TextureAsset {
 
     // Tiles
     CUSTOM_TILES_1("CustomTiles1.txt"),
+    CONVEYOR_BELT("ConveyorBelt.txt"),
 
     // Bosses
     TIMBER_WOMAN("TimberWoman.txt"),

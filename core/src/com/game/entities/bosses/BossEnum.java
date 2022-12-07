@@ -29,7 +29,7 @@ import static lombok.AccessLevel.PRIVATE;
 public enum BossEnum {
 
     // Timber Woman
-    TIMBER_WOMAN("Timber Woman", "tiledmaps/tmx/Test1.tmx", XENOBLADE_GAUR_PLAINS_MUSIC.getSrc(),
+    TIMBER_WOMAN("Timber Woman", "tiledmaps/tmx/Test5.tmx", XENOBLADE_GAUR_PLAINS_MUSIC.getSrc(),
             TOP_LEFT, TextureAsset.TIMBER_WOMAN.getSrc(), GameScreen.TIMBER_WOMAN) {
 
         @Override

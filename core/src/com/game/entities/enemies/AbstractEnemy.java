@@ -2,13 +2,13 @@ package com.game.entities.enemies;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
-import com.game.entities.Entity;
 import com.game.GameContext2d;
 import com.game.cull.CullOnMessageComponent;
 import com.game.cull.CullOutOfCamBoundsComponent;
 import com.game.damage.DamageNegotiation;
 import com.game.damage.Damageable;
 import com.game.damage.Damager;
+import com.game.entities.Entity;
 import com.game.entities.decorations.Disintegration;
 import com.game.entities.decorations.Explosion;
 import com.game.entities.megaman.Megaman;
@@ -16,8 +16,8 @@ import com.game.graph.GraphComponent;
 import com.game.health.HealthComponent;
 import com.game.sounds.SoundComponent;
 import com.game.sprites.SpriteProcessor;
-import com.game.utils.interfaces.Updatable;
 import com.game.utils.enums.Position;
+import com.game.utils.interfaces.Updatable;
 import com.game.utils.objects.Timer;
 import com.game.utils.objects.Wrapper;
 import com.game.world.BodyComponent;
@@ -27,11 +27,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import static com.game.assets.SoundAsset.*;
+import static com.game.assets.SoundAsset.ENEMY_DAMAGE_SOUND;
+import static com.game.assets.SoundAsset.EXPLOSION_SOUND;
+import static com.game.entities.contracts.Facing.F_LEFT;
+import static com.game.entities.contracts.Facing.F_RIGHT;
+import static com.game.health.HealthVals.MAX_HEALTH;
 import static com.game.messages.MessageType.*;
-import static com.game.health.HealthVals.*;
-import static com.game.entities.contracts.Facing.*;
-import static com.game.utils.enums.Position.*;
+import static com.game.utils.enums.Position.BOTTOM_CENTER;
 import static java.util.Collections.unmodifiableSet;
 
 public abstract class AbstractEnemy extends Entity implements Damager, Damageable {
@@ -55,8 +57,8 @@ public abstract class AbstractEnemy extends Entity implements Damager, Damageabl
         addComponent(new CullOutOfCamBoundsComponent(() ->
                 getComponent(BodyComponent.class).getCollisionBox(), cullDuration));
         addComponent(new HealthComponent(MAX_HEALTH, this::disintegrate));
-        damageTimer.setToEnd();
         damageTimer.setDuration(damageDuration);
+        damageTimer.setToEnd();
     }
 
     protected abstract Map<Class<? extends Damager>, DamageNegotiation> defineDamageNegotiations();

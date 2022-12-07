@@ -81,6 +81,17 @@ public class WorldSystem extends System {
                 if (abs(velocity.y) < PPM * MIN_VEL) {
                     velocity.y = 0f;
                 }
+                // apply resistance
+                if (bodyComponent.isAffectedByResistance()) {
+                    velocity.x /= max(1f, bodyComponent.getResistance().x);
+                    velocity.y /= max(1f, bodyComponent.getResistance().y);
+                }
+                // reset resistance
+                bodyComponent.setResistance(airResistance);
+                // if gravity on, apply gravity
+                if (bodyComponent.isGravityOn()) {
+                    velocity.add(0f, bodyComponent.getGravity());
+                }
                 // clamp velocity
                 Vector2 clamp = bodyComponent.getClamp();
                 if (velocity.x > 0f && velocity.x > abs(clamp.x)) {
@@ -92,17 +103,6 @@ public class WorldSystem extends System {
                     velocity.y = abs(clamp.y);
                 } else if (velocity.y < 0f && velocity.y < -abs(clamp.y)) {
                     velocity.y = -abs(clamp.y);
-                }
-                // apply resistance
-                if (bodyComponent.isAffectedByResistance()) {
-                    velocity.x /= max(1f, bodyComponent.getResistance().x);
-                    velocity.y /= max(1f, bodyComponent.getResistance().y);
-                }
-                // reset resistance
-                bodyComponent.setResistance(airResistance);
-                // if gravity on, apply gravity
-                if (bodyComponent.isGravityOn()) {
-                    bodyComponent.applyImpulse(0f, bodyComponent.getGravity());
                 }
                 // translate
                 bodyComponent.translate(velocity.x * fixedTimeStep, velocity.y * fixedTimeStep);

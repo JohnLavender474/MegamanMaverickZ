@@ -154,12 +154,16 @@ public class Saw extends Entity {
         return new SpriteComponent(sprite, new SpriteProcessor() {
 
             @Override
+            public int getSpriteRenderPriority() {
+                return 10;
+            }
+
+            @Override
             public boolean setPositioning(Wrapper<Rectangle> bounds, Wrapper<Position> position) {
                 bounds.setData(getComponent(BodyComponent.class).getCollisionBox());
                 position.setData(CENTER);
                 return true;
             }
-
         });
     }
 

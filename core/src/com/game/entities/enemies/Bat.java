@@ -188,7 +188,8 @@ public class Bat extends AbstractEnemy implements Hitter {
 
     private PathfindingComponent pathfindingComponent() {
         PathfindingComponent pathfindingComponent = new PathfindingComponent(
-                () -> getComponent(BodyComponent.class).getCenter(), () -> getMegaman().getFocus(),
+                () -> getComponent(BodyComponent.class).getCenter(),
+                () -> topCenterPoint(getMegaman().getComponent(BodyComponent.class).getCollisionBox()),
                 target -> {
                     Vector2 targetCenter = centerPoint(target);
                     Vector2 thisCenter = getComponent(BodyComponent.class).getCenter();

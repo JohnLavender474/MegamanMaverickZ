@@ -25,6 +25,11 @@ public class Block extends Entity {
 
     public static final Vector2 STANDARD_FRICTION = new Vector2(.035f, 0f);
 
+    public Block(GameContext2d gameContext, Rectangle bounds, boolean wallslide) {
+        super(gameContext);
+        set(bounds, STANDARD_FRICTION.cpy(), false, false, wallslide, wallslide, false);
+    }
+
     public Block(GameContext2d gameContext, RectangleMapObject rectObj) {
         this(gameContext, rectObj.getRectangle(), rectObj.getProperties());
     }
@@ -60,11 +65,6 @@ public class Block extends Entity {
         set(bounds, properties, friction, resistance, gravityOn, wallSlideLeft, wallSlideRight, feetSticky);
     }
 
-    public Block(GameContext2d gameContext, Rectangle bounds, boolean wallslide) {
-        super(gameContext);
-        set(bounds, STANDARD_FRICTION.cpy(), false, false, wallslide, wallslide, false);
-    }
-
     private void set(Rectangle bounds, MapProperties properties, Vector2 friction, boolean resistance,
                      boolean gravityOn, boolean wallSlideLeft, boolean wallSlideRight, boolean feetSticky) {
         set(bounds, friction, resistance, gravityOn, wallSlideLeft, wallSlideRight, feetSticky);
@@ -81,7 +81,7 @@ public class Block extends Entity {
                 wallSlideLeft, wallSlideRight, feetSticky));
     }
 
-    private TrajectoryComponent trajectoryComponent(String trajStr) {
+    protected TrajectoryComponent trajectoryComponent(String trajStr) {
         TrajectoryComponent trajectoryComponent = new TrajectoryComponent();
         Collection<KeyValuePair<Vector2, Float>> trajectories = TrajectoryParser.parse(trajStr);
         trajectories.forEach(trajectoryDef ->
@@ -89,7 +89,7 @@ public class Block extends Entity {
         return trajectoryComponent;
     }
 
-    private BodyComponent bodyComponent(Rectangle bounds, Vector2 friction, boolean resistance, boolean gravityOn,
+    protected BodyComponent bodyComponent(Rectangle bounds, Vector2 friction, boolean resistance, boolean gravityOn,
                                               boolean wallSlideLeft, boolean wallSlideRight, boolean feetSticky) {
         BodyComponent bodyComponent = new BodyComponent(STATIC);
         bodyComponent.set(bounds);
@@ -118,7 +118,7 @@ public class Block extends Entity {
         return bodyComponent;
     }
 
-    private GraphComponent graphComponent() {
+    protected GraphComponent graphComponent() {
         GraphComponent graphComponent = new GraphComponent();
         graphComponent.addSupplier(() -> getComponent(BodyComponent.class).getCollisionBox(), () -> List.of(this));
         graphComponent.addSupplier(() -> {

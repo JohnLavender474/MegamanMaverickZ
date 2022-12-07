@@ -222,7 +222,8 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
                         gameContext.getSystem(WorldSystem.class).setOn(true);
                         megaman.getComponent(UpdatableComponent.class).setOn(true);
                         RectangleMapObject currentGameRoom = levelCameraManager.getCurrentGameRoom();
-                        if (currentGameRoom != null && currentGameRoom.getName().equals(BOSS_ROOM)) {
+                        if (currentGameRoom != null && currentGameRoom.getName() != null &&
+                                currentGameRoom.getName().equals(BOSS_ROOM)) {
                             gameContext.sendMessage(new Message(ENTER_BOSS_ROOM));
                         }
                     }

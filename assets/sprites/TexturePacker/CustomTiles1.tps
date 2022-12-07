@@ -190,23 +190,6 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
-            <key type="filename">../Frames/CustomTiles1/GearTrolleyColumn.png</key>
-            <key type="filename">../Frames/CustomTiles1/GearTrolleyHorizontal.png</key>
-            <key type="filename">../Frames/CustomTiles1/GearTrolleyJunction.png</key>
-            <struct type="IndividualSpriteSettings">
-                <key>pivotPoint</key>
-                <point_f>0.5,0.5</point_f>
-                <key>spriteScale</key>
-                <double>1</double>
-                <key>scale9Enabled</key>
-                <false/>
-                <key>scale9Borders</key>
-                <rect>8,8,16,16</rect>
-                <key>scale9Paddings</key>
-                <rect>8,8,16,16</rect>
-                <key>scale9FromFile</key>
-                <false/>
-            </struct>
             <key type="filename">../Frames/CustomTiles1/GearTrolleyPlatform.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>

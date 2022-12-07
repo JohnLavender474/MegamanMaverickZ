@@ -32,8 +32,7 @@ import static com.badlogic.gdx.math.MathUtils.*;
 import static com.game.health.HealthVals.MAX_HEALTH;
 import static com.game.assets.TextureAsset.ENEMIES_1;
 import static com.game.ViewVals.PPM;
-import static com.game.utils.UtilMethods.centerPoint;
-import static com.game.utils.UtilMethods.setBottomCenterToPoint;
+import static com.game.utils.UtilMethods.*;
 import static com.game.utils.enums.Position.CENTER;
 import static com.game.world.BodyType.ABSTRACT;
 import static com.game.world.FixtureType.DAMAGEABLE;
@@ -82,7 +81,8 @@ public class FloatingCan extends AbstractEnemy {
 
     private PathfindingComponent pathfindingComponent() {
         PathfindingComponent pathfindingComponent = new PathfindingComponent(
-                () -> getComponent(BodyComponent.class).getCenter(), () -> getMegaman().getFocus(),
+                () -> getComponent(BodyComponent.class).getCenter(),
+                () -> topCenterPoint(getMegaman().getComponent(BodyComponent.class).getCollisionBox()),
                 target -> {
                     Vector2 targetCenter = centerPoint(target);
                     Vector2 thisCenter = getComponent(BodyComponent.class).getCenter();
@@ -90,7 +90,7 @@ public class FloatingCan extends AbstractEnemy {
                     trajectory.set(cos(angle), sin(angle)).scl(SPEED * PPM);
                 },
                 target -> getComponent(BodyComponent.class).getCollisionBox().overlaps(target));
-        pathfindingComponent.setDoAllowDiagonal(() -> false);
+        pathfindingComponent.setDoAllowDiagonal(() -> true);
         pathfindingComponent.setDoAcceptPredicate(node ->
                 node.getObjects().stream().noneMatch(o -> o instanceof Block ||
                         (o instanceof FloatingCan && !o.equals(this))));

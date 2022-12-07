@@ -14,11 +14,10 @@ public class TrajectorySystem extends System {
     protected void processEntity(Entity entity, float delta) {
         TrajectoryComponent trajectoryComponent = entity.getComponent(TrajectoryComponent.class);
         BodyComponent bodyComponent = entity.getComponent(BodyComponent.class);
-        bodyComponent.setVelocity(trajectoryComponent.getCurrentTrajectory());
-        trajectoryComponent.getCurrentTimer().update(delta);
-        if (trajectoryComponent.getCurrentTimer().isFinished()) {
-            trajectoryComponent.getCurrentTimer().reset();
-            trajectoryComponent.setToNext();
+        bodyComponent.setVelocity(trajectoryComponent.getVelocity());
+        trajectoryComponent.update(delta);
+        if (trajectoryComponent.isFinished()) {
+            trajectoryComponent.reset();
         }
     }
 

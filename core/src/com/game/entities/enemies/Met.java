@@ -22,7 +22,6 @@ import com.game.updatables.UpdatableComponent;
 import com.game.utils.objects.Timer;
 import com.game.world.BodyComponent;
 import com.game.world.Fixture;
-import com.game.world.FixtureType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -40,6 +39,7 @@ import static com.game.world.BodySense.TOUCHING_HITBOX_LEFT;
 import static com.game.world.BodySense.TOUCHING_HITBOX_RIGHT;
 import static com.game.world.BodyType.*;
 import static com.game.world.FixtureType.*;
+import static java.lang.Math.*;
 
 @Getter
 @Setter
@@ -116,8 +116,8 @@ public class Met extends AbstractEnemy implements Faceable {
                         }
                     }
                     case POP_UP -> {
-                        setFacing(Math.round(megamanSupplier.get().getComponent(BodyComponent.class).getPosition().x) <
-                                Math.round(bodyComponent.getPosition().x) ? Facing.F_LEFT : Facing.F_RIGHT);
+                        setFacing((round(megamanSupplier.get().getComponent(BodyComponent.class).getPosition().x) <
+                                round(bodyComponent.getPosition().x)) ? Facing.F_LEFT : Facing.F_RIGHT);
                         Timer popUpTimer = metBehaviorTimers.get(POP_UP);
                         if (popUpTimer.isAtBeginning()) {
                             shoot();
@@ -130,7 +130,7 @@ public class Met extends AbstractEnemy implements Faceable {
                     case RUNNING -> {
                         Timer runningTimer = metBehaviorTimers.get(RUNNING);
                         runningTimer.update(delta);
-                        bodyComponent.setVelocity((isFacing(Facing.F_LEFT) ? -8f : 8f) * PPM, 0f);
+                        bodyComponent.setVelocityX((isFacing(Facing.F_LEFT) ? -8f : 8f) * PPM);
                         if (runningTimer.isFinished() ||
                                 (isFacing(Facing.F_LEFT) && bodyComponent.is(TOUCHING_HITBOX_LEFT)) ||
                                 (isFacing(Facing.F_RIGHT) && bodyComponent.is(TOUCHING_HITBOX_RIGHT))) {
@@ -154,28 +154,32 @@ public class Met extends AbstractEnemy implements Faceable {
         BodyComponent bodyComponent = new BodyComponent(DYNAMIC);
         bodyComponent.setSize(.75f * PPM, .75f * PPM);
         setBottomCenterToPoint(bodyComponent.getCollisionBox(), spawn);
-        bodyComponent.setGravity(-PPM * .5f);
+        bodyComponent.setGravity(-.5f * PPM);
+        // feet
+        Fixture feet = new Fixture(this, new Rectangle(0f, 0f, .75f * PPM, .1f * PPM), FEET);
+        feet.setOffset(0f, -.375f * PPM);
+        bodyComponent.addFixture(feet);
         // side model
         Rectangle sideModel = new Rectangle(0f, 0f, .1f * PPM, .75f * PPM);
         // left
-        Fixture left = new Fixture(this, new Rectangle(sideModel), FixtureType.LEFT);
+        Fixture left = new Fixture(this, new Rectangle(sideModel), LEFT);
         left.setOffset(-.65f * PPM, 0f);
         bodyComponent.addFixture(left);
         // right
-        Fixture right = new Fixture(this, new Rectangle(sideModel), FixtureType.RIGHT);
+        Fixture right = new Fixture(this, new Rectangle(sideModel), RIGHT);
         right.setOffset(.65f * PPM, 0f);
         bodyComponent.addFixture(right);
         // shield
-        Fixture shield = new Fixture(this, new Rectangle(0f, 0f, PPM, 1.5f * PPM), FixtureType.SHIELD);
+        Fixture shield = new Fixture(this, new Rectangle(0f, 0f, PPM, 1.5f * PPM), SHIELD);
         shield.putUserData("reflectDir", "up");
         bodyComponent.addFixture(shield);
         // box model
         Rectangle boxModel = new Rectangle(0f, 0f, .75f * PPM, .75f * PPM);
         // hit box
-        Fixture hitBox = new Fixture(this, new Rectangle(boxModel), FixtureType.DAMAGEABLE);
+        Fixture hitBox = new Fixture(this, new Rectangle(boxModel), DAMAGEABLE);
         bodyComponent.addFixture(hitBox);
         // damage box
-        Fixture damageBox = new Fixture(this, new Rectangle(boxModel), FixtureType.DAMAGER);
+        Fixture damageBox = new Fixture(this, new Rectangle(boxModel), DAMAGER);
         bodyComponent.addFixture(damageBox);
         return bodyComponent;
     }

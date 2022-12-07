@@ -21,8 +21,8 @@ import static java.util.stream.Collectors.toList;
 @Setter
 public class BodyComponent extends Component {
 
-    private final Vector2 friction = new Vector2();
     private final Vector2 velocity = new Vector2();
+    private final Vector2 friction = new Vector2();
     private final Vector2 resistance = new Vector2(1f, 1f);
     private final Rectangle collisionBox = new Rectangle();
     private final List<Fixture> fixtures = new ArrayList<>();
@@ -314,22 +314,22 @@ public class BodyComponent extends Component {
     }
 
     /**
-     * Apply impulse.
+     * Translate velocity.
      *
-     * @param x the x impulse to apply
-     * @param y the y impulse to apply
+     * @param x the x vel delta
+     * @param y the y vel delta
      */
-    public void applyImpulse(float x, float y) {
+    public void translateVelocity(float x, float y) {
         velocity.add(x, y);
     }
 
     /**
-     * Apply impulse.
+     * Translate velocity.
      *
-     * @param impulse the impulse to apply
+     * @param delta the vel delta
      */
-    public void applyImpulse(Vector2 impulse) {
-        applyImpulse(impulse.x, impulse.y);
+    public void translateVelocity(Vector2 delta) {
+        translateVelocity(delta.x, delta.y);
     }
 
     /**

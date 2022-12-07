@@ -1,40 +1,40 @@
-CustomTiles1.png
-size: 536, 64
+ConveyorBelt.png
+size: 320, 32
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
-8bitBlueBlock
+LeftPart-MoveLeft
   rotate: false
   xy: 0, 0
-  size: 8, 8
-  orig: 8, 8
-  offset: 0, 0
-  index: -1
-8bitBlueBlockNoBorder
-  rotate: false
-  xy: 8, 0
-  size: 8, 8
-  orig: 8, 8
-  offset: 0, 0
-  index: -1
-8bitBlueBlockTransBorder
-  rotate: false
-  xy: 16, 0
-  size: 8, 8
-  orig: 8, 8
-  offset: 0, 0
-  index: -1
-GearTrolleyPlatform
-  rotate: false
-  xy: 24, 0
   size: 64, 32
   orig: 64, 32
   offset: 0, 0
   index: -1
-JeffBezosLittleDickRocket
+LeftPart-MoveRight
   rotate: false
-  xy: 88, 0
-  size: 448, 64
-  orig: 448, 64
+  xy: 64, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+MiddlePart
+  rotate: false
+  xy: 128, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+RightPart-MoveLeft
+  rotate: false
+  xy: 192, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+RightPart-MoveRight
+  rotate: false
+  xy: 256, 0
+  size: 64, 32
+  orig: 64, 32
   offset: 0, 0
   index: -1

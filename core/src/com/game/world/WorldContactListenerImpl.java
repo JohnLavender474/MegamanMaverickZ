@@ -29,7 +29,9 @@ import static com.game.utils.ShapeUtils.intersectLineRect;
 import static com.game.world.BodySense.*;
 import static com.game.world.FixtureType.*;
 
-/** Implementation of {@link WorldContactListener}. */
+/**
+ * Implementation of {@link WorldContactListener}.
+ */
 public class WorldContactListenerImpl implements WorldContactListener {
 
     @Override
@@ -107,9 +109,9 @@ public class WorldContactListenerImpl implements WorldContactListener {
                     forceListenerEntity.addComponent(new UpdatableComponent());
                 }
                 forceListenerEntity.getComponent(UpdatableComponent.class).addUpdatable(d ->
-                        forceListenerBody.applyImpulse(force), doUpdate, doRemove);
+                        forceListenerBody.translateVelocity(force), doUpdate, doRemove);
             } else {
-                forceListenerBody.applyImpulse(force);
+                forceListenerBody.translateVelocity(force);
             }
         } else if (contact.acceptMask(SCANNER)) {
             Fixture scannerFixture = contact.mask1stFixture();
@@ -141,6 +143,8 @@ public class WorldContactListenerImpl implements WorldContactListener {
             }
         } else if (contact.acceptMask(FEET, FEET_STICKER)) {
             contact.mask1stBody().translate(contact.mask2ndBody().getPosDelta());
+        } else if (contact.acceptMask(FEET, CONVEYOR)) {
+            contact.mask1stBody().translate(contact.mask2ndFixture().getUserData(APPLY, Vector2.class));
         } else if (contact.acceptMask(HEAD, BLOCK)) {
             contact.mask1stEntity().getComponent(BodyComponent.class).setIs(HEAD_TOUCHING_BLOCK);
         } else if (contact.acceptMask(DAMAGER, DAMAGEABLE) &&
@@ -168,7 +172,7 @@ public class WorldContactListenerImpl implements WorldContactListener {
             BodyComponent forceListenerBody = contact.mask2ndBody();
             if (!forceListener.containsUserDataKey(CONTINUE) || !forceListener.getUserData(CONTINUE, Boolean.class)) {
                 Vector2 force = forceFunction.apply(forceListener.getEntity());
-                forceListenerBody.applyImpulse(force);
+                forceListenerBody.translateVelocity(force);
             }
         } else if (contact.acceptMask(SCANNER)) {
             Fixture scannerFixture = contact.mask1stFixture();
