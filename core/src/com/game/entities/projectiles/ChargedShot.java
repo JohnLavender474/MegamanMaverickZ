@@ -52,12 +52,6 @@ public class ChargedShot extends AbstractProjectile implements Faceable {
     }
 
     @Override
-    public boolean canDamage(Damageable damageable) {
-        return owner == null ||
-                (!owner.equals(damageable) && !(owner instanceof Damager && damageable instanceof Damager));
-    }
-
-    @Override
     public void onDamageInflictedTo(Damageable damageable) {
         setDead(true);
         gameContext.addEntity(new ChargedShotDisintegration(

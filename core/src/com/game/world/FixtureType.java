@@ -15,6 +15,7 @@ public enum FixtureType {
     HITTER,
     FEET_STICKER,
     CONVEYOR,
+    ICE,
     FORCE,
     FORCE_LISTENER,
     GRAVITY_SHIFT,

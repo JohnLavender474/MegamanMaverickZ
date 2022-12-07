@@ -56,8 +56,7 @@ public class Bullet extends AbstractProjectile {
 
     @Override
     public void hit(Fixture fixture) {
-        if (fixture.getEntity().equals(owner) || (owner instanceof AbstractEnemy &&
-                fixture.getEntity() instanceof AbstractEnemy)) {
+        if (fixture.getEntity().equals(owner)) {
             return;
         }
         if (fixture.isAnyFixtureType(BLOCK, DAMAGEABLE)) {

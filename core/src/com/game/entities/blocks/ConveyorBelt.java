@@ -21,10 +21,10 @@ import static com.game.world.FixtureType.*;
 
 public class ConveyorBelt extends Block {
 
-    private static final float FORCE_AMOUNT = 1.5f;
+    private static final float FORCE_AMOUNT = 1.75f;
 
     public ConveyorBelt(GameContext2d gameContext, RectangleMapObject rectObj) {
-        super(gameContext, rectObj.getRectangle(), false);
+        super(gameContext, rectObj.getRectangle(), true);
         // create conveyor box
         boolean isMovingLeft = rectObj.getProperties().get("isMovingLeft", Boolean.class);
         BodyComponent bodyComponent = getComponent(BodyComponent.class);

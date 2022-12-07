@@ -7,7 +7,6 @@ import com.game.cull.CullOutOfCamBoundsComponent;
 import com.game.damage.Damageable;
 import com.game.damage.Damager;
 import com.game.entities.contracts.Hitter;
-import com.game.entities.enemies.AbstractEnemy;
 import com.game.sounds.SoundComponent;
 import com.game.world.BodyComponent;
 import lombok.Getter;
@@ -33,8 +32,7 @@ public abstract class AbstractProjectile extends Entity implements Hitter, Damag
 
     @Override
     public boolean canDamage(Damageable damageable) {
-        return owner == null ||
-                (!owner.equals(damageable) && !(owner instanceof AbstractEnemy && damageable instanceof AbstractEnemy));
+        return owner == null || !owner.equals(damageable);
     }
 
     public boolean isInGameCamBounds() {

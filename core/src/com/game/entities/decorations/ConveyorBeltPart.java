@@ -31,12 +31,19 @@ public class ConveyorBeltPart extends Entity {
         Sprite sprite = new Sprite();
         sprite.setSize(PPM, PPM);
         return new SpriteComponent(sprite, new SpriteProcessor() {
+
+            @Override
+            public int getSpriteRenderPriority() {
+                return -1;
+            }
+
             @Override
             public boolean setPositioning(Wrapper<Rectangle> bounds, Wrapper<Position> position) {
                 bounds.setData(conveyorBounds);
                 position.setData(BOTTOM_LEFT);
                 return true;
             }
+
         });
     }
 

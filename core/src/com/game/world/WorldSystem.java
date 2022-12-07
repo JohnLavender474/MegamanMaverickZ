@@ -19,8 +19,7 @@ import static java.lang.Math.*;
 
 /**
  * {@link System} implementation that handles the logic pairOf the "game world physics", i.e. gravity, collision
- * handling,
- * and contact-event-handling.
+ * handling, and contact-event-handling.
  */
 public class WorldSystem extends System {
 
@@ -31,10 +30,10 @@ public class WorldSystem extends System {
     private final List<BodyComponent> bodies = new ArrayList<>();
     private final List<Updatable> postProcess = new ArrayList<>();
     private final WorldContactListener worldContactListener;
-    private final Vector2 airResistance;
     private final float fixedTimeStep;
 
     private Graph graph;
+    private Vector2 airResistance;
     private float accumulator;
 
     public WorldSystem(WorldContactListener worldContactListener, Vector2 airResistance, float fixedTimeStep) {
@@ -46,6 +45,10 @@ public class WorldSystem extends System {
 
     public void setWorldGraph(LevelTiledMap levelMap) {
         graph = new Graph(new Vector2(PPM, PPM), levelMap.getWidthInTiles(), levelMap.getHeightInTiles());
+    }
+
+    public void setAirResistance(Vector2 airResistance) {
+        this.airResistance = airResistance;
     }
 
     @Override
@@ -83,8 +86,12 @@ public class WorldSystem extends System {
                 }
                 // apply resistance
                 if (bodyComponent.isAffectedByResistance()) {
-                    velocity.x /= max(1f, bodyComponent.getResistance().x);
-                    velocity.y /= max(1f, bodyComponent.getResistance().y);
+                    if (bodyComponent.getResistance().x != 0) {
+                        velocity.x /= bodyComponent.getResistance().x;
+                    }
+                    if (bodyComponent.getResistance().y != 0) {
+                        velocity.y /= bodyComponent.getResistance().y;
+                    }
                 }
                 // reset resistance
                 bodyComponent.setResistance(airResistance);

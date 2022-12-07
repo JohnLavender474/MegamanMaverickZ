@@ -3,6 +3,8 @@ package com.game.world;
 import com.badlogic.gdx.math.Polyline;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.game.behaviors.BehaviorComponent;
+import com.game.behaviors.BehaviorType;
 import com.game.entities.Entity;
 import com.game.damage.Damageable;
 import com.game.damage.Damager;
@@ -22,6 +24,7 @@ import static com.badlogic.gdx.math.Vector2.*;
 import static com.game.GlobalKeys.*;
 import static com.game.assets.SoundAsset.MEGAMAN_LAND_SOUND;
 import static com.game.ViewVals.PPM;
+import static com.game.behaviors.BehaviorType.*;
 import static com.game.entities.megaman.Megaman.AButtonTask;
 import static com.game.entities.megaman.Megaman.AButtonTask._AIR_DASH;
 import static com.game.entities.megaman.Megaman.AButtonTask._JUMP;
@@ -145,6 +148,14 @@ public class WorldContactListenerImpl implements WorldContactListener {
             contact.mask1stBody().translate(contact.mask2ndBody().getPosDelta());
         } else if (contact.acceptMask(FEET, CONVEYOR)) {
             contact.mask1stBody().translate(contact.mask2ndFixture().getUserData(APPLY, Vector2.class));
+        } else if (contact.acceptMask(FEET, ICE)) {
+            contact.mask1stBody().getResistance().x = .95f;
+        } else if (contact.acceptMask(LEFT, ICE) || contact.acceptMask(RIGHT, ICE)) {
+            if (contact.mask1stEntity() instanceof Megaman megaman &&
+                    megaman.getComponent(BehaviorComponent.class).is(WALL_SLIDING)) {
+                megaman.getComponent(BodyComponent.class).setVelocity(0f, -15f * PPM);
+                System.out.println("Doing");
+            }
         } else if (contact.acceptMask(HEAD, BLOCK)) {
             contact.mask1stEntity().getComponent(BodyComponent.class).setIs(HEAD_TOUCHING_BLOCK);
         } else if (contact.acceptMask(DAMAGER, DAMAGEABLE) &&

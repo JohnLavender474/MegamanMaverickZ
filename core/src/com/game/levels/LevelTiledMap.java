@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.objects.CircleMapObject;
 import com.badlogic.gdx.maps.objects.PolylineMapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
@@ -11,11 +12,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile;
-import com.badlogic.gdx.math.Polygon;
-import com.badlogic.gdx.math.Polyline;
-import com.badlogic.gdx.math.Shape2D;
 import com.badlogic.gdx.utils.Disposable;
-import com.game.shapes.custom.Triangle;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -63,29 +60,34 @@ public class LevelTiledMap implements Disposable {
     }
 
     /**
-     * Returns the shape of the map object. Can be rectangle, circle, polyline, triangle, or polygon.
-     * Returns polyline if there are four vertices, triangle if there are six, and polygon if there are any
-     * other number of vertices.
+     * Get the map properties.
      *
-     * @param mapObj the map object
-     * @return the shape of the map object (rectangle, circle, polyline, triangle, or polygon)
+     * @return the map properties
      */
-    public static Shape2D getMapObjShape(MapObject mapObj) {
-        if (mapObj instanceof RectangleMapObject rectMapObj) {
-            return rectMapObj.getRectangle();
-        } else if (mapObj instanceof CircleMapObject circleMapObj) {
-            return circleMapObj.getCircle();
-        } else if (mapObj instanceof PolylineMapObject polyMapObj) {
-            Polyline polyline = polyMapObj.getPolyline();
-            if (polyline.getVertices().length == 4) {
-                return polyline;
-            } else if (polyline.getVertices().length == 6) {
-                return new Triangle(polyline.getVertices());
-            } else {
-                return new Polygon(polyline.getVertices());
-            }
-        }
-        return null;
+    public MapProperties getMapProperties() {
+        return tiledMap.getProperties();
+    }
+
+    /**
+     * Return if map has prop.
+     *
+     * @param key the key of the prop
+     * @return if map has prop
+     */
+    public boolean hasMapProp(String key) {
+        return tiledMap.getProperties().containsKey(key);
+    }
+
+    /**
+     * Get map prop.
+     *
+     * @param key the key of the map prop
+     * @param tClass the class of the prop
+     * @return the map prop
+     * @param <T> the type
+     */
+    public <T> T getMapProp(String key, Class<T> tClass) {
+        return getMapProperties().get(key, tClass);
     }
 
     /**

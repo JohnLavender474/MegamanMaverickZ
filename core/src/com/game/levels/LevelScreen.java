@@ -106,8 +106,15 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
         backgrounds = new ArrayList<>();
         levelMap.getRectObjsOfLayer(BACKGROUNDS).forEach(backgroundObj ->
             BackgroundFactory.create(gameContext, backgrounds, backgroundObj));
-        // set world graph
+        // set world graph and air resistance
         gameContext.getSystem(WorldSystem.class).setWorldGraph(levelMap);
+        if (levelMap.hasMapProp("airResistance")) {
+            String airResistStr = levelMap.getMapProp("airResistance", String.class);
+            String[] airResistStrVals = airResistStr.split(",");
+            float airResistX = Float.parseFloat(airResistStrVals[0]);
+            float airResistY = Float.parseFloat(airResistStrVals[1]);
+            gameContext.getSystem(WorldSystem.class).setAirResistance(new Vector2(airResistX, airResistY));
+        }
         // set graph for graph and pathfinding systems
         Graph levelGraph = new Graph(new Vector2(PPM, PPM), levelMap.getWidthInTiles(), levelMap.getHeightInTiles());
         gameContext.getSystem(PathfindingSystem.class).setGraph(levelGraph);

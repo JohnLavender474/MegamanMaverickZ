@@ -13,6 +13,7 @@ public class SpecialFactory {
 
     public static void create(GameContext2d gameContext, RectangleMapObject spawnObj) {
         switch (spawnObj.getName()) {
+            case "ice" -> gameContext.addEntity(new Ice(gameContext, spawnObj));
             case "force" -> gameContext.addEntity(new Force(gameContext, spawnObj));
             case "spring_bounce" -> gameContext.addEntity(new SpringBounce(gameContext, spawnObj));
             case "shield" -> {
