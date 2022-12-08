@@ -35,8 +35,7 @@ import static com.game.assets.TextureAsset.MET;
 import static com.game.ViewVals.PPM;
 import static com.game.entities.enemies.Met.MetBehavior.*;
 import static com.game.utils.UtilMethods.setBottomCenterToPoint;
-import static com.game.world.BodySense.TOUCHING_HITBOX_LEFT;
-import static com.game.world.BodySense.TOUCHING_HITBOX_RIGHT;
+import static com.game.world.BodySense.*;
 import static com.game.world.BodyType.*;
 import static com.game.world.FixtureType.*;
 import static java.lang.Math.*;
@@ -133,7 +132,14 @@ public class Met extends AbstractEnemy implements Faceable {
                     case RUNNING -> {
                         Timer runningTimer = metBehaviorTimers.get(RUNNING);
                         runningTimer.update(delta);
-                        bodyComponent.setVelocityX((isFacing(Facing.F_LEFT) ? -8f : 8f) * PPM);
+                        float runVel = 8f * PPM;
+                        if (isFacing(Facing.F_LEFT)) {
+                            runVel *= -1f;
+                        }
+                        if (bodyComponent.is(IN_WATER)) {
+                            runVel /= 2f;
+                        }
+                        bodyComponent.setVelocityX(runVel);
                         if (runningTimer.isFinished() ||
                                 (isFacing(Facing.F_LEFT) && bodyComponent.is(TOUCHING_HITBOX_LEFT)) ||
                                 (isFacing(Facing.F_RIGHT) && bodyComponent.is(TOUCHING_HITBOX_RIGHT))) {
@@ -158,10 +164,17 @@ public class Met extends AbstractEnemy implements Faceable {
         bodyComponent.setSize(.75f * PPM, .75f * PPM);
         setBottomCenterToPoint(bodyComponent.getCollisionBox(), spawn);
         bodyComponent.setGravity(-.5f * PPM);
+        Rectangle model1 = new Rectangle(0f, 0f, .75f * PPM, .2f * PPM);
         // feet
-        Fixture feet = new Fixture(this, new Rectangle(0f, 0f, .75f * PPM, .2f * PPM), FEET);
+        Fixture feet = new Fixture(this, new Rectangle(model1), FEET);
         feet.setOffset(0f, -.375f * PPM);
         bodyComponent.addFixture(feet);
+        // water listener
+        Fixture waterListener = new Fixture(this, new Rectangle(model1), WATER_LISTENER);
+        bodyComponent.addFixture(waterListener);
+        // force listener
+        Fixture forceListener = new Fixture(this, new Rectangle(model1), FORCE_LISTENER);
+        bodyComponent.addFixture(forceListener);
         // side model
         Rectangle sideModel = new Rectangle(0f, 0f, .1f * PPM, .75f * PPM);
         // left

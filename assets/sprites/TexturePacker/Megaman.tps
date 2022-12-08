@@ -188,6 +188,9 @@
             <key type="filename">../Frames/Megaman/SlipSlide.png</key>
             <key type="filename">../Frames/Megaman/SlipSlideShoot.png</key>
             <key type="filename">../Frames/Megaman/StandShoot.png</key>
+            <key type="filename">../Frames/Megaman/Swim.png</key>
+            <key type="filename">../Frames/Megaman/SwimAttack.png</key>
+            <key type="filename">../Frames/Megaman/SwimShoot.png</key>
             <key type="filename">../Frames/Megaman/WallSlide.png</key>
             <key type="filename">../Frames/Megaman/WallSlideShoot.png</key>
             <struct type="IndividualSpriteSettings">
@@ -221,6 +224,8 @@
             <key type="filename">../Frames/Megaman/Stand.png</key>
             <key type="filename">../Frames/Megaman/StandCharging.png</key>
             <key type="filename">../Frames/Megaman/StandHalfCharging.png</key>
+            <key type="filename">../Frames/Megaman/SwimCharging.png</key>
+            <key type="filename">../Frames/Megaman/SwimHalfCharging.png</key>
             <key type="filename">../Frames/Megaman/WallSlideCharging.png</key>
             <key type="filename">../Frames/Megaman/WallSlideHalfCharging.png</key>
             <struct type="IndividualSpriteSettings">

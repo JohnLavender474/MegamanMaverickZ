@@ -32,7 +32,7 @@ public class BehaviorComponent extends Component {
     }
 
     /**
-     * Return if performing any pairOf the provided behaviors.
+     * Return if performing any of the provided behaviors.
      *
      * @param behaviorTypes the behavior types
      * @return if performing any pairOf the provided behaviors

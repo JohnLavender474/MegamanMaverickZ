@@ -446,13 +446,18 @@ public class BodyComponent extends Component {
     }
 
     /**
-     * Is body sense true.
+     * Returns if any of the body senses true.
      *
-     * @param bodySense the body sense
-     * @return is body sense true
+     * @param bodySenses the body senses
+     * @return is any of the body senses true
      */
-    public boolean is(BodySense bodySense) {
-        return bodySenses.contains(bodySense);
+    public boolean is(BodySense... bodySenses) {
+        for (BodySense bodySense : bodySenses) {
+            if (this.bodySenses.contains(bodySense)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

@@ -69,7 +69,9 @@ import static com.game.world.BodySense.*;
 import static com.game.world.BodyType.DYNAMIC;
 import static com.game.world.FixtureType.*;
 
-/** Megaman, dah bloo bombah! */
+/**
+ * Megaman, dah bloo bombah!
+ */
 @Getter
 @Setter
 public class Megaman extends Entity implements Damageable, Faceable, CameraFocusable {
@@ -167,9 +169,9 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         addComponent(controllerComponent());
         addComponent(updatableComponent());
         addComponent(bodyComponent(spawn));
-        addComponent(animationComponent());
         addComponent(behaviorComponent());
         addComponent(spriteComponent());
+        addComponent(animationComponent());
         addComponent(new SoundComponent());
         ShapeComponent shapeComponent = new ShapeComponent();
         ShapeHandle shapeHandle = new ShapeHandle();
@@ -349,6 +351,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
 
     private ControllerComponent controllerComponent() {
         ControllerComponent controllerComponent = new ControllerComponent();
+        // left dpad
         controllerComponent.addControllerAdapter(DPAD_LEFT, new ControllerAdapter() {
 
             @Override
@@ -379,6 +382,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
             }
 
         });
+        // right dpad
         controllerComponent.addControllerAdapter(DPAD_RIGHT, new ControllerAdapter() {
 
             @Override
@@ -409,6 +413,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
             }
 
         });
+        // x
         controllerComponent.addControllerAdapter(X, new ControllerAdapter() {
 
             @Override
@@ -436,7 +441,8 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
 
     private BehaviorComponent behaviorComponent() {
         BehaviorComponent behaviorComponent = new BehaviorComponent();
-        // Wall slide
+        BodyComponent bodyComponent = getComponent(BodyComponent.class);
+        // wall slide
         Behavior wallSlide = new Behavior() {
 
             @Override
@@ -444,7 +450,6 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
                 if (isDamaged() || !megamanStats.canUseSpecialAbility(WALL_JUMP)) {
                     return false;
                 }
-                BodyComponent bodyComponent = getComponent(BodyComponent.class);
                 return wallJumpImpetusTimer.isFinished() && !bodyComponent.is(FEET_ON_GROUND) &&
                         ((bodyComponent.is(TOUCHING_WALL_SLIDE_LEFT) &&
                                 gameContext.isControllerButtonPressed(DPAD_LEFT)) ||
@@ -460,7 +465,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
 
             @Override
             protected void act(float delta) {
-                getComponent(BodyComponent.class).applyResistanceY(1.25f);
+                bodyComponent.applyResistanceY(1.25f);
             }
 
             @Override
@@ -471,14 +476,44 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
 
         };
         behaviorComponent.addBehavior(wallSlide);
-        // Jump
+        // swim
+        Behavior swim = new Behavior() {
+
+            @Override
+            protected boolean evaluate(float delta) {
+                if (isDamaged() || !bodyComponent.is(IN_WATER) ||
+                        behaviorComponent.is(WALL_SLIDING, AIR_DASHING, CLIMBING, JUMPING)) {
+                    return false;
+                }
+                if (behaviorComponent.is(SWIMMING)) {
+                    return bodyComponent.getVelocity().y > 0f;
+                }
+                return gameContext.isControllerButtonJustPressed(DPAD_UP);
+            }
+
+            @Override
+            protected void init() {
+                bodyComponent.translateVelocity(0f, 18f * PPM);
+                behaviorComponent.setIs(SWIMMING);
+            }
+
+            @Override
+            protected void act(float delta) {}
+
+            @Override
+            protected void end() {
+                behaviorComponent.setIsNot(SWIMMING);
+            }
+
+        };
+        behaviorComponent.addBehavior(swim);
+        // jump
         Behavior jump = new Behavior() {
 
             @Override
             protected boolean evaluate(float delta) {
-                BodyComponent bodyComponent = getComponent(BodyComponent.class);
                 if (isDamaged() || gameContext.isControllerButtonPressed(DPAD_DOWN) ||
-                        bodyComponent.is(HEAD_TOUCHING_BLOCK)) {
+                        bodyComponent.is(HEAD_TOUCHING_BLOCK) || behaviorComponent.is(SWIMMING)) {
                     return false;
                 }
                 return behaviorComponent.is(JUMPING) ?
@@ -492,18 +527,14 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
             @Override
             protected void init() {
                 behaviorComponent.setIs(JUMPING);
-                BodyComponent bodyComponent = getComponent(BodyComponent.class);
                 boolean wallSliding = behaviorComponent.is(WALL_SLIDING);
                 Vector2 vel = new Vector2();
                 float x = wallSliding ? WALL_JUMP_HORIZ : 0f;
-                if (isFacing(F_LEFT)) {
-                    x *= -1f;
-                }
                 float y = wallSliding ? WALL_JUMP_VEL : JUMP_VEL;
+                vel.set(isFacing(F_LEFT)? -x : x, y).scl(PPM);
                 if (bodyComponent.is(IN_WATER)) {
-                    y *= 1.35f;
+                    vel.scl(.75f, .9f);
                 }
-                vel.set(x, y).scl(PPM);
                 bodyComponent.setVelocity(vel);
                 if (wallSliding) {
                     wallJumpImpetusTimer.reset();
@@ -520,8 +551,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
             }
 
             @Override
-            protected void act(float delta) {
-            }
+            protected void act(float delta) {}
 
             @Override
             protected void end() {
@@ -531,13 +561,13 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
 
         };
         behaviorComponent.addBehavior(jump);
-        // Air dash
+        // air dash
         Behavior airDash = new Behavior() {
 
             @Override
             protected boolean evaluate(float delta) {
                 if (isDamaged() || !megamanStats.canUseSpecialAbility(AIR_DASH) || behaviorComponent.is(WALL_SLIDING) ||
-                        getComponent(BodyComponent.class).is(FEET_ON_GROUND) ||
+                        bodyComponent.is(FEET_ON_GROUND) ||
                         airDashTimer.isFinished()) {
                     return false;
                 }
@@ -548,21 +578,23 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
             @Override
             protected void init() {
                 getComponent(SoundComponent.class).requestSound(WHOOSH_SOUND);
-                getComponent(BodyComponent.class).setGravityOn(false);
-                behaviorComponent.setIs(AIR_DASHING);
+                bodyComponent.setGravityOn(false);
                 setAButtonTask(_JUMP);
+                behaviorComponent.setIs(AIR_DASHING);
             }
 
             @Override
             protected void act(float delta) {
-                BodyComponent bodyComponent = getComponent(BodyComponent.class);
                 airDashTimer.update(delta);
                 bodyComponent.setVelocityY(0f);
                 if ((isFacing(F_LEFT) && bodyComponent.is(TOUCHING_BLOCK_LEFT)) ||
                         (isFacing(F_RIGHT) && bodyComponent.is(TOUCHING_BLOCK_RIGHT))) {
                     return;
                 }
-                float x = AIR_DASH_VEL * PPM * (bodyComponent.is(IN_WATER) ? .75f : 1f);
+                float x = AIR_DASH_VEL * PPM;
+                if (bodyComponent.is(IN_WATER)) {
+                    x /= 2f;
+                }
                 if (isFacing(F_LEFT)) {
                     x *= -1f;
                 }
@@ -571,7 +603,6 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
 
             @Override
             protected void end() {
-                BodyComponent bodyComponent = getComponent(BodyComponent.class);
                 airDashTimer.reset();
                 bodyComponent.setGravityOn(true);
                 behaviorComponent.setIsNot(AIR_DASHING);
@@ -579,7 +610,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
             }
         };
         behaviorComponent.addBehavior(airDash);
-        // Ground slide
+        // ground slide
         Behavior groundSlide = new Behavior() {
 
             @Override
@@ -587,7 +618,6 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
                 if (!megamanStats.canUseSpecialAbility(GROUND_SLIDE)) {
                     return false;
                 }
-                BodyComponent bodyComponent = getComponent(BodyComponent.class);
                 if (behaviorComponent.is(GROUND_SLIDING) && bodyComponent.is(HEAD_TOUCHING_BLOCK)) {
                     return true;
                 }
@@ -610,7 +640,6 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
 
             @Override
             protected void act(float delta) {
-                BodyComponent bodyComponent = getComponent(BodyComponent.class);
                 groundSlideTimer.update(delta);
                 if (isDamaged() || (isFacing(F_LEFT) && bodyComponent.is(TOUCHING_BLOCK_LEFT)) ||
                         (isFacing(F_RIGHT) && bodyComponent.is(TOUCHING_BLOCK_RIGHT))) {
@@ -625,7 +654,6 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
 
             @Override
             protected void end() {
-                BodyComponent bodyComponent = getComponent(BodyComponent.class);
                 groundSlideTimer.reset();
                 behaviorComponent.setIsNot(GROUND_SLIDING);
                 float endDash = (bodyComponent.is(IN_WATER) ? 2f : 5f) * PPM;
@@ -691,8 +719,8 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         }});
         bodyComponent.addFixture(forceListener);
         // water listener
-        Fixture waterListener = new Fixture(this, new Rectangle(model1), WATER_LISTENER);
-        waterListener.setOffset(0f, PPM / 2f);
+        Fixture waterListener = new Fixture(this, new Rectangle(0f, 0f, .625f * PPM, PPM / 8f), WATER_LISTENER);
+        // waterListener.setOffset(0f, PPM / 2f);
         bodyComponent.addFixture(waterListener);
         // pre-process
         bodyComponent.setPreProcess(delta -> {
@@ -713,7 +741,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
             if (bodyComponent.getVelocity().y < 0f && !bodyComponent.is(FEET_ON_GROUND)) {
                 bodyComponent.setGravity(UNGROUNDED_GRAVITY * PPM * (bodyComponent.is(IN_WATER) ? .5f : 1f));
             } else {
-                bodyComponent.setGravity(GROUNDED_GRAVITY * PPM * (bodyComponent.is(IN_WATER) ? .75f : 1f));
+                bodyComponent.setGravity(GROUNDED_GRAVITY * PPM * (bodyComponent.is(IN_WATER) ? 1.75f : 1f));
             }
         });
         return bodyComponent;
@@ -789,6 +817,16 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
                 } else {
                     return "WallSlide";
                 }
+            } else if (behaviorComponent.is(SWIMMING)) {
+                if (isShooting()) {
+                    return "SwimShoot";
+                } else if (isChargingFully()) {
+                    return "SwimCharging";
+                } else if (isCharging()) {
+                    return "SwimHalfCharging";
+                } else {
+                    return "Swim";
+                }
             } else if (behaviorComponent.is(JUMPING) || !bodyComponent.is(FEET_ON_GROUND)) {
                 if (isShooting()) {
                     return "JumpShoot";
@@ -859,48 +897,65 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
             }
             TextureAtlas textureAtlas = gameContext.getAsset(textureAtlasKey, TextureAtlas.class);
             Map<String, TimedAnimation> animations = new HashMap<>();
+            // climb
             animations.put("Climb", new TimedAnimation(textureAtlas.findRegion("Climb"), 2, .125f));
             animations.put("ClimbShoot", new TimedAnimation(textureAtlas.findRegion("ClimbShoot")));
             animations.put("ClimbHalfCharging", new TimedAnimation(
                     textureAtlas.findRegion("ClimbHalfCharging"), 2, chargingAnimTime));
             animations.put("ClimbCharging", new TimedAnimation(
                     textureAtlas.findRegion("ClimbCharging"), 2, chargingAnimTime));
+            // stand
             animations.put("Stand", new TimedAnimation(textureAtlas.findRegion("Stand"), new float[]{1.5f, .15f}));
             animations.put("StandCharging", new TimedAnimation(
                     textureAtlas.findRegion("StandCharging"), 2, chargingAnimTime));
             animations.put("StandHalfCharging", new TimedAnimation(
                     textureAtlas.findRegion("StandHalfCharging"), 2, chargingAnimTime));
             animations.put("StandShoot", new TimedAnimation(textureAtlas.findRegion("StandShoot")));
+            // damaged
             animations.put("Damaged", new TimedAnimation(textureAtlas.findRegion("Damaged"), 3, .05f));
             animations.put("LayDownDamaged", new TimedAnimation(textureAtlas.findRegion("LayDownDamaged"), 3, .05f));
+            // run
             animations.put("Run", new TimedAnimation(textureAtlas.findRegion("Run"), 4, .125f));
             animations.put("RunCharging", new TimedAnimation(textureAtlas
                     .findRegion("RunCharging"), 4, chargingAnimTime));
             animations.put("RunHalfCharging", new TimedAnimation(
                     textureAtlas.findRegion("RunHalfCharging"), 4, chargingAnimTime));
             animations.put("RunShoot", new TimedAnimation(textureAtlas.findRegion("RunShoot"), 4, .125f));
+            // jump
             animations.put("Jump", new TimedAnimation(textureAtlas.findRegion("Jump")));
             animations.put("JumpCharging", new TimedAnimation(
                     textureAtlas.findRegion("JumpCharging"), 2, chargingAnimTime));
             animations.put("JumpHalfCharging", new TimedAnimation(
                     textureAtlas.findRegion("JumpHalfCharging"), 2, chargingAnimTime));
             animations.put("JumpShoot", new TimedAnimation(textureAtlas.findRegion("JumpShoot")));
+            // swim
+            animations.put("Swim", new TimedAnimation(textureAtlas.findRegion("Swim")));
+            animations.put("SwimAttack", new TimedAnimation(textureAtlas.findRegion("SwimAttack")));
+            animations.put("SwimCharging", new TimedAnimation(
+                    textureAtlas.findRegion("SwimCharging"), 2, chargingAnimTime));
+            animations.put("SwimHalfCharging", new TimedAnimation(
+                    textureAtlas.findRegion("SwimHalfCharging"), 2, chargingAnimTime));
+            animations.put("SwimShoot", new TimedAnimation(textureAtlas.findRegion("SwimShoot")));
+            // wall slide
             animations.put("WallSlide", new TimedAnimation(textureAtlas.findRegion("WallSlide")));
             animations.put("WallSlideCharging", new TimedAnimation(
                     textureAtlas.findRegion("WallSlideCharging"), 2, chargingAnimTime));
             animations.put("WallSlideHalfCharging", new TimedAnimation(
                     textureAtlas.findRegion("WallSlideHalfCharging"), 2, chargingAnimTime));
             animations.put("WallSlideShoot", new TimedAnimation(textureAtlas.findRegion("WallSlideShoot")));
+            // ground slide
             animations.put("GroundSlide", new TimedAnimation(textureAtlas.findRegion("GroundSlide")));
             animations.put("GroundSlideCharging", new TimedAnimation(
                     textureAtlas.findRegion("GroundSlideCharging"), 2, chargingAnimTime));
             animations.put("GroundSlideHalfCharging", new TimedAnimation(
                     textureAtlas.findRegion("GroundSlideHalfCharging"), 2, chargingAnimTime));
+            // air dash
             animations.put("AirDash", new TimedAnimation(textureAtlas.findRegion("AirDash")));
             animations.put("AirDashCharging", new TimedAnimation(
                     textureAtlas.findRegion("AirDashCharging"), 2, chargingAnimTime));
             animations.put("AirDashHalfCharging", new TimedAnimation(
                     textureAtlas.findRegion("AirDashHalfCharging"), 2, chargingAnimTime));
+            // slip slide
             animations.put("SlipSlide", new TimedAnimation(textureAtlas.findRegion("SlipSlide")));
             animations.put("SlipSlideCharging", new TimedAnimation(
                     textureAtlas.findRegion("SlipSlideCharging"), 2, chargingAnimTime));
