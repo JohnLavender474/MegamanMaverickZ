@@ -90,11 +90,11 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
     private static final float RUN_SPEED = 4f;
     private static final float WATER_RUN_SPEED = 2f;
 
-    private static final float JUMP_VEL = 18f;
+    private static final float JUMP_VEL = 17.5f;
     private static final float WATER_JUMP_VEL = 25f;
 
-    private static final float WALL_JUMP_VEL = 32f;
-    private static final float WALL_JUMP_HORIZ = 15f;
+    private static final float WALL_JUMP_VEL = 30f;
+    private static final float WALL_JUMP_HORIZ = 12f;
     private static final float WALL_JUMP_IMPETUS_TIME = .2f;
 
     private static final float AIR_DASH_VEL = 12f;
@@ -166,13 +166,13 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         megamanWeaponDefs.setMegaman(this);
         setCurrentWeapon(MEGA_BUSTER);
         addComponent(healthComponent(MAX_HEALTH));
-        addComponent(controllerComponent());
         addComponent(updatableComponent());
         addComponent(bodyComponent(spawn));
         addComponent(behaviorComponent());
         addComponent(spriteComponent());
         addComponent(animationComponent());
         addComponent(new SoundComponent());
+        addComponent(controllerComponent());
         ShapeComponent shapeComponent = new ShapeComponent();
         ShapeHandle shapeHandle = new ShapeHandle();
         shapeHandle.setShapeSupplier(() -> getComponent(BodyComponent.class).getCollisionBox());
@@ -351,16 +351,16 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
 
     private ControllerComponent controllerComponent() {
         ControllerComponent controllerComponent = new ControllerComponent();
+        BodyComponent bodyComponent = getComponent(BodyComponent.class);
+        BehaviorComponent behaviorComponent = getComponent(BehaviorComponent.class);
         // left dpad
         controllerComponent.addControllerAdapter(DPAD_LEFT, new ControllerAdapter() {
 
             @Override
             public void onPressContinued(float delta) {
-                if (isDamaged()) {
+                if (isDamaged() || gameContext.isControllerButtonPressed(DPAD_RIGHT)) {
                     return;
                 }
-                BodyComponent bodyComponent = getComponent(BodyComponent.class);
-                BehaviorComponent behaviorComponent = getComponent(BehaviorComponent.class);
                 setFacing(behaviorComponent.is(WALL_SLIDING) ? F_RIGHT : F_LEFT);
                 behaviorComponent.set(RUNNING, !behaviorComponent.is(WALL_SLIDING));
                 float threshold = -RUN_SPEED * PPM * (bodyComponent.is(IN_WATER) ? .65f : 1f);
@@ -371,7 +371,9 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
 
             @Override
             public void onJustReleased() {
-                getComponent(BehaviorComponent.class).setIsNot(RUNNING);
+                if (!gameContext.isControllerButtonPressed(DPAD_RIGHT)) {
+                    getComponent(BehaviorComponent.class).setIsNot(RUNNING);
+                }
             }
 
             @Override
@@ -387,11 +389,9 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
 
             @Override
             public void onPressContinued(float delta) {
-                if (isDamaged()) {
+                if (isDamaged() || gameContext.isControllerButtonPressed(DPAD_LEFT)) {
                     return;
                 }
-                BodyComponent bodyComponent = getComponent(BodyComponent.class);
-                BehaviorComponent behaviorComponent = getComponent(BehaviorComponent.class);
                 setFacing(behaviorComponent.is(WALL_SLIDING) ? F_LEFT : F_RIGHT);
                 behaviorComponent.set(RUNNING, !behaviorComponent.is(WALL_SLIDING));
                 float threshold = RUN_SPEED * PPM * (bodyComponent.is(IN_WATER) ? .65f : 1f);
@@ -402,7 +402,9 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
 
             @Override
             public void onJustReleased() {
-                getComponent(BehaviorComponent.class).setIsNot(RUNNING);
+                if (!gameContext.isControllerButtonPressed(DPAD_LEFT)) {
+                    getComponent(BehaviorComponent.class).setIsNot(RUNNING);
+                }
             }
 
             @Override
@@ -673,7 +675,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         bodyComponent.maskForCustomCollisions(ABSTRACT_BOUNDS);
         bodyComponent.setPosition(spawn);
         bodyComponent.setWidth(.8f * PPM);
-        Rectangle model1 = new Rectangle(0f, 0f, .625f * PPM, PPM / 16f);
+        Rectangle model1 = new Rectangle(0f, 0f, .575f * PPM, PPM / 16f);
         // feet and bounceable
         Fixture feet = new Fixture(this, new Rectangle(model1), FEET);
         bodyComponent.addFixture(feet);
