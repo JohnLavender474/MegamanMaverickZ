@@ -21,7 +21,8 @@ public enum MusicAsset {
     MM11_MAIN_MENU_MUSIC("MM11_Main_Menu.mp3"),
     MM11_WILY_STAGE_MUSIC("MM11_Wily_Stage.mp3"),
     XENOBLADE_GAUR_PLAINS_MUSIC("Xenoblade_GaurPlains.ogg"),
-    MMX_LEVEL_SELECT_SCREEN_MUSIC("MMX_LevelSelectScreen.ogg");
+    MMX_LEVEL_SELECT_SCREEN_MUSIC("MMX_LevelSelectScreen.ogg"),
+    MM3_SNAKE_MAN_MUSIC("SnakeManMM3.mp3");
 
     private static final String prefix = "music/";
 
