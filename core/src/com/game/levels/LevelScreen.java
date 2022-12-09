@@ -281,9 +281,7 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
                 String nextGameRoom = message.getContent(NEXT, String.class);
                 levelCameraManager.transToGameRoomWithName(nextGameRoom);
             }
-            case ENTER_BOSS_ROOM -> {
-                System.out.println("Enter boss room");
-            }
+            case ENTER_BOSS_ROOM -> System.out.println("Enter boss room");
         }
     }
 

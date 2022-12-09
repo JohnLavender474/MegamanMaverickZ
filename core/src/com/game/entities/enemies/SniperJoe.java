@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.game.GameContext2d;
 import com.game.animations.AnimationComponent;
+import com.game.entities.projectiles.*;
 import com.game.shapes.ShapeComponent;
 import com.game.shapes.ShapeHandle;
 import com.game.utils.enums.Position;
@@ -16,10 +17,6 @@ import com.game.damage.Damager;
 import com.game.entities.contracts.Faceable;
 import com.game.entities.contracts.Facing;
 import com.game.entities.megaman.Megaman;
-import com.game.entities.projectiles.Bullet;
-import com.game.entities.projectiles.ChargedShot;
-import com.game.entities.projectiles.ChargedShotDisintegration;
-import com.game.entities.projectiles.Fireball;
 import com.game.sounds.SoundComponent;
 import com.game.sprites.SpriteComponent;
 import com.game.updatables.UpdatableComponent;
@@ -30,11 +27,11 @@ import com.game.world.Fixture;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Supplier;
 
 import static com.badlogic.gdx.graphics.Color.*;
+import static com.game.GlobalKeys.COLLECTION;
 import static com.game.assets.TextureAsset.ENEMIES_1;
 import static com.game.ViewVals.PPM;
 import static com.game.assets.SoundAsset.*;
@@ -49,6 +46,8 @@ public class SniperJoe extends AbstractEnemy implements Faceable {
 
     private static final float DAMAGE_DURATION = .15f;
     private static final float BULLET_SPEED = 7.5f;
+
+    private final Set<Fixture> scannerSet = new HashSet<>();
 
     private final Timer shieldedTimer = new Timer(1.75f);
     private final Timer shootingTimer = new Timer(1.5f, new TimeMarkedRunnable(.15f, this::shoot),
@@ -119,6 +118,12 @@ public class SniperJoe extends AbstractEnemy implements Faceable {
                 if (behaviorTimer.isFinished()) {
                     setShielded(!isShielded);
                 }
+                if (scannerSet.stream().anyMatch(f -> f.getEntity() instanceof AbstractProjectile projectile &&
+                        !SniperJoe.this.equals(projectile.getOwner()))) {
+                    behaviorTimer.reset();
+                    setShielded(true);
+                }
+                scannerSet.clear();
             }
         });
     }
@@ -167,6 +172,10 @@ public class SniperJoe extends AbstractEnemy implements Faceable {
         Fixture shield = new Fixture(this, new Rectangle(0f, 0f, .4f * PPM, .9f * PPM), SHIELD);
         shield.putUserData("reflectDir", "straight");
         bodyComponent.addFixture(shield);
+        // scanner
+        Fixture scanner = new Fixture(this, new Rectangle(0f, 0f, PPM * 2f, 1.5f * PPM), SCANNER);
+        scanner.putUserData(COLLECTION, scannerSet);
+        bodyComponent.addFixture(scanner);
         // body pre-process
         bodyComponent.setPreProcess(delta -> {
             if (isShielded) {

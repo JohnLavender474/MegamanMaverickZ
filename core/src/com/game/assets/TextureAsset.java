@@ -35,6 +35,7 @@ public enum TextureAsset {
 
     // Decorations
     DECORATIONS("Decorations.txt"),
+    WATER("Water.txt"),
 
     // Backgrounds
     BACKGROUNDS_1("Backgrounds1.txt"),

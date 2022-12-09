@@ -20,7 +20,7 @@ import com.game.utils.objects.Timer;
 import java.util.*;
 import java.util.function.Supplier;
 
-import static com.game.assets.MusicAsset.MM2_BOSS_INTRO;
+import static com.game.assets.MusicAsset.MM2_BOSS_INTRO_MUSIC;
 import static com.game.assets.SoundAsset.*;
 import static com.game.dialogue.DialogueAnimQ.*;
 import static com.game.sprites.RenderingGround.UI;
@@ -57,7 +57,7 @@ public class LevelIntroScreen extends ScreenAdapter {
 
     public LevelIntroScreen(GameContext2d gameContext) {
         this.gameContext = gameContext;
-        music = gameContext.getAsset(MM2_BOSS_INTRO.getSrc(), Music.class);
+        music = gameContext.getAsset(MM2_BOSS_INTRO_MUSIC.getSrc(), Music.class);
         for (int i = 0; i < 4; i++) {
             stars.add(new Stars(gameContext, 0f, i * PPM * VIEW_HEIGHT / 4f, i + 1));
         }

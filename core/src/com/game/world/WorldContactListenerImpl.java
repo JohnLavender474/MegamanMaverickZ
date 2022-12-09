@@ -1,29 +1,35 @@
 package com.game.world;
 
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.Polyline;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.game.GameContext2d;
 import com.game.behaviors.BehaviorComponent;
-import com.game.entities.Entity;
 import com.game.damage.Damageable;
 import com.game.damage.Damager;
+import com.game.entities.Entity;
 import com.game.entities.contracts.Hitter;
+import com.game.entities.decorations.WaterSplash;
 import com.game.entities.megaman.Megaman;
 import com.game.entities.projectiles.AbstractProjectile;
 import com.game.health.HealthComponent;
 import com.game.sounds.SoundComponent;
 import com.game.updatables.UpdatableComponent;
+import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static com.badlogic.gdx.math.Vector2.*;
+import static com.badlogic.gdx.math.Vector2.Zero;
 import static com.game.GlobalKeys.*;
-import static com.game.assets.SoundAsset.MEGAMAN_LAND_SOUND;
 import static com.game.ViewVals.PPM;
-import static com.game.behaviors.BehaviorType.*;
+import static com.game.assets.SoundAsset.MEGAMAN_LAND_SOUND;
+import static com.game.assets.SoundAsset.SPLASH_SOUND;
+import static com.game.behaviors.BehaviorType.WALL_SLIDING;
 import static com.game.entities.megaman.Megaman.AButtonTask;
 import static com.game.entities.megaman.Megaman.AButtonTask._AIR_DASH;
 import static com.game.entities.megaman.Megaman.AButtonTask._JUMP;
@@ -34,7 +40,10 @@ import static com.game.world.FixtureType.*;
 /**
  * Implementation of {@link WorldContactListener}.
  */
+@RequiredArgsConstructor
 public class WorldContactListenerImpl implements WorldContactListener {
+
+    private final GameContext2d gameContext;
 
     @Override
     @SuppressWarnings("unchecked")
@@ -64,6 +73,21 @@ public class WorldContactListenerImpl implements WorldContactListener {
             }
         } else if (contact.acceptMask(WATER, WATER_LISTENER)) {
             contact.mask2ndBody().setIs(IN_WATER);
+            if (contact.mask2ndEntity().isJustSpawned()) {
+                return;
+            }
+            List<Vector2> waterSplashPos = new ArrayList<>();
+            Rectangle waterListenerBounds = (Rectangle) contact.mask2ndFixture().getFixtureShape();
+            Rectangle waterBounds = (Rectangle) contact.mask1stFixture().getFixtureShape();
+            int numWaterSplashes = (int) Math.ceil(waterListenerBounds.width / PPM);
+            for (int i = 0; i < numWaterSplashes; i++) {
+                waterSplashPos.add(new Vector2(waterListenerBounds.x + (PPM / 2f) + i * PPM,
+                        waterBounds.y + waterBounds.height));
+            }
+            List<WaterSplash> waterSplashes = WaterSplash.create(gameContext, waterSplashPos);
+            gameContext.addEntities(waterSplashes);
+            Sound splashSound = gameContext.getAsset(SPLASH_SOUND.getSrc(), Sound.class);
+            gameContext.playSound(splashSound);
         } else if (contact.acceptMask(HEAD, BLOCK)) {
             contact.mask1stBody().setIs(HEAD_TOUCHING_BLOCK);
         } else if (contact.acceptMask(DAMAGER, DAMAGEABLE) &&
@@ -99,7 +123,7 @@ public class WorldContactListenerImpl implements WorldContactListener {
             Function<Entity, Vector2> forceFunction = (Function<Entity, Vector2>) forceFixture.getUserData(FUNCTION);
             Collection<Class<? extends Entity>> forceListenerMask = (Collection<Class<? extends Entity>>)
                     forceListenerFixture.getUserData(COLLECTION);
-            if (!forceListenerMask.contains(forceFixture.getEntity().getClass())) {
+            if (forceListenerMask != null && !forceListenerMask.contains(forceFixture.getEntity().getClass())) {
                 return;
             }
             Vector2 force = forceFunction.apply(contact.mask2ndEntity());
@@ -120,7 +144,7 @@ public class WorldContactListenerImpl implements WorldContactListener {
         } else if (contact.acceptMask(SCANNER)) {
             Fixture scannerFixture = contact.mask1stFixture();
             Fixture other = contact.mask2ndFixture();
-            ((Collection<FixtureType>) scannerFixture.getUserData(COLLECTION)).add(other.getFixtureType());
+            ((Collection<Fixture>) scannerFixture.getUserData(COLLECTION)).add(other);
         }
     }
 
@@ -191,7 +215,7 @@ public class WorldContactListenerImpl implements WorldContactListener {
         } else if (contact.acceptMask(SCANNER)) {
             Fixture scannerFixture = contact.mask1stFixture();
             Fixture other = contact.mask2ndFixture();
-            ((Collection<FixtureType>) scannerFixture.getUserData(COLLECTION)).add(other.getFixtureType());
+            ((Collection<Fixture>) scannerFixture.getUserData(COLLECTION)).add(other);
         }
     }
 
@@ -218,6 +242,21 @@ public class WorldContactListenerImpl implements WorldContactListener {
             contact.mask1stBody().setIsNot(HEAD_TOUCHING_BLOCK);
         } else if (contact.acceptMask(WATER, WATER_LISTENER)) {
             contact.mask2ndBody().setIsNot(IN_WATER);
+            if (contact.mask2ndEntity().isJustSpawned()) {
+                return;
+            }
+            List<Vector2> waterSplashPos = new ArrayList<>();
+            Rectangle waterListenerBounds = (Rectangle) contact.mask2ndFixture().getFixtureShape();
+            Rectangle waterBounds = (Rectangle) contact.mask1stFixture().getFixtureShape();
+            int numWaterSplashes = (int) Math.ceil(waterListenerBounds.width / PPM);
+            for (int i = 0; i < numWaterSplashes; i++) {
+                waterSplashPos.add(new Vector2(waterListenerBounds.x + (PPM / 2f) + i * PPM,
+                        waterBounds.y + waterBounds.height));
+            }
+            List<WaterSplash> waterSplashes = WaterSplash.create(gameContext, waterSplashPos);
+            gameContext.addEntities(waterSplashes);
+            Sound splashSound = gameContext.getAsset(SPLASH_SOUND.getSrc(), Sound.class);
+            gameContext.playSound(splashSound);
         }
     }
 

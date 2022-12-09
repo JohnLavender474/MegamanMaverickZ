@@ -10,6 +10,7 @@ import com.game.GameContext2d;
 import com.game.entities.decorations.Disintegration;
 import com.game.entities.enemies.AbstractEnemy;
 import com.game.entities.enemies.Matasaburo;
+import com.game.entities.megaman.Megaman;
 import com.game.sounds.SoundComponent;
 import com.game.sprites.SpriteProcessor;
 import com.game.sprites.SpriteComponent;

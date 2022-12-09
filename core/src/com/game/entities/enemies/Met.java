@@ -26,10 +26,13 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import static com.game.GlobalKeys.COLLECTION;
 import static com.game.assets.SoundAsset.*;
+import static com.game.assets.TextureAsset.COLORS;
 import static com.game.health.HealthVals.MAX_HEALTH;
 import static com.game.assets.TextureAsset.MET;
 import static com.game.ViewVals.PPM;
@@ -174,6 +177,9 @@ public class Met extends AbstractEnemy implements Faceable {
         bodyComponent.addFixture(waterListener);
         // force listener
         Fixture forceListener = new Fixture(this, new Rectangle(model1), FORCE_LISTENER);
+        forceListener.putUserData(COLLECTION, new HashSet<>() {{
+            add(MagFly.class);
+        }});
         bodyComponent.addFixture(forceListener);
         // side model
         Rectangle sideModel = new Rectangle(0f, 0f, .1f * PPM, .75f * PPM);

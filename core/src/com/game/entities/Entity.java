@@ -11,14 +11,15 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+@Getter
+@Setter
 public class Entity implements MessageListener {
 
     protected final GameContext2d gameContext;
     protected final Map<Class<? extends Component>, Component> components = new HashMap<>();
 
-    @Getter
-    @Setter
-    private boolean dead;
+    private boolean dead = false;
+    private boolean justSpawned = true;
 
     public Entity(GameContext2d gameContext) {
         this(gameContext, true);

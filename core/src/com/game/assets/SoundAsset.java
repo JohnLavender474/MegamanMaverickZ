@@ -27,7 +27,9 @@ public enum SoundAsset {
     CRASH_BOMBER_SOUND("Megaman_2_Sounds/crash_bomber.wav"),
     MEGA_BUSTER_BULLET_SHOT_SOUND("MegaBusterBulletShot.mp3"),
     MEGA_BUSTER_CHARGED_SHOT_SOUND("MegaBusterChargedShot.mp3"),
-    BOSS_DOOR("Megaman_2_Sounds/boss_door.wav");
+    BOSS_DOOR("Megaman_2_Sounds/boss_door.wav"),
+    SPLASH_SOUND("Megaman_2_Sounds/water_splash.mp3"),
+    SWIM_SOUND("SuperMarioBros/smb_stomp.mp3");
 
     private static final String prefix = "sounds/";
 

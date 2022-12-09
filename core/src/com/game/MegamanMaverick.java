@@ -67,8 +67,7 @@ import static com.game.ConstFuncs.*;
 import static com.game.GameScreen.*;
 import static com.game.GlobalKeys.KEYBOARD;
 import static com.game.ViewVals.*;
-import static com.game.assets.MusicAsset.MMZ_NEO_ARCADIA_MUSIC;
-import static com.game.assets.MusicAsset.XENOBLADE_GAUR_PLAINS_MUSIC;
+import static com.game.assets.MusicAsset.*;
 import static com.game.controllers.ControllerButtonStatus.*;
 import static com.game.controllers.ControllerUtils.*;
 import static com.game.entities.megaman.MegamanSpecialAbility.*;
@@ -81,7 +80,6 @@ import static com.game.sprites.RenderingGround.PLAYGROUND;
 import static com.game.sprites.RenderingGround.UI;
 import static com.game.utils.DebugLogger.DebugLevel.DEBUG;
 import static com.game.utils.UtilMethods.equalsAny;
-import static com.game.utils.UtilMethods.setCenterRightToPoint;
 import static com.game.world.WorldVals.AIR_RESISTANCE;
 import static com.game.world.WorldVals.FIXED_TIME_STEP;
 import static java.util.Collections.unmodifiableCollection;
@@ -168,7 +166,7 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
         addSystem(new CullOnOutOfCamBoundsSystem(getViewport(PLAYGROUND).getCamera()));
         addSystem(new HealthSystem());
         addSystem(new TrajectorySystem());
-        addSystem(new WorldSystem(new WorldContactListenerImpl(), AIR_RESISTANCE, FIXED_TIME_STEP));
+        addSystem(new WorldSystem(new WorldContactListenerImpl(this), AIR_RESISTANCE, FIXED_TIME_STEP));
         addSystem(new GraphSystem());
         addSystem(new PathfindingSystem(runOnShutdown));
         addSystem(new RotatingLineSystem());
@@ -200,7 +198,7 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
         // fancy screens
         screens.put(LEVEL_INTRO, new LevelIntroScreen(this));
         // test screens
-        screens.put(TEST_STAGE, new LevelScreen(this, "tiledmaps/tmx/Test5.tmx", MMZ_NEO_ARCADIA_MUSIC.getSrc()));
+        screens.put(TEST_STAGE, new LevelScreen(this, "tiledmaps/tmx/Test5.tmx", MMX2_X_HUNTER_MUSIC.getSrc()));
         screens.put(TEST_TEXTURE_ASSET, new TextureAssetTestScreen(this, "Gear Trolley Platform"));
         // boss level screens
         for (BossEnum boss : BossEnum.values()) {
@@ -292,6 +290,7 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
         });
         entitiesToRemove.forEach(this::removeEntity);
         systems.values().forEach(system -> system.update(delta));
+        entities.forEach(entity -> entity.setJustSpawned(false));
     }
 
     @Override

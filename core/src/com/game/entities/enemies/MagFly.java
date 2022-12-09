@@ -7,12 +7,12 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.game.GameContext2d;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
-import com.game.entities.Entity;
-import com.game.GameContext2d;
 import com.game.damage.DamageNegotiation;
 import com.game.damage.Damager;
+import com.game.entities.Entity;
 import com.game.entities.contracts.Faceable;
 import com.game.entities.contracts.Facing;
 import com.game.entities.megaman.Megaman;
@@ -29,25 +29,28 @@ import com.game.utils.objects.Timer;
 import com.game.utils.objects.Wrapper;
 import com.game.world.BodyComponent;
 import com.game.world.Fixture;
-import com.game.world.FixtureType;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static com.badlogic.gdx.graphics.Color.*;
-import static com.game.GlobalKeys.*;
-import static com.game.health.HealthVals.MAX_HEALTH;
-import static com.game.assets.TextureAsset.*;
+import static com.badlogic.gdx.graphics.Color.GRAY;
+import static com.game.GlobalKeys.COLLECTION;
+import static com.game.GlobalKeys.FUNCTION;
 import static com.game.ViewVals.PPM;
 import static com.game.ViewVals.VIEW_HEIGHT;
+import static com.game.assets.TextureAsset.ENEMIES_1;
 import static com.game.entities.contracts.Facing.F_LEFT;
 import static com.game.entities.contracts.Facing.F_RIGHT;
-import static com.game.utils.UtilMethods.*;
-import static com.game.utils.enums.Position.*;
-import static com.game.world.BodyType.*;
+import static com.game.health.HealthVals.MAX_HEALTH;
+import static com.game.utils.UtilMethods.centerPoint;
+import static com.game.utils.enums.Position.CENTER;
+import static com.game.world.BodyType.ABSTRACT;
 import static com.game.world.FixtureType.*;
 
 public class MagFly extends AbstractEnemy implements Faceable {
@@ -60,8 +63,8 @@ public class MagFly extends AbstractEnemy implements Faceable {
     private static final float DAMAGE_DURATION = .1f;
 
     private final Timer forceFlashTimer = new Timer(FORCE_FLASH_DURATION);
-    private final Set<FixtureType> leftScannerSet = EnumSet.noneOf(FixtureType.class);
-    private final Set<FixtureType> rightScannerSet = EnumSet.noneOf(FixtureType.class);
+    private final Set<Fixture> leftScannerSet = new HashSet<>();
+    private final Set<Fixture> rightScannerSet = new HashSet<>();
     private final Rectangle forceScannerRect = new Rectangle(0f, 0f, .5f * PPM, VIEW_HEIGHT * PPM);
 
     private boolean flash;
@@ -131,15 +134,16 @@ public class MagFly extends AbstractEnemy implements Faceable {
                 forceFlashTimer.update(delta);
                 if (forceFlashTimer.isFinished()) {
                     flash = !flash;
-                    forceFlashTimer.reset();            }
+                    forceFlashTimer.reset();
+                }
                 // facing and velocity
                 boolean slow = megamanOverlapForceScanner();
                 if (!slow && !isMegamanAbove() && !facingAndMMDirMatch()) {
                     setFacing(isMegamanRight() ? F_RIGHT : F_LEFT);
                 }
                 BodyComponent bodyComponent = getComponent(BodyComponent.class);
-                if ((isFacing(F_LEFT) && leftScannerSet.contains(BLOCK)) ||
-                        (isFacing(F_RIGHT) && rightScannerSet.contains(BLOCK))) {
+                if ((isFacing(F_LEFT) && leftScannerSet.stream().anyMatch(f -> f.getFixtureType() == BLOCK)) ||
+                        (isFacing(F_RIGHT) && rightScannerSet.stream().anyMatch(f -> f.getFixtureType() == BLOCK))) {
                     bodyComponent.setVelocityX(0f);
                 } else {
                     float vel = (slow ? X_VEL_SLOW : X_VEL_NORMAL) * PPM;

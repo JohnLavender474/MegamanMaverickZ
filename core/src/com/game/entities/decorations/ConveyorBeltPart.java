@@ -10,41 +10,24 @@ import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
 import com.game.entities.Entity;
 import com.game.sprites.SpriteComponent;
-import com.game.sprites.SpriteProcessor;
-import com.game.utils.enums.Position;
-import com.game.utils.objects.Wrapper;
 
 import static com.game.ViewVals.PPM;
 import static com.game.assets.TextureAsset.CONVEYOR_BELT;
 import static com.game.utils.UtilMethods.equalsAny;
-import static com.game.utils.enums.Position.BOTTOM_LEFT;
 
 public class ConveyorBeltPart extends Entity {
 
     public ConveyorBeltPart(GameContext2d gameContext, Vector2 pos, String part, boolean isMovingLeft) {
         super(gameContext);
-        addComponent(spriteComponent(new Rectangle(pos.x, pos.y, PPM, PPM / 2f)));
+        Rectangle bounds = new Rectangle(pos.x, pos.y, PPM, PPM / 2f);
+        addComponent(spriteComponent(bounds));
         addComponent(animationComponent(part, isMovingLeft));
     }
 
-    protected SpriteComponent spriteComponent(Rectangle conveyorBounds) {
+    protected SpriteComponent spriteComponent(Rectangle bounds) {
         Sprite sprite = new Sprite();
-        sprite.setSize(PPM, PPM);
-        return new SpriteComponent(sprite, new SpriteProcessor() {
-
-            @Override
-            public int getSpriteRenderPriority() {
-                return -1;
-            }
-
-            @Override
-            public boolean setPositioning(Wrapper<Rectangle> bounds, Wrapper<Position> position) {
-                bounds.setData(conveyorBounds);
-                position.setData(BOTTOM_LEFT);
-                return true;
-            }
-
-        });
+        sprite.setBounds(bounds.x, bounds.y, PPM, PPM);
+        return new SpriteComponent(sprite);
     }
 
     protected AnimationComponent animationComponent(String part, boolean isMovingLeft) {

@@ -1,6 +1,6 @@
 package com.game.entities.megaman;
 
-import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Rectangle;
@@ -22,12 +22,11 @@ import com.game.entities.decorations.ExplosionOrb;
 import com.game.entities.enemies.*;
 import com.game.entities.hazards.LaserBeamer;
 import com.game.entities.projectiles.Bullet;
+import com.game.entities.projectiles.ChargedShot;
 import com.game.entities.projectiles.Fireball;
 import com.game.health.HealthComponent;
 import com.game.levels.CameraFocusable;
 import com.game.messages.Message;
-import com.game.shapes.ShapeComponent;
-import com.game.shapes.ShapeHandle;
 import com.game.sounds.SoundComponent;
 import com.game.sprites.SpriteComponent;
 import com.game.sprites.SpriteProcessor;
@@ -46,7 +45,8 @@ import lombok.Setter;
 import java.util.*;
 import java.util.function.Supplier;
 
-import static com.game.GlobalKeys.*;
+import static com.game.GlobalKeys.CHARGE_STATUS;
+import static com.game.GlobalKeys.COLLECTION;
 import static com.game.ViewVals.PPM;
 import static com.game.assets.SoundAsset.*;
 import static com.game.assets.TextureAsset.MEGAMAN;
@@ -127,6 +127,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         put(Met.class, new DamageNegotiation(5));
         put(MagFly.class, new DamageNegotiation(5));
         put(Bullet.class, new DamageNegotiation(10));
+        put(ChargedShot.class, new DamageNegotiation(15));
         put(Fireball.class, new DamageNegotiation(5));
         put(Dragonfly.class, new DamageNegotiation(5));
         put(Matasaburo.class, new DamageNegotiation(5));
@@ -141,12 +142,12 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
 
     private final MegamanStats megamanStats;
 
-    private final Timer damageTimer = new Timer(DAMAGE_DURATION);
+    private final Timer damageTimer = new Timer(DAMAGE_DURATION, true);
     private final Timer airDashTimer = new Timer(MAX_AIR_DASH_TIME);
-    private final Timer shootAnimationTimer = new Timer(SHOOT_ANIM_TIME);
+    private final Timer shootAnimationTimer = new Timer(SHOOT_ANIM_TIME, true);
     private final Timer groundSlideTimer = new Timer(MAX_GROUND_SLIDE_TIME);
-    private final Timer damageRecoveryTimer = new Timer(DAMAGE_RECOVERY_TIME);
-    private final Timer wallJumpImpetusTimer = new Timer(WALL_JUMP_IMPETUS_TIME);
+    private final Timer damageRecoveryTimer = new Timer(DAMAGE_RECOVERY_TIME, true);
+    private final Timer wallJumpImpetusTimer = new Timer(WALL_JUMP_IMPETUS_TIME, true);
     private final Timer damageRecoveryBlinkTimer = new Timer(DAMAGE_RECOVERY_FLASH_DURATION);
     private final Timer chargingTimer = new Timer(TIME_TO_FULLY_CHARGED, new TimeMarkedRunnable(TIME_TO_HALFWAY_CHARGED,
             () -> getComponent(SoundComponent.class).requestSound(MEGA_BUSTER_CHARGING_SOUND, true)));
@@ -173,16 +174,29 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         addComponent(animationComponent());
         addComponent(new SoundComponent());
         addComponent(controllerComponent());
+        // shape component
+        /*
+        BodyComponent bodyComponent = getComponent(BodyComponent.class);
         ShapeComponent shapeComponent = new ShapeComponent();
         ShapeHandle shapeHandle = new ShapeHandle();
-        shapeHandle.setShapeSupplier(() -> getComponent(BodyComponent.class).getCollisionBox());
-        shapeHandle.setColorSupplier(() -> Color.RED);
+        shapeHandle.setShapeSupplier(bodyComponent::getCollisionBox);
+        shapeHandle.setColorSupplier(() -> RED);
         shapeComponent.addShapeHandle(shapeHandle);
+        bodyComponent.getFixturesOfType(WATER_LISTENER).forEach(waterListener -> {
+            ShapeHandle waterListenerHandle = new ShapeHandle();
+            waterListenerHandle.setShapeSupplier(waterListener::getFixtureShape);
+            waterListenerHandle.setColorSupplier(() -> PURPLE);
+            shapeComponent.addShapeHandle(waterListenerHandle);
+        });
         addComponent(shapeComponent);
+         */
+        // set timers to end
+        /*
         damageTimer.setToEnd();
         shootAnimationTimer.setToEnd();
         damageRecoveryTimer.setToEnd();
         wallJumpImpetusTimer.setToEnd();
+         */
     }
 
     @Override
@@ -497,10 +511,13 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
             protected void init() {
                 bodyComponent.translateVelocity(0f, 18f * PPM);
                 behaviorComponent.setIs(SWIMMING);
+                Sound swimSound = gameContext.getAsset(SWIM_SOUND.getSrc(), Sound.class);
+                gameContext.playSound(swimSound);
             }
 
             @Override
-            protected void act(float delta) {}
+            protected void act(float delta) {
+            }
 
             @Override
             protected void end() {
@@ -531,9 +548,19 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
                 behaviorComponent.setIs(JUMPING);
                 boolean wallSliding = behaviorComponent.is(WALL_SLIDING);
                 Vector2 vel = new Vector2();
-                float x = wallSliding ? WALL_JUMP_HORIZ : 0f;
-                float y = wallSliding ? WALL_JUMP_VEL : JUMP_VEL;
-                vel.set(isFacing(F_LEFT)? -x : x, y).scl(PPM);
+                // float x = wallSliding ? WALL_JUMP_HORIZ : 0f;
+                float x;
+                if (wallSliding) {
+                    x = WALL_JUMP_HORIZ * PPM;
+                    if (isFacing(F_LEFT)) {
+                        x *= -1f;
+                    }
+                } else {
+                    x = bodyComponent.getVelocity().x;
+                }
+                float y = PPM * (wallSliding ? WALL_JUMP_VEL : JUMP_VEL);
+                // vel.set(isFacing(F_LEFT)? -x : x, y).scl(PPM);
+                vel.set(x, y);
                 if (bodyComponent.is(IN_WATER)) {
                     vel.scl(.75f, .9f);
                 }
@@ -553,7 +580,8 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
             }
 
             @Override
-            protected void act(float delta) {}
+            protected void act(float delta) {
+            }
 
             @Override
             protected void end() {
@@ -721,8 +749,16 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         }});
         bodyComponent.addFixture(forceListener);
         // water listener
-        Fixture waterListener = new Fixture(this, new Rectangle(0f, 0f, .625f * PPM, PPM / 8f), WATER_LISTENER);
-        // waterListener.setOffset(0f, PPM / 2f);
+        /*
+        Rectangle waterListenerModel = new Rectangle(0f, 0f, .625f * PPM, PPM / 5f);
+        Fixture upperWaterListener = new Fixture(this, new Rectangle(waterListenerModel), WATER_LISTENER);
+        upperWaterListener.setOffset(0f, PPM / 2.5f);
+        bodyComponent.addFixture(upperWaterListener);
+        Fixture lowerWaterListener = new Fixture(this, new Rectangle(waterListenerModel), WATER_LISTENER);
+        lowerWaterListener.setOffset(0f, -PPM / 3f);
+        bodyComponent.addFixture(lowerWaterListener);
+         */
+        Fixture waterListener = new Fixture(this, new Rectangle(0f, 0f, PPM, PPM / 2f), WATER_LISTENER);
         bodyComponent.addFixture(waterListener);
         // pre-process
         bodyComponent.setPreProcess(delta -> {
