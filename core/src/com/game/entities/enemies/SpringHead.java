@@ -74,7 +74,7 @@ public class SpringHead extends AbstractEnemy implements Hitter, Faceable {
         addComponent(bodyComponent(spawn));
         addComponent(updatableComponent());
         addComponent(spriteComponent());
-        addComponent(shapeComponent());
+        // addComponent(shapeComponent());
         setFacing(isMegamanRight() ? F_RIGHT : F_LEFT);
     }
 

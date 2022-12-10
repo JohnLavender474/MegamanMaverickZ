@@ -52,6 +52,7 @@ public class SniperJoe extends AbstractEnemy implements Faceable {
     private final Timer shieldedTimer = new Timer(1.75f);
     private final Timer shootingTimer = new Timer(1.5f, new TimeMarkedRunnable(.15f, this::shoot),
             new TimeMarkedRunnable(.75f, this::shoot), new TimeMarkedRunnable(1.35f, this::shoot));
+    private final Timer bulletInScannerTimer = new Timer(.05f);
 
     @Setter
     @Getter
@@ -120,8 +121,13 @@ public class SniperJoe extends AbstractEnemy implements Faceable {
                 }
                 if (scannerSet.stream().anyMatch(f -> f.getEntity() instanceof AbstractProjectile projectile &&
                         !SniperJoe.this.equals(projectile.getOwner()))) {
-                    behaviorTimer.reset();
-                    setShielded(true);
+                    bulletInScannerTimer.update(delta);
+                    if (bulletInScannerTimer.isJustFinished()) {
+                        behaviorTimer.reset();
+                        setShielded(true);
+                    }
+                } else {
+                    bulletInScannerTimer.reset();
                 }
                 scannerSet.clear();
             }

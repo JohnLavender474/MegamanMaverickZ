@@ -18,13 +18,13 @@
  </objectgroup>
  <objectgroup id="9" name="DeathSensors"/>
  <objectgroup id="10" name="PlayerSpawns">
-  <object id="7" name="start" x="576" y="544" width="32" height="32"/>
+  <object id="7" name="start" x="224" y="544" width="32" height="32"/>
  </objectgroup>
  <objectgroup id="11" name="EnemySpawns">
   <object id="34" name="suction_roller" x="928" y="560" width="16" height="16"/>
   <object id="35" name="met" x="1360" y="560" width="16" height="16"/>
   <object id="41" name="sniper_joe" x="752" y="552" width="24" height="24"/>
-  <object id="42" name="spring_head" x="160" y="544" width="32" height="32"/>
+  <object id="42" name="spring_head" x="608" y="544" width="32" height="32"/>
   <object id="43" name="mag_fly" x="1280" y="352" width="32" height="32"/>
  </objectgroup>
  <objectgroup id="14" name="AbstractBounds"/>
