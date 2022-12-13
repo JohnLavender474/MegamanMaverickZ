@@ -4,21 +4,18 @@ import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.game.entities.Entity;
 import com.game.GameContext2d;
+import com.game.entities.Entity;
 import com.game.graph.GraphComponent;
 import com.game.movement.TrajectoryComponent;
-import com.game.movement.TrajectoryParser;
-import com.game.utils.objects.KeyValuePair;
 import com.game.world.BodyComponent;
 import com.game.world.Fixture;
 
-import java.util.Collection;
 import java.util.List;
 
 import static com.game.ViewVals.PPM;
 import static com.game.utils.UtilMethods.centerPoint;
-import static com.game.world.BodyType.*;
+import static com.game.world.BodyType.STATIC;
 import static com.game.world.FixtureType.*;
 
 public class Block extends Entity {
@@ -70,7 +67,8 @@ public class Block extends Entity {
         set(bounds, friction, resistance, gravityOn, wallSlideLeft, wallSlideRight, feetSticky);
         if (properties != null && properties.containsKey("trajectory")) {
             String trajStr = properties.get("trajectory", String.class);
-            addComponent(trajectoryComponent(trajStr));
+            addComponent(new TrajectoryComponent(trajStr,
+                    centerPoint(getComponent(BodyComponent.class).getCollisionBox())));
         }
     }
 
@@ -81,16 +79,8 @@ public class Block extends Entity {
                 wallSlideLeft, wallSlideRight, feetSticky));
     }
 
-    protected TrajectoryComponent trajectoryComponent(String trajStr) {
-        TrajectoryComponent trajectoryComponent = new TrajectoryComponent();
-        Collection<KeyValuePair<Vector2, Float>> trajectories = TrajectoryParser.parse(trajStr);
-        trajectories.forEach(trajectoryDef ->
-            trajectoryComponent.addTrajectory(trajectoryDef.key().scl(PPM), trajectoryDef.value()));
-        return trajectoryComponent;
-    }
-
     protected BodyComponent bodyComponent(Rectangle bounds, Vector2 friction, boolean resistance, boolean gravityOn,
-                                              boolean wallSlideLeft, boolean wallSlideRight, boolean feetSticky) {
+                                          boolean wallSlideLeft, boolean wallSlideRight, boolean feetSticky) {
         BodyComponent bodyComponent = new BodyComponent(STATIC);
         bodyComponent.set(bounds);
         bodyComponent.setFriction(friction);

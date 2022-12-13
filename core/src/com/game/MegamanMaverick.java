@@ -84,9 +84,6 @@ import static com.game.world.WorldVals.AIR_RESISTANCE;
 import static com.game.world.WorldVals.FIXED_TIME_STEP;
 import static java.util.Collections.unmodifiableCollection;
 
-/**
- * Entry point into game.
- */
 @Getter
 public class MegamanMaverick extends Game implements GameContext2d, MessageListener {
 
@@ -460,7 +457,7 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
         if (overlayScreen != null) {
             overlayScreen.render(delta);
         }
-        // renderFPS();
+        renderFPS();
         viewports.values().forEach(Viewport::apply);
     }
 

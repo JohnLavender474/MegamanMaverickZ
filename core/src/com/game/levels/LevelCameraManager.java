@@ -5,19 +5,19 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.game.utils.UtilMethods;
 import com.game.utils.enums.Direction;
 import com.game.utils.enums.ProcessState;
 import com.game.utils.interfaces.Updatable;
 import com.game.utils.objects.Timer;
 import lombok.Getter;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 import static com.game.ViewVals.PPM;
 import static com.game.utils.UtilMethods.*;
 import static com.game.utils.enums.ProcessState.*;
+import static java.lang.Math.decrementExact;
 import static java.lang.Math.min;
 
 /**
@@ -154,11 +154,11 @@ public class LevelCameraManager implements Updatable {
             reset = true;
         }
         if (reset) {
-            setCamToFocusable();
+            setCamToFocusable(delta);
             currentGameRoom = nextGameRoom();
             reset = false;
         } else if (transState == null) {
-            onNullTrans();
+            onNullTrans(delta);
         } else {
             onTrans(delta);
         }
@@ -195,7 +195,7 @@ public class LevelCameraManager implements Updatable {
         }
     }
 
-    private void onNullTrans() {
+    private void onNullTrans(float delta) {
         /*
         case 1: if current game room is null, try to find next game room and assign it to current game room,
         wait until next update cycle to attempt another action
@@ -211,7 +211,7 @@ public class LevelCameraManager implements Updatable {
             currentGameRoom = nextGameRoom();
         } else if (currentGameRoom.getRectangle().contains(focusable.getFocus())) {
             Rectangle currentRoomRect = currentGameRoom.getRectangle();
-            setCamToFocusable();
+            setCamToFocusable(delta);
             if (camera.position.y > (currentRoomRect.y + currentRoomRect.height) - camera.viewportHeight / 2.0f) {
                 camera.position.y = (currentRoomRect.y + currentRoomRect.height) - camera.viewportHeight / 2.0f;
             }
@@ -270,8 +270,9 @@ public class LevelCameraManager implements Updatable {
                 focusable.getFocus())).findFirst().orElse(null);
     }
 
-    private void setCamToFocusable() {
-        Vector2 pos = focusable.getFocus();
+    private void setCamToFocusable(float delta) {
+        // Vector2 pos = focusable.getFocus();
+        Vector2 pos = interpolate(toVec2(camera.position), focusable.getFocus(), delta * 10f);
         camera.position.x = pos.x;
         camera.position.y = pos.y;
     }

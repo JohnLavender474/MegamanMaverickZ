@@ -36,9 +36,6 @@ import static com.game.utils.ShapeUtils.intersectLineRect;
 import static com.game.world.BodySense.*;
 import static com.game.world.FixtureType.*;
 
-/**
- * Implementation of {@link WorldContactListener}.
- */
 @RequiredArgsConstructor
 public class WorldContactListenerImpl implements WorldContactListener {
 

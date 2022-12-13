@@ -2,62 +2,63 @@ package com.game.movement;
 
 import com.badlogic.gdx.math.Vector2;
 import com.game.Component;
-import com.game.utils.interfaces.Resettable;
-import com.game.utils.interfaces.Updatable;
 import com.game.utils.objects.KeyValuePair;
 import com.game.utils.objects.Timer;
-import com.game.world.BodyComponent;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.game.ViewVals.PPM;
+import static com.game.movement.TrajectoryParser.parse;
+import static com.game.utils.UtilMethods.interpolate;
+
 /**
- * {@link Component} implementation for trajectories. This component sets the position pairOf the {@link BodyComponent},
- * overriding any
- * settings for friction, velocity, etc.
+ * {@link Component} implementation for trajectories.
  */
-public class TrajectoryComponent extends Component implements Updatable, Resettable {
+public class TrajectoryComponent extends Component {
 
-    private final List<KeyValuePair<Vector2, Timer>> trajectories = new ArrayList<>();
+    private final List<KeyValuePair<Vector2, Timer>> destinations = new ArrayList<>();
 
-    private int index = 0;
+    private int index;
 
-    public void addTrajectory(Vector2 trajectory, float duration) {
-        trajectories.add(new KeyValuePair<>(trajectory, new Timer(duration)));
+    public TrajectoryComponent(String trajectory, Vector2 startCenterPoint) {
+        this(parse(trajectory, PPM), startCenterPoint);
     }
 
-    public Vector2 getCurrentTrajectory() {
-        return trajectories.get(index).key().cpy();
+    public TrajectoryComponent(List<KeyValuePair<Vector2, Float>> trajectories, Vector2 startCenterPoint) {
+        Vector2 temp = new Vector2(startCenterPoint);
+        trajectories.forEach(t -> {
+            Vector2 dest = new Vector2(temp).add(t.key());
+            destinations.add(KeyValuePair.of(dest, new Timer(t.value())));
+            temp.set(dest);
+        });
     }
 
-    public Timer getCurrentTimer() {
-        return trajectories.get(index).value();
-    }
-
-    public Vector2 getVelocity() {
-        return getCurrentTrajectory().scl(1f / getCurrentTimer().getDuration());
-    }
-
-    public void setToNext() {
-        index++;
-        if (index >= trajectories.size()) {
-            index = 0;
+    public Vector2 getPos(float delta) {
+        Timer timer = getCurrentTimer();
+        timer.update(delta);
+        Vector2 pos = interpolate(getPrevDest(), getCurrentDest(), timer.getRatio());
+        if (timer.isFinished()) {
+            timer.reset();
+            index++;
+            if (index >= destinations.size()) {
+                index = 0;
+            }
         }
+        return pos;
     }
 
-    public boolean isFinished() {
-        return getCurrentTimer().isFinished();
+    private Vector2 getPrevDest() {
+        int t = (index == 0 ? destinations.size() : index) - 1;
+        return destinations.get(t).key();
     }
 
-    @Override
-    public void update(float delta) {
-        getCurrentTimer().update(delta);
+    private Vector2 getCurrentDest() {
+        return destinations.get(index).key();
     }
 
-    @Override
-    public void reset() {
-        getCurrentTimer().reset();
-        setToNext();
+    private Timer getCurrentTimer() {
+        return destinations.get(index).value();
     }
 
 }

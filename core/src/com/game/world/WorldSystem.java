@@ -61,7 +61,7 @@ public class WorldSystem extends System {
     protected void processEntity(Entity entity, float delta) {
         BodyComponent bodyComponent = entity.getComponent(BodyComponent.class);
         bodies.add(bodyComponent);
-        bodyComponent.setPriorCollisionBoxToCurrent();
+        // bodyComponent.setPriorCollisionBoxToCurrent();
         if (bodyComponent.getPreProcess() != null) {
             bodyComponent.getPreProcess().update(delta);
         }
@@ -166,6 +166,7 @@ public class WorldSystem extends System {
         priorContacts.addAll(currentContacts);
         currentContacts.clear();
         postProcess.forEach(postProcessable -> postProcessable.update(delta));
+        bodies.forEach(BodyComponent::setPriorCollisionBoxToCurrent);
     }
 
 

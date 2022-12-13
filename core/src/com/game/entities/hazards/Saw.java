@@ -8,19 +8,19 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.game.GameContext2d;
 import com.game.animations.AnimationComponent;
 import com.game.animations.TimedAnimation;
 import com.game.entities.Entity;
-import com.game.GameContext2d;
+import com.game.movement.PendulumComponent;
+import com.game.movement.RotatingLineComponent;
+import com.game.movement.TrajectoryComponent;
 import com.game.shapes.LineComponent;
 import com.game.shapes.LineHandle;
 import com.game.shapes.ShapeComponent;
 import com.game.shapes.ShapeHandle;
-import com.game.movement.PendulumComponent;
-import com.game.movement.RotatingLineComponent;
-import com.game.movement.TrajectoryComponent;
-import com.game.sprites.SpriteProcessor;
 import com.game.sprites.SpriteComponent;
+import com.game.sprites.SpriteProcessor;
 import com.game.utils.enums.Position;
 import com.game.utils.interfaces.UpdatableConsumer;
 import com.game.utils.objects.Pendulum;
@@ -32,16 +32,16 @@ import com.game.world.Fixture;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.badlogic.gdx.graphics.Color.*;
-import static com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.*;
-import static com.game.assets.TextureAsset.*;
+import static com.badlogic.gdx.graphics.Color.DARK_GRAY;
+import static com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.Filled;
 import static com.game.ViewVals.PPM;
+import static com.game.assets.TextureAsset.HAZARDS_1;
 import static com.game.utils.UtilMethods.*;
-import static com.game.utils.enums.Position.*;
-import static com.game.utils.objects.Pair.*;
-import static com.game.world.BodyType.*;
-import static com.game.world.FixtureType.*;
-import static java.lang.Float.parseFloat;
+import static com.game.utils.enums.Position.CENTER;
+import static com.game.utils.objects.Pair.pairOf;
+import static com.game.world.BodyType.ABSTRACT;
+import static com.game.world.FixtureType.DEATH;
+import static com.game.world.FixtureType.SHIELD;
 
 public class Saw extends Entity {
 
@@ -136,15 +136,9 @@ public class Saw extends Entity {
     }
 
     private void setToTrajectory(MapProperties properties) {
-        TrajectoryComponent trajectoryComponent = new TrajectoryComponent();
-        String[] trajectories = properties.get("trajectory", String.class).split(";");
-        for (String trajectory : trajectories) {
-            String[] params = trajectory.split(",");
-            float x = parseFloat(params[0]);
-            float y = parseFloat(params[1]);
-            float time = parseFloat(params[2]);
-            trajectoryComponent.addTrajectory(new Vector2(x * PPM, y * PPM), time);
-        }
+        String trajStr = properties.get("trajectory", String.class);
+        TrajectoryComponent trajectoryComponent = new TrajectoryComponent(trajStr,
+                centerPoint(getComponent(BodyComponent.class).getCollisionBox()));
         addComponent(trajectoryComponent);
     }
 

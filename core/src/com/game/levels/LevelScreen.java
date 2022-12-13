@@ -250,7 +250,7 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
             background.draw(spriteBatch);
         });
         levelMap.draw();
-        // showTestText();
+        showTestText();
         spriteBatch.end();
         gameContext.updateSystems(delta);
         gameContext.setSpriteBatchProjectionMatrix(UI);
