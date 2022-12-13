@@ -566,9 +566,11 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
                 float y = PPM * (wallSliding ? WALL_JUMP_VEL : JUMP_VEL);
                 // vel.set(isFacing(F_LEFT)? -x : x, y).scl(PPM);
                 vel.set(x, y);
+                /*
                 if (bodyComponent.is(IN_WATER)) {
                     vel.scl(.75f, .9f);
                 }
+                 */
                 bodyComponent.setVelocity(vel);
                 if (wallSliding) {
                     wallJumpImpetusTimer.reset();
