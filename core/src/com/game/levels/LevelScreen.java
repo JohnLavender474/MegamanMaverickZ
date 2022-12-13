@@ -123,7 +123,7 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
         Rectangle startPlayerSpawn = new Rectangle();
         List<Rectangle> playerSpawns = levelMap.getRectObjsOfLayer(PLAYER_SPAWNS).stream().map(playerSpawnObj -> {
             Rectangle rect = playerSpawnObj.getRectangle();
-            if (playerSpawnObj.getName().equals("start")) {
+            if ("start".equals(playerSpawnObj.getName())) {
                 startPlayerSpawn.set(rect);
             }
             return rect;
@@ -250,7 +250,7 @@ public class LevelScreen extends ScreenAdapter implements MessageListener {
             background.draw(spriteBatch);
         });
         levelMap.draw();
-        showTestText();
+        // showTestText();
         spriteBatch.end();
         gameContext.updateSystems(delta);
         gameContext.setSpriteBatchProjectionMatrix(UI);

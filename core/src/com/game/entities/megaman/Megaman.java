@@ -55,8 +55,7 @@ import static com.game.behaviors.BehaviorType.*;
 import static com.game.controllers.ControllerButton.*;
 import static com.game.entities.contracts.Facing.F_LEFT;
 import static com.game.entities.contracts.Facing.F_RIGHT;
-import static com.game.entities.megaman.Megaman.AButtonTask._AIR_DASH;
-import static com.game.entities.megaman.Megaman.AButtonTask._JUMP;
+import static com.game.entities.megaman.AButtonTask.*;
 import static com.game.entities.megaman.MegamanSpecialAbility.*;
 import static com.game.entities.megaman.MegamanVals.MEGAMAN_STATS;
 import static com.game.entities.megaman.MegamanWeapon.MEGA_BUSTER;
@@ -78,10 +77,6 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
 
     static {
         DebugLogger.getInstance().putDebugClass(Megaman.class, DebugLogger.DebugLevel.NONE);
-    }
-
-    public enum AButtonTask {
-        _JUMP, _AIR_DASH
     }
 
     private static final float CLAMP_X = 20f;
@@ -136,6 +131,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         put(FloatingCan.class, new DamageNegotiation(10));
         put(LaserBeamer.class, new DamageNegotiation(10));
         put(SuctionRoller.class, new DamageNegotiation(10));
+        put(GapingFish.class, new DamageNegotiation(5));
     }};
 
     private static MegamanWeaponDefs megamanWeaponDefs;
@@ -476,7 +472,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
             @Override
             protected void init() {
                 behaviorComponent.setIs(WALL_SLIDING);
-                setAButtonTask(_JUMP);
+                setAButtonTask(bodyComponent.is(IN_WATER) ? _SWIM : _JUMP);
             }
 
             @Override
@@ -487,7 +483,9 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
             @Override
             protected void end() {
                 behaviorComponent.setIsNot(WALL_SLIDING);
-                setAButtonTask(_AIR_DASH);
+                if (!bodyComponent.is(IN_WATER)) {
+                    setAButtonTask(_AIR_DASH);
+                }
             }
 
         };
@@ -497,27 +495,34 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
 
             @Override
             protected boolean evaluate(float delta) {
-                if (isDamaged() || !bodyComponent.is(IN_WATER) ||
-                        behaviorComponent.is(WALL_SLIDING, AIR_DASHING, CLIMBING, JUMPING)) {
+                if (isDamaged() || !bodyComponent.is(IN_WATER)) {
                     return false;
                 }
                 if (behaviorComponent.is(SWIMMING)) {
                     return bodyComponent.getVelocity().y > 0f;
                 }
-                return gameContext.isControllerButtonJustPressed(DPAD_UP);
+                return gameContext.isControllerButtonJustPressed(A) && aButtonTask == _SWIM;
             }
 
             @Override
             protected void init() {
-                bodyComponent.translateVelocity(0f, 18f * PPM);
+                float x = 0f;
+                float y = 18f * PPM;
+                if (behaviorComponent.is(WALL_SLIDING)) {
+                    x = WALL_JUMP_HORIZ * PPM * 1.15f;
+                    if (isFacing(F_LEFT)) {
+                        x *= -1f;
+                    }
+                    y *= 2f;
+                }
+                bodyComponent.translateVelocity(x, y);
                 behaviorComponent.setIs(SWIMMING);
                 Sound swimSound = gameContext.getAsset(SWIM_SOUND.getSrc(), Sound.class);
                 gameContext.playSound(swimSound);
             }
 
             @Override
-            protected void act(float delta) {
-            }
+            protected void act(float delta) {}
 
             @Override
             protected void end() {
@@ -597,8 +602,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
             @Override
             protected boolean evaluate(float delta) {
                 if (isDamaged() || !megamanStats.canUseSpecialAbility(AIR_DASH) || behaviorComponent.is(WALL_SLIDING) ||
-                        bodyComponent.is(FEET_ON_GROUND) ||
-                        airDashTimer.isFinished()) {
+                        bodyComponent.is(FEET_ON_GROUND) || airDashTimer.isFinished()) {
                     return false;
                 }
                 return behaviorComponent.is(AIR_DASHING) ? gameContext.isControllerButtonPressed(A) :
@@ -703,19 +707,29 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         bodyComponent.maskForCustomCollisions(ABSTRACT_BOUNDS);
         bodyComponent.setPosition(spawn);
         bodyComponent.setWidth(.8f * PPM);
+        // model 1
         Rectangle model1 = new Rectangle(0f, 0f, .575f * PPM, PPM / 16f);
+        // standard on bounce
+        Runnable onBounce = () -> {
+            if (!bodyComponent.is(IN_WATER)) {
+                setAButtonTask(_AIR_DASH);
+            }
+        };
         // feet and bounceable
         Fixture feet = new Fixture(this, new Rectangle(model1), FEET);
         bodyComponent.addFixture(feet);
         Fixture feetBounceable = new Fixture(this, new Rectangle(model1), BOUNCEABLE);
         bodyComponent.addFixture(feetBounceable);
+        feetBounceable.putUserData("onBounce", onBounce);
         // head
         Fixture head = new Fixture(this, new Rectangle(model1), HEAD);
         head.setOffset(0f, PPM / 2f);
         bodyComponent.addFixture(head);
         Fixture headBounceable = new Fixture(this, new Rectangle(model1), BOUNCEABLE);
         headBounceable.setOffset(0f, PPM / 2f);
+        headBounceable.putUserData("onBounce", onBounce);
         bodyComponent.addFixture(headBounceable);
+        // model 2
         Rectangle model2 = new Rectangle(0f, 0f, PPM / 16f, PPM / 16f);
         // left
         Fixture left = new Fixture(this, new Rectangle(model2), LEFT);
@@ -723,6 +737,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         bodyComponent.addFixture(left);
         Fixture leftBounceable = new Fixture(this, new Rectangle(model2), BOUNCEABLE);
         leftBounceable.setOffset(-.25f * PPM, .15f * PPM);
+        leftBounceable.putUserData("onBounce", onBounce);
         bodyComponent.addFixture(leftBounceable);
         // right
         Fixture right = new Fixture(this, new Rectangle(model2), RIGHT);
@@ -730,6 +745,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         bodyComponent.addFixture(right);
         Fixture rightBounceable = new Fixture(this, new Rectangle(model2), BOUNCEABLE);
         rightBounceable.setOffset(.25f * PPM, .15f * PPM);
+        rightBounceable.putUserData("onBounce", onBounce);
         bodyComponent.addFixture(rightBounceable);
         // gate listeners
         Fixture leftGateListener = new Fixture(this, new Rectangle(0f, 0f, .2f * PPM, .2f * PPM), GATE_LISTENER);
@@ -739,7 +755,7 @@ public class Megaman extends Entity implements Damageable, Faceable, CameraFocus
         rightGateListener.setOffset(.55f * PPM, PPM / 2f);
         bodyComponent.addFixture(rightGateListener);
         // hitbox
-        Fixture hitBox = new Fixture(this, new Rectangle(0f, 0f, .8f * PPM, .5f * PPM), DAMAGEABLE);
+        Fixture hitBox = new Fixture(this, new Rectangle(0f, 0f, .8f * PPM, .75f * PPM), DAMAGEABLE);
         bodyComponent.addFixture(hitBox);
         // force listener
         Fixture forceListener = new Fixture(this, bodyComponent.getCollisionBox(), FORCE_LISTENER);

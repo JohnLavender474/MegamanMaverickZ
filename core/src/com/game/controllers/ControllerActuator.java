@@ -15,7 +15,8 @@ public class ControllerActuator {
     private static final Map<ControllerButton, Supplier<Integer>> defaultControllerCodes = Map.of(
             START, () -> getController().getMapping().buttonStart,
             DPAD_UP, () -> getController().getMapping().buttonDpadUp,
-            DPAD_DOWN, () -> getController().getMapping().buttonDpadLeft,
+            DPAD_DOWN, () -> getController().getMapping().buttonDpadDown,
+            DPAD_LEFT, () -> getController().getMapping().buttonDpadLeft,
             DPAD_RIGHT, () -> getController().getMapping().buttonDpadRight,
             A, () -> getController().getMapping().buttonA,
             X, () -> getController().getMapping().buttonX

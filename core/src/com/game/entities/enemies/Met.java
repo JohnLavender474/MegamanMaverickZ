@@ -31,17 +31,19 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import static com.game.GlobalKeys.COLLECTION;
-import static com.game.assets.SoundAsset.*;
-import static com.game.assets.TextureAsset.COLORS;
-import static com.game.health.HealthVals.MAX_HEALTH;
-import static com.game.assets.TextureAsset.MET;
 import static com.game.ViewVals.PPM;
+import static com.game.assets.SoundAsset.ENEMY_BULLET_SOUND;
+import static com.game.assets.TextureAsset.MET;
+import static com.game.entities.contracts.Facing.F_LEFT;
+import static com.game.entities.contracts.Facing.F_RIGHT;
 import static com.game.entities.enemies.Met.MetBehavior.*;
+import static com.game.health.HealthVals.MAX_HEALTH;
 import static com.game.utils.UtilMethods.setBottomCenterToPoint;
 import static com.game.world.BodySense.*;
-import static com.game.world.BodyType.*;
+import static com.game.world.BodyType.DYNAMIC;
 import static com.game.world.FixtureType.*;
-import static java.lang.Math.*;
+import static java.lang.Math.round;
+import static lombok.AccessLevel.NONE;
 
 @Getter
 @Setter
@@ -54,6 +56,7 @@ public class Met extends AbstractEnemy implements Faceable {
         PANIC
     }
 
+    @Getter(NONE)
     private final Map<MetBehavior, Timer> metBehaviorTimers = Map.of(
             SHIELDING, new Timer(1.15f),
             RUNNING, new Timer(.5f),
@@ -89,8 +92,8 @@ public class Met extends AbstractEnemy implements Faceable {
 
     private void shoot() {
         BodyComponent bodyComponent = getComponent(BodyComponent.class);
-        Vector2 trajectory = new Vector2((isFacing(Facing.F_RIGHT) ? 10f : -10f) * PPM, .5f * PPM);
-        Vector2 spawn = bodyComponent.getCenter().cpy().add(isFacing(Facing.F_RIGHT) ? .5f : -.5f, -4f);
+        Vector2 trajectory = new Vector2((isFacing(F_RIGHT) ? 10f : -10f) * PPM, .5f * PPM);
+        Vector2 spawn = bodyComponent.getCenter().cpy().add(isFacing(F_RIGHT) ? .5f : -.5f, -4f);
         gameContext.addEntity(new Bullet(gameContext, this, trajectory, spawn));
         getComponent(SoundComponent.class).requestSound(ENEMY_BULLET_SOUND);
     }
@@ -106,10 +109,14 @@ public class Met extends AbstractEnemy implements Faceable {
                 BodyComponent bodyComponent = getComponent(BodyComponent.class);
                 bodyComponent.getFirstMatchingFixture(SHIELD).ifPresentOrElse(
                         shield -> shield.setActive(metBehavior == SHIELDING),
-                        () -> {throw new IllegalStateException();});
+                        () -> {
+                            throw new IllegalStateException();
+                        });
                 bodyComponent.getFirstMatchingFixture(DAMAGEABLE).ifPresentOrElse(
                         hitBox -> hitBox.setActive(metBehavior != SHIELDING),
-                        () -> {throw new IllegalStateException();});
+                        () -> {
+                            throw new IllegalStateException();
+                        });
                 switch (metBehavior) {
                     case SHIELDING -> {
                         Timer shieldingTimer = metBehaviorTimers.get(SHIELDING);
@@ -122,7 +129,7 @@ public class Met extends AbstractEnemy implements Faceable {
                     }
                     case POP_UP -> {
                         setFacing((round(megamanSupplier.get().getComponent(BodyComponent.class).getPosition().x) <
-                                round(bodyComponent.getPosition().x)) ? Facing.F_LEFT : Facing.F_RIGHT);
+                                round(bodyComponent.getPosition().x)) ? F_LEFT : F_RIGHT);
                         Timer popUpTimer = metBehaviorTimers.get(POP_UP);
                         if (popUpTimer.isAtBeginning()) {
                             shoot();
@@ -136,7 +143,7 @@ public class Met extends AbstractEnemy implements Faceable {
                         Timer runningTimer = metBehaviorTimers.get(RUNNING);
                         runningTimer.update(delta);
                         float runVel = 8f * PPM;
-                        if (isFacing(Facing.F_LEFT)) {
+                        if (isFacing(F_LEFT)) {
                             runVel *= -1f;
                         }
                         if (bodyComponent.is(IN_WATER)) {
@@ -144,8 +151,8 @@ public class Met extends AbstractEnemy implements Faceable {
                         }
                         bodyComponent.setVelocityX(runVel);
                         if (runningTimer.isFinished() ||
-                                (isFacing(Facing.F_LEFT) && bodyComponent.is(TOUCHING_HITBOX_LEFT)) ||
-                                (isFacing(Facing.F_RIGHT) && bodyComponent.is(TOUCHING_HITBOX_RIGHT))) {
+                                (isFacing(F_LEFT) && bodyComponent.is(TOUCHING_HITBOX_LEFT)) ||
+                                (isFacing(F_RIGHT) && bodyComponent.is(TOUCHING_HITBOX_RIGHT))) {
                             setMetBehavior(SHIELDING);
                         }
                     }
@@ -212,7 +219,7 @@ public class Met extends AbstractEnemy implements Faceable {
         return new SpriteComponent(sprite, new StandardEnemySpriteProcessor() {
             @Override
             public boolean isFlipX() {
-                return isFacing(Facing.F_LEFT);
+                return isFacing(F_LEFT);
             }
         });
     }
@@ -226,10 +233,10 @@ public class Met extends AbstractEnemy implements Faceable {
         };
         TextureAtlas textureAtlas = gameContext.getAsset(MET.getSrc(), TextureAtlas.class);
         Map<String, TimedAnimation> timedAnimations = Map.of(
-            "Run", new TimedAnimation(textureAtlas.findRegion("Run"), 2, .125f),
-            "PopUp", new TimedAnimation(textureAtlas.findRegion("PopUp")),
-            "RunNaked", new TimedAnimation(textureAtlas.findRegion("RunNaked"), 2, .1f),
-            "LayDown", new TimedAnimation(textureAtlas.findRegion("LayDown")));
+                "Run", new TimedAnimation(textureAtlas.findRegion("Run"), 2, .125f),
+                "PopUp", new TimedAnimation(textureAtlas.findRegion("PopUp")),
+                "RunNaked", new TimedAnimation(textureAtlas.findRegion("RunNaked"), 2, .1f),
+                "LayDown", new TimedAnimation(textureAtlas.findRegion("LayDown")));
         return new AnimationComponent(keySupplier, timedAnimations::get);
     }
 

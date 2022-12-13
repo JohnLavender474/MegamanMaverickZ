@@ -177,8 +177,10 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
         addSystem(new AnimationSystem());
         addSystem(new SpriteSystem((OrthographicCamera) viewports.get(PLAYGROUND).getCamera(), getSpriteBatch()));
         // TODO: turn off debug
+
         addSystem(new LineSystem(viewports.get(PLAYGROUND).getCamera(), getShapeRenderer()));
         addSystem(new ShapeSystem(viewports.get(PLAYGROUND).getCamera(), getShapeRenderer()));
+
         // blackboard
         MegamanStats megamanStats = new MegamanStats();
         megamanStats.setWeaponsChargeable(true);
@@ -206,7 +208,7 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
             screens.put(bossLevelScreen, new LevelScreen(this, boss.getTmxSrc(), boss.getMusicSrc()));
         }
         // set screen
-        // setScreen(MAIN_MENU);
+        //  setScreen(MAIN_MENU);
         setScreen(TEST_STAGE);
         // setScreen(TEST_TEXTURE_ASSET);
         // setScreen(TIMBER_WOMAN);
@@ -389,9 +391,9 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
         for (ControllerButton controllerButton : ControllerButton.values()) {
             int keyboardCode = controllerActuator.getKeyboardEntry(controllerButton).key();
             boolean isControllerButtonPressed;
-            if (isControllerConnected()) {
-                int controllerCode = controllerActuator.getControllerCode(controllerButton);
-                isControllerButtonPressed = ControllerUtils.isControllerButtonPressed(controllerCode) ||
+            if (ControllerUtils.isControllerConnected()) {
+                isControllerButtonPressed = ControllerUtils.isControllerButtonPressed(
+                        controllerActuator.getControllerCode(controllerButton)) ||
                         isKeyboardButtonPressed(keyboardCode);
             } else {
                 isControllerButtonPressed = isKeyboardButtonPressed(keyboardCode);
@@ -458,7 +460,7 @@ public class MegamanMaverick extends Game implements GameContext2d, MessageListe
         if (overlayScreen != null) {
             overlayScreen.render(delta);
         }
-        renderFPS();
+        // renderFPS();
         viewports.values().forEach(Viewport::apply);
     }
 

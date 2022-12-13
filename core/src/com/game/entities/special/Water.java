@@ -10,12 +10,15 @@ import com.game.GameContext2d;
 import com.game.assets.TextureAsset;
 import com.game.entities.Entity;
 import com.game.entities.decorations.WaterSprite;
+import com.game.graph.GraphComponent;
 import com.game.shapes.ShapeComponent;
 import com.game.shapes.ShapeHandle;
 import com.game.sprites.SpriteComponent;
 import com.game.sprites.SpriteProcessor;
 import com.game.world.BodyComponent;
 import com.game.world.Fixture;
+
+import java.util.List;
 
 import static com.badlogic.gdx.graphics.Color.BLUE;
 import static com.game.ViewVals.PPM;
@@ -29,7 +32,7 @@ public class Water extends Entity {
         Rectangle bounds = rectObj.getRectangle();
         addComponent(spriteComponent(gameContext, bounds));
         addComponent(bodyComponent(bounds));
-        // addComponent(shapeComponent(bounds));
+        addComponent(shapeComponent(bounds));
         int rows = (int) (bounds.height / PPM);
         int cols = (int) (bounds.width / PPM);
         for (int x = 0; x < cols; x++) {
@@ -54,6 +57,12 @@ public class Water extends Entity {
         shapeHandle.setShapeSupplier(() -> bounds);
         shapeComponent.addShapeHandle(shapeHandle);
         return shapeComponent;
+    }
+
+    protected GraphComponent graphComponent() {
+        GraphComponent graphComponent = new GraphComponent();
+        graphComponent.addSupplier(() -> getComponent(BodyComponent.class).getCollisionBox(), () -> List.of(this));
+        return graphComponent;
     }
 
     protected SpriteComponent spriteComponent(GameContext2d gameContext, Rectangle bounds) {

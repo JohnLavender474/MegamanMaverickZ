@@ -180,11 +180,12 @@
             <key type="filename">../Frames/Enemies1/Dragonfly.png</key>
             <key type="filename">../Frames/Enemies1/FlyPincher/Open.png</key>
             <key type="filename">../Frames/Enemies1/FlyPincher/Pinch.png</key>
+            <key type="filename">../Frames/Enemies1/GapingFish/Chomping.png</key>
+            <key type="filename">../Frames/Enemies1/GapingFish/Gaping.png</key>
+            <key type="filename">../Frames/Enemies1/GapingFish/Swimming.png</key>
             <key type="filename">../Frames/Enemies1/MagFly.png</key>
             <key type="filename">../Frames/Enemies1/Met/Run.png</key>
             <key type="filename">../Frames/Enemies1/Met/RunNaked.png</key>
-            <key type="filename">../Frames/Enemies1/PropFish/AgapeMouth.png</key>
-            <key type="filename">../Frames/Enemies1/PropFish/ClosedMouth.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>

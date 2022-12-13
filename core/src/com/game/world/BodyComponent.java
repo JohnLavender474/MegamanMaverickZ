@@ -66,7 +66,43 @@ public class BodyComponent extends Component {
     }
 
     /**
-     * If this body overlaps the other body.
+     * Get min x.
+     *
+     * @return min x
+     */
+    public float getMinX() {
+        return collisionBox.x;
+    }
+
+    /**
+     * Get max x.
+     *
+     * @return max x
+     */
+    public float getMaxX() {
+        return collisionBox.x + collisionBox.width;
+    }
+
+    /**
+     * Get min y.
+     *
+     * @return min y
+     */
+    public float getMinY() {
+        return collisionBox.y;
+    }
+
+    /**
+     * Get max y.
+     *
+     * @return max y
+     */
+    public float getMaxY() {
+        return collisionBox.y + collisionBox.height;
+    }
+
+    /**
+     * Return if this body overlaps the other body.
      *
      * @param o the other body
      * @return if this body overlaps the other body

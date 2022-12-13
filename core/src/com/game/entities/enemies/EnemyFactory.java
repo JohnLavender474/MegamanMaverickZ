@@ -17,16 +17,13 @@ public class EnemyFactory {
                                        Supplier<Megaman> megamanSupplier) {
         switch (spawnObj.getName()) {
             case "met" -> {
-                return () -> new Met(gameContext, megamanSupplier,
-                        bottomCenterPoint(spawnObj.getRectangle()));
+                return () -> new Met(gameContext, megamanSupplier, bottomCenterPoint(spawnObj.getRectangle()));
             }
             case "sniper_joe" -> {
-                return () -> new SniperJoe(gameContext, megamanSupplier,
-                        bottomCenterPoint(spawnObj.getRectangle()));
+                return () -> new SniperJoe(gameContext, megamanSupplier, bottomCenterPoint(spawnObj.getRectangle()));
             }
             case "suction_roller" -> {
-                return () -> new SuctionRoller(gameContext, megamanSupplier,
-                        bottomCenterPoint(spawnObj.getRectangle()));
+                return () -> new SuctionRoller(gameContext, megamanSupplier, bottomCenterPoint(spawnObj.getRectangle()));
             }
             case "floating_can" -> {
                 return () -> new SpawnLocation(gameContext, gameContext.getViewport(PLAYGROUND).getCamera(),
@@ -34,22 +31,22 @@ public class EnemyFactory {
                         bottomCenterPoint(spawnObj.getRectangle())));
             }
             case "bat" -> {
-                return () -> new Bat(gameContext, megamanSupplier,
-                        topCenterPoint(spawnObj.getRectangle()));
+                return () -> new Bat(gameContext, megamanSupplier, topCenterPoint(spawnObj.getRectangle()));
             }
             case "dragonfly" -> {
-                return () -> new Dragonfly(gameContext, megamanSupplier,
-                        centerPoint(spawnObj.getRectangle()));
+                return () -> new Dragonfly(gameContext, megamanSupplier, centerPoint(spawnObj.getRectangle()));
             }
             case "matasaburo" -> {
-                return () -> new Matasaburo(gameContext, megamanSupplier,
-                        bottomCenterPoint(spawnObj.getRectangle()));
+                return () -> new Matasaburo(gameContext, megamanSupplier, bottomCenterPoint(spawnObj.getRectangle()));
             }
             case "spring_head" -> {
                 return () -> new SpringHead(gameContext, megamanSupplier, spawnObj);
             }
             case "mag_fly" -> {
                 return () -> new MagFly(gameContext, megamanSupplier, centerPoint(spawnObj.getRectangle()));
+            }
+            case "gaping_fish" -> {
+                return () -> new GapingFish(gameContext, megamanSupplier, centerPoint(spawnObj.getRectangle()));
             }
             default -> throw new IllegalStateException("Cannot find matching entity for <" + spawnObj.getName() + ">");
         }

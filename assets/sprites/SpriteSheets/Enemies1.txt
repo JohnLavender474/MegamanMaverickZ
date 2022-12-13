@@ -1,5 +1,5 @@
 Enemies1.png
-size: 992, 72
+size: 1024, 72
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
@@ -68,21 +68,21 @@ FloatingCan
   index: -1
 FlyBoy/Fly
   rotate: false
-  xy: 824, 32
+  xy: 856, 32
   size: 80, 40
   orig: 80, 40
   offset: 0, 0
   index: -1
 FlyBoy/PrepareToFly
   rotate: false
-  xy: 904, 32
+  xy: 936, 32
   size: 40, 40
   orig: 40, 40
   offset: 0, 0
   index: -1
 FlyBoy/Stand
   rotate: false
-  xy: 944, 32
+  xy: 976, 32
   size: 40, 40
   orig: 40, 40
   offset: 0, 0
@@ -101,114 +101,121 @@ FlyPincher/Pinch
   orig: 64, 32
   offset: 0, 0
   index: -1
-LaserBeamer
+GapingFish/Chomping
   rotate: false
   xy: 672, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+GapingFish/Gaping
+  rotate: false
+  xy: 736, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+GapingFish/Swimming
+  rotate: false
+  xy: 800, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+LaserBeamer
+  rotate: false
+  xy: 864, 0
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 MagFly
   rotate: false
-  xy: 704, 0
+  xy: 896, 0
   size: 64, 32
   orig: 64, 32
   offset: 0, 0
   index: -1
 Matasaburo
   rotate: false
-  xy: 608, 32
+  xy: 640, 32
   size: 216, 36
   orig: 216, 36
   offset: 0, 0
   index: -1
 Met/GetUp
   rotate: false
-  xy: 768, 0
+  xy: 960, 0
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 Met/LayDown
   rotate: false
-  xy: 800, 0
+  xy: 992, 0
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 Met/PopUp
   rotate: false
-  xy: 832, 0
+  xy: 0, 32
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 Met/Run
   rotate: false
-  xy: 864, 0
+  xy: 32, 32
   size: 64, 32
   orig: 64, 32
   offset: 0, 0
   index: -1
 Met/RunNaked
   rotate: false
-  xy: 928, 0
+  xy: 96, 32
   size: 64, 32
   orig: 64, 32
   offset: 0, 0
   index: -1
 Met/StandNaked
   rotate: false
-  xy: 0, 32
-  size: 32, 32
-  orig: 32, 32
-  offset: 0, 0
-  index: -1
-PropFish/AgapeMouth
-  rotate: false
-  xy: 32, 32
-  size: 64, 32
-  orig: 64, 32
-  offset: 0, 0
-  index: -1
-PropFish/ClosedMouth
-  rotate: false
-  xy: 96, 32
-  size: 64, 32
-  orig: 64, 32
-  offset: 0, 0
-  index: -1
-SniperJoe/Shielded
-  rotate: false
   xy: 160, 32
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
-SniperJoe/Shooting
+SniperJoe/Shielded
   rotate: false
   xy: 192, 32
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
-SpringHead/Compressed
+SniperJoe/Shooting
   rotate: false
   xy: 224, 32
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
-SpringHead/Unleashed
+SpringHead/Compressed
   rotate: false
   xy: 256, 32
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+SpringHead/Unleashed
+  rotate: false
+  xy: 288, 32
   size: 192, 32
   orig: 192, 32
   offset: 0, 0
   index: -1
 SuctionRoller
   rotate: false
-  xy: 448, 32
+  xy: 480, 32
   size: 160, 32
   orig: 160, 32
   offset: 0, 0
